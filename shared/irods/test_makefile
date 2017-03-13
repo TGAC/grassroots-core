@@ -1,0 +1,71 @@
+SRC_FILES = test.c \
+	src/connect.c \
+	src/user.c \
+	src/query.c \
+	src/meta_search.c \
+	../../util/src/byte_buffer.c \
+	../../util/src/string_utils.c \
+	../../util/src/containers/linked_list.c \
+	../../util/src/containers/string_linked_list.c \
+	../../util/src/io/streams.c \
+	../../util/src/io/file_output_stream.c \
+	../../util/src/resource.c \
+	../../util/src/schema_keys.c
+	
+
+INCLUDE_PATHS = \
+	/home/billy/Projects/grassroots/shared/src/irods/lib/include \
+	/home/billy/Projects/grassroots/shared/src/util/include \
+	/home/billy/Projects/grassroots/shared/src/util/include/containers \
+	/home/billy/Projects/grassroots/shared/src/util/include/io \
+	/home/billy/Projects/grassroots/shared/src/network/include \
+	/home/billy/Projects/grassroots/server/src/services/lib/include \
+	/home/billy/Applications/grassroots-0/grassroots/extras/jansson/include \
+	/home/billy/Applications/grassroots-0/grassroots/extras/libuuid/include \
+	/usr/include/irods
+
+LIB_PATHS = \
+	/home/billy/Applications/grassroots-0/grassroots/extras/jansson/lib \
+	/home/billy/Applications/grassroots-0/grassroots/extras/libuuid/lib \
+	/home/billy/Applications/boost_1_58_0g/lib
+	
+LIBS = \
+	dl \
+	irods_client_core    \
+	irods_client_api \
+	irods_client_api_table \
+	irods_client_plugins \
+	jansson \
+	uuid \
+	curl-gnutls \
+	m                \
+	pthread          \
+	crypto           \
+	stdc++           \
+	boost_system     \
+	boost_filesystem \
+	boost_regex      \
+	boost_thread     \
+	boost_chrono     \
+	boost_program_options \
+	ssl              		
+
+CFLAGS +=                              \
+	-DUNIX \
+	$(addprefix -I, $(INCLUDE_PATHS))
+
+LDFLAGS +=                           \
+	$(addprefix -l, $(LIBS))     \
+	$(addprefix -L, $(LIB_PATHS))
+	
+	
+%.o: %.c
+	echo "compiling $<" 
+	$(CC) -c $(CFLAGS) $(CPPFLAGS)  -DLINUX -D_REENTRANT -D_GNU_SOURCE $< -o $@
+	
+OBJ_FILES = $(SRC_FILES:%.c=%.o)
+	
+	
+test: $(OBJ_FILES)	
+	gcc -o test $(OBJ_FILES) $(LDFLAGS)
+	
