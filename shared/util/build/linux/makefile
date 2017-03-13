@@ -94,7 +94,7 @@ LDFLAGS += -ldl \
 
 #STATIC_LIBS += $(DIR_IRODS)/lib/core/obj/libRodsAPIs.a
 
-include $(DIR_BUILD_ROOT)/generic_makefiles/shared_library.makefile
+include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile
 
 .PHONY:	util all test
 

@@ -57,7 +57,7 @@ CPPFLAGS += -DGRASSROOTS_NETWORK_LIBRARY_EXPORTS -I/usr/include -I/usr/local/inc
 LDFLAGS += $(BASE_LDFLAGS)
 
 
-include $(DIR_BUILD_ROOT)/generic_makefiles/shared_library.makefile
+include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile
 
 .PHONY:	test test_install network
 

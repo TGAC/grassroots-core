@@ -72,5 +72,5 @@ ifeq ($(IRODS_ENABLED), 1)
 LDFLAGS += -L$(DIR_GRASSROOTS_IRODS_LIB) -l$(GRASSROOTS_IRODS_LIB_NAME) $(IRODS_EXTRA_LIBS)
 endif
 
-include $(DIR_ROOT)/generic_makefiles/shared_library.makefile	
+include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile	
 
