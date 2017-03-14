@@ -1,3 +1,21 @@
+NAME 		= grassroots_irods
+DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
+DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
+MAKEDEPEND 	:= gcc -MM -MF
+
+
+ifeq ($(DIR_BUILD_UTILS),)
+export DIR_BUILD_UTILS := $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+endif
+ifneq ($(PROPERTIES_SET),1)
+include $(DIR_ROOT)/project.properties
+endif
+
+export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
+
+BUILD		= debug
+
 
 ifeq ($(IRODS_ENABLED),1)
 
@@ -74,3 +92,8 @@ install_service_irods_search:
 	echo "**** Skip running install_service_irods_search as IRODS_ENABLED != 1, $(IRODS_ENABLED)" 
 
 endif		# ifeq ($(IRODS_ENABLED),1)
+
+
+clean:
+	@rm -fr $(BUILD)/
+

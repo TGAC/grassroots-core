@@ -3,13 +3,11 @@ EXE_NAME = server
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
-COMP		:= gcc
-LINK		:= ld
 MAKEDEPEND 	:= gcc -MM -MF
 
 
 ifeq ($(DIR_BUILD_UTILS),)
-export DIR_BUILD_UTILS := $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+export DIR_BUILD_UTILS := $(realpath $(DIR_BUILD)/../../../../build_utils/linux)
 endif
 ifneq ($(PROPERTIES_SET),1)
 include $(DIR_ROOT)/project.properties
@@ -66,11 +64,11 @@ CPPFLAGS += -DDRMAA_ENABLED=1
 endif
 
 
-include $(DIR_ROOT)/irods.mk
+#include $(DIR_ROOT)/irods.mk
 
-ifeq ($(IRODS_ENABLED), 1)
-LDFLAGS += -L$(DIR_GRASSROOTS_IRODS_LIB) -l$(GRASSROOTS_IRODS_LIB_NAME) $(IRODS_EXTRA_LIBS)
-endif
+#ifeq ($(IRODS_ENABLED), 1)
+#LDFLAGS += -L$(DIR_GRASSROOTS_IRODS_LIB) -l$(GRASSROOTS_IRODS_LIB_NAME) $(IRODS_EXTRA_LIBS)
+#endif
 
 include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile	
 
