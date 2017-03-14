@@ -1,18 +1,16 @@
 NAME 		= grassroots_params
-DIR_SRC = $(DIR_GRASSROOTS_PARAMS)/src
-DIR_INCLUDE = $(DIR_GRASSROOTS_PARAMS_INC)
+DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
+DIR_INCLUDE :=$(realpath $(DIR_BUILD)/../../include)
 COMP		= gcc
 LINK		= ld
 MAKEDEPEND 	= gcc -MM -MF
 
 
-ifeq ($(DIR_ROOT),)
-export DIR_ROOT = $(realpath $(../..))
+ifeq ($(DIR_BUILD_UTILS),)
+export DIR_BUILD_UTILS = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
 endif
-
-ifneq ($(PROPERTIES_SET),1)
-include $(DIR_BUILD_ROOT)/project.properties
-endif
+include $(DIR_BUILD_UTILS)/project.properties
 
 export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 
@@ -21,7 +19,7 @@ export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 BUILD		= debug
 
 VPATH	= \
-	$(DIR_SRC) \
+	$(DIR_SRC) 
 
 INCLUDES = \
 	-I$(DIR_INCLUDE) \
@@ -61,10 +59,9 @@ else
 	LDFLAGS += -pg
 	CPPFLAGS += -D_DEBUG
 endif
-	
+
 
 include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile
-
 
 
 

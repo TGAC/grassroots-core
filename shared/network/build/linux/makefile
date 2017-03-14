@@ -1,18 +1,16 @@
 NAME 		= grassroots_network
-DIR_SRC = $(DIR_GRASSROOTS_NETWORK)/src
-DIR_INCLUDE = $(DIR_GRASSROOTS_NETWORK_INC)
-COMP		= g++
+DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
+DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
+COMP		= gcc
+LINK		= ld
 MAKEDEPEND 	= gcc -MM -MF
 
 
-
-ifeq ($(DIR_ROOT),)
-export DIR_ROOT = $(realpath $(..))
+ifeq ($(DIR_BUILD_UTILS),)
+export DIR_BUILD_UTILS = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
 endif
-
-ifneq ($(PROPERTIES_SET),1)
-include $(DIR_BUILD_ROOT)/project.properties
-endif
+include $(DIR_BUILD_UTILS)/project.properties
 
 export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 
