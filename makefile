@@ -1,24 +1,16 @@
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
-ifeq ($(DIR_BUILD_UTILS),)
-export DIR_BUILD_UTILS := $(realpath $(DIR_BUILD)/../build_utils/linux)
-endif
-ifneq ($(PROPERTIES_SET),1)
-include $(DIR_BUILD_UTILS)/project.properties
-endif
-
-
 COPY	:= cp 
 DELETE := rm
 
 #export DIR_SERVER_ROOT_BUILD = $(DIR_SERVER_BUILD_ROOT)/server
 #export DIR_SERVER_ROOT_SRC = $(DIR_SERVER_SRC_ROOT)/server
 
-ifeq ($(DIR_BUILD_UTILS),)
-export DIR_BUILD_UTILS := $(realpath ../../build_utils/linux)
+ifeq ($(DIR_BUILD_CONFIG),)
+export DIR_BUILD_CONFIG := $(realpath ../build_config/linux)
 endif
 
-include $(DIR_BUILD_UTILS)/project.properties
+include $(DIR_BUILD_CONFIG)/project.properties
 
 -include drmaa.properties
 
