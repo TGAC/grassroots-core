@@ -1,13 +1,17 @@
-DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+DIR_CORE :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 COPY	:= cp 
 DELETE := rm
 
-#export DIR_SERVER_ROOT_BUILD = $(DIR_SERVER_BUILD_ROOT)/server
-#export DIR_SERVER_ROOT_SRC = $(DIR_SERVER_SRC_ROOT)/server
+export DIR_SHARED_ROOT := $(DIR_CORE)/shared
+export DIR_SERVER_ROOT := $(DIR_CORE)/server
+export DIR_CLIENT_ROOT := $(DIR_CORE)/client
+
+
+
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG := $(realpath ../build_config/linux)
+export DIR_BUILD_CONFIG := $(realpath ../build-config/linux)
 endif
 
 include $(DIR_BUILD_CONFIG)/project.properties
@@ -15,13 +19,7 @@ include $(DIR_BUILD_CONFIG)/project.properties
 -include drmaa.properties
 
 
-#ifdef build_drmaa_flag
-drmaa: lib_util lib_network lib_parameters lib_irods lib_handler lib_services
-	@echo "DRMAA_IMPLEMENTATION_NAME $(DRMAA_IMPLEMENTATION_NAME)"
-	@echo "DRMAA_IMPLEMENTATION_LIB_NAME $(DRMAA_IMPLEMENTATION_LIB_NAME)"
-	@echo "DIR_DRMAA_IMPLEMENTATION_LIB $(DIR_DRMAA_IMPLEMENTATION_LIB)"
-	@echo "DIR_DRMAA_IMPLEMENTATION_INC $(DIR_DRMAA_IMPLEMENTATION_INC)"
-#endif
+
 
 
 # SLURM DRMAA
