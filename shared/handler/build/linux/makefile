@@ -1,14 +1,8 @@
 NAME 		= grassroots_handler
-DIR_SRC = $(DIR_GRASSROOTS_HANDLER)/src
-DIR_INCLUDE = $(DIR_GRASSROOTS_HANDLER_INC)
-COMP		= g++
-LINK		= ld
-MAKEDEPEND 	= g++ -MM -MF
+DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
+DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
-
-ifeq ($(DIR_ROOT),)
-export DIR_ROOT = $(realpath $(..))
-endif
 
 ifneq ($(PROPERTIES_SET),1)
 include $(DIR_BUILD_ROOT)/project.properties
@@ -44,8 +38,8 @@ LDFLAGS = -lpthread -L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) 
 
 
--include $(DIR_BUILD_UTILS)/irods.mk
+-include $(DIR_BUILD_CONFIG)/irods.mk
 
-include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile
+include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
 

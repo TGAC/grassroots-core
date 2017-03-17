@@ -2,45 +2,14 @@ NAME 		= grassroots_irods
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
-MAKEDEPEND 	:= gcc -MM -MF
 
 
-ifeq ($(DIR_BUILD_UTILS),)
-export DIR_BUILD_UTILS := $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+ifeq ($(DIR_BUILD_CONFIG),)
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
 endif
-ifneq ($(PROPERTIES_SET),1)
-include $(DIR_ROOT)/project.properties
-endif
+include $(DIR_BUILD_CONFIG)/project.properties
 
 export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
-
-BUILD		= debug
-
-
-ifeq ($(IRODS_ENABLED),1)
-
-lib_irods:
-	$(MAKE) -C $(DIR_GRASSROOTS_IRODS_BUILD)
-
-install_lib_irods:	lib_irods
-	$(MAKE) -C $(DIR_GRASSROOTS_IRODS_BUILD) install
-
-handler_irods:
-	$(MAKE) -C $(DIR_HANDLER_ROOT_BUILD)/irods
-
-install_handler_irods: handler_irods
-	$(MAKE) -C $(DIR_HANDLER_ROOT_BUILD)/irods install
-
-service_irods_search: 
-	$(MAKE) -C $(DIR_SERVICES_ROOT)/irods_search
-
-install_service_irods_search: service_irods_search
-	$(MAKE) -C $(DIR_SERVICES_ROOT)/irods_search install
-
-#############################
-######### END IRODS #########
-#############################
-
 
 # Add in the appropriate irods libs and dependencies
 IRODS_VERSION_MAJOR := $(shell echo $(IRODS_VERSION) | cut -f1 -d ".")
@@ -68,32 +37,35 @@ LIBPATHS = \
 endif		# ifeq ($(IRODS_GT_4_2), true)
 
 
+
+
+VPATH	= \
+	$(DIR_SRC) 
+
+INCLUDES += \
+	-I$(DIR_INCLUDE) \
+	-I$(DIR_GRASSROOTS_HANDLER_INC) \
+	-I$(DIR_GRASSROOTS_UTIL_INC) \
+	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
+	-I$(DIR_GRASSROOTS_UTIL_INC)/io \
+	-I$(DIR_GRASSROOTS_NETWORK_INC) \
+	-I$(DIR_GRASSROOTS_SERVER_INC) \
+	-I$(DIR_GRASSROOTS_SERVICES_INC) \
+	-I$(DIR_JANSSON_INC) \
+	-I$(DIR_UUID_INC) \
+	-I$(DIR_IRODS_INC)
+	
+SRCS 	= \
+	connect.c \
+	meta_search.c \
+	query.c \
+	user.c \
+
+CPPFLAGS += -DUNIX -DIRODS_UTIL_LIBRARY_EXPORTS
+
+
 CFLAGS += -DIRODS_ENABLED=1 
 
 
-else
-
-lib_irods:	
-	echo "**** Skip building lib_irods as IRODS_ENABLED != 1, $(IRODS_ENABLED)" 
-
-install_lib_irods:	
-	echo "**** Skip running install_lib_irods as IRODS_ENABLED != 1, $(IRODS_ENABLED)" 
-
-handler_irods:
-	echo "**** Skip building handler_irods as IRODS_ENABLED != 1, $(IRODS_ENABLED)" 
-
-install_handler_irods:
-	echo "**** Skip running install_handler_irods as IRODS_ENABLED != 1, $(IRODS_ENABLED)" 
-
-service_irods_search:
-	echo "**** Skip building service_irods_search as IRODS_ENABLED != 1, $(IRODS_ENABLED)" 
-
-install_service_irods_search:
-	echo "**** Skip running install_service_irods_search as IRODS_ENABLED != 1, $(IRODS_ENABLED)" 
-
-endif		# ifeq ($(IRODS_ENABLED),1)
-
-
-clean:
-	@rm -fr $(BUILD)/
+include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 

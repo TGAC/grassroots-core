@@ -3,11 +3,10 @@ EXE_NAME = server
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
-MAKEDEPEND 	:= gcc -MM -MF
 
 
-ifeq ($(DIR_BUILD_UTILS),)
-export DIR_BUILD_UTILS := $(realpath $(DIR_BUILD)/../../../../build_utils/linux)
+ifeq ($(DIR_BUILD_CONFIG),)
+export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../build_utils/linux)
 endif
 ifneq ($(PROPERTIES_SET),1)
 include $(DIR_ROOT)/project.properties
@@ -70,5 +69,5 @@ endif
 #LDFLAGS += -L$(DIR_GRASSROOTS_IRODS_LIB) -l$(GRASSROOTS_IRODS_LIB_NAME) $(IRODS_EXTRA_LIBS)
 #endif
 
-include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile	
+include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile	
 

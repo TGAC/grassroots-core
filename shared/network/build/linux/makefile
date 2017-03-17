@@ -2,15 +2,12 @@ NAME 		= grassroots_network
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
-COMP		= gcc
-LINK		= ld
-MAKEDEPEND 	= gcc -MM -MF
 
 
-ifeq ($(DIR_BUILD_UTILS),)
-export DIR_BUILD_UTILS = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+ifeq ($(DIR_BUILD_CONFIG),)
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
 endif
-include $(DIR_BUILD_UTILS)/project.properties
+include $(DIR_BUILD_CONFIG)/project.properties
 
 export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 
@@ -55,7 +52,7 @@ CPPFLAGS += -DGRASSROOTS_NETWORK_LIBRARY_EXPORTS -I/usr/include -I/usr/local/inc
 LDFLAGS += $(BASE_LDFLAGS)
 
 
-include $(DIR_BUILD_UTILS)/generic_makefiles/shared_library.makefile
+include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
 .PHONY:	test test_install network
 
