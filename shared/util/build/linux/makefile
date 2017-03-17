@@ -1,8 +1,7 @@
-NAME 		= grassroots_util
+NAME := grassroots_util
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
-DIR_INCLUDE :=$(realpath $(DIR_BUILD)/../../include)
-
+DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
 ifeq ($(DIR_BUILD_CONFIG),)
 export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
@@ -12,17 +11,16 @@ include $(DIR_BUILD_CONFIG)/project.properties
 
 export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 
+BUILD		:= debug
 
-BUILD		= debug
-
-VPATH	= \
+VPATH	:= \
 	$(DIR_SRC) \
 	$(DIR_SRC)/containers \
 	$(DIR_SRC)/io \
 	$(DIR_SRC)/platform \
 	
 
-INCLUDES = \
+INCLUDES := \
 	-I$(DIR_INCLUDE) \
 	-I$(DIR_INCLUDE)/containers \
 	-I$(DIR_INCLUDE)/io \
@@ -40,7 +38,7 @@ INCLUDES = \
 	-I$(DIR_GRASSROOTS_NETWORK_INC) \
 	-I$(DIR_PCRE_INC)
 	
-SRCS 	= \
+SRCS 	:= \
 	alloc_failure.cpp \
 	byte_buffer.c \
 	file_output_stream.c \
@@ -90,15 +88,11 @@ LDFLAGS += -ldl \
 	-L$(DIR_UUID_LIB) -luuid \
 	-L$(DIR_PCRE_LIB) -lpcre
 
-#STATIC_LIBS += $(DIR_IRODS)/lib/core/obj/libRodsAPIs.a
-
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
 .PHONY:	util all test
 
-
 util: all
-
 
 test:
 	$(COMP) $(CFLAGS) $(CPPFLAGS) -Wl,--no-as-needed -L$(DIR_OBJS)/ -l$(NAME) -lm  $(INCLUDES)  test.c -o test

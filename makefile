@@ -1,13 +1,7 @@
-DIR_CORE :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+export DIR_CORE :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 COPY	:= cp 
 DELETE := rm
-
-export DIR_SHARED_ROOT := $(DIR_CORE)/shared
-export DIR_SERVER_ROOT := $(DIR_CORE)/server
-export DIR_CLIENT_ROOT := $(DIR_CORE)/client
-
-
 
 
 ifeq ($(DIR_BUILD_CONFIG),)

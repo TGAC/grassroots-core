@@ -1,25 +1,25 @@
-NAME 		= grassroots_network
+NAME := grassroots_network
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
-
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
 endif
+
 include $(DIR_BUILD_CONFIG)/project.properties
 
-export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
+export DIR_INSTALL := $(DIR_GRASSROOTS_INSTALL)/lib
 
 TEST_EXE_NAME = network_test
 
-BUILD		= debug
+BUILD	:= debug
 
-VPATH	= \
+VPATH	:= \
 	$(DIR_SRC) 
 	
 
-INCLUDES = \
+INCLUDES := \
 	-I$(DIR_INCLUDE) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
@@ -32,7 +32,7 @@ INCLUDES = \
 	-I$(DIR_UUID_INC) \
 	-I$(DIR_PCRE_INC)	
 	
-SRCS 	= \
+SRCS 	:= \
 	connection.c \
 	curl_tools.c \
 	json_tools.c \
@@ -41,13 +41,13 @@ SRCS 	= \
 	selector.cpp
 	
 
-BASE_LDFLAGS = -ldl -L$(DIR_JANSSON_LIB) -ljansson \
+BASE_LDFLAGS := -ldl -L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_HCXSELECT_LIB) -lhcxselect \
 	-L$(DIR_HTMLCXX_LIB) -lhtmlcxx \
 
 	
-CPPFLAGS += -DGRASSROOTS_NETWORK_LIBRARY_EXPORTS -I/usr/include -I/usr/local/include -I$(DIR_HTMLCXX_INC)
+CPPFLAGS += -DGRASSROOTS_NETWORK_LIBRARY_EXPORTS  -I$(DIR_HTMLCXX_INC)
 
 LDFLAGS += $(BASE_LDFLAGS)
 

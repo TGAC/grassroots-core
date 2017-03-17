@@ -1,21 +1,22 @@
-NAME 		= grassroots_handler
+NAME 		:= grassroots_handler
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
-
-ifneq ($(PROPERTIES_SET),1)
-include $(DIR_BUILD_ROOT)/project.properties
+ifeq ($(DIR_BUILD_CONFIG),)
+export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
 endif
 
-export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
+include $(DIR_BUILD_CONFIG)/project.properties
 
-BUILD		= debug
+export DIR_INSTALL := $(DIR_GRASSROOTS_INSTALL)/lib
 
-VPATH	= \
+BUILD		:= debug
+
+VPATH	:= \
 	$(DIR_SRC) 
 
-INCLUDES = \
+INCLUDES := \
 	-I$(DIR_INCLUDE) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
@@ -27,13 +28,13 @@ INCLUDES = \
 	-I$(DIR_JANSSON_INC) \
 	-I$(DIR_UUID_INC)
 	
-SRCS 	= \
+SRCS 	:= \
 	handler_utils.c \
 	handler.c
 
 CPPFLAGS += -DGRASSROOTS_HANDLELIBRARY_EXPORTS
 
-LDFLAGS = -lpthread -L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
+LDFLAGS := -lpthread -L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) 
 
