@@ -5,7 +5,7 @@ DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
 endif
 
 
