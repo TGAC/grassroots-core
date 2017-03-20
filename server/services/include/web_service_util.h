@@ -221,7 +221,7 @@ GRASSROOTS_SERVICE_API bool AddParametersToBodyWebService (WebServiceData *data_
  * @param credentials_p Any user credentials.
  * @return The resultant ServiceJobSet or <code>NULL</code> upon error.
  */
-GRASSROOTS_SERVICE_API ServiceJobSet *RunWebSearchService (Service *service_p, ParameterSet *param_set_p, json_t *credentials_p);
+//GRASSROOTS_SERVICE_API ServiceJobSet *RunWebSearchService (Service *service_p, ParameterSet *param_set_p, json_t *credentials_p);
 
 
 /**
