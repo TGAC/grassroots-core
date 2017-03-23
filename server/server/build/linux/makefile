@@ -36,6 +36,7 @@ INCLUDES = \
 	-I$(DIR_BSON_INC) \
 	
 SRCS 	= \
+	audit.c \
 	jobs_manager.c \
 	server.c \
 	system_util.c \
