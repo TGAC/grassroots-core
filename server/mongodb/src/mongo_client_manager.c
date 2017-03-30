@@ -143,7 +143,7 @@ void ExitMongoClientManager (void)
 }
 
 
-void *GetMongoClientFromMongoClientManager (void)
+mongoc_client_t *GetMongoClientFromMongoClientManager (void)
 {
 	mongoc_client_t *client_p = NULL;
 
