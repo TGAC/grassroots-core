@@ -30,6 +30,7 @@
 #include "mongodb_util.h"
 #include "json_util.h"
 #include "search_options.h"
+#include "mongo_client_manager.h"
 
 
 static bool AddSimpleTypeToQuery (bson_t *query_p, const char *key_s, const json_t *value_p);
@@ -41,6 +42,9 @@ static bool AddSearchOptions (bson_t *query_p, const json_t *options_p);
 
 
 static int CompareStrings (const void *v0_p, const void *v1_p);
+
+
+
 
 
 #ifdef _DEBUG
@@ -57,7 +61,7 @@ MongoTool *AllocateMongoTool (void)
 
 	if (tool_p)
 		{
-			mongoc_client_t *client_p = GetMongoClient ();
+			mongoc_client_t *client_p = GetMongoClientFromMongoClientManager ();
 
 			if (client_p)
 				{
@@ -93,7 +97,7 @@ void FreeMongoTool (MongoTool *tool_p)
 
 	if (tool_p -> mt_client_p)
 		{
-			ReleaseMongoClient (tool_p -> mt_client_p);
+			ReleaseMongoClientFromMongoClientManager (tool_p -> mt_client_p);
 		}
 
 	FreeMemory (tool_p);

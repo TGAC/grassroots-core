@@ -56,7 +56,9 @@ INCLUDES := \
 	-I$(DIR_JANSSON_INC)
 	
 SRCS 	= \
-	mongodb_tool.c
+	mongo_client_manager.c \
+	mongodb_tool.c \
+	mongodb_util.c
 	
 
 BASE_LDFLAGS = -ldl \
