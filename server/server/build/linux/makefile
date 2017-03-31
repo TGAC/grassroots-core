@@ -30,6 +30,7 @@ INCLUDES = \
 	-I$(DIR_GRASSROOTS_HANDLER_INC) \
 	-I$(DIR_GRASSROOTS_PARAMS_INC) \
 	-I$(DIR_GRASSROOTS_DRMAA_INC) \
+	-I$(DIR_GRASSROOTS_MONGODB_INC) \
 	-I$(DIR_JANSSON_INC) \
 	-I$(DIR_UUID_INC) \
 	-I$(DIR_MONGODB_INC) \
@@ -41,9 +42,8 @@ SRCS 	= \
 	server.c \
 	system_util.c \
 	servers_pool.c \
-	grassroots_config.c \
-	mongodb_util.c
-
+	grassroots_config.c 
+	
 CPPFLAGS += -DGRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS 
 
 LDFLAGS = -lpthread -L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
