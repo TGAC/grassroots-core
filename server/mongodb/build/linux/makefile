@@ -13,30 +13,6 @@ include $(DIR_BUILD_CONFIG)/project.properties
 export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 
 
-
-# BEGIN MONGODB CONFIGURATION
-ifneq ($(MONGODB_HOME),)
-DIR_MONGODB := $(MONGODB_HOME)
-else
-DIR_MONGODB := /usr/local
-endif
-export DIR_MONGODB_INC := $(DIR_MONGODB)/include/libmongoc-1.0
-export DIR_MONGODB_LIB := $(DIR_MONGODB)/lib
-# END MONGODB CONFIGURATION
-
-
-# BEGIN BSON CONFIGURATION
-ifneq ($(BSON_HOME),)
-DIR_BSON := $(BSON_HOME)
-else
-DIR_BSON := /usr/local
-endif
-export DIR_BSON_INC := $(DIR_BSON)/include/libbson-1.0
-export DIR_BSON_LIB := $(DIR_BSON)/lib
-# END BSON CONFIGURATION
-
-
-
 BUILD		:= debug
 
 VPATH	:= \

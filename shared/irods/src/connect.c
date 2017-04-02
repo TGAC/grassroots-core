@@ -68,7 +68,7 @@ IRodsConnection *CreateIRodsConnectionFromJSON (UserDetails *user_p)
 {
 	IRodsConnection *connection_p = NULL;
 
-	const UserAuthentication *auth_p = NULL; //GetUserAuthenticationForSystem (user_p, "irods");
+	const UserAuthentication *auth_p = GetUserAuthenticationForSystem (user_p, "irods");
 
 	if (auth_p)
 		{
