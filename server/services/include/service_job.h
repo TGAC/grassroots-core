@@ -110,6 +110,8 @@ typedef struct ServiceJob
 	void (*sj_free_fn) (struct ServiceJob *job_p);
 
 
+	bool sj_is_updating_flag;
+
 } ServiceJob;
 
 

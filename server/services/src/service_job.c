@@ -196,6 +196,8 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 					job_p -> sj_update_fn = update_fn;
 					job_p -> sj_free_fn = free_job_fn;
 
+					job_p -> sj_is_updating_flag = false;
+
 					#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
 						{
 							char uuid_s [UUID_STRING_BUFFER_SIZE];
@@ -1496,7 +1498,25 @@ bool AddErrorToServiceJob (ServiceJob *job_p, const char * const key_s, const ch
 
 bool UpdateServiceJob (ServiceJob *job_p)
 {
-	return ((job_p -> sj_update_fn) ? (job_p -> sj_update_fn (job_p)) : true);
+	bool success_flag = true;
+
+	/*
+	 * Make sure we are not in a recursive loop
+	 * calling UpdateServiceJob
+	 */
+	if (! (job_p -> sj_is_updating_flag))
+		{
+			if (job_p -> sj_update_fn)
+				{
+					job_p -> sj_is_updating_flag = true;
+
+					success_flag = job_p -> sj_update_fn (job_p);
+
+					job_p -> sj_is_updating_flag = false;
+				}
+		}
+
+	return success_flag;
 }
 
 
@@ -1612,8 +1632,8 @@ static bool AddResultEntryToServiceJob (ServiceJob *job_p, json_t **results_pp, 
 		}		/* if (job_p -> sj_result_p) */
 
 	return success_flag;
-
-
 }
+
+
 
 

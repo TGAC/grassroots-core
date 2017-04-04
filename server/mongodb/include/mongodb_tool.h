@@ -226,51 +226,6 @@ GRASSROOTS_MONGODB_API bson_oid_t *InsertJSONIntoMongoCollection (MongoTool *too
 
 
 /**
- * Create a new BSON fragment from a given JSON one.
- *
- * @param json_p The JSON fragment to convert to BSON.
- * @return The BSON fragment or <code>NULL</code> upon error.
- */
-GRASSROOTS_MONGODB_API bson_t *ConvertJSONToBSON (const json_t *json_p);
-
-
-/**
- * Create a new JSON fragment from a given BSON one.
- *
- * @param bson_p The BSON fragment to convert to JSON.
- * @return The JSON fragment or <code>NULL</code> upon error.
- */
-GRASSROOTS_MONGODB_API json_t *ConvertBSONToJSON (const bson_t *bson_p);
-
-
-/**
- * Create a BSON object from the given id and use it to update some MongoDB documents.
- *
- * @param tool_p The MongoTool that will update the MongoDB documents.
- * @param id_p The id to update the MongoDB documents with.
- * @param json_p The update statement specifying the update operation to perform.
- * @return <code>true</code> if the MongoDB documents were updated successfully,
- * <code>false</code> otherwise.
- * @memberof MongoTool
- * @see UpdateMongoDocumentByBSON
- */
-GRASSROOTS_MONGODB_API bool UpdateMongoDocument (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p);
-
-
-/**
- * Update some MongoDB documents.
- *
- * @param tool_p The MongoTool that will update the MongoDB documents.
- * @param query_p The query used to choose the MongoDB documents that will be updated.
- * @param update_p The update statement specifying the update operation to perform.
- * @return <code>true</code> if the MongoDB documents were updated successfully,
- * <code>false</code> otherwise.
- * @memberof MongoTool
- */
-GRASSROOTS_MONGODB_API bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p);
-
-
-/**
  * Update some MongoDB documents.
  *
  * @param tool_p The MongoTool that will update the MongoDB documents.
