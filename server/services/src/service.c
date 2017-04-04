@@ -1081,21 +1081,19 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 
 																	if (b)
 																		{
-																			const char *icon_data_s = GetServiceIconData (service_name_s);
+																			char *icon_data_s = GetServiceIconData (service_name_s);
 
 																			if (icon_data_s)
 																				{
-																					if (json_object_set_new (service_p, OPERATION_ICON_DATA_S, json_string (icon_data_s)) != 0)
+																					if (json_object_set_new (operation_p, OPERATION_ICON_DATA_S, json_string (icon_data_s)) != 0)
 																						{
-
+																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon data for service \"%s\"", service_name_s);
 																						}
 
 																					FreeCopiedString (icon_data_s);
 																				}		/* if (icon_data_s) */
 
 																			AddOperationInformationURIToJSON (service_p, operation_p);
-
-
 
 																			success_flag = true;
 																		}		/* if (b) */
