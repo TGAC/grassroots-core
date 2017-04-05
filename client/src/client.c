@@ -265,9 +265,21 @@ void GetAllServicesInClient (Client *client_p, UserDetails *user_p)
 
 			if (response_p)
 				{
+					SchemaVersion *server_schema_p = NULL;
 					json_t *run_services_response_p = NULL;
+					json_t *header_p = json_object_get (response_p, HEADER_S);
 
-					SchemaVersion *server_schema_p = GetSchemaVersionFromJSON (response_p);
+					/* Get the schema version used */
+					if (header_p)
+						{
+							json_t *schema_p = json_object_get (header_p, SCHEMA_S);
+
+							if (schema_p)
+								{
+									server_schema_p = GetSchemaVersionFromJSON (schema_p);
+								}
+						}
+
 
 					if (server_schema_p)
 						{

@@ -51,7 +51,7 @@ int32 CreateProcess (char *command_s, char **environment_ss, const char * const 
 
 	if (logfile_s)
 		{
-			posix_spawn_file_actions_init (&actions);
+			res = posix_spawn_file_actions_init (&actions);
 
 			if (res == 0)
 				{
@@ -68,18 +68,20 @@ int32 CreateProcess (char *command_s, char **environment_ss, const char * const 
 						}
 					else
 						{
-
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add logfile \"%s\" to process with command line \"%s\"", logfile_s, command_s);
 						}
-
 				}
 			else
 				{
-
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to initialise actions for process with command line \"%s\"", command_s);
 				}
-
 		}
 
 	res = posix_spawn (&pid, program_s, actions_p, NULL, args_ss, environment_ss);
+	if (res != 0)
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to launch process with command line \"%s\"", command_s);
+		}
 
 	return (int32) pid;
 }
