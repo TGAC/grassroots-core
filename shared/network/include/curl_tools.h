@@ -208,7 +208,7 @@ GRASSROOTS_NETWORK_API bool SetCurlToolForJSONPost (CurlTool *tool_p);
  * @brief Get the downloaded data from a CurlTool.
  *
  * If the CurlTool has been run successfully, this will get a read-only
- * version of the downloaded data. <code>RunCurlTool</code> must have been
+ * version of the downloaded data. RunCurlTool() must have been
  * run prior to this.
  * @param tool_p The CurlTool to get the data from.
  * @return The downloaded data or <code>NULL</code> upon error.
@@ -216,6 +216,21 @@ GRASSROOTS_NETWORK_API bool SetCurlToolForJSONPost (CurlTool *tool_p);
  * @memberof CurlTool
  */
 GRASSROOTS_NETWORK_API const char *GetCurlToolData (const CurlTool * const tool_p);
+
+
+
+/**
+ * @brief Get the size in bytes of the downloaded data from a CurlTool.
+ *
+ * If the CurlTool has been run successfully, this will get the length
+ * of the downloaded data. RunCurlTool() must have been
+ * run prior to this.
+ * @param tool_p The CurlTool to get the length from.
+ * @return The length of the downloaded data.
+ * @see RunCurlTool
+ * @memberof CurlTool
+ */
+GRASSROOTS_NETWORK_API size_t GetCurlToolDataSize (const CurlTool * const tool_p);
 
 
 /**

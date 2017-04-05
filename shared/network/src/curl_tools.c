@@ -430,6 +430,11 @@ const char *GetCurlToolData (const CurlTool * const tool_p)
 }
 
 
+size_t GetCurlToolDataSize (const CurlTool * const tool_p)
+{
+	return (GetByteBufferSize (tool_p -> ct_buffer_p));
+}
+
 
 static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p)
 {
