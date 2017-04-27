@@ -27,7 +27,7 @@
 #include <errno.h>
 #include <spawn.h>
 #include <fcntl.h>
-
+#include <signal.h>
 #include <sys/wait.h>
 
 #include "process.h"
@@ -40,7 +40,7 @@ int32 CreateProcess (char *command_s, char **environment_ss, const char * const 
 	posix_spawn_file_actions_t actions;
 	posix_spawn_file_actions_t *actions_p = NULL;
 	int res = 0;
-	const char * const program_s = "/bin/sh";
+	const char * const program_s = "/bin/bash";
 	char *args_ss [4];
 
 	*args_ss = program_s;
