@@ -39,7 +39,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_UTIL_API	int32 CreateProcess (char *command_s, char **environment_ss, const char * const logfile_s);
+GRASSROOTS_UTIL_API	int32 CreateProcess (uuid_t *id_p, char *command_s, char **environment_ss, const char * const logfile_s);
 
 GRASSROOTS_UTIL_API	bool TerminateProcess (int32 process_id);
 
