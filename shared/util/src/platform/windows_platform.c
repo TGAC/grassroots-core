@@ -16,7 +16,7 @@
 
 #include <windows.h>
 
-#include "platform.h"
+#include "../../include/platform.h"
 
 bool InitPlatform ()
 {

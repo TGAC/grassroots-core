@@ -28,9 +28,23 @@
 #define SHARED_SRC_UTIL_INCLUDE_PROCESS_H_
 
 
-#include "grassroots_util_library.h"
+#include "grassroots_task_library.h"
 #include "typedefs.h"
 #include "operation.h"
+#include "service_job.h"
+#include "jobs_manager.h"
+#include "async_task.h"
+
+
+typedef struct SystemTaskData
+{
+	struct AsyncTask *std_async_task_p;
+	JobsManager *std_jobs_manager_p;
+	ServiceJob *std_service_job_p;
+	const char *std_command_line_s;
+} SystemTaskData;
+
+
 
 
 #ifdef __cplusplus
@@ -39,12 +53,13 @@ extern "C"
 #endif
 
 
-GRASSROOTS_UTIL_API	int32 CreateProcess (uuid_t *id_p, char *command_s, char **environment_ss, const char * const logfile_s);
+GRASSROOTS_TASK_API	SystemTaskData *CreateSystemTaskData (JobsManager *jobs_manager_p, ServiceJob *job_p, const char *command_s);
 
-GRASSROOTS_UTIL_API	bool TerminateProcess (int32 process_id);
 
-GRASSROOTS_UTIL_API	OperationStatus GetProcessStatus (int32 process_id);
+GRASSROOTS_TASK_API	void FreeSystemTaskData (SystemTaskData *task_p);
 
+
+GRASSROOTS_TASK_API void *RunAsyncSystemTask (void *data_p);
 
 
 #ifdef __cplusplus
