@@ -65,7 +65,6 @@ SRCS 	:= \
 	time_util.c \
 	unix_filesystem.c \
 	unix_plugin.c \
-	unix_process.c \
 	unix_shared_memory.c \
 	user_details.c
 	

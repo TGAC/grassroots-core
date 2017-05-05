@@ -99,6 +99,20 @@ GRASSROOTS_UTIL_API void FreeLineBuffer (char *buffer_p);
 
 
 /**
+ * Clone a valid string to a destination string pointer.
+ *
+ * @param src_s The string to clone. If this is <code>NULL</code> then
+ * the function will treat it as a valid clone.
+ * @param dest_ss The destination where the cloned string will be stored
+ * if successful. If src_s is <code>NULL</code>, then this will be set to <code>
+ * NULL</code> too.
+ * @return <code>true</code> if the string was successfully cloned or
+ * it src_s is <code>NULL</code>, <code>false</code> otherwise.
+ */
+GRASSROOTS_UTIL_API bool CloneValidString (const char *src_s, char **dest_ss);
+
+
+/**
  * Parse the format string and sort out into a linked
  * list of tokens.
  *

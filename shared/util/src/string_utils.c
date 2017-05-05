@@ -121,6 +121,30 @@ char *CopyToNewString (const char * const src_p, const size_t l, bool trim)
 }
 
 
+
+bool CloneValidString (const char *src_s, char **dest_ss)
+{
+	bool success_flag = false;
+
+	if (src_s)
+		{
+			char *dest_s = CopyToNewString (src_s, 0, false);
+
+			if (dest_s)
+				{
+					*dest_ss = dest_s;
+					success_flag = true;
+				}
+		}
+	else
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
 /**
  * Read a line from a file with no buffer overflow issues.
  *

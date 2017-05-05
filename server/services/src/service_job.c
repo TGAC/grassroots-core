@@ -119,6 +119,8 @@ ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, con
 }
 
 
+
+
 bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p)
 {
 	#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
@@ -149,65 +151,60 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 
 			if (job_p -> sj_linked_services_p)
 				{
-					/* Set the name if valid */
-						if (job_name_s)
-							{
-								job_p -> sj_name_s = CopyToNewString (job_name_s, 0, false);
+					char *copied_service_name_s = NULL;
+					char *copied_job_name_s = NULL;
+					char *copied_job_description_s = NULL;
 
-								if (! (job_p -> sj_name_s))
-									{
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy job name \"%s\"", job_name_s);
-										return false;
-									}
-							}
-						else
-							{
-								job_p -> sj_name_s = NULL;
-							}
-
-						/* set the description if valid */
-						if (job_description_s)
-							{
-								job_p -> sj_description_s = CopyToNewString (job_description_s, 0, false);
-
-								if (! (job_p -> sj_description_s))
-									{
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy job description \"%s\"", job_description_s);
-
-										if (job_p -> sj_name_s)
-											{
-												FreeCopiedString (job_p -> sj_name_s);
-												job_p -> sj_name_s = NULL;
-											}
-
-										return false;
-									}
-							}
-						else
-							{
-								job_p -> sj_description_s = NULL;
-							}
-
-
-
-					job_p -> sj_result_p = NULL;
-					job_p -> sj_metadata_p = NULL;
-
-					job_p -> sj_update_fn = update_fn;
-					job_p -> sj_free_fn = free_job_fn;
-
-					job_p -> sj_is_updating_flag = false;
-
-					#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
+					if (CloneValidString (GetServiceName (service_p), &copied_service_name_s))
 						{
-							char uuid_s [UUID_STRING_BUFFER_SIZE];
+							if (CloneValidString (job_name_s, &copied_job_name_s))
+								{
+									if (CloneValidString (job_description_s, &copied_job_description_s))
+										{
+											job_p -> sj_name_s = copied_job_name_s;
+											job_p -> sj_description_s = copied_job_description_s;
+											job_p -> sj_service_name_s = copied_service_name_s;
 
-							ConvertUUIDToString (job_p -> sj_id, uuid_s);
-							PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Job: %s\n", uuid_s);
+											job_p -> sj_result_p = NULL;
+											job_p -> sj_metadata_p = NULL;
+
+											job_p -> sj_update_fn = update_fn;
+											job_p -> sj_free_fn = free_job_fn;
+
+											job_p -> sj_is_updating_flag = false;
+
+											#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
+												{
+													char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+													ConvertUUIDToString (job_p -> sj_id, uuid_s);
+													PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Job: %s\n", uuid_s);
+												}
+											#endif
+
+											return true;
+										}
+									else
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy job description \"%s\"", job_description_s);
+										}
+
+									if (copied_job_name_s)
+										{
+											FreeCopiedString (copied_job_name_s);
+										}
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy job name \"%s\"", job_name_s);
+								}
+
+							if (copied_job_description_s)
+								{
+									FreeCopiedString (copied_job_description_s);
+								}
 						}
-					#endif
 
-					return  true;
 				}		/* if (job_p -> sj_linked_services_p) */
 			else
 				{
@@ -223,8 +220,31 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 		}
 
 	return false;
+}
 
 
+ServiceJob *CloneServiceJob (const ServiceJob *src_p)
+{
+	ServiceJob *dest_p = (ServiceJob *) AllocMemory (sizeof (ServiceJob));
+
+	if (dest_p)
+		{
+			if (!CopyServiceJob (src_p, dest_p))
+				{
+					FreeMemory (dest_p);
+					dest_p = NULL;
+				}
+		}
+
+	return dest_p;
+}
+
+
+bool CopyServiceJob (const ServiceJob *src_p, const ServiceJob *dest_p)
+{
+	bool success_flag = false;
+
+	return success_flag;
 }
 
 
@@ -849,9 +869,8 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p)
 	if (job_json_p)
 		{
 			bool success_flag = false;
-			const char *service_name_s = GetServiceName (job_p -> sj_service_p);
 
-			if (json_object_set_new (job_json_p, JOB_SERVICE_S, json_string (service_name_s)) == 0)
+			if (json_object_set_new (job_json_p, JOB_SERVICE_S, json_string (job_p -> sj_service_name_s)) == 0)
 				{
 					if (AddValidJSON (job_json_p, JOB_RESULTS_S, job_p -> sj_result_p, false))
 						{
@@ -922,7 +941,7 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p)
 				}		/* if (json_object_set_new (SERVICE_NAME_S, json_string (service_name_s)) == 0) */
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service name \"%s\" to json", service_name_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service name \"%s\" to json", job_p -> sj_service_name_s);
 				}
 
 

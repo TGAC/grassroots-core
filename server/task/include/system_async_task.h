@@ -39,9 +39,8 @@
 typedef struct SystemTaskData
 {
 	struct AsyncTask *std_async_task_p;
-	JobsManager *std_jobs_manager_p;
 	ServiceJob *std_service_job_p;
-	const char *std_command_line_s;
+	char *std_command_line_s;
 } SystemTaskData;
 
 
@@ -53,13 +52,13 @@ extern "C"
 #endif
 
 
-GRASSROOTS_TASK_API	SystemTaskData *CreateSystemTaskData (JobsManager *jobs_manager_p, ServiceJob *job_p, const char *command_s);
+GRASSROOTS_TASK_API	SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *command_s, bool );
 
 
 GRASSROOTS_TASK_API	void FreeSystemTaskData (SystemTaskData *task_p);
 
 
-GRASSROOTS_TASK_API void *RunAsyncSystemTask (void *data_p);
+GRASSROOTS_TASK_API bool RunAsyncSystemTask (SystemTaskData *task_data_p);
 
 
 #ifdef __cplusplus

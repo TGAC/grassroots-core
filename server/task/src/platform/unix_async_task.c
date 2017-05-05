@@ -38,6 +38,7 @@ struct AsyncTask
 {
 	pthread_t at_thread;
 	bool at_valid_thread_flag;
+	bool at_detach_flag;
 };
 
 
@@ -47,7 +48,7 @@ typedef struct SystemAsyncTaskData
 } SystemAsyncTaskData;
 
 
-struct AsyncTask *CreateAsyncTask (void)
+struct AsyncTask *CreateAsyncTask (bool detach_flag)
 {
 	struct AsyncTask *task_p = (struct AsyncTask *) AllocMemory (sizeof (struct AsyncTask));
 
@@ -55,6 +56,7 @@ struct AsyncTask *CreateAsyncTask (void)
 		{
 			task_p -> at_thread = 0;
 			task_p -> at_valid_thread_flag = false;
+			task_p -> at_detach_flag = detach_flag;
 		}
 
 	return task_p;
@@ -73,7 +75,11 @@ void CloseAsyncTask (struct AsyncTask *task_p)
 {
 	if (task_p -> at_valid_thread_flag)
 		{
-			pthread_join (task_p -> at_thread, NULL);
+			if (! (task_p -> at_detach_flag))
+				{
+					pthread_join (task_p -> at_thread, NULL);
+				}
+
 			task_p -> at_valid_thread_flag = false;
 		}
 }
@@ -85,7 +91,7 @@ bool IsAsyncTaskRunning (const struct AsyncTask *task_p)
 }
 
 
-bool CloseTasks (void)
+bool CloseAllAsyncTasks (void)
 {
 	pthread_exit (NULL);
 	return true;
@@ -100,6 +106,17 @@ bool RunAsyncTask (struct AsyncTask *task_p, void * (*run_fn) (void *data_p), vo
 	if (res == 0)
 		{
 			task_p -> at_valid_thread_flag = true;
+
+			if (task_p -> at_detach_flag)
+				{
+					res = pthread_detach (& (task_p -> at_thread));
+
+					if (res != 0)
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to detach task for RunThreadedSystemTask %d", res);
+							task_p -> at_detach_flag = false;
+						}
+				}
 		}
 	else
 		{

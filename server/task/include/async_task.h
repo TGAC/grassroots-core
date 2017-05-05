@@ -11,6 +11,9 @@
 #include "grassroots_task_library.h"
 
 /* forward declaration, as AsyncTask will be platform-specific */
+/**
+ * A datatype to used to run tasks asynchronously.
+ */
 struct AsyncTask;
 
 
@@ -27,7 +30,7 @@ extern "C"
  * @return The new AsyncTask or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	struct AsyncTask *CreateAsyncTask (void);
+GRASSROOTS_TASK_API	struct AsyncTask *CreateAsyncTask (bool detach_flag);
 
 
 /**

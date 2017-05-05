@@ -63,6 +63,9 @@ typedef struct ServiceJob
 	/** Is the service currently in an open state? */
 	enum OperationStatus sj_status;
 
+	/** The name of the Service that this ServiceJob is for */
+	char *sj_service_name_s;
+
 	/** The name of the ServiceJob */
 	char *sj_name_s;
 
@@ -244,6 +247,12 @@ GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *s
  * @memberof ServiceJob
  */
 GRASSROOTS_SERVICE_API void ClearServiceJob (ServiceJob *job_p);
+
+
+GRASSROOTS_SERVICE_API ServiceJob *CloneServiceJob (const ServiceJob *src_p);
+
+
+GRASSROOTS_SERVICE_API bool CopyServiceJob (const ServiceJob *src_p, const ServiceJob *dest_p);
 
 
 /**
