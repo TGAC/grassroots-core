@@ -115,6 +115,7 @@ typedef struct ServiceJob
 
 	bool sj_is_updating_flag;
 
+	int32 sj_reference_count;
 } ServiceJob;
 
 
@@ -249,10 +250,13 @@ GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *s
 GRASSROOTS_SERVICE_API void ClearServiceJob (ServiceJob *job_p);
 
 
+GRASSROOTS_SERVICE_API void IncrementServiceJobReferenceCount (ServiceJob *job_p);
+
+
 GRASSROOTS_SERVICE_API ServiceJob *CloneServiceJob (const ServiceJob *src_p);
 
 
-GRASSROOTS_SERVICE_API bool CopyServiceJob (const ServiceJob *src_p, const ServiceJob *dest_p);
+GRASSROOTS_SERVICE_API bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p);
 
 
 /**

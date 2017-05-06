@@ -172,6 +172,7 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 											job_p -> sj_free_fn = free_job_fn;
 
 											job_p -> sj_is_updating_flag = false;
+											job_p -> sj_reference_count = 1;
 
 											#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
 												{
@@ -223,6 +224,7 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 }
 
 
+
 ServiceJob *CloneServiceJob (const ServiceJob *src_p)
 {
 	ServiceJob *dest_p = (ServiceJob *) AllocMemory (sizeof (ServiceJob));
@@ -240,11 +242,108 @@ ServiceJob *CloneServiceJob (const ServiceJob *src_p)
 }
 
 
-bool CopyServiceJob (const ServiceJob *src_p, const ServiceJob *dest_p)
+bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p)
 {
-	bool success_flag = false;
+	char *service_name_s = NULL;
 
-	return success_flag;
+	if (CloneValidString (src_p -> sj_service_name_s, &service_name_s))
+		{
+			char *job_name_s = NULL;
+
+			if (CloneValidString (src_p -> sj_name_s, &job_name_s))
+				{
+					char *job_description_s = NULL;
+
+					if (CloneValidString (src_p -> sj_description_s, &job_description_s))
+						{
+							json_t *result_p = NULL;
+
+							if (DeepCopyValidJSON (src_p -> sj_result_p, &result_p))
+								{
+									json_t *metadata_p = NULL;
+
+									if (DeepCopyValidJSON (src_p -> sj_metadata_p, &metadata_p))
+										{
+											json_t *errors_p = NULL;
+
+											if (DeepCopyValidJSON (src_p -> sj_errors_p, &errors_p))
+												{
+													json_t *linked_services_p = NULL;
+
+													if (DeepCopyValidJSON (src_p -> sj_linked_services_p, &linked_services_p))
+														{
+															ClearServiceJob (dest_p);
+
+															dest_p -> sj_service_p = src_p -> sj_service_p;
+
+															uuid_copy (dest_p -> sj_id, src_p -> sj_id);
+
+															dest_p -> sj_status = src_p -> sj_status;
+
+															dest_p -> sj_service_name_s = service_name_s;
+															dest_p -> sj_name_s = job_name_s;
+															dest_p -> sj_description_s = job_description_s;
+
+															dest_p -> sj_result_p = result_p;
+															dest_p -> sj_metadata_p = metadata_p;
+															dest_p -> sj_errors_p = errors_p;
+															dest_p -> sj_linked_services_p = linked_services_p;
+															dest_p -> sj_result_p = result_p;
+
+															dest_p -> sj_update_fn = src_p -> sj_update_fn;
+															dest_p -> sj_free_fn = src_p -> sj_free_fn;
+
+															dest_p -> sj_is_updating_flag = false;
+
+															dest_p ->  sj_reference_count = 1;
+
+															return true;
+
+														}		/* if (DeepCopyValidJSON (src_p -> sj_linked_services_p, &linked_services_p)) */
+
+													if (errors_p)
+														{
+															json_decref (errors_p);
+														}
+
+												}		/* if (DeepCopyValidJSON (src_p -> sj_errors_p, &errors_p)) */
+
+											if (metadata_p)
+												{
+													json_decref (metadata_p);
+												}
+
+										}		/* if (DeepCopyValidJSON (src_p -> sj_metadata_p, &metadata_p)) */
+
+									if (result_p)
+										{
+											json_decref (result_p);
+										}
+
+								}		/* if (DeepCopyValidJSON (src_p -> sj_result_p, &result_p)) */
+
+							if (job_description_s)
+								{
+									FreeCopiedString (job_description_s);
+								}
+
+						}		/* if (CloneValidString (src_p -> sj_description_s, &job_description_s)) */
+
+					if (job_name_s)
+						{
+							FreeCopiedString (job_name_s);
+						}
+
+				}		/* if (CloneValidString (src_p -> sj_name_s, &job_name_s)) */
+
+			if (service_name_s)
+				{
+					FreeCopiedString (service_name_s);
+				}
+
+		}		/* if (CloneValidString (src_p -> sj_service_name_s, &service_name_s)) */
+
+	return false;
 }
 
 
@@ -335,18 +434,27 @@ uint32 GetNumberOfServiceJobResults (const ServiceJob *job_p)
 }
 
 
+void IncrementServiceJobReferenceCount (ServiceJob *job_p)
+{
+	++ (job_p -> sj_reference_count);
+}
 
 
 void FreeServiceJob (ServiceJob *job_p)
 {
-	if (job_p -> sj_free_fn)
+	-- (job_p -> sj_reference_count);
+
+	if (job_p -> sj_reference_count == 0)
 		{
-			job_p -> sj_free_fn (job_p);
-		}
-	else
-		{
-			ClearServiceJob (job_p);
-			FreeMemory (job_p);
+			if (job_p -> sj_free_fn)
+				{
+					job_p -> sj_free_fn (job_p);
+				}
+			else
+				{
+					ClearServiceJob (job_p);
+					FreeMemory (job_p);
+				}
 		}
 }
 

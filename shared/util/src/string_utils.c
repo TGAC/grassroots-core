@@ -138,6 +138,7 @@ bool CloneValidString (const char *src_s, char **dest_ss)
 		}
 	else
 		{
+			*dest_ss = NULL;
 			success_flag = true;
 		}
 

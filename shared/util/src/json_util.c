@@ -1160,7 +1160,7 @@ json_t *GetCompoundJSONObject (const json_t *input_p, const char * const compoun
 
 	if (copied_compound_s)
 		{
-			const json_t *parent_value_p = input_p;
+			json_t *parent_value_p = (json_t *) input_p;
 			char *parent_key_s = copied_compound_s;
 
 			while (parent_value_p)
@@ -1169,7 +1169,7 @@ json_t *GetCompoundJSONObject (const json_t *input_p, const char * const compoun
 
 					if (next_dot_s)
 						{
-							const json_t *child_value_p = NULL;
+							json_t *child_value_p = NULL;
 
 							/* temporarily terminate the current string */
 							*next_dot_s = '\0';
@@ -1230,3 +1230,29 @@ json_t *GetCompoundJSONObject (const json_t *input_p, const char * const compoun
 
 	return compound_value_p;
 }
+
+
+
+bool DeepCopyValidJSON (const json_t *src_p, json_t **dest_pp)
+{
+	bool success_flag = false;
+
+	if (src_p)
+		{
+			json_t *dest_p = json_deep_copy (src_p);
+
+			if (dest_p)
+				{
+					*dest_pp = dest_p;
+					success_flag = true;
+				}
+		}
+	else
+		{
+			*dest_pp = NULL;
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+

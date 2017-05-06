@@ -563,6 +563,9 @@ GRASSROOTS_UTIL_API bool CopyJSONKeyIntegerValuePair (const json_t *src_p, json_
 
 
 
+
+GRASSROOTS_UTIL_API bool DeepCopyValidJSON (const json_t *src_p, json_t **dest_pp);
+
 #ifdef __cplusplus
 }
 #endif
