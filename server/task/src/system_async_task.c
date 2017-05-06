@@ -37,6 +37,8 @@ SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *command_s, 
 							task_data_p -> std_command_line_s = copied_command_s;
 							task_data_p -> std_service_job_p = job_p;
 
+							IncrementServiceJobReferenceCount (job_p);
+
 							return task_data_p;
 						}
 
