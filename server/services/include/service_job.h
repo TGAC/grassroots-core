@@ -253,10 +253,17 @@ GRASSROOTS_SERVICE_API void ClearServiceJob (ServiceJob *job_p);
 GRASSROOTS_SERVICE_API void IncrementServiceJobReferenceCount (ServiceJob *job_p);
 
 
+GRASSROOTS_SERVICE_API void DecrementServiceJobReferenceCount (ServiceJob *job_p);
+
+
 GRASSROOTS_SERVICE_API ServiceJob *CloneServiceJob (const ServiceJob *src_p);
 
 
 GRASSROOTS_SERVICE_API bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p);
+
+
+
+GRASSROOTS_SERVICE_API struct Service *GetServiceFromServiceJob (ServiceJob *job_p);
 
 
 /**

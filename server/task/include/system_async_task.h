@@ -52,7 +52,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_TASK_API	SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *command_s, bool );
+GRASSROOTS_TASK_API	SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *command_s, bool detach_flag);
 
 
 GRASSROOTS_TASK_API	void FreeSystemTaskData (SystemTaskData *task_p);

@@ -454,7 +454,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, ServiceJob
 
 																													if (!added_flag)
 																														{
-																															FreeServiceJob (& (job_p -> rsj_job));
+																															DecrementServiceJobReferenceCount (& (job_p -> rsj_job));
 																														}
 
 																												}		/* if (job_p) */

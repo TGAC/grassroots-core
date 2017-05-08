@@ -86,7 +86,7 @@ RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_
 
 				}		/* if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL)) */
 
-			ClearServiceJob (base_service_job_p);
+			DecrementServiceJobReferenceCount (base_service_job_p);
 			FreeMemory (remote_job_p);
 		}		/* if (remote_job_p) */
 

@@ -224,11 +224,12 @@ MappedParameter *GetMappedParameterByInputParamName (const LinkedService *linked
 bool ProcessLinkedService (LinkedService *linked_service_p, ServiceJob *job_p)
 {
 	bool success_flag = false;
+	Service *service_p = GetServiceFromServiceJob (job_p);
 
 	/* Does the input service have a custom process function? */
-	if (job_p -> sj_service_p -> se_process_linked_services_fn)
+	if (service_p && (service_p -> se_process_linked_services_fn))
 		{
-			success_flag = job_p -> sj_service_p -> se_process_linked_services_fn (job_p -> sj_service_p, job_p, linked_service_p);
+			success_flag = service_p -> se_process_linked_services_fn (service_p, job_p, linked_service_p);
 		}
 
 	return success_flag;

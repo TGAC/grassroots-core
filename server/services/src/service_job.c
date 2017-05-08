@@ -231,6 +231,8 @@ ServiceJob *CloneServiceJob (const ServiceJob *src_p)
 
 	if (dest_p)
 		{
+			memset (dest_p, 0, sizeof (ServiceJob));
+
 			if (!CopyServiceJob (src_p, dest_p))
 				{
 					FreeMemory (dest_p);
@@ -272,32 +274,38 @@ bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p)
 
 													if (DeepCopyValidJSON (src_p -> sj_linked_services_p, &linked_services_p))
 														{
-															ClearServiceJob (dest_p);
+															Service *copied_service_p = GetServiceByName (service_name_s);
 
-															dest_p -> sj_service_p = src_p -> sj_service_p;
+															if (copied_service_p)
+																{
+																	ClearServiceJob (dest_p);
 
-															uuid_copy (dest_p -> sj_id, src_p -> sj_id);
+																	dest_p -> sj_service_p = copied_service_p;
 
-															dest_p -> sj_status = src_p -> sj_status;
+																	uuid_copy (dest_p -> sj_id, src_p -> sj_id);
 
-															dest_p -> sj_service_name_s = service_name_s;
-															dest_p -> sj_name_s = job_name_s;
-															dest_p -> sj_description_s = job_description_s;
+																	dest_p -> sj_status = src_p -> sj_status;
 
-															dest_p -> sj_result_p = result_p;
-															dest_p -> sj_metadata_p = metadata_p;
-															dest_p -> sj_errors_p = errors_p;
-															dest_p -> sj_linked_services_p = linked_services_p;
-															dest_p -> sj_result_p = result_p;
+																	dest_p -> sj_service_name_s = service_name_s;
+																	dest_p -> sj_name_s = job_name_s;
+																	dest_p -> sj_description_s = job_description_s;
 
-															dest_p -> sj_update_fn = src_p -> sj_update_fn;
-															dest_p -> sj_free_fn = src_p -> sj_free_fn;
+																	dest_p -> sj_result_p = result_p;
+																	dest_p -> sj_metadata_p = metadata_p;
+																	dest_p -> sj_errors_p = errors_p;
+																	dest_p -> sj_linked_services_p = linked_services_p;
+																	dest_p -> sj_result_p = result_p;
 
-															dest_p -> sj_is_updating_flag = false;
+																	dest_p -> sj_update_fn = src_p -> sj_update_fn;
+																	dest_p -> sj_free_fn = src_p -> sj_free_fn;
 
-															dest_p ->  sj_reference_count = 1;
+																	dest_p -> sj_is_updating_flag = false;
 
-															return true;
+																	dest_p ->  sj_reference_count = 1;
+
+																	return true;
+																}
+
 
 														}		/* if (DeepCopyValidJSON (src_p -> sj_linked_services_p, &linked_services_p)) */
 
@@ -398,6 +406,26 @@ void ClearServiceJob (ServiceJob *job_p)
 }
 
 
+Service *GetServiceFromServiceJob (ServiceJob *job_p)
+{
+	if (! (job_p -> sj_service_p))
+		{
+			job_p -> sj_service_p = GetServiceByName (job_p -> sj_service_name_s);
+
+			if (! (job_p -> sj_service_p))
+				{
+					char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+					ConvertUUIDToString (job_p -> sj_id, uuid_s);
+
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get service with name \"%s\" for ServiceJob \"%s\"", job_p -> sj_service_name_s, uuid_s);
+				}
+		}
+
+	return (job_p -> sj_service_p);
+}
+
+
 bool SetServiceJobName (ServiceJob *job_p, const char * const name_s)
 {
 	bool success_flag = ReplaceStringValue (& (job_p -> sj_name_s), name_s);
@@ -440,21 +468,27 @@ void IncrementServiceJobReferenceCount (ServiceJob *job_p)
 }
 
 
-void FreeServiceJob (ServiceJob *job_p)
+void DecrementServiceJobReferenceCount (ServiceJob *job_p)
 {
-	-- (job_p -> sj_reference_count);
+	++ (job_p -> sj_reference_count);
 
 	if (job_p -> sj_reference_count == 0)
 		{
-			if (job_p -> sj_free_fn)
-				{
-					job_p -> sj_free_fn (job_p);
-				}
-			else
-				{
-					ClearServiceJob (job_p);
-					FreeMemory (job_p);
-				}
+			FreeServiceJob (job_p);
+		}
+}
+
+
+void FreeServiceJob (ServiceJob *job_p)
+{
+	if (job_p -> sj_free_fn)
+		{
+			job_p -> sj_free_fn (job_p);
+		}
+	else
+		{
+			ClearServiceJob (job_p);
+			FreeMemory (job_p);
 		}
 }
 

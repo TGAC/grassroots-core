@@ -109,7 +109,7 @@ bool RunAsyncTask (struct AsyncTask *task_p, void * (*run_fn) (void *data_p), vo
 
 			if (task_p -> at_detach_flag)
 				{
-					res = pthread_detach (& (task_p -> at_thread));
+					res = pthread_detach (task_p -> at_thread);
 
 					if (res != 0)
 						{

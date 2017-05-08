@@ -1139,29 +1139,33 @@ static bool AddServiceCleanUpToJSON (json_t *services_p, uuid_t service_id, cons
 
 					if (job_p)
 						{
-							Service *service_p = job_p -> sj_service_p;
-							const char *service_name_s = GetServiceName (job_p -> sj_service_p);
-							OperationStatus status = CloseServiceJob (job_p) ? OS_CLEANED_UP : OS_ERROR;
+							Service *service_p = GetServiceFromServiceJob (job_p);
 
-							if (!IsServiceLive (service_p))
+							if (service_p)
 								{
-									CloseService (service_p);
-								}
+									const char *service_name_s = GetServiceName (service_p);
+									OperationStatus status = CloseServiceJob (job_p) ? OS_CLEANED_UP : OS_ERROR;
 
-							success_flag = true;
+									if (!IsServiceLive (service_p))
+										{
+											CloseService (service_p);
+										}
 
-							if (json_object_set_new (status_p, SERVICE_NAME_S, json_string (service_name_s)) != 0)
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service name %s to status json", service_name_s);
-									json_object_set_new (status_p, ERROR_S, json_string ("Failed to add service name to status json"));
-									success_flag = false;
-								}
+									success_flag = true;
 
-							if (json_object_set_new (status_p, SERVICE_STATUS_VALUE_S, json_integer (status)) != 0)
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service status for name %s to status json", service_name_s);
-									json_object_set_new (status_p, ERROR_S, json_string ("Failed to add service status to status json"));
-									success_flag = false;
+									if (json_object_set_new (status_p, SERVICE_NAME_S, json_string (service_name_s)) != 0)
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service name %s to status json", service_name_s);
+											json_object_set_new (status_p, ERROR_S, json_string ("Failed to add service name to status json"));
+											success_flag = false;
+										}
+
+									if (json_object_set_new (status_p, SERVICE_STATUS_VALUE_S, json_integer (status)) != 0)
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service status for name %s to status json", service_name_s);
+											json_object_set_new (status_p, ERROR_S, json_string ("Failed to add service status to status json"));
+											success_flag = false;
+										}
 								}
 
 						}		/* if (service_p) */

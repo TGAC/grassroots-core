@@ -37,8 +37,6 @@ SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *command_s, 
 							task_data_p -> std_command_line_s = copied_command_s;
 							task_data_p -> std_service_job_p = job_p;
 
-							IncrementServiceJobReferenceCount (job_p);
-
 							return task_data_p;
 						}
 
@@ -60,6 +58,9 @@ void FreeSystemTaskData (SystemTaskData *task_data_p)
 		{
 			FreeCopiedString (task_data_p -> std_command_line_s);
 		}
+
+	DecrementServiceJobReferenceCount (task_data_p -> std_service_job_p);
+
 	FreeMemory (task_data_p);
 }
 
@@ -78,25 +79,41 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	ServiceJob *job_p = task_data_p -> std_service_job_p;
 	char uuid_s [UUID_STRING_BUFFER_SIZE];
 
+	/* make sure that the job's service is in scope */
+	Service *copied_service_p = GetServiceByName (job_p -> sj_service_name_s);
+
+
 	ConvertUUIDToString (job_p -> sj_id, uuid_s);
 
 	SetServiceJobStatus (job_p, status);
 
-	if (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p))
+
+	if (copied_service_p)
 		{
-			#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
-			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to run RunAsyncSystemTaskHook for %s with \"%s\"", uuid_s, task_data_p -> std_command_line_s);
-			#endif
+			job_p -> sj_service_p = copied_service_p;
 
-			int res = system (task_data_p -> std_command_line_s);
+			IncrementPluginOpenCount (copied_service_p -> se_plugin_p);
 
-			if (res != -1)
+			if (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p))
 				{
-					int process_exit_code = WEXITSTATUS (res);
+					#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
+					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to run RunAsyncSystemTaskHook for %s with \"%s\"", uuid_s, task_data_p -> std_command_line_s);
+					#endif
 
-					if (process_exit_code == 0)
+					int res = system (task_data_p -> std_command_line_s);
+
+					if (res != -1)
 						{
-							status = OS_SUCCEEDED;
+							int process_exit_code = WEXITSTATUS (res);
+
+							if (process_exit_code == 0)
+								{
+									status = OS_SUCCEEDED;
+								}
+							else
+								{
+									status = OS_ERROR;
+								}
 						}
 					else
 						{
@@ -105,29 +122,26 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 				}
 			else
 				{
-					status = OS_ERROR;
-				}
-		}
-	else
-		{
-			status = OS_FAILED_TO_START;
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
-		}
-
-	SetServiceJobStatus (job_p, status);
-
-	/* has the job status changed? */
-	if (status != OS_STARTED)
-		{
-			if (! (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p)))
-				{
+					status = OS_FAILED_TO_START;
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
 				}
-		}
 
-	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
-	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to call FreeSystemTaskData for %s in RunAsyncSystemTaskHook with \"%s\"", uuid_s, task_data_p -> std_command_line_s);
-	#endif
+			SetServiceJobStatus (job_p, status);
+
+			/* has the job status changed? */
+			if (status != OS_STARTED)
+				{
+					if (! (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p)))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
+						}
+				}
+
+			#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
+			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to call FreeSystemTaskData for %s in RunAsyncSystemTaskHook with \"%s\"", uuid_s, task_data_p -> std_command_line_s);
+			#endif
+
+		}
 
 	FreeSystemTaskData (task_data_p);
 
@@ -138,5 +152,5 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	#endif
 
 
-	return (void *) status;
+	return NULL;
 }

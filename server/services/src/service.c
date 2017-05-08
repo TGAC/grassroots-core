@@ -702,13 +702,13 @@ json_t *CreateSerialisedJSONForServiceJobFromService (struct Service *service_p,
 
 			if (!job_json_p)
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "%s failed to serialise job", service_name_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "%s failed to serialise job", service_job_p -> sj_service_name_s);
 				}		/* if (!job_p) */
 
 		}		/* if (DoesServiceHaveCustomServiceJobDeserialiser (service_p)) */
 	else
 		{
-			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "%s does not have a custom ServiceJob serialiser", service_name_s);
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "%s does not have a custom ServiceJob serialiser", service_job_p -> sj_service_name_s);
 		}
 
 	return job_json_p;
