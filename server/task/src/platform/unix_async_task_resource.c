@@ -8,10 +8,11 @@
 
 #include <errno.h>
 
+#include "pthread.h"
+
 #include "typedefs.h"
 #include "streams.h"
 #include "async_task_resource.h"
-
 
 struct AsyncTaskResource
 {
@@ -34,7 +35,25 @@ typedef struct CountingAsyncTaskResource
 
 bool IncrementCountingAsyncTaskResource (struct CountingAsyncTaskResource *resource_p)
 {
-	return false;
+	bool success_flag = false;
+
+	if (LockAsyncTaskMonitorResource (& (resource_p -> catr_base_resource)))
+		{
+			++ (resource_p -> catr_current_value);
+			success_flag = true;
+
+			if (resource_p -> catr_current_value == resource_p -> catr_limit)
+				{
+					/* send signal */
+				}
+
+			if (!UnlockAsyncTaskMonitorResource (& (resource_p -> catr_base_resource)))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskResource mutex");
+				}
+		}
+
+	return success_flag;
 }
 
 
