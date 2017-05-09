@@ -19,7 +19,7 @@
 #include <proto/elf.h>
 #include <proto/exec.h>
 
-#include "../../include/platform.h"
+#include "platform.h"
 #include "amiga_filesystem.h"
 
 static BOOL OpenLib (struct Library **library_pp, CONST_STRPTR lib_name_s, const uint32 lib_version, struct Interface **interface_pp, CONST_STRPTR interface_name_s, const uint32 interface_version);

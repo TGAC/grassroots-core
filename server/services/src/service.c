@@ -92,7 +92,7 @@ void InitialiseService (Service * const service_p,
 	bool (*close_fn) (struct Service *service_p),
 	void (*customise_service_job_fn) (Service *service_p, ServiceJob *job_p),
 	bool specific_flag,
-	bool synchronous_flag,
+	Synchronicity synchronous,
 	ServiceData *data_p)
 {
 	service_p -> se_get_service_name_fn = get_service_name_fn;
@@ -108,7 +108,7 @@ void InitialiseService (Service * const service_p,
 	service_p -> se_data_p = data_p;
 	
 	service_p -> se_is_specific_service_flag = specific_flag;
-	service_p -> se_synchronous_flag = synchronous_flag;
+	service_p -> se_synchronous = synchronous;
 
 
 	uuid_clear (service_p -> se_id);
@@ -285,7 +285,10 @@ void FreeServiceNode (ListItem * const node_p)
 
 	if (service_p)
 		{
-			FreeService (service_p);
+			if (service_p -> se_synchronous != SY_ASYNCHRONOUS_ATTACHED)
+				{
+					FreeService (service_p);
+				}
 		}
 
 	FreeMemory (service_node_p);
@@ -1065,7 +1068,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 												{
 													if (AddServiceParameterSetToJSON (service_p, operation_p, sv_p, true, resource_p, user_p))
 														{
-															if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, service_p -> se_synchronous_flag ? json_true () : json_false ()) == 0)
+															if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, (service_p -> se_synchronous == SY_SYNCHRONOUS) ? json_true () : json_false ()) == 0)
 																{
 																	bool b = true;
 

@@ -100,6 +100,30 @@ struct ServiceJobSet;
 
 
 /**
+ * A datatye to define how a Service runs.
+ *
+ * @ingroup services_group
+ */
+typedef enum
+{
+	/** A task that runs synchronously. */
+	SY_SYNCHRONOUS,          //!< SY_SYNCHRONOUS
+
+	/**
+	 * A task that runs asynchronously outside of the Grassroots system
+	 * such as e.g drmaa jobs.
+	 */
+	SY_ASYNCHRONOUS_DETACHED,//!< SY_ASYNCHRONOUS_DETACHED
+
+	/**
+	 * A task runs asynchronously within the Grassroots system
+	 * such as e.g threaded jobs.
+	 */
+	SY_ASYNCHRONOUS_ATTACHED //!< SY_ASYNCHRONOUS_ATTACHED
+} Synchronicity;
+
+
+/**
  * A datatype for holding the configuration data for a Service. This is normally
  * used as a base class.
  *
@@ -272,11 +296,9 @@ typedef struct Service
 	bool (*se_process_linked_services_fn) (struct Service *service_p, struct ServiceJob *job_p, LinkedService *linked_service_p);
 
 	/**
-	 * If this is <code>true</code> then when the Service is ran, it will not return
-	 * until the job has completed. If <code>false</code>, then the Service will
-	 * return straight away and the job will run in the background.
+	 * The synchronicity for how this Service runs.
 	 */
-	bool se_synchronous_flag;
+	Synchronicity se_synchronous;
 
 	/** Unique Id for this service */
 	uuid_t se_id;
@@ -380,8 +402,8 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
  * this function is used to set them up. This can be <code>NULL</code>.
  * @param specific_flag <code>true</code> if this Service performs a specific analysis. For Services used by scripted reference Services
  * detailed by JSON configuration files, then this should be <code>false</code>.
- * @param synchronous_flag <code>true</code> if this Service runs synchronously, <code>false</code> if it runs asynchronously.
- * @param data_p The ServiceDat for this Service.
+ * @param  The synchronicity for how this Service runs.
+ * @param data_p The ServiceData for this Service.
  * @memberof Service
  */
 GRASSROOTS_SERVICE_API void InitialiseService (Service * const service_p,
@@ -395,7 +417,7 @@ GRASSROOTS_SERVICE_API void InitialiseService (Service * const service_p,
 	bool (*close_fn) (struct Service *service_p),
 	void (*customise_service_job_fn) (Service *service_p, struct ServiceJob *job_p),
  	bool specific_flag,
-	bool synchronous_flag,
+	Synchronicity synchronous,
 	ServiceData *data_p);
 
 

@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <curl/curl.h>
 
-#include "../../services/web_search/src/selector.hpp"
+#include "selector.hpp"
 #include "curl_tools.h"
  
 CURLcode SimpleTest (CurlTool *tool_p, const char * const url_s);
