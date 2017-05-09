@@ -278,25 +278,6 @@ json_t *GetKeywordServicesRequest (const UserDetails *user_p, const char * const
 }
 
 
-json_t *GetCheckServicesRequest (const UserDetails *user_p, const char * const service_uuid_s, const SchemaVersion * const sv_p)
-{
-	json_t *res_p = NULL;
-	json_error_t error;
-	json_t *op_data_p = json_pack_ex (&error, 0, "[s]", service_uuid_s);
-
-	if (op_data_p)
-		{
-			res_p = GetServicesRequest (user_p, OP_CHECK_SERVICE_STATUS, SERVICES_NAME_S, op_data_p, sv_p);
-		}
-	else
-		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetCheckServicesRequest failed for %s", service_uuid_s);
-		}
-
-	return res_p;
-}
-
-
 json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_name_s, const SchemaVersion * const sv_p)
 {
 	json_t *res_p = NULL;
@@ -497,13 +478,6 @@ const char *GetUserUUIDStringFromJSON (const json_t *credentials_p)
 }
 
 
-
-json_t *GetServicesStatusRequest (const uuid_t **ids_pp, const uint32 num_ids, Connection *connection_p, const SchemaVersion * const sv_p)
-{
-	return GetServicesInfoRequest (ids_pp, num_ids, OP_CHECK_SERVICE_STATUS, connection_p, sv_p);
-}
-
-
 json_t *GetServicesResultsRequest (const uuid_t **ids_pp, const uint32 num_ids, Connection *connection_p, const SchemaVersion * const sv_p)
 {
 	return GetServicesInfoRequest (ids_pp, num_ids, OP_GET_SERVICE_RESULTS, connection_p, sv_p);
@@ -530,26 +504,30 @@ static json_t *GetServicesInfoRequest (const uuid_t **ids_pp, const uint32 num_i
 
 							while ((i > 0) && success_flag)
 								{
-									char *uuid_s = GetUUIDAsString (**id_pp);
-
-									if (uuid_s)
+									if (*id_pp)
 										{
-											if (json_array_append_new (services_p, json_string (uuid_s)) == 0)
+											char *uuid_s = GetUUIDAsString (**id_pp);
+
+											if (uuid_s)
 												{
-													-- i;
-													++ id_pp;
+													if (json_array_append_new (services_p, json_string (uuid_s)) == 0)
+														{
+															-- i;
+															++ id_pp;
+														}
+													else
+														{
+															success_flag = false;
+														}
+
+													FreeUUIDString (uuid_s);
 												}
 											else
 												{
 													success_flag = false;
 												}
 
-											FreeUUIDString (uuid_s);
-										}
-									else
-										{
-											success_flag = false;
-										}
+										}		/* if (*id_pp) */
 
 								}		/* while ((i > 0) && success_flag) */
 

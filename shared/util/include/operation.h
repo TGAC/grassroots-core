@@ -60,17 +60,8 @@ typedef enum Operation {
 	/** Get list of services matching the given names */
 	OP_GET_NAMED_SERVICES,
 
-	/** Get status of running services */
-	OP_CHECK_SERVICE_STATUS,
-
-	/** Get results from completed job */
+	/** Get results or the status of jobs */
 	OP_GET_SERVICE_RESULTS,
-
-//	/** Get list of data objects and collections modified within a given time period */
-//	OP_IRODS_MODIFIED_DATA,
-
-	/** Tell the server that the jobs are no longer needed */
-	OP_CLEAN_UP_JOBS,
 
 	/**
 	 * Get a requested Resource from the Server.

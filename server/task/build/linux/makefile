@@ -38,7 +38,10 @@ INCLUDES = \
 	-I$(DIR_BSON_INC) \
 	
 SRCS 	= \
+	async_task_resource.c \
+	count_async_task_resource.c \
 	unix_async_task.c \
+	unix_async_task_resource.c \
 	system_async_task.c \
 	
 CPPFLAGS += -DGRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS 

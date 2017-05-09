@@ -13,134 +13,114 @@
 #include "typedefs.h"
 #include "streams.h"
 #include "async_task_resource.h"
+#include "memory_allocations.h"
 
-struct AsyncTaskResource
+
+typedef struct UnixAsyncTaskResource
 {
-	pthread_mutex_t atr_mutex;
-	pthread_cond_t atr_cond;
-	bool (*atr_test_fn) (struct AsyncTaskResource *resource_p, void *data_p);
-	bool (*atr_fire_fn) (struct AsyncTaskResource *resource_p, void *data_p);
-};
+	AsyncTaskResource uatr_base_resource;
+	pthread_mutex_t uatr_mutex;
+	pthread_cond_t uatr_cond;
+} UnixAsyncTaskResource;
 
 
-typedef struct CountingAsyncTaskResource
+
+
+bool ContinueRunningCountingAsyncTaskResource (struct AsyncTaskResource *resource_p)
 {
-	struct AsyncTaskResource catr_base_resource;
-	int32 catr_current_value;
-	int32 catr_limit;
-} CountingAsyncTaskResource;
+	struct CountingAsyncTaskResource *counting_resource_p = (struct CountingAsyncTaskResource *) resource_p;
 
-
-
-
-bool IncrementCountingAsyncTaskResource (struct CountingAsyncTaskResource *resource_p)
-{
-	bool success_flag = false;
-
-	if (LockAsyncTaskMonitorResource (& (resource_p -> catr_base_resource)))
-		{
-			++ (resource_p -> catr_current_value);
-			success_flag = true;
-
-			if (resource_p -> catr_current_value == resource_p -> catr_limit)
-				{
-					/* send signal */
-				}
-
-			if (!UnlockAsyncTaskMonitorResource (& (resource_p -> catr_base_resource)))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskResource mutex");
-				}
-		}
-
-	return success_flag;
+	return false;
 }
 
 
-
-struct AsyncTaskResource *CreateAsyncTaskResource (void)
+AsyncTaskResource *CreateAsyncTaskResource (void)
 {
-	struct AsyncTaskResource *resource_p = (struct AsyncTaskResource *) AllocMemory (sizeof (struct AsyncTaskResource));
+	UnixAsyncTaskResource *resource_p = (UnixAsyncTaskResource *) AllocMemory (sizeof (UnixAsyncTaskResource));
 
 	if (resource_p)
 		{
-			int res = pthread_mutex_init (& (resource_p -> atr_mutex), NULL);
-
-			if (res == 0)
+			if (InitAsyncTaskResource (& (resource_p -> uatr_base_resource)))
 				{
-					res = pthread_cond_init (& (resource_p -> atr_cond), NULL);
+					int res = pthread_mutex_init (& (resource_p -> uatr_mutex), NULL);
 
 					if (res == 0)
 						{
-							return resource_p;
+							res = pthread_cond_init (& (resource_p -> uatr_cond), NULL);
+
+							if (res == 0)
+								{
+									return (& (resource_p -> uatr_base_resource));
+								}		/* if (res == 0) */
+							else
+								{
+									switch (res)
+										{
+											case ENOMEM:
+												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: "
+													"Insufficient memory exists to initialise the condition variable.");
+												break;
+
+											case EAGAIN:
+												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: The system"
+													"lacked the necessary resources (other than memory) to initialise another condition variable");
+												break;
+
+											case EBUSY:
+												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: "
+													"The implementation has detected an attempt to re-initialise the object referenced by cond,"
+													" a previously initialised, but not yet destroyed, condition variable.");
+												break;
+
+											case EINVAL:
+												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: The value specified by attr is invalid.");
+												break;
+
+											default:
+												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond, %d", res);
+												break;
+										}
+								}
+
+							pthread_mutex_destroy (& (resource_p -> uatr_mutex));
 						}		/* if (res == 0) */
 					else
 						{
 							switch (res)
 								{
-									case ENOMEM:
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: "
-											"Insufficient memory exists to initialise the condition variable.");
+									case EAGAIN:
+										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: "
+											"The system lacked the necessary resources (other than memory) to initialise another mutex.");
 										break;
 
-									case EAGAIN:
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: The system"
-											"lacked the necessary resources (other than memory) to initialise another condition variable");
+									case ENOMEM:
+										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: The system"
+											"Insufficient memory exists to initialise the mutex.");
+										break;
+
+									case EPERM:
+										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: "
+											"The caller does not have the privilege to perform the operation.");
 										break;
 
 									case EBUSY:
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: "
-											"The implementation has detected an attempt to re-initialise the object referenced by cond,"
-											" a previously initialised, but not yet destroyed, condition variable.");
+										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: "
+											"The implementation has detected an attempt to re-initialise the object referenced by mutex, "
+											"a previously initialised, but not yet destroyed, mutex.");
 										break;
 
 									case EINVAL:
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond: The value specified by attr is invalid.");
+										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: The value specified by attr is invalid.");
 										break;
 
 									default:
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource cond, %d", res);
+										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex, %d", res);
 										break;
 								}
+
 						}
 
-					pthread_mutex_destroy (& (resource_p -> atr_mutex));
-				}		/* if (res == 0) */
-			else
-				{
-					switch (res)
-						{
-							case EAGAIN:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: "
-									"The system lacked the necessary resources (other than memory) to initialise another mutex.");
-								break;
-
-							case ENOMEM:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: The system"
-									"Insufficient memory exists to initialise the mutex.");
-								break;
-
-							case EPERM:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: "
-									"The caller does not have the privilege to perform the operation.");
-								break;
-
-							case EBUSY:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: "
-									"The implementation has detected an attempt to re-initialise the object referenced by mutex, "
-									"a previously initialised, but not yet destroyed, mutex.");
-								break;
-
-							case EINVAL:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex: The value specified by attr is invalid.");
-								break;
-
-							default:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create AsyncTaskResource mutex, %d", res);
-								break;
-						}
-
-				}
+				}		/* if (InitAsyncTaskResource (& (resource_p -> uatr_base_resource))) */
 
 			FreeMemory (resource_p);
 		}		/* if (resource_p) */
@@ -155,7 +135,9 @@ struct AsyncTaskResource *CreateAsyncTaskResource (void)
 
 void FreeAsyncTaskResource (struct AsyncTaskResource *resource_p)
 {
-	int res = pthread_cond_destroy (& (resource_p -> atr_cond));
+	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
+
+	int res = pthread_cond_destroy (& (unix_resource_p -> uatr_cond));
 
 	if (res != 0)
 		{
@@ -188,7 +170,7 @@ void FreeAsyncTaskResource (struct AsyncTaskResource *resource_p)
 		}
 
 
-	res = pthread_mutex_destroy (& (resource_p -> atr_mutex));
+	res = pthread_mutex_destroy (& (unix_resource_p -> uatr_mutex));
 
 	if (res != 0)
 		{
@@ -211,17 +193,17 @@ void FreeAsyncTaskResource (struct AsyncTaskResource *resource_p)
 				}
 		}
 
-	FreeMemory (resource_p);
+	ClearAsyncTaskResource (resource_p);
+
+	FreeMemory (unix_resource_p);
 }
 
 
-
-
-
-bool LockAsyncTaskMonitorResource (struct AsyncTaskResource *resource_p)
+bool LockAsyncTaskResource (AsyncTaskResource *resource_p)
 {
 	bool success_flag = false;
-	int res = pthread_mutex_lock (& (resource_p -> atr_mutex));
+	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
+	int res = pthread_mutex_lock (& (unix_resource_p -> uatr_mutex));
 
 	if (res == 0)
 		{
@@ -257,10 +239,11 @@ bool LockAsyncTaskMonitorResource (struct AsyncTaskResource *resource_p)
 }
 
 
-bool UnlockAsyncTaskMonitorResource (struct AsyncTaskResource *resource_p)
+bool UnlockAsyncTaskResource (AsyncTaskResource *resource_p)
 {
 	bool success_flag = false;
-	int res = pthread_mutex_unlock (& (resource_p -> atr_mutex));
+	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
+	int res = pthread_mutex_unlock (& (unix_resource_p -> uatr_mutex));
 
 	if (res == 0)
 		{
@@ -289,3 +272,33 @@ bool UnlockAsyncTaskMonitorResource (struct AsyncTaskResource *resource_p)
 
 	return success_flag;
 }
+
+
+void FireAsyncTaskResource (AsyncTaskResource *resource_p)
+{
+	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
+
+	pthread_cond_signal (& (unix_resource_p -> uatr_cond));
+}
+
+
+void WaitOnAsyncTaskResource (AsyncTaskResource *resource_p)
+{
+	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
+
+	if (LockAsyncTaskResource (resource_p))
+		{
+			while (resource_p -> atr_continue_fn (resource_p))
+				{
+					pthread_cond_wait (& (unix_resource_p -> uatr_cond), & (unix_resource_p -> uatr_mutex));
+				}
+
+			if (!UnlockAsyncTaskResource (resource_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskResource mutex");
+				}
+		}
+}
+
+
+

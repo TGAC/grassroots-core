@@ -9,13 +9,20 @@
 #define CORE_SERVER_TASK_INCLUDE_ASYNC_TASK_RESOURCE_H_
 
 #include "grassroots_task_library.h"
+#include "typedefs.h"
 
 
-/* forward declaration, as AsyncTaskResource will be platform-specific */
+
 /**
  * A datatype to communicate between AsyncTasks.
  */
-struct AsyncTaskResource;
+
+typedef struct AsyncTaskResource
+{
+	bool (*atr_continue_fn) (struct AsyncTaskResource *resource_p);
+	void *atr_data_p;
+	void (*atr_free_data_fn) (void *data_p);
+} AsyncTaskResource;
 
 
 /**
@@ -24,7 +31,7 @@ struct AsyncTaskResource;
  * @return The new AsyncTaskResource or <code>NULL</code> upon error.
  * @memberof AsyncTaskResource
  */
-GRASSROOTS_TASK_API	struct AsyncTaskResource *CreateAsyncTaskResource (void);
+GRASSROOTS_TASK_API	AsyncTaskResource *CreateAsyncTaskResource (void);
 
 
 /**
@@ -33,13 +40,25 @@ GRASSROOTS_TASK_API	struct AsyncTaskResource *CreateAsyncTaskResource (void);
  * @param task_p The AsyncTaskResource to free.
  * @memberof AsyncTaskResource
  */
-GRASSROOTS_TASK_API	void FreeAsyncTaskResource (struct AsyncTaskResource *resource_p);
+GRASSROOTS_TASK_API	void FreeAsyncTaskResource (AsyncTaskResource *resource_p);
 
 
-GRASSROOTS_TASK_API bool LockAsyncTaskMonitorResource (struct AsyncTaskResource *resource_p);
+GRASSROOTS_TASK_API bool InitAsyncTaskResource (AsyncTaskResource *resource_p);
 
 
-GRASSROOTS_TASK_API bool UnlockAsyncTaskMonitorResource (struct AsyncTaskResource *resource_p);
+GRASSROOTS_TASK_API void ClearAsyncTaskResource (AsyncTaskResource *resource_p);
+
+
+GRASSROOTS_TASK_API bool LockAsyncTaskResource (AsyncTaskResource *resource_p);
+
+
+GRASSROOTS_TASK_API bool UnlockAsyncTaskResource (AsyncTaskResource *resource_p);
+
+
+GRASSROOTS_TASK_API void FireAsyncTaskResource (AsyncTaskResource *resource_p);
+
+
+GRASSROOTS_TASK_API	void SetAsyncTaskResourceData (AsyncTaskResource *resource_p, void *data_p, void (*free_data_fn) (void *data_p));
 
 
 #endif /* CORE_SERVER_TASK_INCLUDE_ASYNC_TASK_RESOURCE_H_ */

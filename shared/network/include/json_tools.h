@@ -123,21 +123,6 @@ GRASSROOTS_NETWORK_API json_t *GetKeywordServicesRequest (const UserDetails *use
 GRASSROOTS_NETWORK_API json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_name_s, const SchemaVersion * const sv_p);
 
 
-/**
- * Generate the JSON fragment to send to the Server for checking the status of an Operation.
- *
- * @param user_p The UserDetails for the credentials that will be added.
- * @param service_uuid_s The uuid for the requested Operation.
- * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
- * then you can set this value to the version that you require. If this is <code>NULL</code>, then the
- * current version of the running Grassroots system will be used.
- * @return The JSON fragment to send to the Server or <code>
- * NULL</code> upon error.
- *
- * @ingroup network_group
- */
-GRASSROOTS_NETWORK_API json_t *GetCheckServicesRequest (const UserDetails *user_p, const char * const service_uuid_s, const SchemaVersion * const sv_p);
-
 
 /**
  * Add the given credentials in the correct position in a JSON fragment.
@@ -221,23 +206,6 @@ GRASSROOTS_NETWORK_API void WipeJSON (json_t *json_p);
  * @ingroup network_group
  */
 GRASSROOTS_NETWORK_API const char *GetUserUUIDStringFromJSON (const json_t *credentials_p);
-
-
-/**
- * Generate the JSON fragment to send to the Server for checking the status of one or more Operations.
- *
- * @param ids_pp An array of uuid_ts, one for each operation .
- * @param num_ids The number of ids in ids_pp.
- * @param connection_p The Connection to the Server.
- * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
- * then you can set this value to the version that you require. If this is <code>NULL</code>, then the
- * current version of the running Grassroots system will be used.
- * @return The JSON fragment to send to the Server or <code>
- * NULL</code> upon error.
- *
- * @ingroup network_group
- */
-GRASSROOTS_NETWORK_API json_t *GetServicesStatusRequest (const uuid_t **ids_pp, const uint32 num_ids, Connection *connection_p, const SchemaVersion * const sv_p);
 
 
 /**

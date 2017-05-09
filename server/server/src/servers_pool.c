@@ -232,11 +232,6 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 														break;
 
 
-													case OP_CHECK_SERVICE_STATUS:
-														break;
-
-													case OP_CLEAN_UP_JOBS:
-														break;
 
 													default:
 														break;

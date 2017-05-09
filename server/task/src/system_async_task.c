@@ -137,5 +137,5 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Leaving RunAsyncSystemTaskHook for %s with status %d", uuid_s, status);
 	#endif
 
-	pthread_exit (NULL);
+	//pthread_exit (NULL);
 }
