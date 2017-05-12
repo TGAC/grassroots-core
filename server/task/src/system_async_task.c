@@ -19,9 +19,9 @@
 static void *RunAsyncSystemTaskHook (void *data_p);
 
 
-SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *command_s, bool detach_flag)
+SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *name_s, const char *command_s)
 {
-	struct AsyncTask *async_task_p = CreateAsyncTask (detach_flag);
+	AsyncTask *async_task_p = CreateAsyncTask (name_s);
 
 	if (async_task_p)
 		{
@@ -137,5 +137,5 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Leaving RunAsyncSystemTaskHook for %s with status %d", uuid_s, status);
 	#endif
 
-	//pthread_exit (NULL);
+	return NULL;
 }

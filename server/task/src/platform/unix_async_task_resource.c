@@ -19,19 +19,11 @@
 typedef struct UnixAsyncTaskResource
 {
 	AsyncTaskResource uatr_base_resource;
-	pthread_mutex_t uatr_mutex;
-	pthread_cond_t uatr_cond;
+	pthread_mutex_t uatr_task_status_mutex;
+	pthread_cond_t uatr_task_status_cond;
 } UnixAsyncTaskResource;
 
 
-
-
-bool ContinueRunningCountingAsyncTaskResource (struct AsyncTaskResource *resource_p)
-{
-	struct CountingAsyncTaskResource *counting_resource_p = (struct CountingAsyncTaskResource *) resource_p;
-
-	return false;
-}
 
 
 AsyncTaskResource *CreateAsyncTaskResource (void)
@@ -42,11 +34,11 @@ AsyncTaskResource *CreateAsyncTaskResource (void)
 		{
 			if (InitAsyncTaskResource (& (resource_p -> uatr_base_resource)))
 				{
-					int res = pthread_mutex_init (& (resource_p -> uatr_mutex), NULL);
+					int res = pthread_mutex_init (& (resource_p -> uatr_task_status_mutex), NULL);
 
 					if (res == 0)
 						{
-							res = pthread_cond_init (& (resource_p -> uatr_cond), NULL);
+							res = pthread_cond_init (& (resource_p -> uatr_task_status_cond), NULL);
 
 							if (res == 0)
 								{
@@ -82,7 +74,7 @@ AsyncTaskResource *CreateAsyncTaskResource (void)
 										}
 								}
 
-							pthread_mutex_destroy (& (resource_p -> uatr_mutex));
+							pthread_mutex_destroy (& (resource_p -> uatr_task_status_mutex));
 						}		/* if (res == 0) */
 					else
 						{
@@ -137,7 +129,7 @@ void FreeAsyncTaskResource (struct AsyncTaskResource *resource_p)
 {
 	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
 
-	int res = pthread_cond_destroy (& (unix_resource_p -> uatr_cond));
+	int res = pthread_cond_destroy (& (unix_resource_p -> uatr_task_status_cond));
 
 	if (res != 0)
 		{
@@ -170,7 +162,7 @@ void FreeAsyncTaskResource (struct AsyncTaskResource *resource_p)
 		}
 
 
-	res = pthread_mutex_destroy (& (unix_resource_p -> uatr_mutex));
+	res = pthread_mutex_destroy (& (unix_resource_p -> uatr_task_status_mutex));
 
 	if (res != 0)
 		{
@@ -203,7 +195,7 @@ bool LockAsyncTaskResource (AsyncTaskResource *resource_p)
 {
 	bool success_flag = false;
 	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
-	int res = pthread_mutex_lock (& (unix_resource_p -> uatr_mutex));
+	int res = pthread_mutex_lock (& (unix_resource_p -> uatr_task_status_mutex));
 
 	if (res == 0)
 		{
@@ -243,7 +235,7 @@ bool UnlockAsyncTaskResource (AsyncTaskResource *resource_p)
 {
 	bool success_flag = false;
 	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
-	int res = pthread_mutex_unlock (& (unix_resource_p -> uatr_mutex));
+	int res = pthread_mutex_unlock (& (unix_resource_p -> uatr_task_status_mutex));
 
 	if (res == 0)
 		{
@@ -278,7 +270,7 @@ void FireAsyncTaskResource (AsyncTaskResource *resource_p)
 {
 	UnixAsyncTaskResource *unix_resource_p = (UnixAsyncTaskResource *) resource_p;
 
-	pthread_cond_signal (& (unix_resource_p -> uatr_cond));
+	pthread_cond_signal (& (unix_resource_p -> uatr_task_status_cond));
 }
 
 
@@ -290,7 +282,7 @@ void WaitOnAsyncTaskResource (AsyncTaskResource *resource_p)
 		{
 			while (resource_p -> atr_continue_fn (resource_p))
 				{
-					pthread_cond_wait (& (unix_resource_p -> uatr_cond), & (unix_resource_p -> uatr_mutex));
+					pthread_cond_wait (& (unix_resource_p -> uatr_task_status_cond), & (unix_resource_p -> uatr_task_status_mutex));
 				}
 
 			if (!UnlockAsyncTaskResource (resource_p))

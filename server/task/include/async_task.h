@@ -9,13 +9,16 @@
 #define CORE_SERVER_TASK_INCLUDE_ASYNC_TASK_H_
 
 #include "grassroots_task_library.h"
+#include "typedefs.h"
 
-/* forward declaration, as AsyncTask will be platform-specific */
 /**
  * A datatype to used to run tasks asynchronously.
  */
-struct AsyncTask;
 
+typedef struct AsyncTask
+{
+	char *at_name_s;
+} AsyncTask;
 
 
 #ifdef __cplusplus
@@ -30,7 +33,7 @@ extern "C"
  * @return The new AsyncTask or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	struct AsyncTask *CreateAsyncTask (bool detach_flag);
+GRASSROOTS_TASK_API	AsyncTask *CreateAsyncTask (const char *name_s);
 
 
 /**
@@ -40,7 +43,31 @@ GRASSROOTS_TASK_API	struct AsyncTask *CreateAsyncTask (bool detach_flag);
  * @param task_p The AsyncTask to free.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	void FreeAsyncTask (struct AsyncTask *task_p);
+GRASSROOTS_TASK_API	void FreeAsyncTask (AsyncTask *task_p);
+
+
+/**
+ * Initialise an AsyncTask.
+ *
+ * @param The AsyncTask to initialise.
+ * @param The name to give the AsyncTask.
+ * @return <code>true</code> if the AsyncTask was started
+ * successfully, <code>false</code> otherwise.
+ * @memberof AsyncTask
+ */
+GRASSROOTS_TASK_API	bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s);
+
+
+/**
+ * Clear an AsyncTask. If it is currently running, it will be stopped
+ * first by calling CloseAsyncTask ().
+ *
+ * @param task_p The AsyncTask to clear.
+ * @memberof AsyncTask
+ */
+GRASSROOTS_TASK_API	void ClearAsyncTask (AsyncTask *task_p);
+
+
 
 
 /**
@@ -49,7 +76,7 @@ GRASSROOTS_TASK_API	void FreeAsyncTask (struct AsyncTask *task_p);
  * @param task_p The AsyncTask to stop.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API void CloseAsyncTask (struct AsyncTask *task_p);
+GRASSROOTS_TASK_API void CloseAsyncTask (AsyncTask *task_p);
 
 
 /**
@@ -60,7 +87,7 @@ GRASSROOTS_TASK_API void CloseAsyncTask (struct AsyncTask *task_p);
  * false</code> otherwise.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	bool IsAsyncTaskRunning (const struct AsyncTask *task_p);
+GRASSROOTS_TASK_API	bool IsAsyncTaskRunning (const AsyncTask *task_p);
 
 
 /**
@@ -74,7 +101,7 @@ GRASSROOTS_TASK_API	bool IsAsyncTaskRunning (const struct AsyncTask *task_p);
  * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	bool RunAsyncTask (struct AsyncTask *task_p, void * (*run_fn) (void *data_p), void *task_data_p);
+GRASSROOTS_TASK_API	bool RunAsyncTask (AsyncTask *task_p, void * (*run_fn) (void *data_p), void *task_data_p);
 
 
 /**

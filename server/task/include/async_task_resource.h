@@ -19,11 +19,18 @@
 
 typedef struct AsyncTaskResource
 {
+
 	bool (*atr_continue_fn) (struct AsyncTaskResource *resource_p);
 	void *atr_data_p;
 	void (*atr_free_data_fn) (void *data_p);
 } AsyncTaskResource;
 
+
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /**
  * Create an AsyncTaskResource.
@@ -59,6 +66,12 @@ GRASSROOTS_TASK_API void FireAsyncTaskResource (AsyncTaskResource *resource_p);
 
 
 GRASSROOTS_TASK_API	void SetAsyncTaskResourceData (AsyncTaskResource *resource_p, void *data_p, void (*free_data_fn) (void *data_p));
+
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* CORE_SERVER_TASK_INCLUDE_ASYNC_TASK_RESOURCE_H_ */

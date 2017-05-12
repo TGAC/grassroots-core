@@ -23,7 +23,7 @@ bool InitAsyncTaskResource (AsyncTaskResource *resource_p)
 	resource_p -> atr_continue_fn = NULL;
 	resource_p -> atr_data_p = NULL;
 	resource_p -> atr_free_data_fn = NULL;
-	resource_p -> atr_signal_fn = NULL;
+	//resource_p -> atr_signal_fn = NULL;
 
 	return true;
 }

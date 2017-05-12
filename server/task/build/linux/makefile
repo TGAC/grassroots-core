@@ -38,7 +38,9 @@ INCLUDES = \
 	-I$(DIR_BSON_INC) \
 	
 SRCS 	= \
+	async_task.c \
 	async_task_resource.c \
+	count_async_task_monitor.c \
 	count_async_task_resource.c \
 	unix_async_task.c \
 	unix_async_task_resource.c \
