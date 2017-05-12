@@ -9,8 +9,8 @@
 #define CORE_SERVER_TASK_INCLUDE_ASYNC_TASK_MANAGER_H_
 
 
-#include "async_task_monitor.h"
 #include "async_task.h"
+#include "async_task_consumer.h"
 
 
 typedef struct AsyncTaskManager

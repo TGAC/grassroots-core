@@ -39,11 +39,11 @@ INCLUDES = \
 	
 SRCS 	= \
 	async_task.c \
-	async_task_resource.c \
-	count_async_task_monitor.c \
-	count_async_task_resource.c \
+	async_task_producer.c \
+	count_async_task_consumer.c \
+	count_async_task_producer.c \
 	unix_async_task.c \
-	unix_async_task_resource.c \
+	unix_async_task_producer.c \
 	system_async_task.c \
 	
 CPPFLAGS += -DGRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS 
