@@ -19,4 +19,26 @@ typedef struct CountAsyncTaskConsumer
 
 } CountAsyncTaskConsumer;
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
+GRASSROOTS_TASK_API CountAsyncTaskConsumer *AllocateCountAsyncTaskConsumer (int32 limit);
+
+
+GRASSROOTS_TASK_API void FreeCountAsyncTaskConsumer (CountAsyncTaskConsumer *consumer_p);
+
+
+GRASSROOTS_TASK_API bool WatchCountAsyncTaskConsumer (CountAsyncTaskConsumer *consumer_p);
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
 #endif /* CORE_SERVER_TASK_INCLUDE_COUNT_ASYNC_TASK_CONSUMER_H_ */

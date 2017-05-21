@@ -11,12 +11,12 @@
 #include "async_task_producer.h"
 
 
-typedef struct CountAsyncTaskProducer
+typedef struct CountAsyncTask
 {
-	AsyncTaskProducer catp_base_producer;
-	int32 catp_current_value;
-	int32 catp_limit;
-} CountAsyncTaskProducer;
+	AsyncTask *cat_task_p;
+	int32 cat_current_value;
+	int32 cat_limit;
+} CountAsyncTask;
 
 
 
@@ -27,16 +27,16 @@ extern "C"
 
 
 
-GRASSROOTS_TASK_API CountAsyncTaskProducer *AllocateCountAsyncTaskProducer (int32 limit);
+GRASSROOTS_TASK_API CountAsyncTask *AllocateCountAsyncTask (int32 limit);
 
 
-GRASSROOTS_TASK_API void FreeCountAsyncTaskProducer (CountAsyncTaskProducer *producer_p);
+GRASSROOTS_TASK_API void FreeCountAsyncTask (CountAsyncTask *count_task_p);
 
 
-GRASSROOTS_TASK_API bool IncrementCountAsyncTaskProducer (CountAsyncTaskProducer *producer_p);
+GRASSROOTS_TASK_API bool IncrementCountAsyncTask (CountAsyncTask *count_task_p);
 
 
-GRASSROOTS_TASK_API bool HasCountAsyncTaskProducerFinished (const CountAsyncTaskProducer *producer_p);
+GRASSROOTS_TASK_API bool HasCountAsyncTaskFinished (const CountAsyncTask *count_task_p);
 
 
 #ifdef __cplusplus

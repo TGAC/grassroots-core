@@ -10,54 +10,58 @@
 #include "memory_allocations.h"
 
 
-CountAsyncTaskProducer *AllocateCountAsyncTaskProducer (int32 limit)
+CountAsyncTask *AllocateCountAsyncTaskProducer (int32 limit)
 {
-	CountAsyncTaskProducer *producer_p = (CountAsyncTaskProducer *) AllocMemory (sizeof (CountAsyncTaskProducer));
+	CountAsyncTask *count_task_p = (CountAsyncTask *) AllocMemory (sizeof (CountAsyncTask));
 
-	if (producer_p)
+	if (count_task_p)
 		{
-			if (InitAsyncTaskProducer (& (producer_p -> catp_base_producer)))
+			if (InitAsyncTaskProducer (count_task_p -> catp_producer_p))
 				{
-					producer_p -> catp_current_value = 0;
-					producer_p -> catp_limit = limit;
+					count_task_p -> cat_current_value = 0;
+					count_task_p -> cat_limit = limit;
 
-					return producer_p;
+					return count_task_p;
 				}		/* if (InitAsyncTaskProducer (& (producer_p -> catp_base_producer))) */
 
-			FreeMemory (producer_p);
-		}		/* if (producer_p) */
+			FreeMemory (count_task_p);
+		}		/* if (count_task_p) */
 
 	return NULL;
 }
 
 
-void FreeCountAsyncTaskProducer (CountAsyncTaskProducer *producer_p)
+void FreeCountAsyncTask (CountAsyncTask *count_task_p)
 {
-	ClearAsyncTaskProducer (& (producer_p -> catp_base_producer));
-	FreeMemory (producer_p);
+	FreeAsyncTaskProducer (producer_p -> catp_producer_p);
+	FreeMemory (count_task_p);
 }
 
 
 
-bool IncrementCountAsyncTaskProducer (CountAsyncTaskProducer *producer_p)
+bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)
 {
 	bool success_flag = false;
+	SyncData *sync_data_p = count_task_p -> cat_task_p -> at_sync_data_p;
 
-	if (LockAsyncTaskProducer (& (producer_p -> catp_base_producer)))
+	if (sync_data_p)
 		{
-			++ (producer_p -> catp_current_value);
-
-			success_flag = true;
-
-			if (producer_p -> catp_current_value == producer_p -> catp_limit)
+			if (AcquireSyncDataLock (sync_data_p))
 				{
-					/* send signal */
-					FireAsyncTaskProducer (& (producer_p -> catp_base_producer));
-				}
+					++ (count_task_p -> cat_current_value);
 
-			if (!UnlockAsyncTaskProducer (& (producer_p -> catp_base_producer)))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskProducer");
+					success_flag = true;
+
+					if (count_task_p -> cat_current_value == count_task_p -> cat_limit)
+						{
+							/* send signal */
+							SendSyncData (sync_data_p);
+						}
+
+					if (!ReleaseSyncDataLock (sync_data_p))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskProducer");
+						}
 				}
 		}
 
@@ -65,7 +69,7 @@ bool IncrementCountAsyncTaskProducer (CountAsyncTaskProducer *producer_p)
 }
 
 
-bool HasCountAsyncTaskProducerFinished (const CountAsyncTaskProducer *producer_p)
+bool HasCountAsyncTaskProducerFinished (const CountAsyncTask *count_task_p)
 {
-	return (producer_p -> catp_current_value == producer_p -> catp_limit);
+	return (count_task_p -> cat_current_value == count_task_p -> cat_limit);
 }

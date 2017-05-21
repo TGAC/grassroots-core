@@ -21,7 +21,7 @@
 typedef struct AsyncTaskConsumer
 {
 	AsyncTask *atc_task_p;
-	bool (*atr_continue_fn) (struct AsyncTaskResource *resource_p);
+	bool (*atr_continue_fn) (struct AsyncTaskConsumer *resource_p);
 	void *atr_data_p;
 	void (*atr_free_data_fn) (void *data_p);
 } AsyncTaskConsumer;

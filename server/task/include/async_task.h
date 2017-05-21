@@ -10,6 +10,10 @@
 
 #include "grassroots_task_library.h"
 #include "typedefs.h"
+#include "linked_list.h"
+#include "sync_data.h"
+#include "memory_allocations.h"
+
 
 /**
  * A datatype to used to run tasks asynchronously.
@@ -18,7 +22,17 @@
 typedef struct AsyncTask
 {
 	char *at_name_s;
+	struct SyncData *at_sync_data_p;
+	MEM_FLAG at_sync_data_mem;
 } AsyncTask;
+
+
+
+typedef struct AsyncTaskNode
+{
+	ListItem atn_node;
+	AsyncTask *atn_task_p;
+} AsyncTaskNode;
 
 
 #ifdef __cplusplus
@@ -80,6 +94,18 @@ GRASSROOTS_TASK_API void CloseAsyncTask (AsyncTask *task_p);
 
 
 /**
+ * Set the SyncData for an AsyncTask.
+ *
+ * @param task_p The AsyncTask to amend.
+ * @param sync_data_p The SyncData to set.
+ * @param mem The MEM_FLAG specifying how the SyncData will be dealt with
+ * when the AsyncTask is freed.
+ * @memberof AsyncTask
+ */
+GRASSROOTS_TASK_API	void SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem);
+
+
+/**
  * Check whether an AsyncTask is currently running.
  *
  * @param task_p The AsyncTask to check.
@@ -111,6 +137,25 @@ GRASSROOTS_TASK_API	bool RunAsyncTask (AsyncTask *task_p, void * (*run_fn) (void
  * successfully, <code>false</code> otherwise.
  */
 GRASSROOTS_TASK_API	 bool CloseAllAsyncTasks (void);
+
+
+/**
+ * Create an AsyncTaskNode.
+ *
+ * @return The new AsyncTaskNode or <code>NULL</code> upon error.
+ * @memberof AsyncTask
+ */
+GRASSROOTS_TASK_API	AsyncTaskNode *CreateAsyncTaskNode (AsyncTask *task_p);
+
+
+/**
+ * Free an AsyncTaskNode.
+ *
+ * @param The AsyncTaskNode to free.
+ * @memberof AsyncTask
+ */
+GRASSROOTS_TASK_API	void FreeAsyncTaskNode (ListItem *node_p);
+
 
 
 #ifdef __cplusplus

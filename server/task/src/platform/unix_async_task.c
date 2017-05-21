@@ -91,6 +91,21 @@ void CloseAsyncTask (AsyncTask *task_p)
 }
 
 
+void SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem)
+{
+	if (task_p -> at_sync_data_p)
+		{
+			if ((task_p -> at_sync_data_mem == MF_DEEP_COPY) || (task_p -> at_sync_data_mem == MF_SHALLOW_COPY))
+				{
+					FreeSyncData (task_p -> at_sync_data_p);
+				}
+		}
+
+	task_p -> at_sync_data_p = sync_data_p;
+	task_p -> at_sync_data_mem = mem;
+}
+
+
 bool IsAsyncTaskRunning (const AsyncTask *task_p)
 {
 	UnixAsyncTask *unix_task_p = (UnixAsyncTask *) task_p;

@@ -19,10 +19,7 @@
 
 typedef struct AsyncTaskProducer
 {
-	AsyncTask *atp_task_p;
-	bool (*atp_continue_fn) (struct AsyncTaskProducer *producer_p);
-	void *atp_data_p;
-	void (*atp_free_data_fn) (void *data_p);
+	AsyncTask atp_task;
 } AsyncTaskProducer;
 
 
@@ -31,14 +28,6 @@ typedef struct AsyncTaskProducer
 extern "C"
 {
 #endif
-
-/**
- * Create an AsyncTaskProducer.
- *
- * @return The new AsyncTaskProducer or <code>NULL</code> upon error.
- * @memberof AsyncTaskProducer
- */
-GRASSROOTS_TASK_API	AsyncTaskProducer *CreateAsyncTaskProducer (void);
 
 
 /**
