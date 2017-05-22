@@ -5,27 +5,31 @@
  *      Author: billy
  */
 
-#include "count_async_task_producer.h"
+#include "count_async_task.h"
+
 #include "streams.h"
 #include "memory_allocations.h"
 
 
-CountAsyncTask *AllocateCountAsyncTaskProducer (int32 limit)
+CountAsyncTask *AllocateCountAsyncTask (const char *name_s, int32 limit)
 {
-	CountAsyncTask *count_task_p = (CountAsyncTask *) AllocMemory (sizeof (CountAsyncTask));
+	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
 
-	if (count_task_p)
+	if (async_task_p)
 		{
-			if (InitAsyncTaskProducer (count_task_p -> catp_producer_p))
+			CountAsyncTask *count_task_p = (CountAsyncTask *) AllocMemory (sizeof (CountAsyncTask));
+
+			if (count_task_p)
 				{
+					count_task_p -> cat_task_p = async_task_p;
 					count_task_p -> cat_current_value = 0;
 					count_task_p -> cat_limit = limit;
 
 					return count_task_p;
-				}		/* if (InitAsyncTaskProducer (& (producer_p -> catp_base_producer))) */
+				}		/* if (count_task_p) */
 
-			FreeMemory (count_task_p);
-		}		/* if (count_task_p) */
+			FreeAsyncTask (async_task_p);
+		}
 
 	return NULL;
 }
@@ -33,7 +37,7 @@ CountAsyncTask *AllocateCountAsyncTaskProducer (int32 limit)
 
 void FreeCountAsyncTask (CountAsyncTask *count_task_p)
 {
-	FreeAsyncTaskProducer (producer_p -> catp_producer_p);
+	FreeAsyncTask (count_task_p -> cat_task_p);
 	FreeMemory (count_task_p);
 }
 
@@ -69,7 +73,15 @@ bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)
 }
 
 
-bool HasCountAsyncTaskProducerFinished (const CountAsyncTask *count_task_p)
+bool HasCountAsyncTaskFinished (const CountAsyncTask *count_task_p)
 {
 	return (count_task_p -> cat_current_value == count_task_p -> cat_limit);
 }
+
+
+void SetCountAsyncTaskLimit (CountAsyncTask *task_p, int32 limit)
+{
+	task_p -> cat_limit = limit;
+	task_p -> cat_current_value = 0;
+}
+

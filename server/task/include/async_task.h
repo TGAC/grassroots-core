@@ -24,6 +24,8 @@ typedef struct AsyncTask
 	char *at_name_s;
 	struct SyncData *at_sync_data_p;
 	MEM_FLAG at_sync_data_mem;
+	void *(*at_run_fn) (void *data_p);
+	void *at_data_p;
 } AsyncTask;
 
 
@@ -47,7 +49,7 @@ extern "C"
  * @return The new AsyncTask or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	AsyncTask *CreateAsyncTask (const char *name_s);
+GRASSROOTS_TASK_API	AsyncTask *AllocateAsyncTask (const char *name_s);
 
 
 /**
@@ -106,6 +108,19 @@ GRASSROOTS_TASK_API	void SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync
 
 
 /**
+ * Set the function and data used when running a given AsyncTask.
+ *
+ * @param task_p The AsyncTask to amend.
+ * @param sync_data_p The SyncData to set.
+ * @param mem The MEM_FLAG specifying how the SyncData will be dealt with
+ * when the AsyncTask is freed.
+ * @memberof AsyncTask
+ */
+GRASSROOTS_TASK_API	void SetAsyncTaskRunData (AsyncTask *task_p, void *(*run_fn) (void *data_p), void *data_p);
+
+
+
+/**
  * Check whether an AsyncTask is currently running.
  *
  * @param task_p The AsyncTask to check.
@@ -127,7 +142,7 @@ GRASSROOTS_TASK_API	bool IsAsyncTaskRunning (const AsyncTask *task_p);
  * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	bool RunAsyncTask (AsyncTask *task_p, void * (*run_fn) (void *data_p), void *task_data_p);
+GRASSROOTS_TASK_API	bool RunAsyncTask (AsyncTask *task_p);
 
 
 /**
@@ -145,7 +160,7 @@ GRASSROOTS_TASK_API	 bool CloseAllAsyncTasks (void);
  * @return The new AsyncTaskNode or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	AsyncTaskNode *CreateAsyncTaskNode (AsyncTask *task_p);
+GRASSROOTS_TASK_API	AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p);
 
 
 /**

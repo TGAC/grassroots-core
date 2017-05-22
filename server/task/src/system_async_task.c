@@ -16,12 +16,13 @@
 	#define ASYNC_SYSTEM_BLAST_TOOL_DEBUG (STM_LEVEL_NONE)
 #endif
 
+
 static void *RunAsyncSystemTaskHook (void *data_p);
 
 
 SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *name_s, const char *command_s)
 {
-	AsyncTask *async_task_p = CreateAsyncTask (name_s);
+	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
 
 	if (async_task_p)
 		{
@@ -67,7 +68,9 @@ void FreeSystemTaskData (SystemTaskData *task_data_p)
 
 bool RunAsyncSystemTask (SystemTaskData *task_data_p)
 {
-	return RunAsyncTask (task_data_p -> std_async_task_p, RunAsyncSystemTaskHook, task_data_p);
+	SetAsyncTaskRunData (task_data_p -> std_async_task_p, RunAsyncSystemTaskHook, task_data_p);
+
+	return RunAsyncTask (task_data_p -> std_async_task_p);
 }
 
 
@@ -125,11 +128,18 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
 				}
+
+			if (task_data_p -> std_async_task_p -> at_sync_data_p)
+				{
+					SendSyncData (task_data_p -> std_async_task_p -> at_sync_data_p);
+				}
 		}
 
 	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to call FreeSystemTaskData for %s in RunAsyncSystemTaskHook with \"%s\"", uuid_s, task_data_p -> std_command_line_s);
 	#endif
+
+
 
 	FreeSystemTaskData (task_data_p);
 

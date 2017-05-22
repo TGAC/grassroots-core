@@ -62,8 +62,15 @@ void ClearAsyncTask (AsyncTask *task_p)
 }
 
 
+void SetAsyncTaskRunData (AsyncTask *task_p, void *(*run_fn) (void *data_p), void *data_p)
+{
+	task_p -> at_run_fn = run_fn;
+	task_p -> at_data_p = data_p;
+}
 
-AsyncTaskNode *CreateAsyncTaskNode (AsyncTask *task_p)
+
+
+AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p)
 {
 	AsyncTaskNode *node_p = (AsyncTaskNode *) AllocMemory (sizeof (AsyncTaskNode));
 

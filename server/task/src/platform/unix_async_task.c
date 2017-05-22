@@ -45,7 +45,7 @@ typedef struct UnixAsyncTask
 
 
 
-AsyncTask *CreateAsyncTask (const char *name_s)
+AsyncTask *AllocateAsyncTask (const char *name_s)
 {
 	UnixAsyncTask *task_p = (UnixAsyncTask *) AllocMemory (sizeof (struct UnixAsyncTask));
 
@@ -121,11 +121,11 @@ bool CloseAllAsyncTasks (void)
 }
 
 
-bool RunAsyncTask (AsyncTask *task_p, void * (*run_fn) (void *data_p), void *task_data_p)
+bool RunAsyncTask (AsyncTask *task_p)
 {
 	bool success_flag = true;
 	UnixAsyncTask *unix_task_p = (UnixAsyncTask *) task_p;
-	int res = pthread_create (& (unix_task_p -> uat_thread), & (unix_task_p -> uat_attributes), run_fn, task_data_p);
+	int res = pthread_create (& (unix_task_p -> uat_thread), & (unix_task_p -> uat_attributes), task_p -> at_run_fn, task_p -> at_data_p);
 
 	if (res == 0)
 		{
@@ -135,7 +135,7 @@ bool RunAsyncTask (AsyncTask *task_p, void * (*run_fn) (void *data_p), void *tas
 		{
 			unix_task_p -> uat_valid_thread_flag = false;
 			success_flag = false;
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create task for RunThreadedSystemTask %d", res);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create task for RunAsyncTask %d", res);
 		}
 
 	return success_flag;
