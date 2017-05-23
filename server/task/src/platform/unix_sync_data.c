@@ -273,5 +273,16 @@ void WaitOnSyncData (struct SyncData *sync_data_p, bool (*continue_fn) (void *da
 
 void SendSyncData (struct SyncData *sync_data_p)
 {
-	pthread_cond_signal (& (sync_data_p -> sd_cond));
+	bool success_flag = false;
+
+	if (AcquireSyncDataLock (sync_data_p))
+		{
+			/* send signal */
+			pthread_cond_signal (& (sync_data_p -> sd_cond));
+
+			if (!ReleaseSyncDataLock (sync_data_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskProducer");
+				}
+		}
 }

@@ -9,7 +9,7 @@
 
 
 
-AsyncTasksManager *AllocateAsyncTasksManager (void)
+AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 {
 	LinkedList *tasks_p = AllocateLinkedList (FreeAsyncTaskNode);
 
@@ -19,14 +19,22 @@ AsyncTasksManager *AllocateAsyncTasksManager (void)
 
 			if (sync_data_p)
 				{
-					AsyncTasksManager *manager_p = AllocMemory (sizeof (AsyncTasksManager));
+					CountAsyncTask *monitor_p = AllocateCountAsyncTask (name_s, 0);
 
-					if (manager_p)
+					if (monitor_p)
 						{
-							manager_p -> atm_tasks_p = tasks_p;
-							manager_p -> atm_sync_p = sync_data_p;
+							AsyncTasksManager *manager_p = AllocMemory (sizeof (AsyncTasksManager));
 
-							return manager_p;
+							if (manager_p)
+								{
+									manager_p -> atm_tasks_p = tasks_p;
+									manager_p -> atm_sync_p = sync_data_p;
+									manager_p -> atm_monitor_p = monitor_p;
+
+									return manager_p;
+								}
+
+							FreeCountAsyncTask (monitor_p);
 						}
 
 					FreeSyncData (sync_data_p);
@@ -42,6 +50,7 @@ AsyncTasksManager *AllocateAsyncTasksManager (void)
 
 void FreeAsyncTasksManager (AsyncTasksManager *manager_p)
 {
+	FreeCountAsyncTask (manager_p -> atm_monitor_p);
 	FreeSyncData (manager_p -> atm_sync_p);
 	FreeLinkedList (manager_p -> atm_tasks_p);
 
@@ -111,3 +120,11 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 }
 
 
+
+
+static bool ContinueCountAsyncTask (void *data_p)
+{
+	CountAsyncTask *task_p = (CountAsyncTask *) data_p;
+
+	return ContinueCountAsyncTask (task_p);
+}

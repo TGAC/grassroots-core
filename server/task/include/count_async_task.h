@@ -8,7 +8,7 @@
 #ifndef CORE_SERVER_TASK_INCLUDE_COUNT_ASYNC_TASK_H_
 #define CORE_SERVER_TASK_INCLUDE_COUNT_ASYNC_TASK_H_
 
-#include "async_task_producer.h"
+#include "async_task.h"
 
 
 typedef struct CountAsyncTask
@@ -16,6 +16,7 @@ typedef struct CountAsyncTask
 	AsyncTask *cat_task_p;
 	int32 cat_current_value;
 	int32 cat_limit;
+	bool (*cat_continue_fn) (struct CountAsyncTask *task_p);
 } CountAsyncTask;
 
 
@@ -35,10 +36,11 @@ GRASSROOTS_TASK_API void FreeCountAsyncTask (CountAsyncTask *count_task_p);
 GRASSROOTS_TASK_API bool IncrementCountAsyncTask (CountAsyncTask *count_task_p);
 
 
-GRASSROOTS_TASK_API bool HasCountAsyncTaskFinished (const CountAsyncTask *count_task_p);
+GRASSROOTS_TASK_API bool ContinueCountAsyncTask (const CountAsyncTask *count_task_p);
 
 
 GRASSROOTS_TASK_API void SetCountAsyncTaskLimit (CountAsyncTask *task_p, int32 limit);
+
 
 
 

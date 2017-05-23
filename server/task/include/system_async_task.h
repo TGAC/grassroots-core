@@ -38,7 +38,7 @@
 
 typedef struct SystemTaskData
 {
-	struct AsyncTask *std_async_task_p;
+	AsyncTask *std_async_task_p;
 	ServiceJob *std_service_job_p;
 	char *std_command_line_s;
 } SystemTaskData;

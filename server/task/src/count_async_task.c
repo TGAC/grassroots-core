@@ -73,9 +73,9 @@ bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)
 }
 
 
-bool HasCountAsyncTaskFinished (const CountAsyncTask *count_task_p)
+bool ContinueCountAsyncTask (const CountAsyncTask *count_task_p)
 {
-	return (count_task_p -> cat_current_value == count_task_p -> cat_limit);
+	return (count_task_p -> cat_current_value < count_task_p -> cat_limit);
 }
 
 
@@ -84,4 +84,6 @@ void SetCountAsyncTaskLimit (CountAsyncTask *task_p, int32 limit)
 	task_p -> cat_limit = limit;
 	task_p -> cat_current_value = 0;
 }
+
+
 
