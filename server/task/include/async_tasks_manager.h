@@ -10,7 +10,6 @@
 
 
 #include "async_task.h"
-#include "async_task_producer.h"
 #include "count_async_task.h"
 
 
@@ -19,6 +18,7 @@ typedef struct AsyncTasksManager
 	LinkedList *atm_tasks_p;
 	SyncData *atm_sync_p;
 	CountAsyncTask *atm_monitor_p;
+	EventConsumer *atm_consumer_p;
 } AsyncTasksManager;
 
 
@@ -29,7 +29,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (void);
+GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s);
 
 
 GRASSROOTS_TASK_API bool InitialiseAsyncTasksManager (AsyncTasksManager *manager_p);

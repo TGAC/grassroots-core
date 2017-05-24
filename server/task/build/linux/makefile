@@ -41,6 +41,7 @@ SRCS 	= \
 	async_task.c \
 	async_tasks_manager.c \
 	count_async_task.c \
+	event_consumer.c \
 	unix_sync_data.c \
 	unix_async_task.c \
 	system_async_task.c \

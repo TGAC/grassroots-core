@@ -44,6 +44,15 @@ typedef struct UnixAsyncTask
 } UnixAsyncTask;
 
 
+typedef struct AsyncTaskData
+{
+	AsyncTask atd_task;
+	void *atd_data_p;
+} AsyncTaskData;
+
+
+static void *DoAsyncTaskRun (void *data_p);
+
 
 AsyncTask *AllocateAsyncTask (const char *name_s)
 {
@@ -125,7 +134,7 @@ bool RunAsyncTask (AsyncTask *task_p)
 {
 	bool success_flag = true;
 	UnixAsyncTask *unix_task_p = (UnixAsyncTask *) task_p;
-	int res = pthread_create (& (unix_task_p -> uat_thread), & (unix_task_p -> uat_attributes), task_p -> at_run_fn, task_p -> at_data_p);
+	int res = pthread_create (& (unix_task_p -> uat_thread), & (unix_task_p -> uat_attributes), DoAsyncTaskRun, task_p);
 
 	if (res == 0)
 		{
@@ -139,4 +148,19 @@ bool RunAsyncTask (AsyncTask *task_p)
 		}
 
 	return success_flag;
+}
+
+
+static void *DoAsyncTaskRun (void *data_p)
+{
+	AsyncTask *async_task_p = (AsyncTask *) data_p;
+
+	void *res_p = async_task_p -> at_run_fn (async_task_p -> at_data_p);
+
+	if (async_task_p -> at_consumer_p)
+		{
+			RunEventConsumer (async_task_p -> at_consumer_p, NULL, OS_ERROR);
+		}
+
+	return res_p;
 }

@@ -86,6 +86,7 @@ AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, cons
 				{
 					LinkedListAddTail (manager_p -> atm_tasks_p, & (node_p -> atn_node));
 
+
 					return task_p;
 				}
 
@@ -105,8 +106,26 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 		{
 			AsyncTaskNode *node_p = (AsyncTaskNode *) (manager_p -> atm_tasks_p -> ll_head_p);
 
-			SetCountAsyncTaskLimit (manager_p -> atm_monitor_p, manager_p -> atm_tasks_p -> ll_size);
+			while (node_p)
+				{
+					AsyncTask *task_p = node_p -> atn_task_p;
 
+					task_p -> at_consumer_p = manager_p -> atm_consumer_p;
+
+					node_p = (AsyncTaskNode *) (node_p -> atn_node.ln_next_p);
+				}		/* while (node_p) */
+
+
+			/*
+			 * Set up the monitoring AsyncTask
+			 */
+			SetCountAsyncTaskLimit (manager_p -> atm_monitor_p, manager_p -> atm_tasks_p -> ll_size);
+			SetAsyncTaskRunData (manager_p -> atm_monitor_p, WaitOnSyncData, manager_p -> atm_monitor_p);
+			RunAsyncTask (manager_p -> atm_monitor_p);
+
+			/*
+			 * Now run each of the worker threads
+			 */
 			while (node_p)
 				{
 					RunAsyncTask (node_p -> atn_task_p);
@@ -120,9 +139,10 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 }
 
 
+void *(*run_fn) (void *data_p)
 
 
-static bool ContinueCountAsyncTask (void *data_p)
+static bool ContinueTask (void *data_p)
 {
 	CountAsyncTask *task_p = (CountAsyncTask *) data_p;
 

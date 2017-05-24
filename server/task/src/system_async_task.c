@@ -129,9 +129,10 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
 				}
 
-			if (task_data_p -> std_async_task_p -> at_sync_data_p)
+			if (task_data_p -> std_async_task_p -> at_consumer_p)
 				{
-					SendSyncData (task_data_p -> std_async_task_p -> at_sync_data_p);
+					RunEventConsumerFromAsyncTask (task_data_p -> std_async_task_p);
+					//SendSyncData (task_data_p -> std_async_task_p -> at_sync_data_p);
 				}
 		}
 

@@ -54,11 +54,15 @@ void ClearAsyncTask (AsyncTask *task_p)
 			if ((task_p -> at_sync_data_mem == MF_DEEP_COPY) || ((task_p -> at_sync_data_mem == MF_SHALLOW_COPY)))
 				{
 					FreeSyncData (task_p -> at_sync_data_p);
-					task_p -> at_sync_data_mem = MF_ALREADY_FREED;
 				}
 
 			task_p -> at_sync_data_p = NULL;
+			task_p -> at_sync_data_mem = MF_ALREADY_FREED;
 		}
+
+	task_p -> at_data_p = NULL;
+	task_p -> at_run_fn = NULL;
+	task_p -> at_consumer_p = NULL;
 }
 
 
@@ -96,5 +100,11 @@ void FreeAsyncTaskNode (ListItem *node_p)
 
 	FreeAsyncTask (at_node_p -> atn_task_p);
 	FreeMemory (at_node_p);
+}
+
+
+void RunEventConsumerFromAsyncTask (AsyncTask *task_p)
+{
+	task_p -> at_consumer_p -> at_consumer_fn (task_p -> at_consumer_p, task_p);
 }
 

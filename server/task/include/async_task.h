@@ -13,6 +13,7 @@
 #include "linked_list.h"
 #include "sync_data.h"
 #include "memory_allocations.h"
+#include "event_consumer.h"
 
 
 /**
@@ -26,6 +27,7 @@ typedef struct AsyncTask
 	MEM_FLAG at_sync_data_mem;
 	void *(*at_run_fn) (void *data_p);
 	void *at_data_p;
+	EventConsumer *at_consumer_p;
 } AsyncTask;
 
 
@@ -171,6 +173,19 @@ GRASSROOTS_TASK_API	AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p);
  */
 GRASSROOTS_TASK_API	void FreeAsyncTaskNode (ListItem *node_p);
 
+
+/**
+ * Run an AsyncTask.
+ *
+ * @param task_p The AsyncTask to run.
+ * @param run_fn The function that the AsyncTask will run. It will
+ * be called with the task_data_p parameter.
+ * @param task_data_p The parameter to use when calling run_fn.
+ * @return <code>true</code> if the AsyncTask was started
+ * successfully, <code>false</code> otherwise.
+ * @memberof AsyncTask
+ */
+GRASSROOTS_TASK_API void RunEventConsumerFromAsyncTask (AsyncTask *task_p);
 
 
 #ifdef __cplusplus

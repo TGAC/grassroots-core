@@ -265,7 +265,7 @@ void WaitOnSyncData (struct SyncData *sync_data_p, bool (*continue_fn) (void *da
 
 			if (!ReleaseSyncDataLock (sync_data_p))
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskProducer mutex");
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData lock");
 				}
 		}
 }
@@ -273,8 +273,6 @@ void WaitOnSyncData (struct SyncData *sync_data_p, bool (*continue_fn) (void *da
 
 void SendSyncData (struct SyncData *sync_data_p)
 {
-	bool success_flag = false;
-
 	if (AcquireSyncDataLock (sync_data_p))
 		{
 			/* send signal */
@@ -282,7 +280,7 @@ void SendSyncData (struct SyncData *sync_data_p)
 
 			if (!ReleaseSyncDataLock (sync_data_p))
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskProducer");
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData lock");
 				}
 		}
 }
