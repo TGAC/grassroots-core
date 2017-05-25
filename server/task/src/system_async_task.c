@@ -142,7 +142,7 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 
 
 
-	FreeSystemTaskData (task_data_p);
+	FreeSystemAsyncTask (task_data_p);
 
 	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Leaving RunAsyncSystemTaskHook for %s with status %d", uuid_s, status);
