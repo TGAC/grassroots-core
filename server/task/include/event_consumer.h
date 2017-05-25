@@ -29,16 +29,15 @@
 
 
 #include "grassroots_task_library.h"
-#include "service_job.h"
 
 
 /* forward declaration */
 struct EventConsumer;
-
+struct AsyncTask;
 
 typedef struct EventConsumer
 {
-	void (*at_consumer_fn) (struct EventConsumer *consumer_p, AsyncTask *task_p);
+	void (*at_consumer_fn) (struct EventConsumer *consumer_p, struct AsyncTask *task_p);
 } EventConsumer;
 
 
@@ -48,13 +47,13 @@ extern "C"
 #endif
 
 
-GRASSROOTS_TASK_API EventConsumer *AllocateEventConsumer (void (*consumer_fn) (EventConsumer *consumer_p, AsyncTask *task_p));
+GRASSROOTS_TASK_API EventConsumer *AllocateEventConsumer (void (*consumer_fn) (EventConsumer *consumer_p, struct AsyncTask *task_p));
 
 
 GRASSROOTS_TASK_API void FreeeEventConsumer (EventConsumer *consumer_p);
 
 
-GRASSROOTS_TASK_API void RunEventConsumer (EventConsumer *consumer_p, AsyncTask *task_p);
+GRASSROOTS_TASK_API void RunEventConsumer (EventConsumer *consumer_p, struct AsyncTask *task_p);
 
 
 #ifdef __cplusplus

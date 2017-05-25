@@ -159,7 +159,7 @@ static void *DoAsyncTaskRun (void *data_p)
 
 	if (async_task_p -> at_consumer_p)
 		{
-			RunEventConsumer (async_task_p -> at_consumer_p, NULL, OS_ERROR);
+			RunEventConsumer (async_task_p -> at_consumer_p, async_task_p);
 		}
 
 	return res_p;

@@ -8,6 +8,8 @@
 #include "async_tasks_manager.h"
 
 
+static void *RunMonitor (void *data_p);
+
 
 AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 {
@@ -120,8 +122,8 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 			 * Set up the monitoring AsyncTask
 			 */
 			SetCountAsyncTaskLimit (manager_p -> atm_monitor_p, manager_p -> atm_tasks_p -> ll_size);
-			SetAsyncTaskRunData (manager_p -> atm_monitor_p, WaitOnSyncData, manager_p -> atm_monitor_p);
-			RunAsyncTask (manager_p -> atm_monitor_p);
+			SetAsyncTaskRunData (manager_p -> atm_monitor_p -> cat_task_p, RunMonitor, manager_p -> atm_monitor_p);
+			RunAsyncTask (manager_p -> atm_monitor_p -> cat_task_p);
 
 			/*
 			 * Now run each of the worker threads
@@ -139,7 +141,15 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 }
 
 
-void *(*run_fn) (void *data_p)
+static void *RunMonitor (void *data_p)
+{
+	CountAsyncTask *monitor_p = (CountAsyncTask *) monitor_p;
+
+	WaitOnSyncData (monitor_p -> cat_task_p -> at_sync_data_p, monitor_p -> cat_continue_fn, monitor_p);
+
+	return NULL;
+}
+
 
 
 static bool ContinueTask (void *data_p)

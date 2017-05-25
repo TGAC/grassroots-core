@@ -26,6 +26,7 @@
 
 #include "event_consumer.h"
 #include "memory_allocations.h"
+#include "async_task.h"
 
 
 EventConsumer *AllocateEventConsumer (void (*consumer_fn) (EventConsumer *consumer_p, AsyncTask *task_p))

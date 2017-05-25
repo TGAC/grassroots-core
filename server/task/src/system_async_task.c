@@ -20,7 +20,7 @@
 static void *RunAsyncSystemTaskHook (void *data_p);
 
 
-SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *name_s, const char *command_s)
+SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s)
 {
 	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
 
@@ -30,7 +30,7 @@ SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *name_s, con
 
 			if (copied_command_s)
 				{
-					SystemTaskData *task_data_p = (SystemTaskData *) AllocMemory (sizeof (SystemTaskData));
+					SystemAsyncTask *task_data_p = (SystemAsyncTask *) AllocMemory (sizeof (SystemAsyncTask));
 
 					if (task_data_p)
 						{
@@ -51,7 +51,7 @@ SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *name_s, con
 }
 
 
-void FreeSystemTaskData (SystemTaskData *task_data_p)
+void FreeSystemAsyncTask (SystemAsyncTask *task_data_p)
 {
 	FreeAsyncTask (task_data_p -> std_async_task_p);
 
@@ -66,7 +66,7 @@ void FreeSystemTaskData (SystemTaskData *task_data_p)
 }
 
 
-bool RunAsyncSystemTask (SystemTaskData *task_data_p)
+bool RunSystemAsyncTask (SystemAsyncTask *task_data_p)
 {
 	SetAsyncTaskRunData (task_data_p -> std_async_task_p, RunAsyncSystemTaskHook, task_data_p);
 
@@ -76,7 +76,7 @@ bool RunAsyncSystemTask (SystemTaskData *task_data_p)
 
 static void *RunAsyncSystemTaskHook (void *data_p)
 {
-	SystemTaskData *task_data_p = ((SystemTaskData *) data_p);
+	SystemAsyncTask *task_data_p = ((SystemAsyncTask *) data_p);
 	JobsManager *jobs_manager_p = GetJobsManager ();
 	OperationStatus status = OS_STARTED;
 	ServiceJob *job_p = task_data_p -> std_service_job_p;

@@ -36,12 +36,12 @@
 #include "async_task.h"
 
 
-typedef struct SystemTaskData
+typedef struct SystemAsyncTask
 {
 	AsyncTask *std_async_task_p;
 	ServiceJob *std_service_job_p;
 	char *std_command_line_s;
-} SystemTaskData;
+} SystemAsyncTask;
 
 
 
@@ -52,13 +52,13 @@ extern "C"
 #endif
 
 
-GRASSROOTS_TASK_API	SystemTaskData *CreateSystemTaskData (ServiceJob *job_p, const char *name_s, const char *command_s);
+GRASSROOTS_TASK_API	SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s);
 
 
-GRASSROOTS_TASK_API	void FreeSystemTaskData (SystemTaskData *task_p);
+GRASSROOTS_TASK_API	void FreeSystemAsyncTask (SystemAsyncTask *task_p);
 
 
-GRASSROOTS_TASK_API bool RunAsyncSystemTask (SystemTaskData *task_data_p);
+GRASSROOTS_TASK_API bool RunSystemAsyncTask (SystemAsyncTask *task_data_p);
 
 
 #ifdef __cplusplus

@@ -310,16 +310,8 @@ json_t *ProcessServerJSONMessage (json_t *req_p, const int UNUSED_PARAM (socket_
 										res_p = GetNamedServices (req_p, user_p);
 										break;
 
-									case OP_CHECK_SERVICE_STATUS:
-										res_p = GetServiceStatus (req_p, user_p);
-										break;
-
 									case OP_GET_SERVICE_RESULTS:
 										res_p = GetServiceResultsAsJSON (req_p, user_p);
-										break;
-
-									case OP_CLEAN_UP_JOBS:
-										res_p = CleanUpJobs (req_p, user_p);
 										break;
 
 									case OP_GET_RESOURCE:

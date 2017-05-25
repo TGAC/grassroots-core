@@ -16,7 +16,7 @@ typedef struct CountAsyncTask
 	AsyncTask *cat_task_p;
 	int32 cat_current_value;
 	int32 cat_limit;
-	bool (*cat_continue_fn) (struct CountAsyncTask *task_p);
+	bool (*cat_continue_fn) (void *task_p);
 } CountAsyncTask;
 
 
