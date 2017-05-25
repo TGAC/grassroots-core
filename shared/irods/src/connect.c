@@ -64,22 +64,22 @@ static bool ReleaseIRodsConnection (rcComm_t *connection_p)
 }
 
 
-IRodsConnection *CreateIRodsConnectionFromJSON (UserDetails *user_p)
+IRodsConnection *CreateIRodsConnectionFromUserDetails (UserDetails *user_p)
 {
 	IRodsConnection *connection_p = NULL;
 
-	const UserAuthentication *auth_p = GetUserAuthenticationForSystem (user_p, "irods");
+	UserAuthentication *auth_p = GetUserAuthenticationForSystem (user_p, "irods");
 
 	if (auth_p)
 		{
-			connection_p = CreateIRodsConnection (auth_p -> ua_username_s, auth_p -> ua_password_s);
+			connection_p = CreateIRodsConnection (auth_p);
 		}
 
 	return connection_p;
 }
 
 
-IRodsConnection *CreateIRodsConnection (const char *username_s, const char *password_s)
+IRodsConnection *CreateIRodsConnection (UserAuthentication *auth_p)
 {
 	IRodsConnection *connection_p = NULL;
 	rodsEnv env;
@@ -89,18 +89,11 @@ IRodsConnection *CreateIRodsConnection (const char *username_s, const char *pass
 
 	if (status == 0) 
 		{
-			rcComm_t *comm_p = NULL;
-
-			if (!username_s)
-				{
-					username_s = env.rodsUserName;
-				}
-			
-			comm_p = rcConnect (env.rodsHost, env.rodsPort, (char *) username_s, env.rodsZone, 0, &err);
+			rcComm_t *comm_p = rcConnect (env.rodsHost, env.rodsPort, auth_p -> ua_username_s, env.rodsZone, 0, &err);
 			
 			if (comm_p)
 				{
-					status = clientLoginWithPassword (comm_p, (char *) password_s);
+					status = clientLoginWithPassword (comm_p, auth_p -> ua_password_s);
 					
 					if (status == 0)
 						{

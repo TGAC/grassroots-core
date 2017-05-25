@@ -114,7 +114,7 @@ GRASSROOTS_UTIL_API void FreeUserDetails (UserDetails *user_details_p);
  * @return A pointer to the relevant UserAuthentication or <code>NULL</code> upon error.
  * @memberof UserDetails
  */
-GRASSROOTS_UTIL_API const UserAuthentication *GetUserAuthenticationForSystem (const UserDetails *user_p, const char *system_s);
+GRASSROOTS_UTIL_API UserAuthentication *GetUserAuthenticationForSystem (const UserDetails *user_p, const char *system_s);
 
 
 /**
@@ -129,6 +129,12 @@ GRASSROOTS_UTIL_API const UserAuthentication *GetUserAuthenticationForSystem (co
  * @memberof UserDetails
  */
 GRASSROOTS_UTIL_API bool AddUserAuthentication (UserDetails *user_details_p, const char *system_s, const char *username_s, const char *password_s, const char *token_s);
+
+
+
+GRASSROOTS_UTIL_API UserAuthentication *AllocateUserAuthentication (const char *system_s, const char *username_s, const char *password_s, const char *token_s);
+
+GRASSROOTS_UTIL_API void FreeUserAuthentication (UserAuthentication *auth_p);
 
 
 #ifdef __cplusplus

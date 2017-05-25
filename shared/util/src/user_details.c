@@ -23,10 +23,6 @@
 
 /******************************************************************/
 
-static UserAuthentication *AllocateUserAuthentication (const char *system_s, const char *username_s, const char *password_s, const char *token_s);
-
-static void FreeUserAuthentication (UserAuthentication *auth_p);
-
 static UserAuthenticationNode *AllocateUserAuthenticationNode (UserAuthentication *auth_p);
 
 static void FreeUserAuthenticationNode (ListItem *item_p);
@@ -84,7 +80,7 @@ void FreeUserDetails (UserDetails *user_details_p)
 }
 
 
-const UserAuthentication *GetUserAuthenticationForSystem (const UserDetails *user_p, const char *system_s)
+UserAuthentication *GetUserAuthenticationForSystem (const UserDetails *user_p, const char *system_s)
 {
 	bool success_flag = false;
 	UserAuthenticationNode *node_p = (UserAuthenticationNode *) (user_p -> ud_auth_list_p -> ll_head_p);
@@ -158,7 +154,7 @@ static void FreeUserAuthenticationNode (ListItem *item_p)
 }
 
 
-static UserAuthentication *AllocateUserAuthentication (const char *system_s, const char *username_s, const char *password_s, const char *token_s)
+UserAuthentication *AllocateUserAuthentication (const char *system_s, const char *username_s, const char *password_s, const char *token_s)
 {
 	char *sys_s = CopyToNewString (system_s, 0, false);
 
@@ -217,7 +213,7 @@ static UserAuthentication *AllocateUserAuthentication (const char *system_s, con
 }
 
 
-static void FreeUserAuthentication (UserAuthentication *auth_p)
+void FreeUserAuthentication (UserAuthentication *auth_p)
 {
 	FreeCopiedString (auth_p -> ua_system_id_s);
 	FreeCopiedString (auth_p -> ua_username_s);

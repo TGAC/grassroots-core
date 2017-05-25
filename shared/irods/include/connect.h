@@ -42,7 +42,7 @@ extern "C"
  * @return The connection to the iRODS server or <code>NULL</code> upon error.
  * @memberof IRodsConnection
  */
-IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnectionFromJSON (UserDetails *user_p);
+IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnectionFromUserDetails (UserDetails *user_p);
 
 /**
  * Create a connection to a local iRODS server.
@@ -52,7 +52,7 @@ IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnectionFromJSON (UserDetail
  * @return The connection to the iRODS server or <code>NULL</code> upon error.
  * @memberof IRodsConnection
  */
-IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnection (const char *username_s, const char *password_s);
+IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnection (UserAuthentication *auth_p);
 
 /**
  * Close a connection to an iRODS server.

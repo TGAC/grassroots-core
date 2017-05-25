@@ -23,13 +23,14 @@
 #include "query_util.h"
 #include "irods_connection.h"
 #include "connect.h"
+#include "data_resource.h"
 
 #include "string_utils.h"
 //#include "irods_handler.h"
 
 #include <time.h>
 
-#include <jansson.h>
+#include "jansson.h"
 
 #include "irods_util_library.h"
 
@@ -161,22 +162,30 @@ QueryResults *GetAllModifiedDataForUsername (rcComm_t *connection_p, const char 
 json_t *GetModifiedIRodsFiles (const char * const username_s, const char * const password_s, const time_t from, const time_t to)
 {
 	json_t *json_p = NULL;
-	IRodsConnection *connection_p = CreateIRodsConnection (username_s, password_s);
+	UserAuthentication *auth_p = AllocateUserAuthentication (PROTOCOL_IRODS_S, username_s, password_s, NULL);
 	
-	if (connection_p)
+	if (auth_p)
 		{
-			QueryResults *qr_p = GetAllModifiedDataForUsername (connection_p -> ic_connection_p, username_s, from, to);
+			IRodsConnection *connection_p = CreateIRodsConnection (auth_p);
 			
-			if (qr_p)
+			if (connection_p)
 				{
-					json_p = GetQueryResultAsJSON (qr_p);
+					QueryResults *qr_p = GetAllModifiedDataForUsername (connection_p -> ic_connection_p, username_s, from, to);
+
+					if (qr_p)
+						{
+							json_p = GetQueryResultAsJSON (qr_p);
+
+							FreeQueryResults (qr_p);
+						}
 					
-					FreeQueryResults (qr_p);
+					FreeIRodsConnection (connection_p);
 				}
 			
-			FreeIRodsConnection (connection_p);
+			FreeUserAuthentication (auth_p);
 		}
 	
+
 	return json_p;
 }
 
@@ -184,22 +193,29 @@ json_t *GetModifiedIRodsFiles (const char * const username_s, const char * const
 json_t *GetInterestedServicesForIrodsDataObject (const char *services_path_s, char * const username_s, char * const password_s, const char *data_name_s)
 {
 	json_t *json_p = NULL;
-	IRodsConnection *connection_p = CreateIRodsConnection (username_s, password_s);
+	UserAuthentication *auth_p = AllocateUserAuthentication (PROTOCOL_IRODS_S, username_s, password_s, NULL);
 	
-	if (connection_p)
+	if (auth_p)
 		{
-		/*
-			Handle *handle_p = AllocateIRodsHandle (connection_p);
+			IRodsConnection *connection_p = CreateIRodsConnection (auth_p);
 			
-			if (handle_p)
+			if (connection_p)
 				{
+				/*
+					Handle *handle_p = AllocateIRodsHandle (connection_p);
 					
-					FreeIRodsHandle (handle_p);
+					if (handle_p)
+						{
+
+							FreeIRodsHandle (handle_p);
+						}
+					*/
+					FreeIRodsConnection (connection_p);
 				}
-			*/
-			FreeIRodsConnection (connection_p);
+
+			FreeUserAuthentication (auth_p);
 		}
-	
+
 	return json_p;
 }
 
