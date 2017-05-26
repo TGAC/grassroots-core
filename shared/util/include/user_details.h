@@ -117,6 +117,9 @@ GRASSROOTS_UTIL_API void FreeUserDetails (UserDetails *user_details_p);
 GRASSROOTS_UTIL_API UserAuthentication *GetUserAuthenticationForSystem (const UserDetails *user_p, const char *system_s);
 
 
+GRASSROOTS_UTIL_API UserAuthentication *GetUserAuthenticationForSystemFromJSON (const json_t *config_p, const char *system_s);
+
+
 /**
  * This will create and add the UserAuthentication details for a given system.
  *

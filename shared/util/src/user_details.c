@@ -20,6 +20,7 @@
 #include "memory_allocations.h"
 #include "string_utils.h"
 #include "json_util.h"
+#include "streams.h"
 
 /******************************************************************/
 
@@ -100,6 +101,42 @@ UserAuthentication *GetUserAuthenticationForSystem (const UserDetails *user_p, c
 
 
 	return NULL;
+}
+
+
+UserAuthentication *GetUserAuthenticationForSystemFromJSON (const json_t *config_p, const char *system_s)
+{
+	UserAuthentication *auth_p = NULL;
+	const json_t *credentials_p = json_object_get (config_p, CREDENTIALS_S);
+
+	if (credentials_p)
+		{
+			const json_t *system_credentials_p = json_object_get (credentials_p, system_s);
+
+			if (system_credentials_p)
+				{
+					const char *username_s = GetJSONString (system_credentials_p, CREDENTIALS_USERNAME_S);
+
+					if (username_s)
+						{
+							const char *password_s = GetJSONString (system_credentials_p, CREDENTIALS_PASSWORD_S);
+
+							if (password_s)
+								{
+									auth_p = AllocateUserAuthentication (system_s, username_s, password_s, NULL);
+
+									if (!auth_p)
+										{
+											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get credentials from system \"%s\"", system_s);
+										}
+								}
+
+						}
+
+				}
+		}
+
+	return auth_p;
 }
 
 
