@@ -96,6 +96,8 @@ static void FreeMongoClientManager (MongoClientManager *manager_p)
 
 bool InitMongoClientManager (void)
 {
+	bool success_flag = false;
+
 	if (!s_manager_p)
 		{
 			const json_t *mongo_config_p = GetGlobalConfigValue ("mongodb");
@@ -126,10 +128,15 @@ bool InitMongoClientManager (void)
 			else
 				{
 					PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "No mongodb in config");
+					success_flag = true;
 				}
 		}
+	else
+		{
+			success_flag = true;
+		}
 
-	return (s_manager_p != NULL);
+	return success_flag;
 }
 
 
