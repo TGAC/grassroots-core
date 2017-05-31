@@ -60,6 +60,7 @@ SRCS 	= \
 	meta_search.c \
 	query.c \
 	user.c \
+	irods_utils.c
 
 CPPFLAGS += -DUNIX -DIRODS_UTIL_LIBRARY_EXPORTS
 
