@@ -5,7 +5,7 @@ DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
 endif
 include $(DIR_BUILD_CONFIG)/project.properties
 
@@ -24,7 +24,9 @@ LIBS += \
 	irods_plugin_dependencies 
 LIBPATHS = \
 	$(IRODS_EXTERNALS)/boost1.60.0-0/lib \
-	$(IRODS_EXTERNALS)/jansson2.7-0/lib
+	$(IRODS_EXTERNALS)/jansson2.7-0/lib \
+  $(IRODS_DEV_HOME)/lib
+  	
 else
 LIBS += = \
 	irods_client_core    \
@@ -33,7 +35,8 @@ LIBS += = \
 	irods_client_plugins 
         
 LIBPATHS = \
-	      $(IRODS_EXTERNALS)
+	      $(IRODS_EXTERNALS) \
+	      $(IRODS_DEV_HOME)/lib
 endif		# ifeq ($(IRODS_GT_4_2), true)
 
 
@@ -67,6 +70,10 @@ CPPFLAGS += -DUNIX -DIRODS_UTIL_LIBRARY_EXPORTS
 
 CFLAGS += -DIRODS_ENABLED=1 
 
+
+LDFLAGS +=  \
+	$(addprefix -l, $(LIBS))     \
+	$(addprefix -L, $(LIBPATHS)) \
 
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 

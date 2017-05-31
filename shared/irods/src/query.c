@@ -211,7 +211,7 @@ void FreeBuiltQueryString (char *query_s)
 
 
 
-bool SetQuerySelectClauses (genQueryInp_t *in_query_p, int num_columns, const int * const columns_p, const int * const values_p)
+bool SetQuerySelectClauses (genQueryInp_t *in_query_p, int num_columns, const int * const columns_p, const int * const UNUSED_PARAM  (values_p))
 {
 	bool success_flag = false;
 
@@ -662,7 +662,7 @@ json_t *GetQueryResultAsResourcesJSON (const QueryResults * const qrs_p)
 }
 
 
-static bool AddQueryResultsAsStrings (const char *full_path_s, const char * UNUSED_PARAM (collection_s), const char *data_s, void *data_p)
+static bool AddQueryResultsAsStrings (const char *full_path_s, const char * UNUSED_PARAM (collection_s), const char * UNUSED_PARAM (data_s), void *data_p)
 {
 	bool success_flag = false;
 	LinkedList *paths_p = (LinkedList *) data_p;
@@ -930,7 +930,7 @@ QueryResults *GetAllAttributeNames (IRodsConnection *connection_p, const int col
 
 	if (col_s)
 		{
-			char *query_s = ConcatenateStrings ("SELECT ", col_s);
+			char *query_s = ConcatenateVarargsStrings ("SELECT ORDER(", col_s, ")", NULL);
 
 			if (query_s)
 				{
@@ -1015,3 +1015,4 @@ QueryResults *GetAllMetadataAttributeValues (IRodsConnection *connection_p, cons
 
 	return results_p;
 }
+

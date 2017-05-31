@@ -21,6 +21,8 @@
 
 
 #include "typedefs.h"
+#include "json_util.h"
+
 
 
 void InitRodsEnv (void)
