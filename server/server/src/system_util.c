@@ -30,6 +30,11 @@
 #endif
 
 
+#ifdef IRODS_ENABLED
+#include "irods_util.h"
+#endif
+
+
 static bool s_is_multi_process_system_flag = false;
 
 bool InitInformationSystem ()
@@ -50,7 +55,6 @@ bool InitInformationSystem ()
 										{
 											res_flag = true;
 										}
-
 									ConnectToExternalServers ();
 								}
 
@@ -61,6 +65,13 @@ bool InitInformationSystem ()
 								}
 							#endif
 
+
+							#ifdef IRODS_ENABLED
+							if (res_flag)
+								{
+									InitRodsEnv ();
+								}
+							#endif
 						}
 				}
 		}

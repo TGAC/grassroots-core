@@ -39,6 +39,8 @@ extern "C"
 {
 #endif
 
+IRODS_UTIL_API void InitRodsEnv (void);
+
 
 IRODS_UTIL_API int PutAndCheckForServices (rcComm_t **connection_pp, rodsEnv *env_p, rodsArguments_t *args_p, rodsPathInp_t *path_inp_p);
 
@@ -46,7 +48,6 @@ IRODS_UTIL_API int PutAndCheckForServices (rcComm_t **connection_pp, rodsEnv *en
 IRODS_UTIL_LOCAL int PrintRodsPath (FILE *out_f, const rodsPath_t * const rods_path_p, const char * const description_s);
 
 
-IRODS_UTIL_LOCAL bool NotifyUser (userInfo_t *user_p, const char * const title_s, msParamArray_t *params_p);
 
 #ifdef __cplusplus
 }

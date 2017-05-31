@@ -16,10 +16,29 @@
 
 #include <stdio.h>
 
-#include "irods_utils.h"
+#include "irods_util.h"
 #include "grassroots_config.h"
 
+
 #include "typedefs.h"
+
+
+void InitRodsEnv (void)
+{
+	json_t *config_p = GetGlobalConfigValue ("irods");
+
+	if (config_p)
+		{
+			const char *env_file_s = GetJSONString (config_p, "env_file");
+
+			if (env_file_s)
+				{
+					/* Use the given iRODS env file */
+					setenv ("IRODS_ENVIRONMENT_FILE", env_file_s, 1);
+				}
+		}
+
+}
 
 
 bool GetRodsEnv (rodsEnv *rods_env_p)
@@ -36,12 +55,4 @@ int PrintRodsPath (FILE *out_f, const rodsPath_t * const rods_path_p, const char
 }
 
 
-bool NotifyUser (userInfo_t *user_p, const char * const title_s, msParamArray_t *params_p)
-{
-	bool success_flag = true;
-	/*
-	 * depending on the user's preferences, notify them by e.g. email, logfile, etc.
-	 */
 
-	 return success_flag;
-}
