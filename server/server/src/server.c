@@ -1347,13 +1347,13 @@ static LinkedList *GetServicesList (const char * const services_path_s, UserDeta
 					if (AddServicesListToProvidersStateTable (providers_p, services_p))
 						{
 							AddAllPairedServices (services_p, user_p, providers_p);
-
-							return services_p;
 						}
 					else
 						{
 							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AddServicesListToProvidersStateTable failed");
 						}
+
+					return services_p;
 				}
 
 			FreeLinkedList (services_p);
