@@ -24,6 +24,7 @@
  * @brief
  */
 
+#include <string.h>
 #include <errno.h>
 #include <sys/wait.h>
 #include <pthread.h>
@@ -60,6 +61,8 @@ AsyncTask *AllocateAsyncTask (const char *name_s)
 
 	if (task_p)
 		{
+			memset (task_p, 0, sizeof (UnixAsyncTask));
+
 			if (InitialiseAsyncTask (& (task_p -> uat_base_task), name_s))
 				{
 					task_p -> uat_thread = 0;

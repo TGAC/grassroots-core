@@ -31,11 +31,8 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s)
 
 	if (success_flag)
 		{
-			ClearAsyncTask (task_p);
-
 			task_p -> at_name_s = copied_name_s;
 		}
-
 
 	return success_flag;
 }
