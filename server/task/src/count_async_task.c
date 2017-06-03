@@ -86,4 +86,9 @@ void SetCountAsyncTaskLimit (CountAsyncTask *task_p, int32 limit)
 }
 
 
+AsyncTask *GetAsyncTaskFromCountAsyncTask (const CountAsyncTask *count_task_p)
+{
+	return (count_task_p -> cat_task_p);
+}
+
 
