@@ -29,6 +29,8 @@
 
 
 #include "grassroots_task_library.h"
+#include "typedefs.h"
+
 
 
 /* forward declaration */
@@ -50,7 +52,13 @@ extern "C"
 GRASSROOTS_TASK_API EventConsumer *AllocateEventConsumer (void (*consumer_fn) (EventConsumer *consumer_p, struct AsyncTask *task_p));
 
 
-GRASSROOTS_TASK_API void FreeeEventConsumer (EventConsumer *consumer_p);
+GRASSROOTS_TASK_API bool InitEventConsumer (EventConsumer *consumer_p, void (*consumer_fn) (EventConsumer *consumer_p, struct AsyncTask *task_p));
+
+
+GRASSROOTS_TASK_API void ClearEventConsumer (EventConsumer *consumer_p);
+
+
+GRASSROOTS_TASK_API void FreeEventConsumer (EventConsumer *consumer_p);
 
 
 GRASSROOTS_TASK_API void RunEventConsumer (EventConsumer *consumer_p, struct AsyncTask *task_p);

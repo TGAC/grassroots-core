@@ -30,6 +30,9 @@ extern "C"
 GRASSROOTS_TASK_API CountAsyncTask *AllocateCountAsyncTask (const char *name_s, int32 limit);
 
 
+GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromCountAsyncTask (const CountAsyncTask *count_task_p);
+
+
 GRASSROOTS_TASK_API void FreeCountAsyncTask (CountAsyncTask *count_task_p);
 
 

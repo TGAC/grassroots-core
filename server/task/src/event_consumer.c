@@ -35,15 +35,38 @@ EventConsumer *AllocateEventConsumer (void (*consumer_fn) (EventConsumer *consum
 
 	if (consumer_p)
 		{
-			consumer_p -> at_consumer_fn = consumer_fn;
+			if (InitEventConsumer (consumer_p, consumer_fn))
+				{
+					return consumer_p;
+				}
+
+			FreeEventConsumer (consumer_p);
 		}
 
-	return consumer_p;
+	return NULL;
 }
 
 
-void FreeeEventConsumer (EventConsumer *consumer_p)
+bool InitEventConsumer (EventConsumer *consumer_p, void (*consumer_fn) (EventConsumer *consumer_p, struct AsyncTask *task_p))
 {
+	consumer_p -> at_consumer_fn = consumer_fn;
+
+	return true;
+}
+
+
+void ClearEventConsumer (EventConsumer * UNUSED_PARAM (consumer_p))
+{
+	/*
+	 * This currently does nothing but is in place for future compatibility
+	 * if EventConsumer grows and can be called from child classes.
+	 */
+}
+
+
+void FreeEventConsumer (EventConsumer *consumer_p)
+{
+	ClearEventConsumer (consumer_p);
 	FreeMemory (consumer_p);
 }
 
