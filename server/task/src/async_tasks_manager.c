@@ -33,6 +33,8 @@ AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 									manager_p -> atm_sync_p = sync_data_p;
 									manager_p -> atm_monitor_p = monitor_p;
 
+									manager_p -> atm_consumer_p = NULL;
+
 									return manager_p;
 								}
 
