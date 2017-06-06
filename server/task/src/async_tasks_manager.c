@@ -95,7 +95,7 @@ AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, cons
 
 	if (task_p)
 		{
-			if (AddAsyncTaskToAsyncTaskaManager (manager_p, task_p))
+			if (AddAsyncTaskToAsyncTasksManager (manager_p, task_p, MF_SHALLOW_COPY))
 				{
 					return task_p;
 				}
@@ -107,10 +107,10 @@ AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, cons
 }
 
 
-bool AddAsyncTaskToAsyncTaskaManager (AsyncTasksManager *manager_p, AsyncTask *task_p)
+bool AddAsyncTaskToAsyncTasksManager (AsyncTasksManager *manager_p, AsyncTask *task_p, MEM_FLAG mem)
 {
 	bool success_flag = false;
-	AsyncTaskNode *node_p = AllocateAsyncTaskNode (task_p);
+	AsyncTaskNode *node_p = AllocateAsyncTaskNode (task_p, mem);
 
 	if (node_p)
 		{
@@ -129,7 +129,7 @@ SystemAsyncTask *GetSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *man
 
 	if (task_p)
 		{
-			if (AddAsyncTaskToAsyncTaskaManager (manager_p, task_p -> std_async_task_p))
+			if (AddAsyncTaskToAsyncTasksManager (manager_p, task_p -> std_async_task_p, MF_SHALLOW_COPY))
 				{
 					return task_p;
 				}

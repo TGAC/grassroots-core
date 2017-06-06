@@ -71,13 +71,24 @@ void SetAsyncTaskRunData (AsyncTask *task_p, void *(*run_fn) (void *data_p), voi
 
 
 
-AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p)
+AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p, MEM_FLAG mem)
 {
 	AsyncTaskNode *node_p = (AsyncTaskNode *) AllocMemory (sizeof (AsyncTaskNode));
 
 	if (node_p)
 		{
-			node_p -> atn_task_p = task_p;
+			if (mem == MF_DEEP_COPY)
+				{
+					AsyncTask *node_task_p = NULL;
+
+
+				}
+			else
+				{
+					node_p -> atn_task_p = task_p;
+				}
+
+			node_p -> atn_mem = mem;
 
 			node_p -> atn_node.ln_prev_p = NULL;
 			node_p -> atn_node.ln_next_p = NULL;
@@ -95,7 +106,17 @@ void FreeAsyncTaskNode (ListItem *node_p)
 {
 	AsyncTaskNode *at_node_p = (AsyncTaskNode *) node_p;
 
-	FreeAsyncTask (at_node_p -> atn_task_p);
+	switch (at_node_p -> atn_mem)
+		{
+			case MF_DEEP_COPY:
+			case MF_SHALLOW_COPY:
+				FreeAsyncTask (at_node_p -> atn_task_p);
+				break;
+
+			default:
+				break;
+		}
+
 	FreeMemory (at_node_p);
 }
 

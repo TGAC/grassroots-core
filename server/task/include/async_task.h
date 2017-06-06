@@ -36,6 +36,7 @@ typedef struct AsyncTaskNode
 {
 	ListItem atn_node;
 	AsyncTask *atn_task_p;
+	MEM_FLAG atn_mem;
 } AsyncTaskNode;
 
 
@@ -162,7 +163,7 @@ GRASSROOTS_TASK_API	 bool CloseAllAsyncTasks (void);
  * @return The new AsyncTaskNode or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p);
+GRASSROOTS_TASK_API	AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p, MEM_FLAG mem);
 
 
 /**

@@ -63,7 +63,7 @@ GRASSROOTS_TASK_API bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager
 GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, const char * const task_name_s);
 
 
-GRASSROOTS_TASK_API bool AddAsyncTaskToAsyncTaskaManager (AsyncTasksManager *manager_p, AsyncTask *task_p);
+GRASSROOTS_TASK_API bool AddAsyncTaskToAsyncTasksManager (AsyncTasksManager *manager_p, AsyncTask *task_p, MEM_FLAG mem);
 
 
 GRASSROOTS_TASK_API SystemAsyncTask *GetSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, ServiceJob *std_service_job_p, char *std_command_line_s);
