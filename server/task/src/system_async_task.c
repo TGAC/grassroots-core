@@ -66,20 +66,20 @@ void FreeSystemAsyncTask (SystemAsyncTask *task_data_p)
 }
 
 
-bool RunSystemAsyncTask (SystemAsyncTask *task_data_p)
+bool RunSystemAsyncTask (SystemAsyncTask *task_p)
 {
-	SetAsyncTaskRunData (task_data_p -> std_async_task_p, RunAsyncSystemTaskHook, task_data_p);
+	SetAsyncTaskRunData (task_p -> std_async_task_p, RunAsyncSystemTaskHook, task_p);
 
-	return RunAsyncTask (task_data_p -> std_async_task_p);
+	return RunAsyncTask (task_p -> std_async_task_p);
 }
 
 
 static void *RunAsyncSystemTaskHook (void *data_p)
 {
-	SystemAsyncTask *task_data_p = ((SystemAsyncTask *) data_p);
+	SystemAsyncTask *task_p = ((SystemAsyncTask *) data_p);
 	JobsManager *jobs_manager_p = GetJobsManager ();
 	OperationStatus status = OS_STARTED;
-	ServiceJob *job_p = task_data_p -> std_service_job_p;
+	ServiceJob *job_p = task_p -> std_service_job_p;
 	char uuid_s [UUID_STRING_BUFFER_SIZE];
 
 	ConvertUUIDToString (job_p -> sj_id, uuid_s);
@@ -90,10 +90,10 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	if (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p))
 		{
 			#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
-			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to run RunAsyncSystemTaskHook for %s with \"%s\"", uuid_s, task_data_p -> std_command_line_s);
+			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to run RunAsyncSystemTaskHook for %s with \"%s\"", uuid_s, task_p -> std_command_line_s);
 			#endif
 
-			int res = system (task_data_p -> std_command_line_s);
+			int res = system (task_p -> std_command_line_s);
 
 			if (res != -1)
 				{
@@ -129,20 +129,20 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
 				}
 
-			if (task_data_p -> std_async_task_p -> at_consumer_p)
+			if (task_p -> std_async_task_p -> at_consumer_p)
 				{
-					RunEventConsumerFromAsyncTask (task_data_p -> std_async_task_p);
+					RunEventConsumerFromAsyncTask (task_p -> std_async_task_p);
 					//SendSyncData (task_data_p -> std_async_task_p -> at_sync_data_p);
 				}
 		}
 
 	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
-	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to call FreeSystemTaskData for %s in RunAsyncSystemTaskHook with \"%s\"", uuid_s, task_data_p -> std_command_line_s);
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to call FreeSystemTaskData for %s in RunAsyncSystemTaskHook with \"%s\"", uuid_s, task_p -> std_command_line_s);
 	#endif
 
 
 
-	FreeSystemAsyncTask (task_data_p);
+//	FreeSystemAsyncTask (task_p);
 
 	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Leaving RunAsyncSystemTaskHook for %s with status %d", uuid_s, status);

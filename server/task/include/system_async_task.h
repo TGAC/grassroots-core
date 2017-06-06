@@ -58,7 +58,7 @@ GRASSROOTS_TASK_API	SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p,
 GRASSROOTS_TASK_API	void FreeSystemAsyncTask (SystemAsyncTask *task_p);
 
 
-GRASSROOTS_TASK_API bool RunSystemAsyncTask (SystemAsyncTask *task_data_p);
+GRASSROOTS_TASK_API bool RunSystemAsyncTask (SystemAsyncTask *task_p);
 
 
 #ifdef __cplusplus
