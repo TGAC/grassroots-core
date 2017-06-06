@@ -37,10 +37,33 @@ CountAsyncTask *AllocateCountAsyncTask (const char *name_s, int32 limit)
 
 void FreeCountAsyncTask (CountAsyncTask *count_task_p)
 {
-	FreeAsyncTask (count_task_p -> cat_task_p);
+	ClearCountAsyncTask (count_task_p);
 	FreeMemory (count_task_p);
 }
 
+
+bool InitCountAsyncTask (CountAsyncTask *count_task_p, const char *name_s, int32 limit)
+{
+	bool success_flag = false;
+	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
+
+	if (async_task_p)
+		{
+			count_task_p -> cat_task_p = async_task_p;
+			count_task_p -> cat_current_value = 0;
+			count_task_p -> cat_limit = limit;
+
+			success_flag = true;
+		}		/* if (count_task_p) */
+
+	return success_flag;
+}
+
+
+void ClearCountAsyncTask (CountAsyncTask *count_task_p)
+{
+	FreeAsyncTask (count_task_p -> cat_task_p);
+}
 
 
 bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)

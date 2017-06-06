@@ -12,6 +12,7 @@ static void *RunMonitor (void *data_p);
 
 static void ConsumeFinishedWorkerTask (EventConsumer *consumer_p, struct AsyncTask *task_p);
 
+static bool ContinueTask (void *data_p);
 
 
 AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
@@ -24,13 +25,13 @@ AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 
 			if (sync_data_p)
 				{
-					CountAsyncTask *monitor_p = AllocateCountAsyncTask (name_s, 0);
+					AsyncTasksManager *manager_p = AllocMemory (sizeof (AsyncTasksManager));
 
-					if (monitor_p)
+					if (manager_p)
 						{
-							AsyncTasksManager *manager_p = AllocMemory (sizeof (AsyncTasksManager));
+							AsyncTasksManagerCountTask *monitor_p = AllocateAsyncTasksManagerCountTask (name_s, 0, manager_p);
 
-							if (manager_p)
+							if (monitor_p)
 								{
 									AsyncTasksManagerEventConsumer *consumer_p = AllocateAsyncTasksManagerEventConsumer (ConsumeFinishedWorkerTask, manager_p);
 
@@ -44,10 +45,10 @@ AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 											return manager_p;
 										}
 
-									FreeMemory (manager_p);
+									FreeAsyncTasksManagerCountTask (monitor_p);
 								}
 
-							FreeCountAsyncTask (monitor_p);
+							FreeMemory (manager_p);
 						}
 
 					FreeSyncData (sync_data_p);
@@ -64,7 +65,7 @@ AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 void FreeAsyncTasksManager (AsyncTasksManager *manager_p)
 {
 	FreeAsyncTasksManagerEventConsumer (manager_p -> atm_consumer_p);
-	FreeCountAsyncTask (manager_p -> atm_monitor_p);
+	FreeAsyncTasksManagerCountTask (manager_p -> atm_monitor_p);
 	FreeSyncData (manager_p -> atm_sync_p);
 	FreeLinkedList (manager_p -> atm_tasks_p);
 
@@ -94,16 +95,46 @@ AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, cons
 
 	if (task_p)
 		{
-			AsyncTaskNode *node_p = AllocateAsyncTaskNode (task_p);
-
-			if (node_p)
+			if (AddAsyncTaskToAsyncTaskaManager (manager_p, task_p))
 				{
-					LinkedListAddTail (manager_p -> atm_tasks_p, & (node_p -> atn_node));
-
 					return task_p;
 				}
 
 			FreeAsyncTask (task_p);
+		}
+
+	return NULL;
+}
+
+
+bool AddAsyncTaskToAsyncTaskaManager (AsyncTasksManager *manager_p, AsyncTask *task_p)
+{
+	bool success_flag = false;
+	AsyncTaskNode *node_p = AllocateAsyncTaskNode (task_p);
+
+	if (node_p)
+		{
+			LinkedListAddTail (manager_p -> atm_tasks_p, & (node_p -> atn_node));
+
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
+SystemAsyncTask *GetSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, ServiceJob *job_p, char *command_line_s)
+{
+	SystemAsyncTask *task_p = AllocateSystemAsyncTask (job_p, job_p -> sj_name_s, command_line_s);
+
+	if (task_p)
+		{
+			if (AddAsyncTaskToAsyncTaskaManager (manager_p, task_p -> std_async_task_p))
+				{
+					return task_p;
+				}
+
+			FreeSystemAsyncTask (task_p);
 		}
 
 	return NULL;
@@ -118,6 +149,7 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 	if (num_tasks)
 		{
 			AsyncTaskNode *node_p = (AsyncTaskNode *) (manager_p -> atm_tasks_p -> ll_head_p);
+			CountAsyncTask *monitor_task_p = & (manager_p -> atm_monitor_p -> atmct_base_task);
 
 			while (node_p)
 				{
@@ -132,9 +164,9 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 			/*
 			 * Set up the monitoring AsyncTask
 			 */
-			SetCountAsyncTaskLimit (manager_p -> atm_monitor_p, manager_p -> atm_tasks_p -> ll_size);
-			SetAsyncTaskRunData (manager_p -> atm_monitor_p -> cat_task_p, RunMonitor, manager_p -> atm_monitor_p);
-			RunAsyncTask (manager_p -> atm_monitor_p -> cat_task_p);
+			SetCountAsyncTaskLimit (monitor_task_p, manager_p -> atm_tasks_p -> ll_size);
+			SetAsyncTaskRunData (monitor_task_p -> cat_task_p, RunMonitor, manager_p -> atm_monitor_p);
+			RunAsyncTask (monitor_task_p -> cat_task_p);
 
 			/*
 			 * Now run each of the worker threads
@@ -179,11 +211,42 @@ void FreeAsyncTasksManagerEventConsumer (AsyncTasksManagerEventConsumer *consume
 }
 
 
+AsyncTasksManagerCountTask *AllocateAsyncTasksManagerCountTask (const char *name_s, int32 limit, AsyncTasksManager *manager_p)
+{
+	AsyncTasksManagerCountTask *task_p = (AsyncTasksManagerCountTask *) AllocMemory (sizeof (AsyncTasksManagerCountTask));
+
+	if (task_p)
+		{
+			if (InitCountAsyncTask (& (task_p -> atmct_base_task), name_s, limit))
+				{
+					task_p -> atmec_tasks_manager_p = manager_p;
+
+					return task_p;
+				}
+
+			FreeMemory (task_p);
+		}
+
+	return NULL;
+}
+
+
+void FreeAsyncTasksManagerCountTask (AsyncTasksManagerCountTask *task_p)
+{
+	ClearCountAsyncTask (& (task_p -> atmct_base_task));
+	FreeMemory (task_p);
+}
+
+
+
 static void *RunMonitor (void *data_p)
 {
-	CountAsyncTask *monitor_p = (CountAsyncTask *) monitor_p;
+	AsyncTasksManagerCountTask *monitor_p = (AsyncTasksManagerCountTask *) data_p;
 
-	WaitOnSyncData (monitor_p -> cat_task_p -> at_sync_data_p, monitor_p -> cat_continue_fn, monitor_p);
+	WaitOnSyncData (monitor_p -> atmct_base_task.cat_task_p -> at_sync_data_p, ContinueTask, monitor_p);
+
+	/* To get here, all worker threads have finished so we can delete the tasks manager */
+	FreeAsyncTasksManager (monitor_p -> atmec_tasks_manager_p);
 
 	return NULL;
 }
@@ -203,5 +266,5 @@ static void ConsumeFinishedWorkerTask (EventConsumer *consumer_p, struct AsyncTa
 	AsyncTasksManagerEventConsumer *manager_consumer_p = (AsyncTasksManagerEventConsumer *) consumer_p;
 	AsyncTasksManager *manager_p = manager_consumer_p -> atmec_tasks_manager_p;
 
-	IncrementCountAsyncTask (manager_p -> atm_monitor_p);
+	IncrementCountAsyncTask (& (manager_p -> atm_monitor_p -> atmct_base_task));
 }

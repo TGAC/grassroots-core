@@ -16,7 +16,6 @@ typedef struct CountAsyncTask
 	AsyncTask *cat_task_p;
 	int32 cat_current_value;
 	int32 cat_limit;
-	bool (*cat_continue_fn) (void *task_p);
 } CountAsyncTask;
 
 
@@ -30,10 +29,16 @@ extern "C"
 GRASSROOTS_TASK_API CountAsyncTask *AllocateCountAsyncTask (const char *name_s, int32 limit);
 
 
+GRASSROOTS_TASK_API bool InitCountAsyncTask (CountAsyncTask *count_task_p, const char *name_s, int32 limit);
+
+
 GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromCountAsyncTask (const CountAsyncTask *count_task_p);
 
 
 GRASSROOTS_TASK_API void FreeCountAsyncTask (CountAsyncTask *count_task_p);
+
+
+GRASSROOTS_TASK_API void ClearCountAsyncTask (CountAsyncTask *count_task_p);
 
 
 GRASSROOTS_TASK_API bool IncrementCountAsyncTask (CountAsyncTask *count_task_p);
