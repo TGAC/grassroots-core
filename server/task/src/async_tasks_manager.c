@@ -141,9 +141,8 @@ SystemAsyncTask *GetSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *man
 }
 
 
-bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
+void PrepareAsyncTasksManager (AsyncTasksManager *manager_p)
 {
-	bool success_flag = false;
 	const uint32 num_tasks = manager_p -> atm_tasks_p -> ll_size;
 
 	if (num_tasks)
@@ -167,20 +166,46 @@ bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 			SetCountAsyncTaskLimit (monitor_task_p, manager_p -> atm_tasks_p -> ll_size);
 			SetAsyncTaskRunData (monitor_task_p -> cat_task_p, RunMonitor, manager_p -> atm_monitor_p);
 			RunAsyncTask (monitor_task_p -> cat_task_p);
+		}		/* if (num_tasks) */
+}
+
+
+bool StartAsyncTaskManagerWorkers (AsyncTasksManager *manager_p)
+{
+	const uint32 num_tasks = manager_p -> atm_tasks_p -> ll_size;
+	bool success_flag = true;
+
+	if (num_tasks)
+		{
+			AsyncTaskNode *node_p = (AsyncTaskNode *) (manager_p -> atm_tasks_p -> ll_head_p);
 
 			/*
 			 * Now run each of the worker threads
 			 */
-			while (node_p)
+			while (node_p && success_flag)
 				{
-					RunAsyncTask (node_p -> atn_task_p);
-					node_p = (AsyncTaskNode *) (node_p -> atn_node.ln_next_p);
+					if (RunAsyncTask (node_p -> atn_task_p))
+						{
+							node_p = (AsyncTaskNode *) (node_p -> atn_node.ln_next_p);
+						}
+					else
+						{
+							success_flag = false;
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run async task for \"%s\"", node_p -> atn_task_p -> at_name_s);
+						}
 				}		/* while (node_p) */
 
 		}		/* if (num_tasks) */
 
-
 	return success_flag;
+}
+
+
+bool RunAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
+{
+	PrepareAsyncTasksManager (manager_p);
+
+	return StartAsyncTaskManagerWorkers (manager_p);
 }
 
 

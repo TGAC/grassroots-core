@@ -55,6 +55,8 @@ typedef struct AsyncTaskData
 static void *DoAsyncTaskRun (void *data_p);
 
 
+
+
 AsyncTask *AllocateAsyncTask (const char *name_s)
 {
 	UnixAsyncTask *task_p = (UnixAsyncTask *) AllocMemory (sizeof (struct UnixAsyncTask));

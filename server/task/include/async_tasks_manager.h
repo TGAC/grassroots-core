@@ -57,9 +57,6 @@ GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (const char * c
 GRASSROOTS_TASK_API bool InitialiseAsyncTasksManager (AsyncTasksManager *manager_p);
 
 
-GRASSROOTS_TASK_API bool StartAsyncTasksManagerTasks (AsyncTasksManager *manager_p);
-
-
 GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, const char * const task_name_s);
 
 
@@ -79,6 +76,15 @@ GRASSROOTS_TASK_API AsyncTasksManagerCountTask *AllocateAsyncTasksManagerCountTa
 
 
 GRASSROOTS_TASK_API void FreeAsyncTasksManagerCountTask (AsyncTasksManagerCountTask *task_p);
+
+
+GRASSROOTS_TASK_API void PrepareAsyncTasksManager (AsyncTasksManager *manager_p);
+
+
+GRASSROOTS_TASK_API bool StartAsyncTaskManagerWorkers (AsyncTasksManager *manager_p);
+
+
+GRASSROOTS_TASK_API bool RunAsyncTasksManagerTasks (AsyncTasksManager *manager_p);
 
 
 #ifdef __cplusplus
