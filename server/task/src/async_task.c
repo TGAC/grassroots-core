@@ -22,7 +22,11 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s)
 		{
 			copied_name_s = CopyToNewString (name_s, 0, false);
 
-			if (!copied_name_s)
+			if (copied_name_s)
+				{
+//					SyncData *sync_dataAllocateSyncData ();
+				}
+			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy AsyncTask name \"%s\"", name_s);
 					success_flag = false;
@@ -33,6 +37,7 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s)
 		{
 			task_p -> at_name_s = copied_name_s;
 		}
+
 
 	return success_flag;
 }

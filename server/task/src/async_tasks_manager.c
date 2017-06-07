@@ -33,16 +33,21 @@ AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 
 							if (monitor_p)
 								{
-									AsyncTasksManagerEventConsumer *consumer_p = AllocateAsyncTasksManagerEventConsumer (ConsumeFinishedWorkerTask, manager_p);
-
-									if (consumer_p)
+									if (SetAsyncTaskSyncData (monitor_p -> atmct_base_task.cat_task_p, sync_data_p, MF_SHADOW_USE))
 										{
-											manager_p -> atm_tasks_p = tasks_p;
-											manager_p -> atm_sync_p = sync_data_p;
-											manager_p -> atm_monitor_p = monitor_p;
-											manager_p -> atm_consumer_p = consumer_p;
+											AsyncTasksManagerEventConsumer *consumer_p = AllocateAsyncTasksManagerEventConsumer (ConsumeFinishedWorkerTask, manager_p);
 
-											return manager_p;
+											if (consumer_p)
+												{
+													SetAsyncTaskSyncData (monitor_p -> atmct_base_task.cat_task_p, sync_data_p, MF_SHADOW_USE);
+
+													manager_p -> atm_tasks_p = tasks_p;
+													manager_p -> atm_sync_p = sync_data_p;
+													manager_p -> atm_monitor_p = monitor_p;
+													manager_p -> atm_consumer_p = consumer_p;
+
+													return manager_p;
+												}
 										}
 
 									FreeAsyncTasksManagerCountTask (monitor_p);
@@ -123,9 +128,9 @@ bool AddAsyncTaskToAsyncTasksManager (AsyncTasksManager *manager_p, AsyncTask *t
 }
 
 
-SystemAsyncTask *GetSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, ServiceJob *job_p, char *command_line_s)
+SystemAsyncTask *GetSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, ServiceJob *job_p, char *command_line_s, void (*on_success_callback_fn) (ServiceJob *job_p))
 {
-	SystemAsyncTask *task_p = AllocateSystemAsyncTask (job_p, job_p -> sj_name_s, command_line_s);
+	SystemAsyncTask *task_p = AllocateSystemAsyncTask (job_p, job_p -> sj_name_s, command_line_s, on_success_callback_fn);
 
 	if (task_p)
 		{

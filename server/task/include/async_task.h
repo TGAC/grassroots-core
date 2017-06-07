@@ -107,7 +107,7 @@ GRASSROOTS_TASK_API void CloseAsyncTask (AsyncTask *task_p);
  * when the AsyncTask is freed.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	void SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem);
+GRASSROOTS_TASK_API	bool SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem);
 
 
 /**

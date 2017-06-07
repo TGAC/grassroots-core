@@ -35,12 +35,16 @@
 #include "jobs_manager.h"
 #include "async_task.h"
 
+/* forward declaration */
+struct SystemAsyncTask;
+
 
 typedef struct SystemAsyncTask
 {
 	AsyncTask *std_async_task_p;
 	ServiceJob *std_service_job_p;
 	char *std_command_line_s;
+	void (*std_on_success_callback_fn) (ServiceJob *job_p);
 } SystemAsyncTask;
 
 
@@ -52,13 +56,19 @@ extern "C"
 #endif
 
 
-GRASSROOTS_TASK_API	SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s);
+GRASSROOTS_TASK_API	SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s, void (*on_success_callback_fn) (ServiceJob *job_p));
+
+
+GRASSROOTS_TASK_API bool SetSystemAsyncTaskCommand (SystemAsyncTask *task_p, const char *command_s);
 
 
 GRASSROOTS_TASK_API	void FreeSystemAsyncTask (SystemAsyncTask *task_p);
 
 
 GRASSROOTS_TASK_API bool RunSystemAsyncTask (SystemAsyncTask *task_p);
+
+
+GRASSROOTS_TASK_LOCAL void RunSystemAsyncTaskSuccess (SystemAsyncTask *task_p, ServiceJob *job_p);
 
 
 #ifdef __cplusplus

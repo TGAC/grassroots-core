@@ -106,7 +106,7 @@ void CloseAsyncTask (AsyncTask *task_p)
 }
 
 
-void SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem)
+bool SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem)
 {
 	if (task_p -> at_sync_data_p)
 		{
@@ -118,6 +118,8 @@ void SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG me
 
 	task_p -> at_sync_data_p = sync_data_p;
 	task_p -> at_sync_data_mem = mem;
+
+	return true;
 }
 
 

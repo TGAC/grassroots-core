@@ -1232,6 +1232,8 @@ void ProcessLinkedServices (ServiceJob *job_p)
 
 OperationStatus GetServiceJobStatus (ServiceJob *job_p)
 {
+	bool update_flag = false;
+
 	/* If job has been started or is waiting to run, check its status */
 	/*
 	OS_LOWER_LIMIT = -4,
@@ -1253,19 +1255,33 @@ OperationStatus GetServiceJobStatus (ServiceJob *job_p)
 			case OS_IDLE:
 			case OS_PENDING:
 			case OS_STARTED:
-				if (!UpdateServiceJob (job_p))
+				update_flag = true;
+				break;
+
+			case OS_SUCCEEDED:
+			case OS_PARTIALLY_SUCCEEDED:
+				if (! (job_p -> sj_result_p))
 					{
-						char uuid_s [UUID_STRING_BUFFER_SIZE];
-						const char *service_name_s = GetServiceName (job_p -> sj_service_p);
-
-						ConvertUUIDToString (job_p -> sj_id, uuid_s);
-
-						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update ServiceJob %s for service %s", uuid_s, service_name_s);
+						update_flag = true;
 					}
 				break;
 
 			default:
 				break;
+		}
+
+
+	if (update_flag)
+		{
+			if (!UpdateServiceJob (job_p))
+				{
+					char uuid_s [UUID_STRING_BUFFER_SIZE];
+					const char *service_name_s = GetServiceName (job_p -> sj_service_p);
+
+					ConvertUUIDToString (job_p -> sj_id, uuid_s);
+
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update ServiceJob %s for service %s", uuid_s, service_name_s);
+				}
 		}
 
 	return job_p -> sj_status;

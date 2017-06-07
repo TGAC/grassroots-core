@@ -20,34 +20,72 @@
 static void *RunAsyncSystemTaskHook (void *data_p);
 
 
-SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s)
+SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s, void (*on_success_callback_fn) (ServiceJob *job_p))
 {
 	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
 
 	if (async_task_p)
 		{
-			char *copied_command_s = CopyToNewString (command_s, 0, false);
+			SystemAsyncTask *system_task_p = (SystemAsyncTask *) AllocMemory (sizeof (SystemAsyncTask));
 
-			if (copied_command_s)
+			if (system_task_p)
 				{
-					SystemAsyncTask *task_data_p = (SystemAsyncTask *) AllocMemory (sizeof (SystemAsyncTask));
+					system_task_p -> std_command_line_s = NULL;
 
-					if (task_data_p)
+					if (SetSystemAsyncTaskCommand (system_task_p, command_s))
 						{
-							task_data_p -> std_async_task_p = async_task_p;
-							task_data_p -> std_command_line_s = copied_command_s;
-							task_data_p -> std_service_job_p = job_p;
+							system_task_p -> std_async_task_p = async_task_p;
+							system_task_p -> std_service_job_p = job_p;
+							system_task_p -> std_on_success_callback_fn = on_success_callback_fn;
 
-							return task_data_p;
+							return system_task_p;
 						}
 
-					FreeCopiedString (copied_command_s);
+
+					FreeMemory (system_task_p);
 				}
 
 			FreeAsyncTask (async_task_p);
 		}
 
 	return NULL;
+}
+
+
+
+bool SetSystemAsyncTaskCommand (SystemAsyncTask *task_p, const char *command_s)
+{
+	bool success_flag = true;
+
+	if (command_s)
+		{
+			char *copied_command_s = CopyToNewString (command_s, 0, false);
+
+			if (copied_command_s)
+				{
+					if (task_p -> std_command_line_s)
+						{
+							FreeCopiedString (task_p -> std_command_line_s);
+						}
+
+					task_p -> std_command_line_s = copied_command_s;
+				}
+			else
+				{
+					success_flag = false;
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetSystemAsyncTaskCommand failed to set command \"%s\"", command_s);
+				}
+		}
+	else
+		{
+			if (task_p -> std_command_line_s)
+				{
+					FreeCopiedString (task_p -> std_command_line_s);
+					task_p -> std_command_line_s = NULL;
+				}
+		}
+
+	return success_flag;
 }
 
 
@@ -124,6 +162,14 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	/* has the job status changed? */
 	if (status != OS_STARTED)
 		{
+			if ((status == OS_SUCCEEDED) || (status == OS_PARTIALLY_SUCCEEDED))
+				{
+					if (task_p -> std_on_success_callback_fn)
+						{
+							task_p -> std_on_success_callback_fn (job_p);
+						}
+				}
+
 			if (! (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p)))
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
@@ -149,4 +195,13 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	#endif
 
 	return NULL;
+}
+
+
+void RunSystemAsyncTaskSuccess (SystemAsyncTask *task_p, ServiceJob *job_p)
+{
+	if (task_p -> std_on_success_callback_fn)
+		{
+			task_p -> std_on_success_callback_fn (job_p);
+		}
 }
