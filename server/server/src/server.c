@@ -963,36 +963,36 @@ static json_t *GetServiceData (const json_t * const req_p, UserDetails *user_p, 
 							size_t num_uuids = json_array_size (service_uuids_json_p);
 
 							json_array_foreach (service_uuids_json_p, i, service_uuid_json_p)
-							{
-								if (json_is_string (service_uuid_json_p))
-									{
-										const char *uuid_s = json_string_value (service_uuid_json_p);
-										uuid_t service_id;
+								{
+									if (json_is_string (service_uuid_json_p))
+										{
+											const char *uuid_s = json_string_value (service_uuid_json_p);
+											uuid_t service_id;
 
-										if (ConvertStringToUUID (uuid_s, service_id))
-											{
-												if (callback_fn (results_array_p, service_id, uuid_s))
-													{
-														++ num_successes;
-													}
-												else
-													{
-														PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add callback json results for \"%s\"", uuid_s);
-													}
+											if (ConvertStringToUUID (uuid_s, service_id))
+												{
+													if (callback_fn (results_array_p, service_id, uuid_s))
+														{
+															++ num_successes;
+														}
+													else
+														{
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add callback json results for \"%s\"", uuid_s);
+														}
 
-											}		/* if (ConvertStringToUUID (uuid_s, service_id)) */
-										else
-											{
-												PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to convert \"%s\" to uuid", uuid_s);
-											}
+												}		/* if (ConvertStringToUUID (uuid_s, service_id)) */
+											else
+												{
+													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to convert \"%s\" to uuid", uuid_s);
+												}
 
-									}		/* if (json_is_string (service_uuid_json_p)) */
-								else
-									{
-										PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "service_uuid_json_p is %d not a string", json_typeof (service_uuid_json_p));
-									}
+										}		/* if (json_is_string (service_uuid_json_p)) */
+									else
+										{
+											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "service_uuid_json_p is %d not a string", json_typeof (service_uuid_json_p));
+										}
 
-							}		/* json_array_foreach (service_uuids_json_p, i, service_uuid_json_p) */
+								}		/* json_array_foreach (service_uuids_json_p, i, service_uuid_json_p) */
 
 
 							if (num_uuids == num_successes)

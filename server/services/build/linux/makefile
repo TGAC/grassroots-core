@@ -4,7 +4,7 @@ DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
 endif
 include $(DIR_BUILD_CONFIG)/project.properties
 

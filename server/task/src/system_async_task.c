@@ -161,6 +161,8 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	/* has the job status changed? */
 	if (status != OS_STARTED)
 		{
+			SetServiceJobStatus (job_p, status);
+
 			/* If the job ran successfully, run any specified callbacks to update the results */
 			if ((status == OS_SUCCEEDED) || (status == OS_PARTIALLY_SUCCEEDED))
 				{
@@ -169,8 +171,6 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 							task_p -> std_on_success_callback_fn (job_p);
 						}
 				}
-
-			SetServiceJobStatus (job_p, status);
 
 			if (! (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p)))
 				{
