@@ -234,7 +234,7 @@ static ServiceJobSet *RunWebService (Service *service_p, ParameterSet *param_set
 		{
 			ServiceJob *job_p = GetServiceJobFromServiceJobSet (service_p -> se_jobs_p, 0);
 
-			job_p -> sj_status = OS_FAILED_TO_START;
+			SetServiceJobStatus (job_p, OS_FAILED_TO_START);
 
 			if (param_set_p)
 				{
@@ -262,7 +262,7 @@ static ServiceJobSet *RunWebService (Service *service_p, ParameterSet *param_set
 
 					if (success_flag)
 						{
-							job_p -> sj_status = (CallCurlWebservice (data_p)) ? OS_SUCCEEDED : OS_FAILED;
+							SetServiceJobStatus (job_p, CallCurlWebservice (data_p) ? OS_SUCCEEDED : OS_FAILED);
 						}		/* if (success_flag) */
 
 				}		/* if (param_set_p) */
@@ -274,7 +274,7 @@ static ServiceJobSet *RunWebService (Service *service_p, ParameterSet *param_set
 
 	
 
-static  ParameterSet *IsResourceForWebService (Service * UNUSED_PARAM (service_p), Resource * UNUSED_PARAM (resource_p), Handler * UNUSED_PARAM (handler_p))
+static ParameterSet *IsResourceForWebService (Service * UNUSED_PARAM (service_p), Resource * UNUSED_PARAM (resource_p), Handler * UNUSED_PARAM (handler_p))
 {
 	return NULL;
 }

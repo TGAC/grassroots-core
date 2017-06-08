@@ -141,7 +141,7 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 			uuid_generate (job_p -> sj_id);
 		}
 
-	job_p -> sj_status = OS_IDLE;
+	SetServiceJobStatus (job_p, OS_IDLE);
 
 	job_p -> sj_errors_p = json_object ();
 
@@ -284,7 +284,7 @@ bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p)
 
 																	uuid_copy (dest_p -> sj_id, src_p -> sj_id);
 
-																	dest_p -> sj_status = src_p -> sj_status;
+																	SetServiceJobStatus (dest_p, src_p -> sj_status);
 
 																	dest_p -> sj_service_name_s = service_name_s;
 																	dest_p -> sj_name_s = job_name_s;
@@ -402,7 +402,7 @@ void ClearServiceJob (ServiceJob *job_p)
 			job_p -> sj_linked_services_p = NULL;
 		}
 
-	job_p -> sj_status = OS_CLEANED_UP;
+	SetServiceJobStatus (job_p, OS_CLEANED_UP);
 }
 
 
@@ -1570,9 +1570,9 @@ bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, 
 						{
 							const char *value_s = GetJSONString (results_p, RESOURCE_PROTOCOL_S);
 
-							job_p -> sj_status = status;
+							SetServiceJobStatus (job_p, status);
+
 							job_p -> sj_service_p = service_p;
-							job_p -> sj_status = status;
 
 							job_p -> sj_update_fn = NULL;
 							job_p -> sj_free_fn = NULL;
