@@ -113,6 +113,7 @@ bool InitMongoClientManager (void)
 							if (manager_p)
 								{
 									s_manager_p = manager_p;
+									success_flag = true;
 								}
 							else
 								{

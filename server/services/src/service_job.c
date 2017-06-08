@@ -24,7 +24,7 @@
 #include "jobs_manager.h"
 
 #ifdef _DEBUG
-	#define SERVICE_JOB_DEBUG	(STM_LEVEL_INFO)
+	#define SERVICE_JOB_DEBUG	(STM_LEVEL_FINER)
 #else
 	#define SERVICE_JOB_DEBUG	(STM_LEVEL_NONE)
 #endif
@@ -444,6 +444,10 @@ bool SetServiceJobDescription (ServiceJob *job_p, const char * const description
 
 void SetServiceJobStatus (ServiceJob *job_p, OperationStatus status)
 {
+	#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Setting Job \"%s\" to status %ld", job_p -> sj_name_s, status);
+	#endif
+
 	job_p -> sj_status = status;
 }
 
