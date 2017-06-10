@@ -82,6 +82,8 @@ void FreeParameterOption (ParameterOption *option_p)
 		}
 
 	ClearSharedType (& (option_p -> po_value), option_p -> po_type);
+
+	FreeMemory (option_p);
 }
 
 
@@ -130,7 +132,7 @@ bool CreateAndAddParameterOption (LinkedList *options_p, SharedType value, const
 	bool success_flag = false;
 
 	ParameterOption *option_p = AllocateParameterOption (value, description_s, param_type);
-
+;
 	if (option_p)
 		{
 			ParameterOptionNode *node_p = AllocateParameterOptionNode (option_p);

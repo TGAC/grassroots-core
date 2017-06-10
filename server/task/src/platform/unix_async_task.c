@@ -88,6 +88,8 @@ void FreeAsyncTask (AsyncTask *task_p)
 {
 	CloseAsyncTask (task_p);
 
+	ClearAsyncTask (task_p);
+
 	FreeMemory (task_p);
 }
 

@@ -398,7 +398,7 @@ QueryResult *AllocateQueryResult (int num_rows, const columnName_t *column_p)
 bool InitQueryResult (QueryResult *result_p, int num_rows, const columnName_t *column_p)
 {
 	bool success_flag = false;
-	char **values_pp = (char **) calloc (num_rows, sizeof (char *));
+	char **values_pp = (char **) AllocMemoryArray (num_rows, sizeof (char *));
 
 	if (values_pp)
 		{
@@ -917,6 +917,8 @@ void ClearQueryResult (QueryResult *result_p)
 					free (*value_pp);
 				}
 		}
+
+	FreeMemory (result_p -> qr_values_pp);
 }
 
 

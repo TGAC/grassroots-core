@@ -57,6 +57,9 @@ GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (const char * c
 GRASSROOTS_TASK_API bool InitialiseAsyncTasksManager (AsyncTasksManager *manager_p);
 
 
+GRASSROOTS_TASK_API void FreeAsyncTasksManager (AsyncTasksManager *manager_p);
+
+
 GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, const char * const task_name_s);
 
 

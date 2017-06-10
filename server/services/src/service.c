@@ -39,7 +39,7 @@
 
 
 #ifdef _DEBUG
-	#define SERVICE_DEBUG	(STM_LEVEL_INFO)
+	#define SERVICE_DEBUG	(STM_LEVEL_FINER)
 #else
 	#define SERVICE_DEBUG	(STM_LEVEL_NONE)
 #endif
@@ -294,6 +294,11 @@ void FreeServiceNode (ListItem * const node_p)
 				{
 					delete_flag = !IsServiceRunning (service_p);
 				}
+
+			#if SERVICE_DEBUG >= STM_LEVEL_FINER
+			PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Service \"%s\": delete flag = %d", GetServiceName (service_p), delete_flag ? 1 : 0);
+			#endif
+
 
 			if (delete_flag)
 				{
@@ -1410,7 +1415,7 @@ json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p
 							json_t *service_json_p = GetServiceAsJSON (service_node_p -> sn_service_p, resource_p, user_p, add_service_ids_flag);
 
 							#if SERVICE_DEBUG >= STM_LEVEL_FINER
-							PrintJSONToLog (service_json_p, "service:\n", STM_LEVEL_FINER, __FILE__, __LINE__);
+							PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, service_json_p, "service");
 							#endif
 
 							if (service_json_p)
@@ -1431,7 +1436,7 @@ json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p
 				}		/* if (services_list_p) */
 
 			#if SERVICE_DEBUG >= STM_LEVEL_FINE
-			PrintJSONToLog (services_list_json_p, "services list:\n", STM_LEVEL_FINE, __FILE__, __LINE__);
+			PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, services_list_json_p, "services list:");
 			#endif
 
 			return services_list_json_p;
@@ -1563,7 +1568,7 @@ bool AddServiceResponseHeader (Service *service_p, json_t *response_p)
 
 	
 	#if SERVICE_DEBUG >= STM_LEVEL_FINE
-	PrintJSONToLog (response_p, __FILE__, __LINE__, "service response header", SERVICE_DEBUG);
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, response_p, "service response header");
 	#endif
 
 	return success_flag;
@@ -1575,7 +1580,7 @@ ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugi
 	ServicesArray *services_p = NULL;
 
 	#if SERVICE_DEBUG >= STM_LEVEL_FINER
-	PrintJSONToLog (config_p, "GetReferenceServicesFromJSON: config", STM_LEVEL_FINER, __FILE__, __LINE__);
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, config_p, "GetReferenceServicesFromJSON: config");
 	#endif
 
 	if (config_p)
