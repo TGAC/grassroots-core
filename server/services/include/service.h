@@ -320,6 +320,9 @@ typedef struct Service
 	 */
 	ServiceData *se_data_p;
 
+
+	bool se_running_flag;
+
 } Service;
 
 
@@ -894,6 +897,13 @@ GRASSROOTS_SERVICE_API json_t *GetInterestedServiceJSON (const char *service_nam
  * @see se_customise_service_job_fn
  */
 GRASSROOTS_SERVICE_API void SetServiceJobCustomFunctions (Service *service_p, struct ServiceJob *job_p);
+
+
+
+GRASSROOTS_SERVICE_API bool IsServiceRunning (Service *service_p);
+
+
+GRASSROOTS_SERVICE_API void SetServiceRunning (Service *service_p, bool b);
 
 
 #ifdef __cplusplus

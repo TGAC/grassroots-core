@@ -163,6 +163,9 @@ genQueryOut_t *ExecuteQueryString (rcComm_t *connection_p, char *query_s)
 			out_query_p = ExecuteGenQuery (connection_p, &in_query);
 		}
 
+
+	clearGenQueryInp (&in_query);
+
 	return out_query_p;
 }
 
@@ -945,6 +948,8 @@ QueryResults *GetAllAttributeNames (IRodsConnection *connection_p, const int col
 							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to execute \"%s\"", query_s);
 						}
 
+					freeGenQueryOut (&out_p);
+
 					FreeCopiedString (query_s);
 				}
 			else
@@ -988,6 +993,8 @@ QueryResults *GetAllMetadataAttributeValues (IRodsConnection *connection_p, cons
 										{
 											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to execute \"%s\"", GetByteBufferData (buffer_p));
 										}
+
+									freeGenQueryOut (&out_p);
 								}
 							else
 								{

@@ -24,6 +24,7 @@
  * @brief
  */
 
+#include <string.h>
 
 #include "parameter_option.h"
 #include "streams.h"
@@ -50,11 +51,11 @@ ParameterOption *AllocateParameterOption (SharedType value, const char * const d
 
 	if (success_flag)
 		{
-			ParameterOption *option_p = (ParameterOption *) AllocMemory (sizeof (option_p));
+			ParameterOption *option_p = (ParameterOption *) AllocMemory (sizeof (ParameterOption));
 
 			if (option_p)
 				{
-					InitSharedType (& (option_p -> po_value));
+					memset (option_p, 0, sizeof (ParameterOption));
 
 					if (CopySharedType (value, & (option_p -> po_value), param_type))
 						{
@@ -141,6 +142,7 @@ bool CreateAndAddParameterOption (LinkedList *options_p, SharedType value, const
 				}
 			else
 				{
+					FreeParameterOption (option_p);
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate option node with description \"%s\"", description_s);
 				}
 		}

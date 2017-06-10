@@ -111,6 +111,8 @@ void InitialiseService (Service * const service_p,
 	service_p -> se_synchronous = synchronous;
 
 
+	service_p -> se_running_flag = false;
+
 	uuid_clear (service_p -> se_id);
 
 	service_p -> se_plugin_p = NULL;
@@ -285,7 +287,15 @@ void FreeServiceNode (ListItem * const node_p)
 
 	if (service_p)
 		{
+			bool delete_flag = true;
+
+			/* If the service is runnning in an async task or similar, keep it */
 			if (service_p -> se_synchronous != SY_ASYNCHRONOUS_ATTACHED)
+				{
+					delete_flag = !IsServiceRunning (service_p);
+				}
+
+			if (delete_flag)
 				{
 					FreeService (service_p);
 				}
@@ -658,9 +668,25 @@ void LoadKeywordServices (LinkedList *services_p, const char * const services_pa
 
 ServiceJobSet *RunService (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p)
 {
+	ServiceJobSet *job_set_p = NULL;
+
 	GenerateServiceUUID (service_p);
 
-	return service_p -> se_run_fn (service_p, param_set_p, user_p, providers_p);
+	job_set_p = service_p -> se_run_fn (service_p, param_set_p, user_p, providers_p);
+
+	return job_set_p;
+}
+
+
+bool IsServiceRunning (Service *service_p)
+{
+	return service_p -> se_running_flag;
+}
+
+
+void SetServiceRunning (Service *service_p, bool b)
+{
+	service_p -> se_running_flag = b;
 }
 
 
