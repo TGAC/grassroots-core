@@ -373,7 +373,7 @@ int PrintQueryOutput (FILE *out_f, const genQueryOut_t *query_result_p)
 
 QueryResult *AllocateQueryResult (int num_rows, const columnName_t *column_p)
 {
-	char **values_pp = (char **) calloc (num_rows, sizeof (char *));
+	char **values_pp = (char **) AllocMemoryArray (num_rows, sizeof (char *));
 
 	if (values_pp)
 		{

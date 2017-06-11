@@ -290,7 +290,7 @@ void FreeServiceNode (ListItem * const node_p)
 			bool delete_flag = true;
 
 			/* If the service is runnning in an async task or similar, keep it */
-			if (service_p -> se_synchronous != SY_ASYNCHRONOUS_ATTACHED)
+			if (service_p -> se_synchronous == SY_ASYNCHRONOUS_ATTACHED)
 				{
 					delete_flag = !IsServiceRunning (service_p);
 				}
