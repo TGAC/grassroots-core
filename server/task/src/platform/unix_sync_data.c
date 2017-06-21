@@ -14,11 +14,11 @@
 #include "memory_allocations.h"
 
 
-typedef struct SyncData
+struct SyncData
 {
 	pthread_mutex_t sd_mutex;
 	pthread_cond_t sd_cond;
-} SyncData;
+};
 
 
 

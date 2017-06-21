@@ -28,6 +28,7 @@
 #ifndef IRODS_LIB_INCLUDE_IRODS_UTIL_H_
 #define IRODS_LIB_INCLUDE_IRODS_UTIL_H_
 
+#include "rodsDef.h"
 #include "getRodsEnv.h"
 #include "rcConnect.h"
 #include "rodsPath.h"
