@@ -364,11 +364,13 @@ void ClearServiceJob (ServiceJob *job_p)
 	if (job_p -> sj_name_s)
 		{
 			FreeCopiedString (job_p -> sj_name_s);
+			job_p -> sj_name_s = NULL;
 		}
 
 	if (job_p -> sj_description_s)
 		{
 			FreeCopiedString (job_p -> sj_description_s);
+			job_p -> sj_description_s = NULL;
 		}
 
 
@@ -445,7 +447,7 @@ bool SetServiceJobDescription (ServiceJob *job_p, const char * const description
 void SetServiceJobStatus (ServiceJob *job_p, OperationStatus status)
 {
 	#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
-	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Setting Job \"%s\" to status %ld", job_p -> sj_name_s, status);
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Setting Job \"%s\" to status \"%s\"", job_p -> sj_name_s ? job_p -> sj_name_s : "unnamed", GetOperationStatusAsString (status));
 	#endif
 
 	job_p -> sj_status = status;

@@ -908,6 +908,8 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get job %s for \"%s\" %s", identifier_s, job_p -> sj_name_s ? job_p -> sj_name_s : "", uuid_s);
 				}
+
+			FreeServiceJob (job_p);
 		}		/* if (job_p) */
 	else
 		{
