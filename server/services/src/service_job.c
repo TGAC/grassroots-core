@@ -973,40 +973,54 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 		{
 			Service *service_p = GetServiceByName (service_name_s);
 
-			if (DoesServiceHaveCustomServiceJobSerialisation (service_p))
+			if (service_p)
 				{
-					job_p = CreateSerialisedServiceJobFromService (service_p, job_json_p);
-
-					if (job_p)
+					if (DoesServiceHaveCustomServiceJobSerialisation (service_p))
 						{
-							return job_p;
-						}		/* if (job_p) */
+							#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
+							PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "CreateServiceJobFromJSON using custom deserialising for service \"%s\"", service_name_s);
+							#endif
+
+							job_p = CreateSerialisedServiceJobFromService (service_p, job_json_p);
+
+							if (!job_p)
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to create ServiceJob");
+								}
+
+						}		/* if (DoesServiceHaveCustomServiceJobSerialisation (service_p)) */
 					else
 						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to create ServiceJob");
-						}
+							job_p = AllocateEmptyServiceJob ();
 
-				}		/* if (DoesServiceHaveCustomServiceJobSerialisation (service_p)) */
-			else
-				{
-					job_p = AllocateEmptyServiceJob ();
-
-					if (job_p)
-						{
-							if (InitServiceJobFromJSON (job_p, job_json_p))
+							if (job_p)
 								{
-									return job_p;
+									if (!InitServiceJobFromJSON (job_p, job_json_p))
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to create ServiceJob with InitServiceJobFromJSON");
+											FreeServiceJob (job_p);
+											job_p = NULL;
+										}
 								}
 							else
 								{
-									FreeServiceJob (job_p);
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate empty ServiceJob");
 								}
 						}
+
+				}		/* if (service_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get service with name \"%s\"", service_name_s);
 				}
+
 		}		/* if (service_name_s) */
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to get service name from job JSON");
+		}
 
-
-	return NULL;
+	return job_p;
 }
 
 
