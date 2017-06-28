@@ -895,7 +895,7 @@ bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p,
 			#endif
 
 
-			cursor_p = mongoc_collection_find (tool_p -> mt_collection_p, MONGOC_QUERY_NONE, 0, 0, 0, query_p, fields_p, NULL);
+			cursor_p = mongoc_collection_find_with_opts (tool_p -> mt_collection_p, query_p, fields_p, NULL);
 
 			if (cursor_p)
 				{
@@ -1292,6 +1292,12 @@ bool AddBSONDocumentToJSONArray (const bson_t *document_p, void *data_p)
 
 	return success_flag;
 
+}
+
+
+const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p,  const char *const primary_key_id_s)
+{
+	return InsertOrUpdateMongoData (tool_p, values_p, NULL, NULL, primary_key_id_s, NULL, NULL);
 }
 
 

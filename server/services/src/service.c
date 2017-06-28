@@ -833,7 +833,13 @@ static void GenerateServiceUUID (Service *service_p)
 //
 ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, UserDetails *user_p)
 {
-	if (!plugin_p -> pl_services_p)
+	ServicesArray *services_p = NULL;
+
+	if (plugin_p -> pl_type == PN_SERVICE)
+		{
+			services_p = plugin_p -> pl_value.pv_services_p;
+		}
+	else if (plugin_p -> pl_type == PN_UNKNOWN)
 		{
 			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetServices");
 
@@ -841,23 +847,32 @@ ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, UserDetails *user
 				{
 					ServicesArray *(*fn_p) (UserDetails *) = (ServicesArray *(*) (UserDetails *)) symbol_p;
 
-					plugin_p -> pl_services_p = fn_p (user_p);
+					services_p = fn_p (user_p);
 
-					if (plugin_p -> pl_services_p)
+					if (services_p)
 						{
-							AssignPluginForServicesArray (plugin_p -> pl_services_p, plugin_p);
+							AssignPluginForServicesArray (services_p, plugin_p);
+
+							plugin_p -> pl_value.pv_services_p = services_p;
 							plugin_p -> pl_type = PN_SERVICE;
 						}
 				}
 		}
 
-	return plugin_p -> pl_services_p;
+	return services_p;
+
 }
 
 
 ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, UserDetails *user_p, const json_t *service_config_p)
 {
-	if (!plugin_p -> pl_services_p)
+	ServicesArray *services_p = NULL;
+
+	if (plugin_p -> pl_type == PN_SERVICE)
+		{
+			services_p = plugin_p -> pl_value.pv_services_p;
+		}
+	else if (plugin_p -> pl_type == PN_UNKNOWN)
 		{
 			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetServices");
 
@@ -865,35 +880,45 @@ ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, UserDet
 				{
 					ServicesArray *(*fn_p) (UserDetails *, const json_t *) = (ServicesArray *(*) (UserDetails *, const json_t *)) symbol_p;
 
-					plugin_p -> pl_services_p = fn_p (user_p, service_config_p);
+					services_p = fn_p (user_p, service_config_p);
 
-					if (plugin_p -> pl_services_p)
+					if (services_p)
 						{
-							AssignPluginForServicesArray (plugin_p -> pl_services_p, plugin_p);
+							AssignPluginForServicesArray (services_p, plugin_p);
+
+							plugin_p -> pl_value.pv_services_p = services_p;
 							plugin_p -> pl_type = PN_SERVICE;
 						}
 				}
 		}
 
-	return plugin_p -> pl_services_p;
+	return services_p;
 }
 
 
 bool DeallocatePluginService (Plugin * const plugin_p)
 {
-	bool success_flag = (plugin_p -> pl_services_p == NULL);
+	bool success_flag = false;
 
-	if (!success_flag)
+	if (plugin_p -> pl_type == PN_SERVICE)
 		{
-			void *symbol_p = GetSymbolFromPlugin (plugin_p, "ReleaseServices");
-
-			if (symbol_p)
+			if (plugin_p -> pl_value.pv_services_p)
 				{
-					void (*fn_p) (ServicesArray * const) = (void (*) (ServicesArray * const)) symbol_p;
+					void *symbol_p = GetSymbolFromPlugin (plugin_p, "ReleaseServices");
 
-					fn_p (plugin_p -> pl_services_p);
+					if (symbol_p)
+						{
+							void (*fn_p) (ServicesArray * const) = (void (*) (ServicesArray * const)) symbol_p;
 
-					plugin_p -> pl_services_p = NULL;
+							fn_p (plugin_p -> pl_value.pv_services_p);
+
+							ClearPluginValue (plugin_p);
+
+							success_flag = true;
+						}
+				}
+			else
+				{
 					success_flag = true;
 				}
 		}

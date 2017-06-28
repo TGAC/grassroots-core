@@ -38,6 +38,8 @@
 struct ServicesArray;
 struct Client;
 struct Handler;
+struct JobsManager;
+
 
 /**
  * The current status of a Plugin
@@ -80,9 +82,43 @@ typedef enum PluginNature
 	/** The Plugin creates a Handler. */
 	PN_HANDLER,     //!< PN_HANDLER
 
+	/** The Plugin creates a JobsManager. */
+	PN_JOBS_MANAGER,
+
 	/** The number of different PluginTypes */
 	PN_NUM_TYPES    //!< PN_NUM_TYPES
 } PluginNature;
+
+
+typedef union PluginValue
+{
+	/**
+	 * If pl_type is PN_SERVICE then this will point
+	 * to a ServicesArray of Services available.
+	 */
+	struct ServicesArray *pv_services_p;
+
+	/**
+	 * If pl_type is PN_CLIENT then this will point
+	 * to a valid Client.
+	 */
+	struct Client *pv_client_p;
+
+	/**
+	 * If pl_type is PN_HANDLER then this will point
+	 * to a valid Handler.
+	 */
+	struct Handler *pv_handler_p;
+
+
+	/**
+	 * If pl_type is PN_JOBS_MANAGER then this will point
+	 * to a valid JobsManager.
+	 */
+	struct JobsManager *pv_jobs_manager_p;
+} PluginValue;
+
+
 
 
 /**
@@ -123,26 +159,7 @@ typedef struct Plugin
 	 */
 	PluginNature pl_type;
 
-	/**
-	 * If pl_type is PN_SERVICE then this will point
-	 * to a ServicesArray of Services available. If not,
-	 * this will be NULL.
-	 */
-	struct ServicesArray *pl_services_p;
-
-	/**
-	 * If pl_type is PN_CLIENT then this will point
-	 * to a valid Client. If not,
-	 * this will be NULL.
-	 */
-	struct Client *pl_client_p;
-
-	/**
-	 * If pl_type is PN_HANDLER then this will point
-	 * to a valid Handler. If not,
-	 * this will be NULL.
-	 */
-	struct Handler *pl_handler_p;
+	PluginValue pl_value;
 
 	/**
 	 * The count of how many current tasks have this Plugin open.
@@ -336,6 +353,9 @@ GRASSROOTS_UTIL_API void IncrementPluginOpenCount (Plugin *plugin_p);
 GRASSROOTS_UTIL_API void DecrementPluginOpenCount (Plugin *plugin_p);
 
 
+GRASSROOTS_UTIL_API void ClearPluginValue (Plugin * const plugin_p);
+
+
 /***********************************/
 /*********  LOCAL METHODS  *********/
 /***********************************/
@@ -349,9 +369,6 @@ GRASSROOTS_UTIL_LOCAL void ClearBasePlugin (Plugin * const plugin_p);
 
 
 GRASSROOTS_UTIL_LOCAL void ClearPluginPath (Plugin * const plugin_p);
-
-
-
 
 
 #ifdef __cplusplus

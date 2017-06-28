@@ -898,6 +898,8 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 								}
 								break;
 
+							default:
+								break;
 						}		/* switch (current_status) */
 
 				}		/* if (old_status != current_status) */

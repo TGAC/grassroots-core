@@ -190,7 +190,13 @@ void FreeHandlerNode (ListItem *node_p)
 //
 Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const UserDetails *user_p)
 {
-	if (!plugin_p -> pl_handler_p)
+	Handler *handler_p = NULL;
+
+	if (plugin_p -> pl_type == PN_HANDLER)
+		{
+			handler_p = plugin_p -> pl_value.pv_handler_p;
+		}
+	else if (plugin_p -> pl_type == PN_UNKNOWN)
 		{
 			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetHandler");
 
@@ -198,34 +204,45 @@ Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const UserDetails *user_
 				{
 					Handler *(*fn_p) (const UserDetails *) = (Handler *(*) (const UserDetails *)) symbol_p;
 
-					plugin_p -> pl_handler_p = fn_p (user_p);
+					handler_p = fn_p (user_p);
 
-					if (plugin_p -> pl_handler_p)
+					if (handler_p)
 						{
-							plugin_p -> pl_handler_p -> ha_plugin_p = plugin_p;
+							handler_p -> ha_plugin_p= plugin_p;
+
+							plugin_p -> pl_value.pv_handler_p = handler_p;
 							plugin_p -> pl_type = PN_HANDLER;
 						}
 				}
 		}
 
-	return plugin_p -> pl_handler_p;
+	return handler_p;
 }
+
 
 bool DeallocatePluginHandler (Plugin * const plugin_p)
 {
-	bool success_flag = (plugin_p -> pl_handler_p == NULL);
+	bool success_flag = false;
 
-	if (!success_flag)
+	if (plugin_p -> pl_type == PN_HANDLER)
 		{
-			void *symbol_p = GetSymbolFromPlugin (plugin_p, "ReleaseHandler");
-
-			if (symbol_p)
+			if (plugin_p -> pl_value.pv_handler_p)
 				{
-					void (*fn_p) (Handler *) = (void (*) (Handler *)) symbol_p;
+					void *symbol_p = GetSymbolFromPlugin (plugin_p, "ReleaseHandler");
 
-					fn_p (plugin_p -> pl_handler_p);
+					if (symbol_p)
+						{
+							void (*fn_p) (Handler *) = (void (*) (Handler *)) symbol_p;
 
-					plugin_p -> pl_handler_p = NULL;
+							fn_p (plugin_p -> pl_value.pv_handler_p);
+
+							ClearPluginValue (plugin_p);
+
+							success_flag = true;
+						}
+				}
+			else
+				{
 					success_flag = true;
 				}
 		}

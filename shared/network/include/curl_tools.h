@@ -243,7 +243,7 @@ GRASSROOTS_NETWORK_API size_t GetCurlToolDataSize (const CurlTool * const tool_p
  * @see GetCurlToolData
  * @memberof CurlTool
  */
-GRASSROOTS_NETWORK_API bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, json_t *req_p);
+GRASSROOTS_NETWORK_API bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, const json_t *req_p);
 
 
 /**

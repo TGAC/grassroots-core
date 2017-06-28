@@ -34,6 +34,29 @@
 #include "grassroots_service_manager_library.h"
 #include "uuid/uuid.h"
 
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#ifdef ALLOCATE_JOBS_MANAGER_TAGS
+	#define JOBS_MANAGER_PREFIX GRASSROOTS_SERVICE_MANAGER_API
+	#define JOBS_MANAGER_VAL(x)	= x
+#else
+	#define JOBS_MANAGER_PREFIX extern
+	#define JOBS_MANAGER_VAL(x)
+#endif
+
+#endif
+
+
+
+/**
+ * This specifies the relative filesystem path to where the Service
+ * plugins are stored.
+ */
+JOBS_MANAGER_PREFIX const char *JOBS_MANAGERS_PATH_S JOBS_MANAGER_VAL("jobs_managers");
+
+
+
 /* forward declaration */
 struct JobsManager;
 
@@ -72,6 +95,8 @@ typedef ServiceJob *(*ServiceJobDeserialiser) (unsigned char *input_data_p, void
  */
 typedef struct JobsManager
 {
+	Plugin *jm_plugin_p;
+
 	/**
 	 * @brief Add a ServiceJob to the JobsManager.
 	 *
@@ -130,6 +155,8 @@ typedef struct JobsManager
 	LinkedList *(*jm_get_all_jobs_fn) (struct JobsManager *manager_p);
 
 
+	bool (*jm_delete_manager_fn) (struct JobsManager *manager_p);
+
 } JobsManager;
 
 
@@ -161,7 +188,20 @@ GRASSROOTS_SERVICE_MANAGER_API void InitJobsManager (JobsManager *manager_p,
                       bool (*add_job_fn) (JobsManager *manager_p, uuid_t job_key, ServiceJob *job_p),
                       ServiceJob *(*get_job_fn)  (JobsManager *manager_p, const uuid_t key),
                       ServiceJob *(*remove_job_fn) (JobsManager *manager_p, const uuid_t key, bool get_job_flag),
-											LinkedList *(*get_all_jobs_fn) (struct JobsManager *manager_p));
+											LinkedList *(*get_all_jobs_fn) (struct JobsManager *manager_p),
+											bool (*delete_manager_fn) (struct JobsManager *manager_p));
+
+
+
+/**
+ * @brief Free a JobsManager.
+ *
+ * @param manager_p manager_p The JobsManager to free.
+ * @return <code>true</code> if the JobsManager was freed successfully,
+ * <code>false</code> otherwise
+ * @memberof JobsManager
+ */
+GRASSROOTS_SERVICE_MANAGER_API bool FreeJobsManager (JobsManager *manager_p);
 
 
 /**
@@ -231,6 +271,9 @@ GRASSROOTS_SERVICE_MANAGER_API ServiceJob *RemoveServiceJobFromJobsManager (Jobs
  */
 GRASSROOTS_SERVICE_MANAGER_API LinkedList *GetAllServiceJobsFromJobsManager (struct JobsManager *manager_p);
 
+
+
+GRASSROOTS_SERVICE_MANAGER_API JobsManager *LoadJobsManager (const char *jobs_manager_s);
 
 
 #ifdef __cplusplus

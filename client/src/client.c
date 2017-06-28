@@ -103,7 +103,9 @@ void FreeClient (Client *client_p)
 
 	bool res = client_p -> cl_free_client_fn (client_p);
 
-	plugin_p -> pl_client_p = NULL;
+	plugin_p -> pl_value.pv_client_p = NULL;
+	plugin_p -> pl_type = PN_UNKNOWN;
+
 	FreePlugin (plugin_p);
 }
 
@@ -193,7 +195,13 @@ Client *LoadClient (const char * const clients_path_s, const char * const client
 //
 Client *GetClientFromPlugin (Plugin * const plugin_p, Connection *connection_p)
 {
-	if (!plugin_p -> pl_client_p)
+	Client *client_p = NULL;
+
+	if (plugin_p -> pl_type == PN_CLIENT)
+		{
+			client_p = plugin_p -> pl_value.pv_client_p;
+		}
+	else if (plugin_p -> pl_type == PN_UNKNOWN)
 		{
 			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetClient");
 
@@ -201,33 +209,47 @@ Client *GetClientFromPlugin (Plugin * const plugin_p, Connection *connection_p)
 				{
 					Client *(*fn_p) (Connection *connection_p) = (Client *(*) (Connection *connection_p)) symbol_p;
 
-					plugin_p -> pl_client_p = fn_p (connection_p);
+					client_p = fn_p (connection_p);
 
-					if (plugin_p -> pl_client_p)
+					if (client_p)
 						{
-							plugin_p -> pl_client_p -> cl_plugin_p = plugin_p;
+							client_p -> cl_plugin_p = plugin_p;
+
+							plugin_p -> pl_value.pv_client_p = client_p;
 							plugin_p -> pl_type = PN_CLIENT;
+
 						}
 				}
 		}
 
-	return plugin_p -> pl_client_p;
+	return client_p;
 }
+
 
 bool DeallocatePluginClient (Plugin * const plugin_p)
 {
-	bool success_flag = (plugin_p -> pl_client_p == NULL);
+	bool success_flag = false;
 
-	if (!success_flag)
+	if (plugin_p -> pl_type == PN_CLIENT)
 		{
-			void *symbol_p = GetSymbolFromPlugin (plugin_p, "ReleaseClient");
-
-			if (symbol_p)
+			if (plugin_p -> pl_value.pv_client_p)
 				{
-					bool (*fn_p) (Client *) = (bool (*) (Client *)) symbol_p;
-					bool res = fn_p (plugin_p -> pl_client_p);
+					void *symbol_p = GetSymbolFromPlugin (plugin_p, "ReleaseClient");
 
-					plugin_p -> pl_client_p = NULL;
+					if (symbol_p)
+						{
+							void (*fn_p) (Client *) = (void (*) (Client *)) symbol_p;
+
+							fn_p (plugin_p -> pl_value.pv_client_p);
+
+							plugin_p -> pl_type = PN_UNKNOWN;
+
+							plugin_p -> pl_value.pv_client_p = NULL;
+							success_flag = true;
+						}
+				}
+			else
+				{
 					success_flag = true;
 				}
 		}

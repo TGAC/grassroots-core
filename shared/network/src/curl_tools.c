@@ -194,7 +194,7 @@ bool SetUriForCurlTool (CurlTool *tool_p, const char * const uri_s)
 }
 
 
-bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, json_t *req_p)
+bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, const json_t *req_p)
 {
 	bool success_flag = false;
 	char *dump_s = json_dumps (req_p, 0);

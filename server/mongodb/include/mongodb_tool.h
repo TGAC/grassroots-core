@@ -349,6 +349,7 @@ GRASSROOTS_MONGODB_API int32 GetAllMongoResultsForKeyValuePair (MongoTool *tool_
  * documents will be stored.
  * @param num_fields The number of entries in fields_ss.
  * @return A newly-allocated json_object with the key-value pair results or <code>NULL</code> upon error.
+ * @memberof MongoTool
  */
 GRASSROOTS_MONGODB_API json_t *GetCurrentValuesAsJSON (MongoTool *tool_p, const char **fields_ss, const size_t num_fields);
 
@@ -477,8 +478,25 @@ GRASSROOTS_MONGODB_API json_t *ConvertBSONValueToJSON (const bson_value_t *value
  * <code>NULL</code> then the primary_key_id_s will be used instead.
  * @param object_key_s The key used to insert values_p into the matching documents.
  * @return An error string or <code>NULL</code> if the updates were successful.
+ * @memberof MongoTool
  */
 GRASSROOTS_MONGODB_API const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char * const database_s, const char * const collection_s, const char * const primary_key_id_s, const char * const mapped_id_s, const char * const object_key_s);
+
+
+/**
+ * Insert of update data in a set of matching documents.
+ *
+ * This calls InsertOrUpdateMongoData() with <code>NULL</code> entries
+ * for the database, collection, mapped_id_s and object_key_s values.
+ *
+ * @param tool_p The MongoTool to update with.
+ * @param values_p The JSON values to add to the documents.
+ * @param primary_key_id_s The key used to get the values from values_p that the matching
+ * documents will be updated with.
+ * @return An error string or <code>NULL</code> if the updates were successful.
+ * @memberof MongoTool
+ */
+const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char *const primary_key_id_s);
 
 
 #ifdef __cplusplus

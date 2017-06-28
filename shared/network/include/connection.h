@@ -195,7 +195,7 @@ GRASSROOTS_NETWORK_API void FreeConnection (Connection *connection_p);
  * @return The response or <code>NULL</code> upon error.
  * @memberof Connection
  */
-GRASSROOTS_NETWORK_API const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, json_t *req_p);
+GRASSROOTS_NETWORK_API const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const json_t *req_p);
 
 
 GRASSROOTS_NETWORK_LOCAL int SendJsonRequestViaRawConnection (RawConnection *connection_p, const json_t *json_p);

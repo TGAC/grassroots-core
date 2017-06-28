@@ -280,6 +280,9 @@ extern "C"
 	/* Start of doxygen member group */
 	/**@{*/
 
+
+	PREFIX const char *JOBS_MANAGER_S VAL("jobs_manager");
+
 	/**
 	 * The JSON key for the name of a ServiceJob.
 	 */

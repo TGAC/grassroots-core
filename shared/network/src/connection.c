@@ -240,7 +240,7 @@ void FreeConnection (Connection *connection_p)
 
 
 
-const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, json_t *req_p)
+const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const json_t *req_p)
 {
 	bool success_flag = false;
 

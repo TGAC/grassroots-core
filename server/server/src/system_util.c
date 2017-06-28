@@ -24,6 +24,7 @@
 #include "string_utils.h"
 #include "service_config.h"
 #include "mongodb_util.h"
+#include "servers_pool.h"
 
 #ifdef DRMAA_ENABLED
 #include "drmaa_util.h"
@@ -36,6 +37,9 @@
 
 
 static bool s_is_multi_process_system_flag = false;
+
+
+
 
 bool InitInformationSystem ()
 {
@@ -53,9 +57,22 @@ bool InitInformationSystem ()
 								{
 									if (InitMongoDB ())
 										{
+											JobsManager *manager_p = NULL;
+											const json_t *config_p = GetGlobalConfigValue (JOBS_MANAGER_S);
+
+											if (config_p)
+												{
+													if (json_is_string (config_p))
+														{
+															const char *manager_s = json_string_value (config_p);
+
+															manager_p = LoadJobsManager (manager_s);
+														}
+												}
+
 											res_flag = true;
 										}
-									ConnectToExternalServers ();
+
 								}
 
 							#ifdef DRMAA_ENABLED
@@ -83,6 +100,8 @@ bool InitInformationSystem ()
 bool DestroyInformationSystem ()
 {
 	bool res_flag = true;
+	JobsManager *jobs_manager_p = GetJobsManager ();
+	ServersManager *servers_manager_p = GetServersManager ();
 
 	#ifdef DRMAA_ENABLED
 	ExitDrmaaEnvironment ();
@@ -99,9 +118,22 @@ bool DestroyInformationSystem ()
 //	FreeDefaultOutputStream ();
 	DestroyHandlerUtil ();
 
+	if (jobs_manager_p)
+		{
+			FreeJobsManager (jobs_manager_p);
+		}
+
+	if (servers_manager_p)
+		{
+			FreeServersManager (servers_manager_p);
+		}
+
 
 	return res_flag;
 }
+
+
+
 
 
 void SetMultiProcessSystem (bool b)

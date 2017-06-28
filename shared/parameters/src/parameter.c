@@ -3303,6 +3303,8 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 			case PT_TABLE:
 				break;
 
+			default:
+				break;
 		}		/* switch (pt) */
 
 	return success_flag;

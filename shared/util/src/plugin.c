@@ -13,6 +13,8 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+#include <string.h>
+
 #include "plugin.h"
 
 #include "string_utils.h"
@@ -35,12 +37,12 @@ bool InitBasePlugin (Plugin * const plugin_p, const char * const path_s)
 	plugin_p -> pl_name_s = NULL;
 	plugin_p -> pl_path_s = NULL;
 	plugin_p -> pl_path_mem = MF_ALREADY_FREED;
-	plugin_p -> pl_services_p = NULL;
-	plugin_p -> pl_client_p = NULL;
-	plugin_p -> pl_handler_p = NULL;
+
 	plugin_p -> pl_status = PS_UNSET;
-	plugin_p -> pl_type = PN_UNKNOWN;
 	plugin_p -> pl_open_count = 0;
+
+	ClearPluginValue (plugin_p);
+
 
 	if (path_s)
 		{
@@ -125,6 +127,15 @@ void ClearBasePlugin (Plugin * const plugin_p)
 
 	ClearPluginPath (plugin_p);
 }
+
+
+void ClearPluginValue (Plugin * const plugin_p)
+{
+	memset (& (plugin_p -> pl_value), 0, sizeof (PluginValue));
+
+	plugin_p -> pl_type = PN_UNKNOWN;
+}
+
 
 
 void FreePluginListNode (ListItem * const node_p)
