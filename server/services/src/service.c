@@ -737,7 +737,7 @@ json_t *CreateSerialisedJSONForServiceJobFromService (struct Service *service_p,
 			if (!job_json_p)
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "%s failed to serialise job", service_job_p -> sj_service_name_s);
-				}		/* if (!job_p) */
+				}		/* if (!job_json_p) */
 
 		}		/* if (DoesServiceHaveCustomServiceJobDeserialiser (service_p)) */
 	else

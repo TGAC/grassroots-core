@@ -159,7 +159,7 @@ JobsManager *LoadJobsManager (const char *jobs_manager_s)
 			*file_sep_s = GetFileSeparatorChar ();
 			* (file_sep_s + 1) = '\0';
 
-			full_jobs_managers_path_s = ConcatenateVarargsStrings (root_path_s, file_sep_s, JOBS_MANAGERS_PATH_S, file_sep_s, jobs_manager_s, NULL);
+			full_jobs_managers_path_s = ConcatenateVarargsStrings (root_path_s, file_sep_s, JOBS_MANAGERS_PATH_S, file_sep_s, plugin_name_s, NULL);
 
 			if (full_jobs_managers_path_s)
 				{
