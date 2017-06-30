@@ -400,7 +400,7 @@ GRASSROOTS_SERVICE_API ServiceJob *GetServiceJobFromServiceJobSetById (const Ser
  * </code> upon error.
  * @memberof ServiceJobSet
  */
-GRASSROOTS_SERVICE_API json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs_p);
+GRASSROOTS_SERVICE_API json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs_p, bool omit_results_flag);
 
 
 /**
@@ -411,7 +411,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs
  * or <code>NULL</code> upon error.
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API json_t *GetServiceJobAsJSON (ServiceJob * const job_p);
+GRASSROOTS_SERVICE_API json_t *GetServiceJobAsJSON (ServiceJob * const job_p, bool omit_results_flag);
 
 
 /**
@@ -422,7 +422,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceJobAsJSON (ServiceJob * const job_p);
  * or <code>NULL</code> upon error.
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API json_t *GetServiceJobStatusAsJSON (ServiceJob *job_p);
+GRASSROOTS_SERVICE_API json_t *GetServiceJobStatusAsJSON (ServiceJob *job_p, bool omit_results_flag);
 
 
 /**
@@ -578,7 +578,7 @@ GRASSROOTS_SERVICE_API void ClearServiceJobResults (ServiceJob *job_p, bool free
  * @see DeserialiseServiceJobFromJSON
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API char *SerialiseServiceJobToJSON (ServiceJob * const job_p);
+GRASSROOTS_SERVICE_API char *SerialiseServiceJobToJSON (ServiceJob * const job_p, bool omit_results_flag);
 
 
 /**

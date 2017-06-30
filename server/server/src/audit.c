@@ -135,7 +135,7 @@ bool LogParameterSet (ParameterSet *params_p, ServiceJob *job_p)
 static json_t *AddServiceJobToJSON (ServiceJob *job_p, json_t *req_p)
 {
 	bool success_flag = false;
-	json_t *job_json_p = GetServiceJobAsJSON (job_p);
+	json_t *job_json_p = GetServiceJobAsJSON (job_p, true);
 
 	if (job_json_p)
 		{

@@ -1024,7 +1024,7 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 }
 
 
-json_t *GetServiceJobAsJSON (ServiceJob *job_p)
+json_t *GetServiceJobAsJSON (ServiceJob *job_p, bool omit_results_flag)
 {
 	json_t *job_json_p = json_object ();
 
@@ -1034,7 +1034,18 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p)
 
 			if (json_object_set_new (job_json_p, JOB_SERVICE_S, json_string (job_p -> sj_service_name_s)) == 0)
 				{
-					if (AddValidJSON (job_json_p, JOB_RESULTS_S, job_p -> sj_result_p, false))
+					bool added_results_flag = false;
+
+					if (omit_results_flag)
+						{
+							added_results_flag = true;
+						}
+					else
+						{
+							added_results_flag = AddValidJSON (job_json_p, JOB_RESULTS_S, job_p -> sj_result_p, false);
+						}
+
+					if (added_results_flag)
 						{
 							if (AddValidJSON (job_json_p, JOB_ERRORS_S, job_p -> sj_errors_p, false))
 								{
@@ -1143,7 +1154,7 @@ bool ProcessServiceJobSet (ServiceJobSet *jobs_p, json_t *res_p)
 
 			if ((job_status == OS_SUCCEEDED) || (job_status == OS_PARTIALLY_SUCCEEDED))
 				{
-					job_json_p = GetServiceJobAsJSON (job_p);
+					job_json_p = GetServiceJobAsJSON (job_p, false);
 
 					/*
 					 * If this service has any linked services, fill in the data here
@@ -1152,7 +1163,7 @@ bool ProcessServiceJobSet (ServiceJobSet *jobs_p, json_t *res_p)
 				}
 			else
 				{
-					job_json_p = GetServiceJobStatusAsJSON (job_p);
+					job_json_p = GetServiceJobStatusAsJSON (job_p, true);
 				}
 
 			if (job_json_p)
@@ -1309,7 +1320,7 @@ OperationStatus GetServiceJobStatus (ServiceJob *job_p)
 
 
 
-json_t *GetServiceJobStatusAsJSON (ServiceJob *job_p)
+json_t *GetServiceJobStatusAsJSON (ServiceJob *job_p, bool omit_results_flag)
 {
 	json_t *job_json_p = json_object ();
 
@@ -1428,7 +1439,7 @@ bool SetServiceJobFromJSON (ServiceJob *job_p, const json_t *json_p)
 }
 
 
-json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs_p)
+json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs_p, bool omit_results_flag)
 {
 	json_t *jobs_json_p = json_array ();
 
@@ -1439,7 +1450,7 @@ json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs_p)
 			while (node_p)
 				{
 					ServiceJob *job_p = node_p -> sjn_job_p;
-					json_t *job_json_p = GetServiceJobAsJSON (job_p);
+					json_t *job_json_p = GetServiceJobAsJSON (job_p, omit_results_flag);
 
 					if (job_json_p)
 						{
@@ -1508,10 +1519,10 @@ bool AreAnyJobsLive (const ServiceJobSet *jobs_p)
 }
 
 
-char *SerialiseServiceJobToJSON (ServiceJob * const job_p)
+char *SerialiseServiceJobToJSON (ServiceJob * const job_p, bool omit_results_flag)
 {
 	char *serialised_data_p = NULL;
-	json_t *job_json_p = GetServiceJobAsJSON (job_p);
+	json_t *job_json_p = GetServiceJobAsJSON (job_p, omit_results_flag);
 
 	if (job_json_p)
 		{

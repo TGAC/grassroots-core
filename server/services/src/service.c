@@ -74,8 +74,6 @@ static void GenerateServiceUUID (Service *service_p);
 
 static  uint32 AddLinkedServices (Service *service_p);
 
-static char *GetServiceIconData (const char *service_name_s);
-
 
 /*
  * FUNCTION DEFINITIONS
@@ -725,14 +723,14 @@ ServiceJob *CreateSerialisedServiceJobFromService (struct Service *service_p, co
 }
 
 
-json_t *CreateSerialisedJSONForServiceJobFromService (struct Service *service_p, struct ServiceJob *service_job_p)
+json_t *CreateSerialisedJSONForServiceJobFromService (struct Service *service_p, struct ServiceJob *service_job_p, bool omit_results_flag)
 {
 	json_t *job_json_p = NULL;
 	const char *service_name_s = GetServiceName (service_p);
 
 	if (DoesServiceHaveCustomServiceJobSerialisation (service_p))
 		{
-			job_json_p = service_p -> se_serialise_job_json_fn (service_p, service_job_p);
+			job_json_p = service_p -> se_serialise_job_json_fn (service_p, service_job_p, omit_results_flag);
 
 			if (!job_json_p)
 				{
@@ -1778,43 +1776,6 @@ json_t *GetInterestedServiceJSON (const char *service_name_s, const char *keywor
 	return res_p;
 }
 
-
-static char *GetServiceIconData (const char *service_name_s)
-{
-	char *icon_data_s = NULL;
-	const char *root_s = GetServerRootDirectory ();
-
-	char *images_dir_s = MakeFilename (root_s, "images");
-
-	if (images_dir_s)
-		{
-			char *service_image_filename_s = MakeFilename (images_dir_s, service_name_s);
-
-			if (service_image_filename_s)
-				{
-					icon_data_s = GetFileContentsAsStringByFilename (service_image_filename_s);
-
-					if (!icon_data_s)
-						{
-							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get raw data from filename for \"%s\"", service_image_filename_s);
-						}
-
-					FreeCopiedString (service_image_filename_s);
-				}		/* if (service_image_filename_s) */
-			else
-				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to make filename for \"%s\" and \"%s\"", images_dir_s, service_name_s);
-				}
-
-			FreeCopiedString (images_dir_s);
-		}		/* if (images_dir_s) */
-	else
-		{
-			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to make filename for \"%s\" and \"images\"", root_s);
-		}
-
-	return icon_data_s;
-}
 
 
 

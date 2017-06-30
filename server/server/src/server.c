@@ -87,7 +87,7 @@ static json_t *GetServiceResultsAsJSON (const json_t * const req_p, UserDetails 
 
 static json_t *GetServiceData (const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (json_t *services_p, uuid_t service_id, const char *uuid_s));
 
-static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *uuid_s, const char * const identifier_s, json_t *(*get_job_json_fn) (ServiceJob *job_p));
+static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *uuid_s, const char * const identifier_s, json_t *(*get_job_json_fn) (ServiceJob *job_p, bool omit_results_flag));
 
 static bool AddServiceStatusToJSON (json_t *services_p, uuid_t service_id, const char *uuid_s);
 
@@ -843,7 +843,7 @@ static json_t *GetAllServices (const json_t * const req_p, UserDetails *user_p)
 }
 
 
-static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *uuid_s, const char * const identifier_s, json_t *(*get_job_json_fn) (ServiceJob *job_p))
+static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *uuid_s, const char * const identifier_s, json_t *(*get_job_json_fn) (ServiceJob *job_p, bool omit_results_flag))
 {
 	bool success_flag = false;
 	JobsManager *manager_p = GetJobsManager ();
@@ -904,7 +904,7 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 
 				}		/* if (old_status != current_status) */
 
-			job_json_p = get_job_json_fn (job_p);
+			job_json_p = get_job_json_fn (job_p, false);
 
 			if (!job_json_p)
 				{
@@ -1070,7 +1070,7 @@ static json_t *GetServerStatus (const json_t * const req_p, UserDetails *user_p)
 
 											while ((success_flag == true) && (job_node_p != NULL))
 												{
-													json_t *job_json_p = GetServiceJobAsJSON (job_node_p -> sjn_job_p);
+													json_t *job_json_p = GetServiceJobAsJSON (job_node_p -> sjn_job_p, true);
 
 													if (job_json_p)
 														{
