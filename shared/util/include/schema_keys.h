@@ -296,7 +296,9 @@ extern "C"
 	PREFIX const char *JOB_SERVICE_S VAL("service_name");
 	PREFIX const char *JOB_DESCRIPTION_S VAL("description");
 
+
 	PREFIX const char *JOB_RESULTS_S VAL("results");
+	PREFIX const char *JOB_OMITTED_RESULTS_S VAL("results_omitted");
 	PREFIX const char *JOB_ERRORS_S VAL("errors");
 	PREFIX const char *JOB_METADATA_S VAL("metadata");
 	PREFIX const char *JOB_UUID_S VAL("job_uuid");

@@ -68,7 +68,7 @@ ServiceJobSet *AllocateSimpleServiceJobSet (struct Service *service_p, const cha
 
 	if (job_set_p)
 		{
-			ServiceJob *job_p = CreateAndAddServiceJobToServiceJobSet (job_set_p, job_name_s, job_description_s, NULL, NULL);
+			ServiceJob *job_p = CreateAndAddServiceJobToServiceJobSet (job_set_p, job_name_s, job_description_s, NULL, NULL, NULL);
 
 			if (job_p)
 				{
@@ -83,13 +83,13 @@ ServiceJobSet *AllocateSimpleServiceJobSet (struct Service *service_p, const cha
 
 
 
-ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p))
+ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p))
 {
 	ServiceJob *job_p = AllocateEmptyServiceJob ();
 
 	if (job_p)
 		{
-			if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, update_fn, free_job_fn, NULL))
+			if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn, NULL))
 				{
 					return job_p;
 				}
@@ -101,9 +101,9 @@ ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, cons
 }
 
 
-ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p))
+ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p))
 {
-	ServiceJob *job_p = AllocateServiceJob (job_set_p -> sjs_service_p, job_name_s, job_description_s, update_fn, free_job_fn);
+	ServiceJob *job_p = AllocateServiceJob (job_set_p -> sjs_service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn);
 
 	if (job_p)
 		{
@@ -119,9 +119,7 @@ ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, con
 }
 
 
-
-
-bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p)
+bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p)
 {
 	#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Initialising Job: %.16x\n", job_p);
@@ -170,6 +168,8 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 
 											job_p -> sj_update_fn = update_fn;
 											job_p -> sj_free_fn = free_job_fn;
+
+											job_p -> sj_calculate_result_fn = calculate_results_fn;
 
 											job_p -> sj_is_updating_flag = false;
 											job_p -> sj_reference_count = 1;
@@ -885,8 +885,7 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 														}
 												}
 
-
-											if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, NULL, NULL, id_p))
+											if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, NULL, NULL, NULL, id_p))
 												{
 													if (CopyValidJSON (job_json_p, JOB_RESULTS_S, & (job_p -> sj_result_p)))
 														{
@@ -1038,7 +1037,7 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p, bool omit_results_flag)
 
 					if (omit_results_flag)
 						{
-							added_results_flag = true;
+							added_results_flag = (json_object_set_new (job_json_p, JOB_OMITTED_RESULTS_S, json_true ()) == 0);
 						}
 					else
 						{
@@ -1727,6 +1726,18 @@ bool UpdateServiceJob (ServiceJob *job_p)
 	return success_flag;
 }
 
+
+bool CalculateServiceJobResult (ServiceJob *job_p)
+{
+	bool success_flag = false;
+
+	if (job_p -> sj_calculate_result_fn)
+		{
+			success_flag = job_p -> sj_calculate_result_fn (job_p);
+		}
+
+	return success_flag;
+}
 
 
 void SetServiceJobUpdateFunction (ServiceJob *job_p, bool (*update_fn) (ServiceJob *job_p))

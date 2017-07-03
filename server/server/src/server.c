@@ -869,6 +869,14 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 							case OS_PARTIALLY_SUCCEEDED:
 								{
 									RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+
+									if (! (job_p -> sj_result_p))
+										{
+											if (! (CalculateServiceJobResult (job_p)))
+												{
+
+												}
+										}
 								}
 								break;
 

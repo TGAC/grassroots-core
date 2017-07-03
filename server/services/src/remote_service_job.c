@@ -60,7 +60,7 @@ RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_
 		{
 			ServiceJob * const base_service_job_p = & (remote_job_p -> rsj_job);
 
-			if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL, FreeRemoteServiceJob, & (remote_job_p -> rsj_job_id)))
+			if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL, NULL, FreeRemoteServiceJob, & (remote_job_p -> rsj_job_id)))
 				{
 					if (remote_uri_s && remote_service_s)
 						{

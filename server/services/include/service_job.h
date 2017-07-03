@@ -113,6 +113,17 @@ typedef struct ServiceJob
 	void (*sj_free_fn) (struct ServiceJob *job_p);
 
 
+
+	/**
+	 * The callback function to use when a ServiceJob needs to generate its results
+	 * This is useful for subclasses of ServiceJob that need custom
+	 * behaviour. This can be <code>NULL</code>.
+	 */
+	bool (*sj_calculate_result_fn) (struct ServiceJob *job_p);
+
+
+
+
 	bool sj_is_updating_flag;
 
 	int32 sj_reference_count;
@@ -189,7 +200,7 @@ GRASSROOTS_SERVICE_API void FreeServiceJob (ServiceJob *job_p);
  * @see ClearServiceJob
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p));
+GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p));
 
 
 
@@ -215,7 +226,7 @@ GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p
  * @see AllocateServiceJob
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p));
+GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p));
 
 
 /**
@@ -238,7 +249,7 @@ GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToServiceJobSet (Servic
  * @return <code>true</code> if the ServiceJob was initialised successfully, <code>false</code> otherwise
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p);
+GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p);
 
 
 /**
@@ -739,6 +750,9 @@ GRASSROOTS_SERVICE_API bool AddLinkedServiceToServiceJob (ServiceJob *job_p, str
  */
 GRASSROOTS_SERVICE_API void ProcessLinkedServices (ServiceJob *job_p);
 
+
+
+GRASSROOTS_SERVICE_API bool CalculateServiceJobResult (ServiceJob *job_p);
 
 
 #ifdef __cplusplus
