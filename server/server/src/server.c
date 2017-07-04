@@ -856,61 +856,58 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 			OperationStatus current_status = GetServiceJobStatus (job_p);
 
 			/* Has the ServiceJob changed its status since the last check? */
-			if (old_status != current_status)
+			switch (current_status)
 				{
-					switch (current_status)
+
+					/*
+					 * If the job has finished, then remove it from the jobs manager.
+					 */
+					case OS_FINISHED:
+					case OS_SUCCEEDED:
+					case OS_PARTIALLY_SUCCEEDED:
 						{
+							RemoveServiceJobFromJobsManager (manager_p, job_id, false);
 
-							/*
-							 * If the job has finished, then remove it from the jobs manager.
-							 */
-							case OS_FINISHED:
-							case OS_SUCCEEDED:
-							case OS_PARTIALLY_SUCCEEDED:
+							if (! (job_p -> sj_result_p))
 								{
-									RemoveServiceJobFromJobsManager (manager_p, job_id, false);
-
-									if (! (job_p -> sj_result_p))
+									if (! (CalculateServiceJobResult (job_p)))
 										{
-											if (! (CalculateServiceJobResult (job_p)))
-												{
 
-												}
 										}
 								}
-								break;
+						}
+						break;
 
 
-							case OS_ERROR:
-							case OS_FAILED_TO_START:
-							case OS_FAILED:
+					case OS_ERROR:
+					case OS_FAILED_TO_START:
+					case OS_FAILED:
+						{
+							RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+						}
+						break;
+
+						/*
+						 * If the job has updated its status but not yet finished running,
+						 * then update the value stored in the jobs manager
+						 */
+					case OS_PENDING:
+					case OS_STARTED:
+						{
+							if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
 								{
-									RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+									char job_uuid_s [UUID_STRING_BUFFER_SIZE];
+
+									ConvertUUIDToString (job_id, job_uuid_s);
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
 								}
-								break;
+						}
+						break;
 
-								/*
-								 * If the job has updated its status but not yet finished running,
-								 * then update the value stored in the jobs manager
-								 */
-							case OS_PENDING:
-							case OS_STARTED:
-								{
-									if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
-										{
-											char job_uuid_s [UUID_STRING_BUFFER_SIZE];
+					default:
+						break;
+				}		/* switch (current_status) */
 
-											ConvertUUIDToString (job_id, job_uuid_s);
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
-										}
-								}
-								break;
-
-							default:
-								break;
-						}		/* switch (current_status) */
-
-				}		/* if (old_status != current_status) */
 
 			job_json_p = get_job_json_fn (job_p, false);
 
