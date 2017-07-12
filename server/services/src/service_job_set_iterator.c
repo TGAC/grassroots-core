@@ -75,6 +75,6 @@ ServiceJob *GetNextServiceJobFromServiceJobSetIterator (ServiceJobSetIterator *i
 
 bool HasServiceJobSetIteratorFinished (const ServiceJobSetIterator *iterator_p)
 {
-	return (iterator_p -> sjs_current_node_p != NULL);
+	return (iterator_p -> sjs_current_node_p == NULL);
 }
 
