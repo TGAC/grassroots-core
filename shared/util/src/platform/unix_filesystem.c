@@ -186,19 +186,32 @@ LinkedList *GetMatchingFiles (const char * const pattern, const bool full_path_f
 static bool CreateSingleLevelDirectory (const char *path_s)
 {
 	struct stat st;
-	bool success_flag = true;
+	bool success_flag = false;
 
-	if (stat (path_s, &st) != 0)
+	if (stat (path_s, &st) == 0)
+		{
+			if (S_ISDIR (st.st_mode))
+				{
+					/* directory already exists */
+					success_flag = true;
+				}
+			else
+				{
+					/* it's not a directory */
+				}
+		}
+	else
 		{
 			/* Directory does not exist. EEXIST for race condition */
-			if (mkdir (path_s, S_IRWXU) != 0 && errno != EEXIST)
+			const int res = mkdir (path_s, S_IRWXU);
+
+			if (res == 0)
 				{
-					success_flag = false;
+					success_flag = true;
 				}
-			else if (!S_ISDIR (st.st_mode))
+			else
 				{
-					errno = ENOTDIR;
-					success_flag = false;
+
 				}
 		}
 
