@@ -190,12 +190,20 @@ static bool CreateSingleLevelDirectory (const char *path_s)
 
 	if (stat (path_s, &st) == 0)
 		{
-			success_flag = true;
+			if (S_ISDIR (st.st_mode))
+				{
+					/* directory already exists */
+					success_flag = true;
+				}
+			else
+				{
+					/* it's not a directory */
+				}
 		}
 	else
 		{
 			/* Directory does not exist. EEXIST for race condition */
-			int res = mkdir (path_s, S_IRWXU);
+			const int res = mkdir (path_s, S_IRWXU);
 
 			if (res == 0)
 				{
@@ -203,24 +211,7 @@ static bool CreateSingleLevelDirectory (const char *path_s)
 				}
 			else
 				{
-					if (errno == EEXIST)
-						{
-							success_flag = true;
-						}
-					else
-						{
-							if (stat (path_s, &st) == 0)
-								{
-									if (S_ISDIR (st.st_mode))
-										{
-											success_flag = true;
-										}
-									else
-										{
-											errno = ENOTDIR;
-										}
-								}
-						}
+
 				}
 		}
 
