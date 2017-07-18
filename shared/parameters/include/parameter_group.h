@@ -108,6 +108,13 @@ typedef struct ParameterGroup
 	bool pg_vertical_layout_flag;
 
 
+	/**
+	 * Can the parameters in this group be repeated, analogous
+	 * to a row in a table, <code>false</code> if not.
+	 */
+	bool pg_repeatable_flag;
+
+
 	/** The number of Parameters in this ParameterGroup */
 	uint32 pg_num_params;
 
@@ -179,10 +186,12 @@ GRASSROOTS_PARAMS_API void FreeParameterGroupNode (ListItem *node_p);
  * @param name_s The name of the ParameterGroup that will be displayed to the user.
  * @param key_s An optional internal key to use by the owning Service. This can be <code>NULL</code>.
  * @param service_data_p The ServiceData for the Service that generates this ParameterGroup.
+ * @param repeatable_flag <code>true</code> if the parameters in this group can be repeated, analogous
+ * to a row in a table, <code>false</code> if not.
  * @return The new ParameterGroup or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, struct ServiceData *service_data_p);
+GRASSROOTS_PARAMS_API ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p);
 
 
 /**
@@ -231,12 +240,14 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterGroup (ParameterGroup *parent_
  *
  * @param name_s The name of the ParameterGroup that will be displayed to the user.
  * @param key_s An optional internal key to use by the owning Service. This can be <code>NULL</code>.
+ * @param repeatable_flag <code>true</code> if the parameters in this group can be repeated, analogous
+ * to a row in a table, <code>false</code> if not.
  * @param service_data_p The ServiceData for the Service that generates this ParameterGroup.
  * @param param_set_p The ParameterSet to add the ParameterGroup to.
  * @return The new ParameterGroup or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
+GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
 
 
 

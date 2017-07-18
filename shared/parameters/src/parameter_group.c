@@ -57,7 +57,7 @@ void FreeParameterGroupNode (ListItem *node_p)
 }
 
 
-ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, ServiceData *service_data_p)
+ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, const bool repeatable_flag, ServiceData *service_data_p)
 {
 	char *copied_name_s = CopyToNewString (name_s, 0, false);
 
@@ -104,6 +104,7 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, S
 									param_group_p -> pg_full_display_flag = true;
 									param_group_p -> pg_vertical_layout_flag = true;
 									param_group_p -> pg_child_groups_p = children_p;
+									param_group_p -> pg_repeatable_flag = repeatable_flag;
 
 									if (service_data_p)
 										{
@@ -144,9 +145,9 @@ void FreeParameterGroup (ParameterGroup *param_group_p)
 }
 
 
-ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, struct ServiceData *service_data_p, ParameterSet *param_set_p)
+ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p, ParameterSet *param_set_p)
 {
-	ParameterGroup *group_p = AllocateParameterGroup (name_s, key_s, service_data_p);
+	ParameterGroup *group_p = AllocateParameterGroup (name_s, key_s, repeatable_flag, service_data_p);
 
 	if (group_p)
 		{
@@ -169,7 +170,7 @@ ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, co
 json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p)
 {
 	json_error_t err;
-	json_t *value_p = json_pack_ex (&err, 0, "{s:s,s:b}", PARAM_GROUP_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag);
+	json_t *value_p = json_pack_ex (&err, 0, "{s:s,s:b,s:b}", PARAM_GROUP_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag);
 
 	if (!value_p)
 		{

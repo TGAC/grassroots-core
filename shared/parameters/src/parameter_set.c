@@ -463,8 +463,9 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, const bool 
 															json_t *group_json_p = json_array_get (groups_json_p, i);
 
 															const char *group_name_s = GetJSONString (group_json_p, PARAM_GROUP_S);
+															bool repeatable_flag = false;
 
-															ParameterGroup *param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, NULL, NULL, params_p);
+															ParameterGroup *param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, NULL, repeatable_flag, NULL, params_p);
 
 															if (param_group_p)
 																{

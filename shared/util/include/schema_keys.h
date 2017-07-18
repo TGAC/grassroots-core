@@ -415,6 +415,14 @@ extern "C"
 	 */
 	PREFIX const char *PARAM_GROUP_VISIBLE_S VAL("visible");
 
+
+	/**
+	 * The JSON key for specifying whether the parameters within a ParameterGroup
+	 * can be repeated multiple times.
+	 */
+	PREFIX const char *PARAM_GROUP_REPEATABLE_S VAL("repeatable");
+
+
 	/**
 	 * The JSON key for specifying the minimum value that a numeric Parameter
 	 * can take.
