@@ -464,14 +464,17 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, const bool 
 
 															const char *group_name_s = GetJSONString (group_json_p, PARAM_GROUP_S);
 															bool repeatable_flag = false;
+															ParameterGroup *param_group_p = NULL;
 
-															ParameterGroup *param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, NULL, repeatable_flag, NULL, params_p);
+															GetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, &repeatable_flag);
+
+															param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, NULL, repeatable_flag, NULL, params_p);
+
 
 															if (param_group_p)
 																{
 																	bool visible_flag = true;
 																	ParameterNode *param_node_p = (ParameterNode *) (params_p -> ps_params_p -> ll_head_p);
-																	const char *group_key_s = NULL;
 
 																	/* Get the number of Parameters needed */
 																	for (j = 0; j < num_params; ++ j)
