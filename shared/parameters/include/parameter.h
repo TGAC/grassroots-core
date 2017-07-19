@@ -286,6 +286,14 @@ typedef struct ParameterNode
 GRASSROOTS_PARAMS_API Parameter *AllocateParameter (const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
+/**
+ * Clone a Parameter
+ *
+ * @param src_p The Parameter to clone.
+ * @return A newly-allocated Parameter or <code>NULL</code> upon error.
+ * @memberof Parameter
+ */
+GRASSROOTS_PARAMS_API Parameter *CloneParameter (const Parameter * const src_p);
 
 
 /**
@@ -386,7 +394,8 @@ GRASSROOTS_PARAMS_API bool SetParameterValue (Parameter * const parameter_p, con
  * If this is <code>false</code>, then the Parameter's default value will be altered.
  * @return <code>true</code> if the Parameter was updated successfully, <code>false</code> otherwise.
  * @memberof Parameter
- */GRASSROOTS_PARAMS_API bool SetParameterValueFromSharedType (Parameter * const parameter_p, const SharedType * src_p, const bool current_value_flag);
+ */
+GRASSROOTS_PARAMS_API bool SetParameterValueFromSharedType (Parameter * const parameter_p, const SharedType * src_p, const bool current_value_flag);
 
 
 /**

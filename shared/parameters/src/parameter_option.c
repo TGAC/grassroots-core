@@ -87,7 +87,7 @@ void FreeParameterOption (ParameterOption *option_p)
 }
 
 
-LinkedList *CreateProgramOptionsList (void)
+LinkedList *CreateParameterOptionsList (void)
 {
 	return AllocateLinkedList (FreeParameterOptionNode);
 }
@@ -132,7 +132,7 @@ bool CreateAndAddParameterOption (LinkedList *options_p, SharedType value, const
 	bool success_flag = false;
 
 	ParameterOption *option_p = AllocateParameterOption (value, description_s, param_type);
-;
+
 	if (option_p)
 		{
 			ParameterOptionNode *node_p = AllocateParameterOptionNode (option_p);
@@ -157,7 +157,39 @@ bool CreateAndAddParameterOption (LinkedList *options_p, SharedType value, const
 }
 
 
+LinkedList *CloneProgramOptionsList (const LinkedList * const src_p)
+{
+	LinkedList *dest_p = AllocateLinkedList (FreeParameterOptionNode);
 
+	if (dest_p)
+		{
+			bool success_flag = true;
+			ParameterOptionNode *src_node_p = (ParameterOptionNode *) (src_p -> ll_head_p);
+
+			while (success_flag && src_node_p)
+				{
+					const ParameterOption *src_option_p = src_node_p -> pon_option_p;
+
+					if (CreateAndAddParameterOption (dest_p, src_option_p -> po_value, src_option_p -> po_description_s, src_option_p -> po_type))
+						{
+							src_node_p = (ParameterOptionNode *) (src_node_p -> pon_node.ln_next_p);
+						}
+					else
+						{
+							success_flag = false;
+						}
+				}		/* while (success_flag && src_node_p) */
+
+			if (!success_flag)
+				{
+					FreeLinkedList (dest_p);
+					dest_p = NULL;
+				}
+
+		}		/* if (dest_p) */
+
+	return dest_p;
+}
 
 /*
 bool SetParameterMultiOption (ParameterMultiOptionArray *options_p, const uint32 i, const char * const description_s, SharedType value, bool copy_value_flag)

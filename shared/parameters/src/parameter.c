@@ -344,6 +344,51 @@ void FreeParameter (Parameter *param_p)
 }
 
 
+Parameter *CloneParameter (const Parameter * const src_p)
+{
+	Parameter *dest_param_p = NULL;
+	bool success_flag = true;
+	ParameterBounds *dest_bounds_p = NULL;
+	LinkedList *dest_options_p = NULL;
+
+	if (src_p -> pa_bounds_p)
+		{
+			dest_bounds_p = CopyParameterBounds (src_p -> pa_bounds_p, src_p -> pa_type);
+
+			if (!dest_bounds_p)
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to to clone parameter bounds for \"%s\"", src_p -> pa_name_s);
+					success_flag = false;
+				}
+		}
+
+
+	if (src_p -> pa_options_p)
+		{
+			dest_options_p = CloneProgramOptionsList (src_p -> pa_options_p);
+
+			if (!dest_options_p)
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to to clone parameter options for\"%s\"", src_p -> pa_name_s);
+					success_flag = false;
+				}
+		}
+
+
+	if (success_flag)
+		{
+			SharedType current_value;
+
+			CopySharedType (src_p -> pa_current_value, &current_value, src_p -> pa_type);
+
+			dest_param_p = AllocateParameter (NULL, src_p -> pa_type, src_p -> pa_multi_valued_flag, src_p -> pa_name_s, src_p -> pa_display_name_s, src_p -> pa_description_s, dest_options_p, src_p -> pa_default, &current_value, dest_bounds_p, src_p -> pa_level, src_p -> pa_check_value_fn);
+		}
+
+	return dest_param_p;
+}
+
+
+
 ParameterNode *AllocateParameterNode (Parameter *param_p)
 {
 	ParameterNode *node_p = (ParameterNode *) AllocMemory (sizeof (ParameterNode));
@@ -2046,7 +2091,7 @@ static bool GetParameterOptionsFromJSON (const json_t * const json_p, LinkedList
 
 							if (!options_p)
 								{
-									options_p = CreateProgramOptionsList ();
+									options_p = CreateParameterOptionsList ();
 
 									if (!options_p)
 										{

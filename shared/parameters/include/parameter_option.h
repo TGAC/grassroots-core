@@ -83,7 +83,17 @@ GRASSROOTS_PARAMS_API ParameterOption *AllocateParameterOption (SharedType value
 GRASSROOTS_PARAMS_API void FreeParameterOption (ParameterOption *option_p);
 
 
-GRASSROOTS_PARAMS_API LinkedList *CreateProgramOptionsList (void);
+GRASSROOTS_PARAMS_API LinkedList *CreateParameterOptionsList (void);
+
+
+/**
+ * Make a deep copy of a LinkedList of ParameterOptionNodes.
+ *
+ * @param src_p The LinkedList to make a copy of.
+ * @return The newly-allocated LinkedList or <code>NULL</code> upon error.
+ * @memberof ParameterOption
+ */
+GRASSROOTS_PARAMS_API LinkedList *CloneProgramOptionsList (const LinkedList * const src_p);
 
 
 GRASSROOTS_PARAMS_API ParameterOptionNode *AllocateParameterOptionNode (ParameterOption *option_p);
