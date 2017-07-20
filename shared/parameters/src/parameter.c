@@ -339,7 +339,6 @@ void FreeParameter (Parameter *param_p)
 
 	FreeLinkedList (param_p -> pa_remote_parameter_details_p);
 
-
 	FreeMemory (param_p);
 }
 

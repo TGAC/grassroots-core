@@ -29,6 +29,8 @@
 #include "service.h"
 
 
+static const char S_REPEATABLE_GROUP_DELIMITER_S [] = " :=> ";
+
 
 ParameterGroupNode *AllocateParameterGroupNode (ParameterGroup *group_p)
 {
@@ -105,6 +107,7 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, c
 									param_group_p -> pg_vertical_layout_flag = true;
 									param_group_p -> pg_child_groups_p = children_p;
 									param_group_p -> pg_repeatable_flag = repeatable_flag;
+									param_group_p -> pg_current_repeatable_group_index = 0;
 
 									if (service_data_p)
 										{

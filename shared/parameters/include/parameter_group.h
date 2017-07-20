@@ -115,6 +115,13 @@ typedef struct ParameterGroup
 	bool pg_repeatable_flag;
 
 
+	/**
+	 * If the parameters can be repeated, this is the current
+	 * index e.g. row number in a table.
+	 */
+	uint32 pg_current_repeatable_group_index;
+
+
 	/** The number of Parameters in this ParameterGroup */
 	uint32 pg_num_params;
 
@@ -250,6 +257,8 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterGroup (ParameterGroup *parent_
 GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
 
 
+
+GRASSROOTS_PARAMS_API char *GetRepeatableParameterGroupName (const ParameterGroup * const group_p);
 
 
 #ifdef __cplusplus
