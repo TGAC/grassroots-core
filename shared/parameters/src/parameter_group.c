@@ -29,7 +29,8 @@
 #include "service.h"
 
 
-static const char S_REPEATABLE_GROUP_DELIMITER_S [] = " :=> ";
+static const char S_REPEATABLE_GROUP_DELIMITER_PREFIX_S [] = " [";
+static const char S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S [] = "]";
 
 
 ParameterGroupNode *AllocateParameterGroupNode (ParameterGroup *group_p)
@@ -214,4 +215,26 @@ bool AddParameterGroupChild (ParameterGroup *parent_group_p, ParameterGroup *chi
 
 	return success_flag;
 }
+
+
+
+
+char *GetRepeatableParameterGroupName (ParameterGroup * const group_p)
+{
+	char *value_s = NULL;
+	char *index_s = ConvertIntegerToString (group_p -> pg_current_repeatable_group_index);
+
+	if (index_s)
+		{
+			value_s = ConcatenateVarargsStrings (group_p ->  pg_name_s, S_REPEATABLE_GROUP_DELIMITER_PREFIX_S, index_s, S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S, NULL);
+
+			if (value_s)
+				{
+					++ (group_p -> pg_current_repeatable_group_index);
+				}
+		}
+
+	return value_s;
+}
+
 

@@ -258,7 +258,7 @@ GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (
 
 
 
-GRASSROOTS_PARAMS_API char *GetRepeatableParameterGroupName (const ParameterGroup * const group_p);
+GRASSROOTS_PARAMS_API char *GetRepeatableParameterGroupName (ParameterGroup * const group_p);
 
 
 #ifdef __cplusplus

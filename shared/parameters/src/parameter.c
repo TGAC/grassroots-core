@@ -176,7 +176,6 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 /******************************************************/
 
-
 Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	char *new_name_s = CopyToNewString (name_s, 0, true);
@@ -377,6 +376,8 @@ Parameter *CloneParameter (const Parameter * const src_p)
 	if (success_flag)
 		{
 			SharedType current_value;
+
+			InitSharedType (&current_value);
 
 			CopySharedType (src_p -> pa_current_value, &current_value, src_p -> pa_type);
 
@@ -796,67 +797,67 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 				{
 					if (AddRemoteParameterDetailsToJSON (param_p, root_p, sv_p))
 						{
-							if (full_definition_flag)
+							if (AddParameterGroupToJSON (param_p, root_p, sv_p))
 								{
-									if (AddParameterLevelToJSON (param_p, root_p, sv_p))
+									if (full_definition_flag)
 										{
-											if (AddParameterDescriptionToJSON (param_p, root_p, sv_p))
+											if (AddParameterLevelToJSON (param_p, root_p, sv_p))
 												{
-													if (AddParameterDisplayNameToJSON (param_p, root_p, sv_p))
+													if (AddParameterDescriptionToJSON (param_p, root_p, sv_p))
 														{
-															if (AddDefaultValueToJSON (param_p, root_p, sv_p))
+															if (AddParameterDisplayNameToJSON (param_p, root_p, sv_p))
 																{
-																	if (AddParameterOptionsToJSON (param_p, root_p, sv_p))
+																	if (AddDefaultValueToJSON (param_p, root_p, sv_p))
 																		{
-																			if (AddParameterBoundsToJSON (param_p, root_p, sv_p))
+																			if (AddParameterOptionsToJSON (param_p, root_p, sv_p))
 																				{
-																					if (AddParameterGroupToJSON (param_p, root_p, sv_p))
+																					if (AddParameterBoundsToJSON (param_p, root_p, sv_p))
 																						{
-																							success_flag = true;
-																						}		/* if (AddParameterGroupToJSON (param_p, root_p)) */
+																									success_flag = true;
+
+																						}		/* if (AddParameterBoundsToJSON (param_p, root_p)) */
 																					else
 																						{
-																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterGroupToJSON for \"%s\"", param_p -> pa_name_s);
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterBoundsToJSON for \"%s\"", param_p -> pa_name_s);
 																						}
 
-																				}		/* if (AddParameterBoundsToJSON (param_p, root_p)) */
+																				}		/* if (AddParameterOptionsToJSON (param_p, root_p)) */
 																			else
 																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterBoundsToJSON for \"%s\"", param_p -> pa_name_s);
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterOptionsToJSON for \"%s\"", param_p -> pa_name_s);
 																				}
 
-																		}		/* if (AddParameterOptionsToJSON (param_p, root_p)) */
+																		}		/* if (AddDefaultValueToJSON (param_p, root_p)) */
 																	else
 																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterOptionsToJSON for \"%s\"", param_p -> pa_name_s);
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddDefaultValueToJSON for \"%s\"", param_p -> pa_name_s);
 																		}
 
-																}		/* if (AddDefaultValueToJSON (param_p, root_p)) */
+																}		/* if (AddParameterDisplayNameToJSON (param_p, root_p)) */
 															else
 																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddDefaultValueToJSON for \"%s\"", param_p -> pa_name_s);
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterDisplayNameToJSON for \"%s\"", param_p -> pa_name_s);
 																}
 
-														}		/* if (AddParameterDisplayNameToJSON (param_p, root_p)) */
+														}		/* if (AddParameterDescriptionToJSON (param_p, root_p)) */
 													else
 														{
-															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterDisplayNameToJSON for \"%s\"", param_p -> pa_name_s);
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterDescriptionToJSON for \"%s\"", param_p -> pa_name_s);
 														}
-
-												}		/* if (AddParameterDescriptionToJSON (param_p, root_p)) */
+												}		/* if (AddParameterLevelToJSON (param_p, root_p)) */
 											else
 												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterDescriptionToJSON for \"%s\"", param_p -> pa_name_s);
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterLevelToJSON for \"%s\"", param_p -> pa_name_s);
 												}
-										}		/* if (AddParameterLevelToJSON (param_p, root_p)) */
+										}		/* if (full_definition_flag) */
 									else
 										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterLevelToJSON for \"%s\"", param_p -> pa_name_s);
+											success_flag = true;
 										}
-								}		/* if (full_definition_flag) */
+								}		/*  if (AddParameterGroupToJSON (param_p, root_p)) */
 							else
 								{
-									success_flag = true;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterGroupToJSON for \"%s\"", param_p -> pa_name_s);
 								}
 
 						}		/* if (AddParameterRemoteDetailsToJSON (param_p, root_p)) */
@@ -2298,16 +2299,29 @@ bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterTy
 			case PT_FILE_TO_READ:
 			case PT_FILE_TO_WRITE:
 				{
-					Resource *dest_res_p = CloneResource (src.st_resource_value_p);
+					if (src.st_resource_value_p)
+						{
+							Resource *dest_res_p = CloneResource (src.st_resource_value_p);
 
-					if (dest_res_p)
+							if (dest_res_p)
+								{
+									if (dest_p -> st_resource_value_p)
+										{
+											FreeResource (dest_p -> st_resource_value_p);
+										}
+
+									dest_p -> st_resource_value_p = dest_res_p;
+									success_flag = true;
+								}
+						}
+					else
 						{
 							if (dest_p -> st_resource_value_p)
 								{
 									FreeResource (dest_p -> st_resource_value_p);
+									dest_p -> st_resource_value_p = NULL;
 								}
 
-							dest_p -> st_resource_value_p = dest_res_p;
 							success_flag = true;
 						}
 
@@ -2340,6 +2354,16 @@ bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterTy
 
 								}
 						}
+					else
+						{
+							if (dest_p -> st_string_value_s)
+								{
+									FreeCopiedString (dest_p -> st_string_value_s);
+									dest_p -> st_string_value_s = NULL;
+								}
+
+							success_flag = true;
+						}
 				}
 				break;
 
@@ -2359,6 +2383,16 @@ bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterTy
 									dest_p -> st_json_p = copied_value_p;
 									success_flag = true;
 								}
+						}
+					else
+						{
+							if (dest_p -> st_json_p)
+								{
+									json_decref (dest_p -> st_json_p);
+									dest_p -> st_json_p = NULL;
+								}
+
+							success_flag = true;
 						}
 				}
 			break;
