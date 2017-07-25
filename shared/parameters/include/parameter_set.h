@@ -237,6 +237,7 @@ GRASSROOTS_PARAMS_API json_t *GetParameterSetSelectionAsJSON (const ParameterSet
  */
 GRASSROOTS_PARAMS_API ParameterSet *CreateParameterSetFromJSON (const json_t * const json_p, const bool concise_flag);
 
+
 /**
  * Get the Parameter with a given name from a ParameterSet.
  *

@@ -21,6 +21,8 @@
  *      Author: billy
  */
 
+#include <string.h>
+
 #define ALLOCATE_PARAMETER_GROUP_TAGS_H
 #include "parameter_group.h"
 #include "parameter_set.h"
@@ -311,6 +313,72 @@ bool RemoveParameterGroupChild (ParameterGroup *parent_group_p, ParameterGroup *
 		}		/* if (parent_group_p -> pg_child_groups_p) */
 
 	return success_flag;
+}
+
+
+
+
+ParameterNode *GetParameterNodeFromParameterGroupByName (const ParameterGroup * const group_p, const char * const name_s)
+{
+	ParameterNode *node_p = (ParameterNode *) (group_p -> pg_params_p -> ll_head_p);
+
+	while (node_p)
+		{
+			Parameter *param_p = node_p -> pn_parameter_p;
+
+			if (strcmp (param_p -> pa_name_s, name_s) == 0)
+				{
+					return node_p;
+				}
+			else
+				{
+					node_p = (ParameterNode *) (node_p -> pn_node.ln_next_p);
+				}
+		}		/* while (node_p) */
+
+	return NULL;
+}
+
+
+Parameter *GetParameterFromParameterGroupByName (const ParameterGroup * const group_p, const char * const name_s)
+{
+	ParameterNode *node_p = GetParameterNodeFromParameterGroupByName (group_p, name_s);
+
+	if (node_p)
+		{
+			return node_p -> pn_parameter_p;
+		}
+
+	return NULL;
+}
+
+
+bool GetParameterValueFromParameterGroup (const ParameterGroup * const params_p, const char * const name_s, SharedType *value_p, const bool current_value_flag)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterGroupByName (params_p, name_s);
+
+	if (param_p)
+		{
+			*value_p = current_value_flag ? param_p -> pa_current_value : param_p -> pa_default;
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
+
+char *GetRepeatableParameterGroupRegularExpression (const ParameterGroup * const group_p)
+{
+	char *reg_ex_s = ConcatenateVarargsStrings (group_p -> pg_name_s, "\\[", S_REPEATABLE_GROUP_DELIMITER_PREFIX_S, "*\\", S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S, NULL);
+
+	if (!reg_ex_s)
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Couldn't create the regular expression for parameter group \"%s\"", group_p -> pg_name_s);
+		}
+
+	return reg_ex_s;
 }
 
 

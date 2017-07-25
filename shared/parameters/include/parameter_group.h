@@ -299,8 +299,47 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterGroup (ParameterGroup *parent_
 GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
 
 
+/**
+ * Get the ParameterNode for a Parameter with a given name from a ParameterGroup.
+ *
+ * @param group_p The ParameterGroup to search.
+ * @param name_s The Parameter name to try and match.
+ * @return  The ParameterNode with the matching Parameter name or <code>NULL</code> if it could not
+ * be found
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_PARAMS_API ParameterNode *GetParameterNodeFromParameterGroupByName (const ParameterGroup * const group_p, const char * const name_s);
+
+
+/**
+ * Get the Parameter with a given name from a ParameterGroup.
+ *
+ * @param group_p The ParameterGroup to search.
+ * @param name_s The Parameter name to try and match.
+ * @return  The Parameter with the matching name or <code>NULL</code> if it could not
+ * be found
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_PARAMS_API Parameter *GetParameterFromParameterGroupByName (const ParameterGroup * const group_p, const char * const name_s);
+
+
+/**
+ * Get the ParameterNode for a Parameter with a given name from a ParameterGroup.
+ *
+ * @param group_p The ParameterSet to search.
+ * @param name_s The Parameter name to try and match.
+ * @return  The ParameterNode with the matching Parameter name or <code>NULL</code> if it could not
+ * be found
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_PARAMS_API bool GetParameterValueFromParameterGroup (const ParameterGroup * const group_p, const char * const name_s, SharedType *value_p, const bool current_value_flag);
+
+
 
 GRASSROOTS_PARAMS_API char *GetRepeatableParameterGroupName (ParameterGroup * const group_p);
+
+
+GRASSROOTS_PARAMS_API char *GetRepeatableParameterGroupRegularExpression (const ParameterGroup * const group_p);
 
 
 #ifdef __cplusplus
