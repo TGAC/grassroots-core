@@ -225,26 +225,15 @@ json_t *GetParameterSetSelectionAsJSON (const ParameterSet * const param_set_p, 
 										{
 											while (success_flag && group_node_p)
 												{
-													json_t *param_group_json_p = GetParameterGroupAsJSON (group_node_p -> pgn_param_group_p);
-
-													if (param_group_json_p)
+													if (AddParameterGroupAsJSON (group_node_p -> pgn_param_group_p, group_names_p))
 														{
-															if (json_array_append_new (group_names_p, param_group_json_p) == 0)
-																{
-																	group_node_p = (ParameterGroupNode *) (group_node_p -> pgn_node.ln_next_p);
-																}
-															else
-																{
-																	PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to append \"%s\" to JSON group names", group_node_p -> pgn_param_group_p -> pg_name_s);
-																	success_flag = false;
-																}
+															group_node_p = (ParameterGroupNode *) (group_node_p -> pgn_node.ln_next_p);
 														}
 													else
 														{
-															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get ParameterGroup \"%s\" as JSON", group_node_p -> pgn_param_group_p -> pg_name_s);
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to append \"%s\" to JSON group names", group_node_p -> pgn_param_group_p -> pg_name_s);
 															success_flag = false;
 														}
-
 												}		/* while (success_flag && group_node_p) */
 
 											if (success_flag)

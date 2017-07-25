@@ -31,9 +31,11 @@
 #include "service.h"
 
 
-static const char S_REPEATABLE_GROUP_DELIMITER_PREFIX_S [] = " [";
+static const char S_REPEATABLE_GROUP_DELIMITER_PREFIX_S [] = "[";
 static const char S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S [] = "]";
 
+static const char S_REPEATABLE_GROUP_DELIMITER_PREFIX_ESCAPED_REGEX_S [] = "\\[";
+static const char S_REPEATABLE_GROUP_DELIMITER_SUFFIX_ESCAPED_REGEX_S [] = "\\]";
 
 ParameterGroupNode *AllocateParameterGroupNode (ParameterGroup *group_p)
 {
@@ -171,6 +173,34 @@ ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, co
 		}
 
 	return group_p;
+}
+
+
+bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_array_p)
+{
+	bool success_flag = false;
+	json_t *group_json_p = GetParameterGroupAsJSON (param_group_p);
+
+	if (group_json_p)
+		{
+			if (json_array_append_new (groups_array_p, group_json_p) == 0)
+				{
+					success_flag = true;
+
+					if ((param_group_p -> pg_child_groups_p) && (param_group_p -> pg_child_groups_p -> ll_size > 0))
+						{
+							ParameterGroupNode *node_p = (ParameterGroupNode *) (param_group_p -> pg_child_groups_p -> ll_head_p);
+
+							while (node_p && success_flag)
+								{
+									success_flag = AddParameterGroupAsJSON (node_p -> pgn_param_group_p, groups_array_p);
+									node_p = (ParameterGroupNode *) (node_p -> pgn_node.ln_next_p);
+								}
+						}
+				}
+		}
+
+	return success_flag;
 }
 
 
@@ -371,7 +401,7 @@ bool GetParameterValueFromParameterGroup (const ParameterGroup * const params_p,
 
 char *GetRepeatableParameterGroupRegularExpression (const ParameterGroup * const group_p)
 {
-	char *reg_ex_s = ConcatenateVarargsStrings (group_p -> pg_name_s, "\\[", S_REPEATABLE_GROUP_DELIMITER_PREFIX_S, "*\\", S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S, NULL);
+	char *reg_ex_s = ConcatenateVarargsStrings (group_p -> pg_name_s, " ", S_REPEATABLE_GROUP_DELIMITER_PREFIX_ESCAPED_REGEX_S, ".*", S_REPEATABLE_GROUP_DELIMITER_SUFFIX_ESCAPED_REGEX_S, NULL);
 
 	if (!reg_ex_s)
 		{
@@ -389,7 +419,7 @@ char *GetRepeatableParameterGroupName (ParameterGroup * const group_p)
 
 	if (index_s)
 		{
-			value_s = ConcatenateVarargsStrings (group_p ->  pg_name_s, S_REPEATABLE_GROUP_DELIMITER_PREFIX_S, index_s, S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S, NULL);
+			value_s = ConcatenateVarargsStrings (group_p ->  pg_name_s, " ", S_REPEATABLE_GROUP_DELIMITER_PREFIX_S, index_s, S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S, NULL);
 
 			if (value_s)
 				{

@@ -217,6 +217,17 @@ GRASSROOTS_PARAMS_API void FreeParameterGroup (ParameterGroup *param_group_p);
 
 
 /**
+ * Add the JSON fragment detailing a given ParameterGroup to a given JSON array.
+ *
+ * @param param_group_p The ParameterGroup to get the JSON for.
+ * @param groups_array_p The JSON array to add the JSON representation of the ParameterGroup to.
+ * @return <code>true</code> if the ParameterGroup was added successfully, <code>false</code> otherwise.
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_PARAMS_API bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_array_p);
+
+
+/**
  * Get the JSON fragment detailing a given ParameterGroup.
  *
  * @param param_group_p The ParameterGroup to get the JSON for.
