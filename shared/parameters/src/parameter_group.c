@@ -109,6 +109,7 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, c
 									param_group_p -> pg_child_groups_p = children_p;
 									param_group_p -> pg_repeatable_flag = repeatable_flag;
 									param_group_p -> pg_current_repeatable_group_index = 0;
+									param_group_p -> pg_service_data_p = service_data_p;
 
 									if (service_data_p)
 										{
@@ -217,6 +218,100 @@ bool AddParameterGroupChild (ParameterGroup *parent_group_p, ParameterGroup *chi
 }
 
 
+bool CloneParameters (const ParameterGroup * const src_group_p, ParameterGroup *dest_group_p)
+{
+	bool success_flag = true;
+	const ParameterNode *src_node_p = (const ParameterNode *) (src_group_p -> pg_params_p -> ll_head_p);
+
+	while (src_node_p)
+		{
+			Parameter *dest_param_p = CloneParameter (src_node_p -> pn_parameter_p);
+
+			if (dest_param_p)
+				{
+					if (!AddParameterToParameterGroup (dest_group_p, dest_param_p))
+						{
+							success_flag = false;
+						}
+				}
+			else
+				{
+					success_flag = false;
+
+				}
+
+			if (success_flag)
+				{
+					src_node_p = (const ParameterNode *) (src_node_p -> pn_node.ln_next_p);
+				}
+
+		}		/* while (src_node_p) */
+
+	return success_flag;
+}
+
+
+ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s, const char *key_s, const bool repeatable_flag, const bool add_params_flag)
+{
+	ParameterGroup *child_p = AllocateParameterGroup (name_s, key_s, repeatable_flag, parent_group_p -> pg_service_data_p);
+
+	if (child_p)
+		{
+			bool success_flag = true;
+
+			if (add_params_flag)
+				{
+					if (!CloneParameters (parent_group_p, child_p))
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					if (AddParameterGroupChild (parent_group_p, child_p))
+						{
+							return child_p;
+						}
+				}
+
+			FreeParameterGroup (child_p);
+		}		/* if (child_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create child \"%s\" ParameterGroup", name_s);
+		}
+
+	return NULL;
+}
+
+
+bool RemoveParameterGroupChild (ParameterGroup *parent_group_p, ParameterGroup *child_group_p)
+{
+	bool success_flag = false;
+
+	if (parent_group_p -> pg_child_groups_p)
+		{
+			ParameterGroupNode *node_p = (ParameterGroupNode *) (parent_group_p -> pg_child_groups_p -> ll_head_p);
+
+			while (node_p)
+				{
+					if (node_p -> pgn_param_group_p == child_group_p)
+						{
+							LinkedListRemove (parent_group_p -> pg_child_groups_p, & (node_p -> pgn_node));
+							success_flag = true;
+						}
+					else
+						{
+							node_p = (ParameterGroupNode *) (node_p -> pgn_node.ln_next_p);
+						}
+
+				}		/* while (node_p) */
+
+		}		/* if (parent_group_p -> pg_child_groups_p) */
+
+	return success_flag;
+}
 
 
 char *GetRepeatableParameterGroupName (ParameterGroup * const group_p)
@@ -236,5 +331,3 @@ char *GetRepeatableParameterGroupName (ParameterGroup * const group_p)
 
 	return value_s;
 }
-
-

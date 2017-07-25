@@ -137,6 +137,12 @@ typedef struct ParameterGroup
 	 */
 	LinkedList *pg_child_groups_p;
 
+
+	/**
+	 * The ServiceData for the Service that has created this ParametetrGroup
+	 */
+	struct ServiceData *pg_service_data_p;
+
 } ParameterGroup;
 
 
@@ -229,6 +235,42 @@ GRASSROOTS_PARAMS_API json_t *GetParameterGroupAsJSON (ParameterGroup *param_gro
  * @memberof ParameterGroup
  */
 GRASSROOTS_PARAMS_API bool AddParameterGroupChild (ParameterGroup *parent_group_p, ParameterGroup *child_group_p);
+
+
+/**
+ * Create and add a ParameterGroup as a child to another ParameterGroup.
+ *
+ * @param parent_group_p The ParameterGroup to create and add the child ParameterGroup to.
+ * @param name_s The name of the ParameterGroup that will be displayed to the user.
+ * @param key_s An optional internal key to use by the owning Service. This can be <code>NULL</code>.
+ * @param repeatable_flag <code>true</code> if the parameters in this group can be repeated, analogous
+ * to a row in a table, <code>false</code> if not.
+ * @return The child ParameterGroup or <code>NULL</code> if there was an error.
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s, const char *key_s, const bool repeatable_flag, const bool add_params_flag);
+
+
+/**
+ * Remove a ParameterGroup child from another ParameterGroup.
+ *
+ * @param parent_group_p The ParameterGroup to remove the child ParameterGroup from.
+ * @param child_group_p The ParameterGroup to remove.
+ * @return <code>true</code> if the ParameterGroup was removed successfully, <code>false</code> otherwise.
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_PARAMS_API bool RemoveParameterGroupChild (ParameterGroup *parent_group_p, ParameterGroup *child_group_p);
+
+
+/**
+ * Clone all of the Parameters from one ParameterGroup to another.
+ *
+ * @param parent_group_p The ParameterGroup to clone the Parameters from
+ * @param child_group_p The ParameterGroup to add the cloned Parameters to.
+ * @return <code>true</code> if all of the Parameters were cloned successfully, <code>false</code> otherwise.
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_PARAMS_API bool CloneParameters (const ParameterGroup * const src_group_p, ParameterGroup *dest_group_p);
 
 
 /**
