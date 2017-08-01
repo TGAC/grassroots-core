@@ -755,6 +755,17 @@ GRASSROOTS_SERVICE_API void ProcessLinkedServices (ServiceJob *job_p);
 GRASSROOTS_SERVICE_API bool CalculateServiceJobResult (ServiceJob *job_p);
 
 
+/**
+ * Replace the uuid for a given ServiceJob.
+ *
+ * @param job_p The ServiceJob whose uuid will be changed.
+ * @param new_job_id The new uuid.
+ * @memberof ServiceJob
+ */
+GRASSROOTS_SERVICE_API void SetServiceJobUUID (ServiceJob *job_p, const uuid_t new_job_id);
+
+
+
 #ifdef __cplusplus
 }
 #endif

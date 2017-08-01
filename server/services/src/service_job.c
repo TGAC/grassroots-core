@@ -1811,6 +1811,12 @@ bool AddLinkedServiceToServiceJob (ServiceJob *job_p, LinkedService *linked_serv
 }
 
 
+void SetServiceJobUUID (ServiceJob *job_p, const uuid_t new_job_id)
+{
+	uuid_copy (job_p -> sj_id, new_job_id);
+}
+
+
 static bool AddResultEntryToServiceJob (ServiceJob *job_p, json_t **results_pp, json_t *result_to_add_p)
 {
 	bool success_flag = false;
