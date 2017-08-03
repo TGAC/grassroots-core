@@ -60,6 +60,11 @@ typedef struct MappedParameter
 
 	/**
 	 * This is name of the parameter in the second service.
+	 *
+	 * This MappedParameter will set \<mp_output_param_s\> = \<input parameter's value\>
+	 * in the LinkedService using this. If this is set to "$value", then it will treat
+	 * the input parameter's value as a boolean variable e.g. set
+	 * \<input parameter's value\> = true in the LinkedService
 	 */
 	char *mp_output_param_s;
 
@@ -74,7 +79,6 @@ typedef struct MappedParameter
 	 * Can there be multiple input values?
 	 */
 	bool mp_multiple_flag;
-
 } MappedParameter;
 
 
@@ -150,6 +154,18 @@ GRASSROOTS_SERVICE_API MappedParameterNode *AllocateMappedParameterNode (MappedP
  */
 GRASSROOTS_SERVICE_API void FreeMappedParameterNode (ListItem *node_p);
 
+
+/**
+ * Set a Parameter value within a given ParameterSet by a MappedParameter's
+ * defintion.
+ *
+ * @param mapped_param_p The MappedParameter to set the value for.
+ * @param params_p The ParameterSet where the Parameter will be set.
+ * @param value_p The value to use to set the Parameter.
+ * @return <code>true</code> if the Parameter was set successfully, <code>false</code> upon error.
+ * @memberof MappedParameter
+ */
+GRASSROOTS_SERVICE_API bool SetMappedParameterValue (MappedParameter *mapped_param_p, ParameterSet *params_p, const SharedType * const value_p);
 
 
 #ifdef __cplusplus

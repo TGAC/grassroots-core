@@ -30,6 +30,9 @@
 #include "service.h"
 
 
+static const char * const S_MAPPED_PARAM_THIS_VALUE_S = "$value";
+
+
 MappedParameter *AllocateMappedParameter (const char *input_s, const char *output_s, bool required_flag, bool multi_flag)
 {
 	MappedParameter *param_p = (MappedParameter *) AllocMemory (sizeof (MappedParameter));
@@ -142,6 +145,70 @@ MappedParameter *CreateMappedParameterFromJSON (const json_t *mapped_param_json_
 		}
 
 	return NULL;
+}
+
+
+
+bool SetMappedParameterValue (MappedParameter *mapped_param_p, ParameterSet *params_p, const SharedType * const value_p)
+{
+	bool success_flag = false;
+
+	if (strcmp (mapped_param_p -> mp_output_param_s, S_MAPPED_PARAM_THIS_VALUE_S) == 0)
+		{
+			Parameter *param_p = GetParameterFromParameterSetByName (params_p, value_p -> st_string_value_s);
+
+			if (param_p)
+				{
+					if (param_p -> pa_type == PT_BOOLEAN)
+						{
+							bool value = true;
+
+							if (SetParameterValue (param_p, &value, true))
+								{
+									success_flag = true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set Parameter value \"%s\" to true", param_p -> pa_name_s);
+								}
+
+						}		/* if (param_p -> pa_type == PT_BOOLEAN) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set Parameter \"%s\" to true as it is not boolean, it is %d", param_p -> pa_name_s, param_p -> pa_type);
+						}
+
+				}		/* if (param_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find Parameter with mapped name \"%s\"", value_p -> st_string_value_s);
+				}
+
+		}		/* if (strcmp (mapped_param_p -> mp_output_param_s, S_MAPPED_PARAM_THIS_VALUE_S) == 0) */
+	else
+		{
+			Parameter *param_p = GetParameterFromParameterSetByName (params_p, mapped_param_p -> mp_output_param_s);
+
+			if (param_p)
+				{
+					if (SetParameterValueFromSharedType (param_p, value_p, true))
+						{
+							success_flag = true;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set Parameter value \"%s\" from SharedType", param_p -> pa_name_s);
+						}		/* if (!SetParameterValueFromSharedType (param_p, value_p, true)) */
+
+				}		/* if (param_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find Parameter with mapped name \"%s\"", mapped_param_p -> mp_output_param_s);
+				}
+		}
+
+
+	return success_flag;
 }
 
 
