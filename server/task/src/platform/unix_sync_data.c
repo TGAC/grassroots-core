@@ -7,18 +7,9 @@
 
 #include <errno.h>
 
-#include "pthread.h"
-
-#include "sync_data.h"
+#include "unix_sync_data.h"
 #include "streams.h"
 #include "memory_allocations.h"
-
-
-struct SyncData
-{
-	pthread_mutex_t sd_mutex;
-	pthread_cond_t sd_cond;
-};
 
 
 

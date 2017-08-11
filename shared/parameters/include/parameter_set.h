@@ -125,7 +125,7 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterSet (ParameterSet *params_p, P
 /**
  * Allocate a new Parameter and add it to a ParameterSet.
  *
- * @param service_data_p The ServiceData for the Service that is allocating this Parmeter.
+ * @param service_data_p The ServiceData for the Service that is allocating this Parameter.
  * @param params_p The ParameterSet to add the new Parameter to.
  * @param group_p The ParameterGroup to add this Parameter to. This can be <code>NULL</code> in which case
  * the Parameter will not be placed within any ParameterGroup.
@@ -135,6 +135,8 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterSet (ParameterSet *params_p, P
  * @param display_name_s An optional name to display for the Parameter for use in Clients. The Parameter will store a copy of this string so this value does not need to remain in scope.
  * This can be <code>NULL</code>.
  * @param description_s The description of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * @param options_p The options specifying the possible values that this Parameter can take. If <code>NULL</code> then it can take any valid
+ * values for its given ParameterType.
  * @param default_value The default value for this Parameter.
  * @param current_value_p If this is not <code>NULL</code>, then copy this value as the current value of the Parameter. If this is <code>NULL</code>, then current value for this Parameter
  * will be set to be a copy of its default value.
@@ -319,7 +321,7 @@ GRASSROOTS_PARAMS_API Parameter *DetachParameterByName (ParameterSet *params_p, 
  * Remove the Parameter with from a ParameterSet.
  *
  * @param params_p The ParameterSet to search.
- * @param name_s The name of the Parameter to try and match.
+ * @param param_p The Parameter to try and deatch.
  * @return <code>true</code> if the Parameter was found and removed from the ParameterSet,
  * <code>false</code> otherwise.
  * @memberof ParameterSet

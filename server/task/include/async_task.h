@@ -49,6 +49,9 @@ extern "C"
 /**
  * Create an AsyncTask.
  *
+ * @param name_s The optional name to give to the AsyncTask. This will
+ * be deep-copied by the AsyncTask so this value doesn't have to stay
+ * in scope.
  * @return The new AsyncTask or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
@@ -68,8 +71,10 @@ GRASSROOTS_TASK_API	void FreeAsyncTask (AsyncTask *task_p);
 /**
  * Initialise an AsyncTask.
  *
- * @param The AsyncTask to initialise.
- * @param The name to give the AsyncTask.
+ * @param task_p The AsyncTask to initialise.
+ * @param name_s The optional name to give to the AsyncTask. This will
+ * be deep-copied by the AsyncTask so this value doesn't have to stay
+ * in scope.
  * @return <code>true</code> if the AsyncTask was started
  * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
@@ -109,14 +114,15 @@ GRASSROOTS_TASK_API void CloseAsyncTask (AsyncTask *task_p);
  */
 GRASSROOTS_TASK_API	bool SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem);
 
-
 /**
- * Set the function and data used when running a given AsyncTask.
+ * Set the callback function that an AsyncTask will call when it is ran.
  *
- * @param task_p The AsyncTask to amend.
- * @param sync_data_p The SyncData to set.
- * @param mem The MEM_FLAG specifying how the SyncData will be dealt with
- * when the AsyncTask is freed.
+ * @param task_p The AsyncTask to run.
+ * @param run_fn The function that the AsyncTask will run. It will
+ * be called with the task_data_p parameter.
+ * @param data_p The parameter to use when calling run_fn.
+ * @return <code>true</code> if the AsyncTask was started
+ * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
  */
 GRASSROOTS_TASK_API	void SetAsyncTaskRunData (AsyncTask *task_p, void *(*run_fn) (void *data_p), void *data_p);
@@ -138,9 +144,6 @@ GRASSROOTS_TASK_API	bool IsAsyncTaskRunning (const AsyncTask *task_p);
  * Run an AsyncTask.
  *
  * @param task_p The AsyncTask to run.
- * @param run_fn The function that the AsyncTask will run. It will
- * be called with the task_data_p parameter.
- * @param task_data_p The parameter to use when calling run_fn.
  * @return <code>true</code> if the AsyncTask was started
  * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
@@ -160,6 +163,9 @@ GRASSROOTS_TASK_API	 bool CloseAllAsyncTasks (void);
 /**
  * Create an AsyncTaskNode.
  *
+ * @param task_p The AsyncTask to store in the newly-created AsyncTaskNode.
+ * @param mem The MEM_FLAG specifying how the AsyncTask will be dealt with
+ * when the AsyncTaskNode is freed.
  * @return The new AsyncTaskNode or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
@@ -169,21 +175,16 @@ GRASSROOTS_TASK_API	AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p, MEM
 /**
  * Free an AsyncTaskNode.
  *
- * @param The AsyncTaskNode to free.
+ * @param node_p The AsyncTaskNode to free.
  * @memberof AsyncTask
  */
 GRASSROOTS_TASK_API	void FreeAsyncTaskNode (ListItem *node_p);
 
 
 /**
- * Run an AsyncTask.
+ * Run the EventConsumer for the given AsyncTask.
  *
  * @param task_p The AsyncTask to run.
- * @param run_fn The function that the AsyncTask will run. It will
- * be called with the task_data_p parameter.
- * @param task_data_p The parameter to use when calling run_fn.
- * @return <code>true</code> if the AsyncTask was started
- * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
  */
 GRASSROOTS_TASK_API void RunEventConsumerFromAsyncTask (AsyncTask *task_p);

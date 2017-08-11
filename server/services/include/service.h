@@ -320,7 +320,11 @@ typedef struct Service
 	 */
 	ServiceData *se_data_p;
 
-
+	/**
+	 * A flag to specify whether this Service is currently running. Do not access this
+	 * value directly, use the API methods IsServiceRunning() and SetServiceRunning()
+	 * instead.
+	 */
 	bool se_running_flag;
 
 } Service;
@@ -405,7 +409,7 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
  * this function is used to set them up. This can be <code>NULL</code>.
  * @param specific_flag <code>true</code> if this Service performs a specific analysis. For Services used by scripted reference Services
  * detailed by JSON configuration files, then this should be <code>false</code>.
- * @param  The synchronicity for how this Service runs.
+ * @param synchronous The synchronicity for how this Service runs.
  * @param data_p The ServiceData for this Service.
  * @memberof Service
  */

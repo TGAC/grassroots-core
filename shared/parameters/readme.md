@@ -48,4 +48,6 @@ For both of these function the Parameter will make a deep copy of the source val
 
 ## Parameter Groups
 
-Often it makes sense to group certain parameters together when they are presented to a user *e.g.* input parameters, output parameters, *etc.* and this can be done easily in the Grassroots API by using a ParameterGroup. Each ParameterGroup stores a list of the Parameters it will display and, likewise, each Parameter stores a pointer to its ParameterGroup in its ```pa_group_p``` member variable. If this is ```NULL``` for a Parameter then it means that this Parameter is not part of a ParameterGroup 
+Often it makes sense to group certain parameters together when they are presented to a user *e.g.* input parameters, output parameters, *etc.* and this can be done easily in the Grassroots API by using a ParameterGroup. Each ParameterGroup stores a list of the Parameters it will display and, likewise, each Parameter stores a pointer to its ParameterGroup in its ```pa_group_p``` member variable. If this is ```NULL``` for a Parameter then it means that this Parameter is not part of a ParameterGroup. 
+
+As well as being for layout purposes, ParameterGroups can also have the ability to add multiple collections of Parameters, 

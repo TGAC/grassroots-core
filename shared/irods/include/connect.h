@@ -38,21 +38,24 @@ extern "C"
 /**
  * Create a connection to a local iRODS server.
  *
- * @param credentials_json_p The JSON fragment containing the iRODS user details.
+ * @param user_p The UserDetails to get the required credentials from to create
+ * this IRodsConnection.
  * @return The connection to the iRODS server or <code>NULL</code> upon error.
  * @memberof IRodsConnection
  */
 IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnectionFromUserDetails (UserDetails *user_p);
 
+
 /**
  * Create a connection to a local iRODS server.
  *
- * @param username_s The iRODS username.
- * @param password_s The iRODS password. FIXME! This needs to change to being encrypted.
+ * @param auth_p The UserAuthentication to use to get the required credentials from to create
+ * this IRodsConnection.
  * @return The connection to the iRODS server or <code>NULL</code> upon error.
  * @memberof IRodsConnection
  */
 IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnection (UserAuthentication *auth_p);
+
 
 /**
  * Close a connection to an iRODS server.

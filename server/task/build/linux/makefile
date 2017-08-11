@@ -21,6 +21,7 @@ VPATH	= \
 	
 INCLUDES = \
 	-I$(DIR_INCLUDE) \
+	-I$(DIR_INCLUDE)/platform \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/io \

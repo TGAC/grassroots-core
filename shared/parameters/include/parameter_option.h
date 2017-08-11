@@ -77,12 +77,32 @@ typedef struct ParameterOptionNode
 #endif
 
 
+/**
+ * Allocate a ParameterOption.
+ *
+ * @param value The value stored for this ParameterOption.
+ * @param description_s The description to show for this ParameterOption.
+ * @param param_type The ParameterType for the SharedType value that this ParameterOption will use.
+ * @return The newly-allocated ParameterOption or <code>NULL</code> upon error.
+ * @memberof ParameterOption
+ */
 GRASSROOTS_PARAMS_API ParameterOption *AllocateParameterOption (SharedType value, const char * const description_s, const ParameterType param_type);
 
-
+/**
+ * Free a ParameterOption.
+ *
+ * @param option_p The ParameterOption to free.
+ * @memberof ParameterOption
+ */
 GRASSROOTS_PARAMS_API void FreeParameterOption (ParameterOption *option_p);
 
 
+/**
+ * Allocate A LinkedList for storing ParameterOptionNodes
+ *
+ * @return The newly-allocated LinkedList or <code>NULL</code> upon error.
+ * @memberof ParameterOptionNode
+ */
 GRASSROOTS_PARAMS_API LinkedList *CreateParameterOptionsList (void);
 
 
@@ -96,12 +116,36 @@ GRASSROOTS_PARAMS_API LinkedList *CreateParameterOptionsList (void);
 GRASSROOTS_PARAMS_API LinkedList *CloneProgramOptionsList (const LinkedList * const src_p);
 
 
+/**
+ * Allocate a ParameterOptionNode.
+ *
+ * @param option_p The ParameterOption to store in this ParameterOptionNode.
+ * @return The newly-allocated ParameterOptionNode or <code>NULL</code> upon error.
+ * @memberof ParameterOptionNode
+ */
 GRASSROOTS_PARAMS_API ParameterOptionNode *AllocateParameterOptionNode (ParameterOption *option_p);
 
 
+/**
+ * Free a ParameterOptionNode and its associated ParameterOption.
+ *
+ * @param item_p The ParameterOptionNode to free.
+ * @memberof ParameterOptionNode
+ */
 GRASSROOTS_PARAMS_API void FreeParameterOptionNode (ListItem *item_p);
 
 
+/**
+ * Create a ParameterOption and add it to a given LinkedList of ParameterOptionNodes
+ *
+ * @param options_p The LinkedList of ParameterOptionNodes to store the newly-allocated ParameterOption on.
+ * @param value The value stored for this ParameterOption.
+ * @param description_s The description to show for this ParameterOption.
+ * @param param_type The ParameterType for the SharedType value that this ParameterOption will use.
+ * @return <code>true</code> if the ParameterOption was created and added to the LinkedList successfully,
+ * <code>false</code> otherwise.
+ * @memberof ParameterOption
+ */
 GRASSROOTS_PARAMS_API bool CreateAndAddParameterOption (LinkedList *options_p, SharedType value, const char * const description_s, const ParameterType param_type);
 
 

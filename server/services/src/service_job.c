@@ -172,7 +172,6 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 											job_p -> sj_calculate_result_fn = calculate_results_fn;
 
 											job_p -> sj_is_updating_flag = false;
-											job_p -> sj_reference_count = 1;
 
 											#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
 												{
@@ -301,7 +300,6 @@ bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p)
 
 																	dest_p -> sj_is_updating_flag = false;
 
-																	dest_p ->  sj_reference_count = 1;
 
 																	return true;
 																}
@@ -466,24 +464,6 @@ uint32 GetNumberOfServiceJobResults (const ServiceJob *job_p)
 
 	return size;
 }
-
-
-void IncrementServiceJobReferenceCount (ServiceJob *job_p)
-{
-	++ (job_p -> sj_reference_count);
-}
-
-
-void DecrementServiceJobReferenceCount (ServiceJob *job_p)
-{
-	++ (job_p -> sj_reference_count);
-
-	if (job_p -> sj_reference_count == 0)
-		{
-			FreeServiceJob (job_p);
-		}
-}
-
 
 void FreeServiceJob (ServiceJob *job_p)
 {

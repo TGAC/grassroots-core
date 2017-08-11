@@ -256,6 +256,9 @@ GRASSROOTS_PARAMS_API bool AddParameterGroupChild (ParameterGroup *parent_group_
  * @param key_s An optional internal key to use by the owning Service. This can be <code>NULL</code>.
  * @param repeatable_flag <code>true</code> if the parameters in this group can be repeated, analogous
  * to a row in a table, <code>false</code> if not.
+ * @param add_params_flag If this is <code>true</code> then all of the Parameters in parent_group_p will be
+ * cloned into this newly-created ParameterGroup using ClonedParameters(). If this is <code>false</code>
+ * then the Parameters will not be copied.
  * @return The child ParameterGroup or <code>NULL</code> if there was an error.
  * @memberof ParameterGroup
  */
@@ -276,8 +279,8 @@ GRASSROOTS_PARAMS_API bool RemoveParameterGroupChild (ParameterGroup *parent_gro
 /**
  * Clone all of the Parameters from one ParameterGroup to another.
  *
- * @param parent_group_p The ParameterGroup to clone the Parameters from
- * @param child_group_p The ParameterGroup to add the cloned Parameters to.
+ * @param src_group_p The ParameterGroup to clone the Parameters from
+ * @param dest_group_p The ParameterGroup to add the cloned Parameters to.
  * @return <code>true</code> if all of the Parameters were cloned successfully, <code>false</code> otherwise.
  * @memberof ParameterGroup
  */
@@ -339,17 +342,35 @@ GRASSROOTS_PARAMS_API Parameter *GetParameterFromParameterGroupByName (const Par
  *
  * @param group_p The ParameterSet to search.
  * @param name_s The Parameter name to try and match.
- * @return  The ParameterNode with the matching Parameter name or <code>NULL</code> if it could not
- * be found
+ * @param value_p If successful, the Parameter value will be stored here.
+ * @param current_value_flag If <code>true</code> then the Parameter's current value
+ * will be retrieved. If this is <code>false</code> then Parameter's default value will be
+ * retrieved instead.
+ * @return <code>true</code> if the Parameter was retrieved successfully, <code>false</code> otherwise.
  * @memberof ParameterGroup
  */
 GRASSROOTS_PARAMS_API bool GetParameterValueFromParameterGroup (const ParameterGroup * const group_p, const char * const name_s, SharedType *value_p, const bool current_value_flag);
 
 
-
+/**
+ * Get the name to use for a child of a repeatable ParameterGroup.
+ *
+ * @param group_p The ParameterSet to get the name from.
+ * @return  The newly-allocated name or <code>NULL</code> if there was an error.
+ * @memberof ParameterGroup
+ */
 GRASSROOTS_PARAMS_API char *GetRepeatableParameterGroupName (ParameterGroup * const group_p);
 
 
+/**
+ * Get the string to use for matching ParameterGroups as children of
+ * a repeatable ParameterGroup.
+ *
+ * @param group_p The ParameterSet to get the regular expresion string from.
+ * @return  The newly-allocated regular expression string or <code>NULL</code> if there was an error.
+ * This value will need to be freed using FreeCopiedString() to avoid a memory leak.
+ * @memberof ParameterGroup
+ */
 GRASSROOTS_PARAMS_API char *GetRepeatableParameterGroupRegularExpression (const ParameterGroup * const group_p);
 
 

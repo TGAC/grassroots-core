@@ -123,10 +123,11 @@ typedef struct ServiceJob
 
 
 
-
+	/**
+	 * Is this ServiceJob in the process of updating itself?
+	 */
 	bool sj_is_updating_flag;
 
-	int32 sj_reference_count;
 } ServiceJob;
 
 
@@ -259,12 +260,6 @@ GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *s
  * @memberof ServiceJob
  */
 GRASSROOTS_SERVICE_API void ClearServiceJob (ServiceJob *job_p);
-
-
-GRASSROOTS_SERVICE_API void IncrementServiceJobReferenceCount (ServiceJob *job_p);
-
-
-GRASSROOTS_SERVICE_API void DecrementServiceJobReferenceCount (ServiceJob *job_p);
 
 
 GRASSROOTS_SERVICE_API ServiceJob *CloneServiceJob (const ServiceJob *src_p);
@@ -751,7 +746,13 @@ GRASSROOTS_SERVICE_API bool AddLinkedServiceToServiceJob (ServiceJob *job_p, str
 GRASSROOTS_SERVICE_API void ProcessLinkedServices (ServiceJob *job_p);
 
 
-
+/**
+ * Calculate the results for the given ServiceJob.
+ *
+ * @param job_p
+ * @return <code>true</code> if the results of the ServiceJob were
+ * calculated successfully, <code>false</code> otherwise.
+ * @memberof ServiceJob */
 GRASSROOTS_SERVICE_API bool CalculateServiceJobResult (ServiceJob *job_p);
 
 

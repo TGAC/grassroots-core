@@ -62,7 +62,11 @@ bool InitCountAsyncTask (CountAsyncTask *count_task_p, const char *name_s, int32
 
 void ClearCountAsyncTask (CountAsyncTask *count_task_p)
 {
-	FreeAsyncTask (count_task_p -> cat_task_p);
+	if (count_task_p -> cat_task_p)
+		{
+			FreeAsyncTask (count_task_p -> cat_task_p);
+			count_task_p -> cat_task_p = NULL;
+		}
 }
 
 
