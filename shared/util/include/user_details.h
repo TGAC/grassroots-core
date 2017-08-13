@@ -112,11 +112,19 @@ GRASSROOTS_UTIL_API void FreeUserDetails (UserDetails *user_details_p);
  * @param user_p The UserDetails to get the UserAuthentication from.
  * @param system_s The name of the system to add the credentials for e.g. "irods", "kerberos", etc.
  * @return A pointer to the relevant UserAuthentication or <code>NULL</code> upon error.
- * @memberof UserDetails
+ * @memberof UserAuthentication
  */
 GRASSROOTS_UTIL_API UserAuthentication *GetUserAuthenticationForSystem (const UserDetails *user_p, const char *system_s);
 
 
+/**
+ * Get the UserAuthentication details for a given system from a given JSON fragment.
+ *
+ * @param config_p The JSON fragment to get the UserAuthentication from.
+ * @param system_s The name of the system to add the credentials for e.g. "irods", "kerberos", etc.
+ * @return A pointer to the relevant UserAuthentication or <code>NULL</code> upon error.
+ * @memberof UserAuthentication
+ */
 GRASSROOTS_UTIL_API UserAuthentication *GetUserAuthenticationForSystemFromJSON (const json_t *config_p, const char *system_s);
 
 
@@ -126,17 +134,33 @@ GRASSROOTS_UTIL_API UserAuthentication *GetUserAuthenticationForSystemFromJSON (
  * @param user_details_p The UserDetails to amend.
  * @param system_s The name of the system to add the credentials for e.g. "irods", "kerberos", etc.
  * @param username_s The username for the given system.
- * @param password_s The password for the given system. This should only be used if the token option is unuable for a given system.
+ * @param password_s The password for the given system. This should only be used if the token option is unusable for a given system.
  * @param token_s The token for the given system.
  * @return <code>true</code> if the authentication details were added to the UserDetails successfully, <code>false</code> otherwise.
- * @memberof UserDetails
+ * @memberof UserAuthentication
  */
 GRASSROOTS_UTIL_API bool AddUserAuthentication (UserDetails *user_details_p, const char *system_s, const char *username_s, const char *password_s, const char *token_s);
 
 
-
+/**
+ * Allocate a UserAuthentication for a given system.
+ *
+ * @param system_s The name of the system to add the credentials for e.g. "irods", "kerberos", etc.
+ * @param username_s The username for the given system.
+ * @param password_s The password for the given system. This should only be used if the token option is unusable for a given system.
+ * @param token_s The token for the given system.
+ * @return The newly-allocated UserAuthentication or <code>NULL</code> upon error.
+ * @memberof UserAuthentication
+ */
 GRASSROOTS_UTIL_API UserAuthentication *AllocateUserAuthentication (const char *system_s, const char *username_s, const char *password_s, const char *token_s);
 
+
+/**
+ * Free a UserAuthentication.
+ *
+ * @param auth_p The UserAuthentication to free.
+ * @memberof UserAuthentication
+ */
 GRASSROOTS_UTIL_API void FreeUserAuthentication (UserAuthentication *auth_p);
 
 

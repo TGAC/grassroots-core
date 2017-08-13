@@ -473,7 +473,9 @@ GRASSROOTS_SERVICE_API struct ServiceJob *CreateSerialisedServiceJobFromService 
  *
  * @param service_p A Service of the same type that the serialised ServiceJob was run by.
  * @param service_job_p The ServiceJob to serialise.
- * @return TThe JSON fragment representing the serialised ServiceJob or <code>NULL</code> upon error.
+ * @param omit_results_flag If this is <code>true</code> then just the minimal status information for
+ * the ServiceJob will be returned. If it is <code>false</code> then the job results will be included too if possible.
+ * @return The JSON fragment representing the serialised ServiceJob or <code>NULL</code> upon error.
  * @see se_serialise_job_fn
  * @memberof Service
  */

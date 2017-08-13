@@ -17,25 +17,59 @@
 
 
 /**
- * A datatype to used to run tasks asynchronously.
+ * A datatype to use to run tasks asynchronously.
  */
 
 typedef struct AsyncTask
 {
+	/** The name of the AsyncTask. */
 	char *at_name_s;
+
+	/**
+	 * The SyncData used to coordinate data access between
+	 * the AsyncTask and other processes.
+	 */
 	struct SyncData *at_sync_data_p;
+
+	/** The memory flag indicating the ownership of the SyncData. */
 	MEM_FLAG at_sync_data_mem;
+
+	/**
+	 * The callback function that will be run as a separate task by this
+	 * AsyncTask.
+	 *
+	 * @param data_p The AsyncTask's custom data.
+	 */
 	void *(*at_run_fn) (void *data_p);
+
+	/**
+	 * Any custom data that will be passed to at_fun_fn.
+	 */
 	void *at_data_p;
+
+	/**
+	 * An EvenetConsumer to notify when the AsyncTask has finished running.
+	 */
 	EventConsumer *at_consumer_p;
 } AsyncTask;
 
 
-
+/**
+ * A datatype to allow storing AsynTasks on a LinkedList.
+ */
 typedef struct AsyncTaskNode
 {
+	/** The base list node. */
 	ListItem atn_node;
+
+	/** The AsyncTask to store on the list. */
 	AsyncTask *atn_task_p;
+
+	/**
+	 * The memory flag indicating what action to
+	 * perform upon atn_task_p when this AsyncTaskNode
+	 * is freed.
+	 */
 	MEM_FLAG atn_mem;
 } AsyncTaskNode;
 

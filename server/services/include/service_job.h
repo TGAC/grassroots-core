@@ -262,9 +262,24 @@ GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *s
 GRASSROOTS_SERVICE_API void ClearServiceJob (ServiceJob *job_p);
 
 
+/**
+ * Create a deep copy of a ServiceJob.
+ *
+ * @param src_p The ServiceJob to copy.
+ * @return The newly-copied ServiceJob or <code>NULL</code> upon error.
+ * @memberof ServiceJob
+ */
 GRASSROOTS_SERVICE_API ServiceJob *CloneServiceJob (const ServiceJob *src_p);
 
 
+/**
+ * Make a deep copy of one ServiceJob to another.
+ *
+ * @param src_p The ServiceJob to copy.
+ * @param dest_p The ServiceJob where the values will be copied to.
+ * @return <code>true</code> if the ServiceJob was copied successfully, <code>false</code> otherwise.
+ * @memberof ServiceJob
+ */
 GRASSROOTS_SERVICE_API bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p);
 
 
@@ -402,6 +417,8 @@ GRASSROOTS_SERVICE_API ServiceJob *GetServiceJobFromServiceJobSetById (const Ser
  * Get the json representation of a ServiceJobSet.
  *
  * @param jobs_p The ServiceJobSet to get the representation of.
+ * @param omit_results_flag If this is <code>true</code> then just the minimal status information for
+ * the ServiceJob will be returned. If it is <code>false</code> then the job results will be included too if possible.
  * @return The json_t representing the ServiceJobSet or <code>NULL
  * </code> upon error.
  * @memberof ServiceJobSet
@@ -413,6 +430,8 @@ GRASSROOTS_SERVICE_API json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs
  * @brief Get a ServiceJob as JSON.
  *
  * @param job_p The ServiceJob to convert into JSON.
+ * @param omit_results_flag If this is <code>true</code> then just the minimal status information for
+ * the ServiceJob will be returned. If it is <code>false</code> then the job results will be included too if possible.
  * @return The json_t object representing the ServiceJob.
  * or <code>NULL</code> upon error.
  * @memberof ServiceJob
@@ -424,6 +443,8 @@ GRASSROOTS_SERVICE_API json_t *GetServiceJobAsJSON (ServiceJob * const job_p, bo
  * @brief Get the Current OperationStatus of a ServiceJob as JSON.
  *
  * @param job_p The ServiceJob to query.
+ * @param omit_results_flag If this is <code>true</code> then just the minimal status information for
+ * the ServiceJob will be returned. If it is <code>false</code> then the job results will be included too if possible.
  * @return The current OperationStatus as a json_t object.
  * or <code>NULL</code> upon error.
  * @memberof ServiceJob
@@ -578,6 +599,8 @@ GRASSROOTS_SERVICE_API void ClearServiceJobResults (ServiceJob *job_p, bool free
  * save a ServiceJob in the JobsManager.
  *
  * @param job_p The ServiceJob.
+ * @param omit_results_flag If this is <code>true</code> then just the minimal status information for
+ * the ServiceJob will be returned. If it is <code>false</code> then the job results will be included too if possible.
  * @return The persistent representation of this ServiceJob or <code>NULL</code>
  * upon error.
  * @see JobsManager

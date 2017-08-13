@@ -214,17 +214,6 @@ GRASSROOTS_SERVICE_API bool AddParametersToBodyWebService (WebServiceData *data_
 
 
 /**
- * Run the referred service with its WebServiceData and get the resultant ServiceJobSet results.
- *
- * @param service_p The Service that uses a WebServiceData.
- * @param param_set_p The ParameterSet to use.
- * @param credentials_p Any user credentials.
- * @return The resultant ServiceJobSet or <code>NULL</code> upon error.
- */
-//GRASSROOTS_SERVICE_API ServiceJobSet *RunWebSearchService (Service *service_p, ParameterSet *param_set_p, json_t *credentials_p);
-
-
-/**
  * Add a Parameter giving the choice of MatchTypes to a ParameterSet.
  *
  * @param data_p The WebServiceData to to use for configuration details.
