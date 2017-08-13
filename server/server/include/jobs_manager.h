@@ -95,6 +95,7 @@ typedef ServiceJob *(*ServiceJobDeserialiser) (unsigned char *input_data_p, void
  */
 typedef struct JobsManager
 {
+	/** The plugin that thjis JobsManager was loaded from. */
 	Plugin *jm_plugin_p;
 
 	/**
@@ -154,7 +155,12 @@ typedef struct JobsManager
 	 */
 	LinkedList *(*jm_get_all_jobs_fn) (struct JobsManager *manager_p);
 
-
+	/**
+	 * The function to use to delete this JobsManager,
+	 *
+	 * @param manager_p The JobsManager to delete
+	 * @return <code>true</code> if the JobsManager was freed successfullly, <code>false</code> otherwise.
+	 */
 	bool (*jm_delete_manager_fn) (struct JobsManager *manager_p);
 
 } JobsManager;
@@ -182,6 +188,8 @@ GRASSROOTS_SERVICE_MANAGER_API JobsManager *GetJobsManager (void);
  * @param add_job_fn The callback function to set for jm_add_job_fn for the given JobsManager.
  * @param get_job_fn The callback function to set for jm_get_job_fn for the given JobsManager.
  * @param remove_job_fn The callback function to set for jm_remove_job_fn for the given JobsManager.
+ * @param get_all_jobs_fn The callback function to set for jm_get_all_jobs_fn for the given JobsManager.
+ * @param delete_manager_fn The callback function to set for jm_delete_manager_fn for the given JobsManager.
  * @memberof JobsManager
  */
 GRASSROOTS_SERVICE_MANAGER_API void InitJobsManager (JobsManager *manager_p,
@@ -272,7 +280,14 @@ GRASSROOTS_SERVICE_MANAGER_API ServiceJob *RemoveServiceJobFromJobsManager (Jobs
 GRASSROOTS_SERVICE_MANAGER_API LinkedList *GetAllServiceJobsFromJobsManager (struct JobsManager *manager_p);
 
 
-
+/**
+ * Load and create a JobsManager from the named plugin.
+ *
+ * @param jobs_manager_s The name of the plugin to use to create the JobsManager. For instance
+ * if you wish to load libmy_jobs.so on a Unix platform, the value to use would be "my_jobs"
+ * @return The loaded JobsManager or <code>NULL</code> upon error.
+ * @memberof JobsManager
+ */
 GRASSROOTS_SERVICE_MANAGER_API JobsManager *LoadJobsManager (const char *jobs_manager_s);
 
 

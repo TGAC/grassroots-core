@@ -37,8 +37,18 @@
 struct EventConsumer;
 struct AsyncTask;
 
+/**
+ * An EvenetConsumer is a datatype to allow an object to be notified
+ * when an AsyncTask has completed running.
+ */
 typedef struct EventConsumer
 {
+	/**
+	 * The callback function to call when an AsyncTask has completed.
+	 *
+	 * @param consumer_p This EventConsumer.
+	 * @param task_p The AsyncTask that has finished running.
+	 */
 	void (*at_consumer_fn) (struct EventConsumer *consumer_p, struct AsyncTask *task_p);
 } EventConsumer;
 

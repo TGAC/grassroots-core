@@ -38,12 +38,26 @@
 /* forward declaration */
 struct SystemAsyncTask;
 
-
+/**
+ * A datatype to allow the running of command-line applications
+ * in a separate task.
+ */
 typedef struct SystemAsyncTask
 {
+	/** The underlying AsyncTask. */
 	AsyncTask *std_async_task_p;
+
+	/** The ServiceJob that will run this SystemAsyncTas./ */
 	ServiceJob *std_service_job_p;
+
+	/** The command line that this SystemAsyncTask will run. */
 	char *std_command_line_s;
+
+	/**
+	 * The callback function that this SystemAsyncTask will call
+	 * if it runs successfully. If this is <code>NULL</code>, it will
+	 * be ignored.
+	 */
 	void (*std_on_success_callback_fn) (ServiceJob *job_p);
 } SystemAsyncTask;
 
@@ -56,18 +70,66 @@ extern "C"
 #endif
 
 
+/**
+ * Allocate a SystemAsyncTask.
+ *
+ * @param job_p The ServiceJob that will run this SystemAsyncTask.
+ * @param name_s The name to give to the underlying AsyncTask. The
+ * SystemAsyncTask will make a deep copy of this value.
+ * @param command_s The command line that this SystemAsyncTask will run.
+ * The SystemAsyncTask will make a deep copy of this value.
+ * @param on_success_callback_fn If the SystemAsyncTask runs successfully,
+ * this function will be called with the SystemAsyncTask's ServiceJob as its
+ * parameter.
+ * @return The newly-allocated SystemAsyncTask or <code>NULL</code> upon error.
+ * @memberof SystemAsyncTask
+ */
 GRASSROOTS_TASK_API	SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s, void (*on_success_callback_fn) (ServiceJob *job_p));
 
 
+/**
+ * Set the command line for a SystemAsyncTask to run.
+ *
+ * @param task_p The SystemAsyncTask to alter.
+ * @param command_s The command line to run. The SystemAsyncTask will make a deep-copy
+ * of this value.
+ * @return <code>true</code> if the ServiceJob was altered successfully,
+ * <code>false</code> otherwise.
+ * @memberof SystemAsyncTask
+ */
 GRASSROOTS_TASK_API bool SetSystemAsyncTaskCommand (SystemAsyncTask *task_p, const char *command_s);
 
 
+/**
+ * Free a SystemAsyncTask.
+ *
+ * @param task_p The SystemAsyncTask to free.
+ * @memberof SystemAsyncTask
+ */
 GRASSROOTS_TASK_API	void FreeSystemAsyncTask (SystemAsyncTask *task_p);
 
 
+/**
+ * Run a SystemAsyncTask.
+ *
+ * @param task_p The SystemAsyncTask to run.
+ * @return <code>true</code> if the ServiceJob was started successfully,
+ * <code>false</code> otherwise.
+ * @memberof SystemAsyncTask
+ */
 GRASSROOTS_TASK_API bool RunSystemAsyncTask (SystemAsyncTask *task_p);
 
 
+/**
+ * Run the SystemAsyncTask's callback function upon successful completion
+ * of the SystemAsyncTask.
+ *
+ * If the std_on_success_callback_fn function for the given SystemAsyncTask is
+ * <code>NULL</code>, then this function will return without error.
+ * @param task_p The SystemAsyncTask to run.
+ * @param job_p The ServiceJob to pass to std_on_success_callback_fn.
+ * @memberof SystemAsyncTask
+ */
 GRASSROOTS_TASK_LOCAL void RunSystemAsyncTaskSuccess (SystemAsyncTask *task_p, ServiceJob *job_p);
 
 

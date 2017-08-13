@@ -905,10 +905,23 @@ GRASSROOTS_SERVICE_API json_t *GetInterestedServiceJSON (const char *service_nam
 GRASSROOTS_SERVICE_API void SetServiceJobCustomFunctions (Service *service_p, struct ServiceJob *job_p);
 
 
-
+/**
+ * Check if a Service is currently running any ServiceJobs.
+ *
+ * @param service_p The Service to check.
+ * @return <code>true</code> if the Service is running, <code>false</code>if it is not.
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API bool IsServiceRunning (Service *service_p);
 
 
+/**
+ * Set if a Service is currently running any ServiceJobs or not.
+ *
+ * @param service_p The Service to set.
+ * @param b <code>true</code> if the Service is running, <code>false</code>if it is not.
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API void SetServiceRunning (Service *service_p, bool b);
 
 

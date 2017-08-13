@@ -144,6 +144,8 @@ GRASSROOTS_TASK_API void CloseAsyncTask (AsyncTask *task_p);
  * @param sync_data_p The SyncData to set.
  * @param mem The MEM_FLAG specifying how the SyncData will be dealt with
  * when the AsyncTask is freed.
+ * @return <code>true</code> if the AsyncTask was altered
+ * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
  */
 GRASSROOTS_TASK_API	bool SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem);

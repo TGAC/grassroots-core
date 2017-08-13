@@ -190,6 +190,10 @@ GRASSROOTS_SERVICE_API void FreeServiceJob (ServiceJob *job_p);
  * @param update_fn The callback function to use when checking the ServiceJob
  * has been updated. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then GetServiceJobStatus will be used.
+ * @param calculate_results_fn The callback function to use to determine the results
+ * for this ServiceJob. This is useful for subclasses of ServiceJob that need custom
+ * behaviour. If this is <code>NULL</code>, then the contents of sj_result_p will be
+ * used as is.
  * @param free_job_fn The callback function to use when freeing
  * this ServiceJob. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then ClearServiceJob will be used before
@@ -217,8 +221,10 @@ GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p
  * @param update_fn The callback function to use when checking the ServiceJob
  * has been updated. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then GetServiceJobStatus will be used.
-
- * behaviour. If this is <code>NULL</code>, then GetServiceJobStatus will be used.
+ * @param calculate_results_fn The callback function to use to determine the results
+ * for this ServiceJob. This is useful for subclasses of ServiceJob that need custom
+ * behaviour. If this is <code>NULL</code>, then the contents of sj_result_p will be
+ * used as is.
  * @param free_job_fn The callback function to use when freeing
  * this ServiceJob. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then ClearServiceJob will be used before
@@ -243,10 +249,15 @@ GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToServiceJobSet (Servic
  * @param update_fn The callback function to use when checking the ServiceJob
  * has been updated. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then GetServiceJobStatus will be used.
+ * @param calculate_results_fn The callback function to use to determine the results
+ * for this ServiceJob. This is useful for subclasses of ServiceJob that need custom
+ * behaviour. If this is <code>NULL</code>, then the contents of sj_result_p will be
+ * used as is.
  * @param free_job_fn The callback function to use when freeing
  * this ServiceJob. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then ClearServiceJob will be used before
  * deallocating the memory ServiceJob structure.
+ * @param id_p Pointer to the the uuid to use as the id for this ServiceJob.
  * @return <code>true</code> if the ServiceJob was initialised successfully, <code>false</code> otherwise
  * @memberof ServiceJob
  */
@@ -283,7 +294,13 @@ GRASSROOTS_SERVICE_API ServiceJob *CloneServiceJob (const ServiceJob *src_p);
 GRASSROOTS_SERVICE_API bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p);
 
 
-
+/**
+ * Get the owning Service for a given ServiceJob.
+ *
+ * @param job_p The ServiceJOb to get the Service for.
+ * @return The Service or <code>NULL</code> if there was an error.
+ * @memberof ServiceJob
+ */
 GRASSROOTS_SERVICE_API struct Service *GetServiceFromServiceJob (ServiceJob *job_p);
 
 
