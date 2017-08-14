@@ -1,4 +1,4 @@
-﻿# iRods 
+﻿# iRods {#irods_support_page}
 
 [iRods](www.irods.org) is a system of storing files with associated metadata within a filesystem. iRods instances that are located disparately can be shared with each other to provide access to shared resources. Part of the Grassroots system provides a wrapper around sets of iRods functions to give a higher level API. Some of these are exposed via a dedicated iRods search service.
 

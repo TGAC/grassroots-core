@@ -33,7 +33,7 @@
 #include "grassroots_util_library.h"
 #include "typedefs.h"
 
-
+/** The default upper limit for he number of matches that a RegExp can make. */
 const uint32 DEFAULT_NUM_REGEXP_VECTORS = 32;
 
 /**
@@ -43,12 +43,25 @@ const uint32 DEFAULT_NUM_REGEXP_VECTORS = 32;
  */
 typedef struct RegExp
 {
+	/** @private */
   pcre *re_compiled_expression_p;
+
+	/** @private */
   pcre_extra *re_extra_p;
+
+	/** @private */
   const char *re_target_s;
+
+	/** @private */
   uint32 re_num_matches;
+
+	/** @private */
   int *re_substring_vectors_p;
+
+	/** @private */
   uint32 re_num_vectors;
+
+	/** @private */
   uint32 re_current_substring_index;
 } RegExp;
 

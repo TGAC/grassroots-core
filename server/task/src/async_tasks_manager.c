@@ -78,22 +78,6 @@ void FreeAsyncTasksManager (AsyncTasksManager *manager_p)
 }
 
 
-bool InitialiseAsyncTasksManager (AsyncTasksManager *manager_p)
-{
-	bool success_flag = false;
-	LinkedList *tasks_p = AllocateLinkedList (FreeAsyncTaskNode);
-
-	if (tasks_p)
-		{
-			manager_p -> atm_tasks_p = tasks_p;
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-
 AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, const char * const task_name_s)
 {
 	AsyncTask *task_p = AllocateAsyncTask (task_name_s);
@@ -128,7 +112,7 @@ bool AddAsyncTaskToAsyncTasksManager (AsyncTasksManager *manager_p, AsyncTask *t
 }
 
 
-SystemAsyncTask *GetSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, ServiceJob *job_p, char *command_line_s, void (*on_success_callback_fn) (ServiceJob *job_p))
+SystemAsyncTask *AllocateSystemAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, ServiceJob *job_p, char *command_line_s, void (*on_success_callback_fn) (ServiceJob *job_p))
 {
 	SystemAsyncTask *task_p = AllocateSystemAsyncTask (job_p, job_p -> sj_name_s, command_line_s, on_success_callback_fn);
 

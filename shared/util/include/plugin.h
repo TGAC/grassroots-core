@@ -90,6 +90,10 @@ typedef enum PluginNature
 } PluginNature;
 
 
+/**
+ * A union datatype that abstracts the different types
+ * of plugins that are avaialble.
+ */
 typedef union PluginValue
 {
 	/**
@@ -159,6 +163,9 @@ typedef struct Plugin
 	 */
 	PluginNature pl_type;
 
+	/**
+	 * The data specific for the PluginNature of this Plugin.
+	 */
 	PluginValue pl_value;
 
 	/**

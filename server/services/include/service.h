@@ -14,10 +14,7 @@
 ** limitations under the License.
 */
 
-/**
- * @file
- * @brief
- */
+
 /**
  * @file
  * @brief
@@ -808,7 +805,6 @@ GRASSROOTS_SERVICE_LOCAL OperationStatus DefaultGetServiceStatus (Service *servi
  * @param remote_service_name_s The name of the PairedService on the ExternalServer.
  * @param op_p The JSON fragment to create the PairedService's ParameterSet from.
  * @param provider_p The JSON fragment representing the Provider.
- * @ref server_configuration.md
  * @return <code>true</code> if the PairedService was created and added successfully, <code>false</code> otherwise.
  * @see AddPairedService.
  * @see AllocatePairedService.

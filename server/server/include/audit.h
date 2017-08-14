@@ -39,10 +39,34 @@ extern "C"
 {
 #endif
 
-
+/**
+ * Log the current state of a ServiceJob to a job logger.
+ *
+ * The Grassroots infrastructure can be configured to send the JSON
+ * fragments for all of its ServiceJobs to an external auditing environment
+ * if required. The environment is set up in the server configuration.
+ *
+ * @param job_p The ServiceJob to log.
+ * @return <code>true</code> if the ServiceJob was logged successfully,
+ * <code>false</code> otherwise.
+ * @see GetJobLoggingURI
+ */
 GRASSROOTS_SERVICE_MANAGER_API bool LogServiceJob (ServiceJob *job_p);
 
 
+/**
+ * Log the current state of a ServiceJob and a ParameterSet to a job logger.
+ *
+ * The Grassroots infrastructure can be configured to send the JSON
+ * fragments for all of its ServiceJobs to an external auditing environment
+ * if required. The environment is set up in the server configuration.
+ *
+ * @param job_p The ServiceJob to log.
+ * @param params_p The ParameterSet to log.
+ * @return <code>true</code> if the ServiceJob was logged successfully,
+ * <code>false</code> otherwise.
+ * @see GetJobLoggingURI
+ */
 GRASSROOTS_SERVICE_MANAGER_API bool LogParameterSet (ParameterSet *params_p, ServiceJob *job_p);
 
 

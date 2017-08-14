@@ -103,7 +103,10 @@ typedef struct RawConnection
 	 */
 	union
 		{
+			/** If this RawConnection is to a Server this will be used. */
 			struct addrinfo *rc_server_p;
+
+			/** If this RawConnection is to a Client this will be used. */
 			struct sockaddr *rc_client_p;
 		}
 	rc_data;
