@@ -35,7 +35,10 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s)
 
 	if (success_flag)
 		{
+			memset (task_p, 0, sizeof (AsyncTask));
+
 			task_p -> at_name_s = copied_name_s;
+			task_p -> at_sync_data_mem = MF_ALREADY_FREED;
 		}
 
 

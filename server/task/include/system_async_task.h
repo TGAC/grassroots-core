@@ -47,7 +47,12 @@ typedef struct SystemAsyncTask
 	/** The underlying AsyncTask. */
 	AsyncTask *std_async_task_p;
 
-	/** The ServiceJob that will run this SystemAsyncTas./ */
+	/**
+	 * The ServiceJob that will run this SystemAsyncTask.
+	 * The SystemAsyncTask will not free this ServiceJob when
+	 * the SystemAsyncTask is deleted so the ServiceJob will
+	 * need to be freed separately.
+	 */
 	ServiceJob *std_service_job_p;
 
 	/** The command line that this SystemAsyncTask will run. */

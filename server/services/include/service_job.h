@@ -182,6 +182,20 @@ GRASSROOTS_SERVICE_API void FreeServiceJob (ServiceJob *job_p);
 
 
 /**
+ * Free a ServiceJob ignoring if it is a subclass.
+ *
+ * Unless you want to explicitly delete the base ServiceJob only,
+ * then FreeServiceJob() should be used instead. This is
+ * primarily to be called from the functions that free
+ * subclassed ServiceJobs.
+ *
+ * @param job_p The ServiceJob to free.
+ * @memberof ServiceJob
+ */
+GRASSROOTS_SERVICE_API void FreeBaseServiceJob (ServiceJob *job_p);
+
+
+/**
  * @brief Allocate a ServiceJob.
  *
  * @param service_p The Service that is running the ServiceJob.

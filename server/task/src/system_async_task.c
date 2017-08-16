@@ -98,8 +98,6 @@ void FreeSystemAsyncTask (SystemAsyncTask *task_data_p)
 			FreeCopiedString (task_data_p -> std_command_line_s);
 		}
 
-	FreeServiceJob (task_data_p -> std_service_job_p);
-
 	FreeMemory (task_data_p);
 }
 

@@ -473,9 +473,15 @@ void FreeServiceJob (ServiceJob *job_p)
 		}
 	else
 		{
-			ClearServiceJob (job_p);
-			FreeMemory (job_p);
+			FreeBaseServiceJob (job_p);
 		}
+}
+
+
+void FreeBaseServiceJob (ServiceJob *job_p)
+{
+	ClearServiceJob (job_p);
+	FreeMemory (job_p);
 }
 
 
@@ -1042,9 +1048,17 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p, bool omit_results_flag)
 																{
 																	if (AddValidJSONString (job_json_p, JOB_DESCRIPTION_S, job_p -> sj_description_s))
 																		{
-																			if (!AddLinkedServicesToServiceJobJSON (job_p, job_json_p))
+																			if ((job_p -> sj_status == OS_SUCCEEDED) || (job_p -> sj_status == OS_PARTIALLY_SUCCEEDED))
 																				{
-																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to Linked Services for %s to json", job_p -> sj_name_s ? job_p -> sj_name_s : "unnamed job");
+																					/*
+																					 * If this service has any linked services, fill in the data here
+																					 */
+																					ProcessLinkedServices (job_p);
+
+																					if (!AddLinkedServicesToServiceJobJSON (job_p, job_json_p))
+																						{
+																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to Linked Services for %s to json", job_p -> sj_name_s ? job_p -> sj_name_s : "unnamed job");
+																						}
 																				}
 
 																			success_flag = true;
@@ -1134,11 +1148,6 @@ bool ProcessServiceJobSet (ServiceJobSet *jobs_p, json_t *res_p)
 			if ((job_status == OS_SUCCEEDED) || (job_status == OS_PARTIALLY_SUCCEEDED))
 				{
 					job_json_p = GetServiceJobAsJSON (job_p, false);
-
-					/*
-					 * If this service has any linked services, fill in the data here
-					 */
-					ProcessLinkedServices (job_p);
 				}
 			else
 				{
