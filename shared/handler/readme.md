@@ -1,6 +1,6 @@
-﻿# Handlers
+﻿Handlers
+========
 
-## Introduction
 
 Data that a user wishes to access can be potentially be stored on a variety of different systems *e.g.* local filesystems, http(s) locations, cloud-based storage systems such as Dropbox, Google Drive, *etc.* 
 Regardless of the storage mechanism, the actual operations that may be needed are the same *e.g.* read from a file, write to a file, create a file, *etc.* 

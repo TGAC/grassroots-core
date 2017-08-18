@@ -174,16 +174,14 @@ bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_ser
 
 					if (run_service_p)
 						{
-							if (json_object_set_new (wrapper_p, SERVICES_NAME_S, run_service_p) == 0)
+							if (json_array_append_new (linked_services_array_p, run_service_p) == 0)
 								{
-									if (json_array_append_new (linked_services_array_p, wrapper_p) == 0)
-										{
-											success_flag = true;
-										}
+									success_flag = true;
 								}
 							else
 								{
 									json_decref (run_service_p);
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
 								}
 						}
 
