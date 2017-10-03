@@ -204,7 +204,16 @@ GRASSROOTS_SERVICE_API json_t *GetLinkedServiceAsJSON (LinkedService *linked_ser
 GRASSROOTS_SERVICE_API bool ProcessLinkedService (LinkedService *linked_service_p, struct ServiceJob *job_p);
 
 
-
+/**
+ * Add the details for how to run a LinkedService with a partially-filled in set of Parameters to a JSON fragment to
+ * be sent to a client.
+ *
+ * @param request_p The JSON fragment that the details will be added to.
+ * @param linked_service_p The LinkedService to add the details from.
+ * @param output_params_p The ParameterSet to add to the partially-filled in Parameter values from.
+ * @return <code>true</code> if the LinkedService JSON was added successfully, <code>false</code> otherwise.
+ * @memberof LinkedService
+ */
 GRASSROOTS_SERVICE_API bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_service_p, ParameterSet *output_params_p);
 
 

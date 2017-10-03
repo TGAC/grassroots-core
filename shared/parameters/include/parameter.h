@@ -721,11 +721,32 @@ GRASSROOTS_PARAMS_API json_t *GetRunnableParameterAsJSON (const char * const nam
 
 
 
-
+/**
+ * This is a wrapper function to create and add a ParameterOption to a given Parameter.
+ * It ensures that the options list exists for the Parameter before calling
+ * CreateAndAddParameterOption().
+ *
+ * @param param_p The Parameter to add the ParameterOtion to.
+ * @param value The value stored for this ParameterOption.
+ * @param description_s The description to show for this ParameterOption.
+ * @return <code>true</code> if the ParameterOption was created and added to the Parameter successfully,
+ * <code>false</code> otherwise.
+ * @memberof Parameter
+ */
 GRASSROOTS_PARAMS_API bool CreateAndAddParameterOptionToParameter (Parameter *param_p, SharedType value, const char * const description_s);
 
 
-
+/**
+ * Get the list of ParameterOptions for a given Parameter. If the list
+ * does not currently exist, then an empty LinkedList will be created
+ * and added to the Parameter prior to this function returning.
+ *
+ * @param param_p The Parameter to get the ParameterOptions list from.
+ * @return The LinkedList of ParameterOptionNodes or <code>NULL</code>
+ * upon error.
+ * @memberof Parameter
+ *
+ */
 GRASSROOTS_PARAMS_API LinkedList *GetMultiOptions (Parameter *param_p);
 
 

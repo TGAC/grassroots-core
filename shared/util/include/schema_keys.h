@@ -85,10 +85,13 @@ extern "C"
 	 */
 	PREFIX const char *ERROR_S VAL("error");
 
+	/**
+	 * The JSON key for the header object of the server response.
+	 */
 	PREFIX const char *HEADER_S VAL("header");
 
 	/**
-	 * The
+	 * The JSON key for a request.
 	 */
 	PREFIX const char *REQUEST_S VAL("request");
 	PREFIX const char *REQUEST_VERBOSE_S VAL("verbose");
