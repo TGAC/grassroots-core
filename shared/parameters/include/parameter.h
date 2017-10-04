@@ -721,11 +721,26 @@ GRASSROOTS_PARAMS_API json_t *GetRunnableParameterAsJSON (const char * const nam
 
 
 
-
+/**
+ * Create a ParameterOption with the given value and description and add it to the given Parameter.
+ *
+ * @param param_p The Parameter that the newly-created ParameterOption will be added to.
+ * @param value The value that the newly-created ParameterOption will have.
+ * @param description_s The description that the newly-created ParameterOption will have
+ * @return <code>true</code> if the ParameterOption was added successfully, <code>false</code> otherwise.
+ * @memberof Parameter
+ */
 GRASSROOTS_PARAMS_API bool CreateAndAddParameterOptionToParameter (Parameter *param_p, SharedType value, const char * const description_s);
 
 
-
+/**
+ * Get the LinkedList of ParameterOptionNodes for the options for a given Parameter.
+ *
+ * @param param_p The Parameter to get the LinkedList for.
+ * @return The LinkedList of ParameterOptionNodes for the options of the Parameter or
+ * <code>NULL</code> upon error.
+ * @memberof Parameter
+ */
 GRASSROOTS_PARAMS_API LinkedList *GetMultiOptions (Parameter *param_p);
 
 

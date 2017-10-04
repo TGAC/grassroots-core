@@ -359,7 +359,12 @@ GRASSROOTS_UTIL_API void IncrementPluginOpenCount (Plugin *plugin_p);
  */
 GRASSROOTS_UTIL_API void DecrementPluginOpenCount (Plugin *plugin_p);
 
-
+/**
+ * Clear all values in a given Plugin ready for it to be reused.
+ *
+ * @param plugin_p The Plugin to clear.
+ * @memberof Plugin
+ */
 GRASSROOTS_UTIL_API void ClearPluginValue (Plugin * const plugin_p);
 
 
