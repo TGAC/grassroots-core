@@ -1,4 +1,4 @@
-﻿#Parameters Guide {#params_guide}
+# Parameters Guide {#parameters_library}
 
 The Parameters library provides the datatypes and API for how Services can expose the variables that can be set by the user to run tasks. Each Parameter has various attributes such as its internal name, user-friendly name to display to the user, its datatype, *etc.* 
 
@@ -7,7 +7,7 @@ Each Service produces a ParameterSet which contains all of its Parameters.
 The possible types that a Parameter can take are defined by the ParameterType enumeration. These vary from primtive types such as boolean values, integers and floating point values through c-style strings to structures such as Resource.
 
 
-## Paramater values
+## Parameter values
 
 Both the default and current values that a Parameter can take are stored by SharedType objects. A SharedType is a union of various different datatypes and the actual value stored within the SharedType depends upon the Parameter's ParameterType.
 

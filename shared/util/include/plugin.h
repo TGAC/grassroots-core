@@ -361,7 +361,7 @@ GRASSROOTS_UTIL_API void DecrementPluginOpenCount (Plugin *plugin_p);
 
 
 /**
- * Initialise and clear a given Plugin.
+ * Clear all values in a given Plugin ready for it to be reused.
  *
  * @param plugin_p The Plugin to clear.
  * @memberof Plugin
