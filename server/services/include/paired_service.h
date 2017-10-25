@@ -144,7 +144,7 @@ GRASSROOTS_SERVICE_API PairedServiceNode *AllocatePairedServiceNode (PairedServi
  * @param server_name_s The name of the ExternalServer.
  * @param op_p The JSON fragment for the Service.
  * @param provider_p The JSON fragment representing the Provider.
- * @ref server_configuration.md
+ * @ref server_configuration_guide
  * @return The new PairedServiceNode or <code>NULL</code> upon error.
  * @memberof PairedServiceNode
  * @see AllocatePairedService

@@ -1,4 +1,4 @@
-# MongoDB library {#mongo_library}
+﻿# MongoDB library {#mongo_library}
 
 The MongoDB library allows the Grassroots Server to use the functionality provided by [MongoDB](https://www.mongodb.com/). The library uses the [C language driver](https://github.com/mongodb/mongo-c-driver).
 
@@ -12,11 +12,15 @@ The files to build the MongoDB library are in the ```build/<platform>``` directo
 
 Enter the build directory 
 
-```cd build/linux```
+```
+cd build/linux
+```
 
 and create a *user.prefs* file.
 
-```cp example-user.prefs user.prefs```
+```
+cp example-user.prefs user.prefs
+```
 
 You will need to edit this file to configure where the MongoDB library dependencies are stored. The file content is similar to the following
 
@@ -33,16 +37,20 @@ export BSON_HOME := $(DIR_GRASSROOTS_EXTRAS)/mongodb-c
 
 Adjust the ```MONGODB_HOME``` and ```BSON_HOME``` variables to where you have the mongo-c-driver installed. You can then build the handler by typing
 
-```make all```
+```
+make all
+```
 
 and then 
 
-```make install```
+```
+make install
+```
 
 to install the library into the Grassroots system where it will be available on the server application after it has been restarted.
 
 
-﻿## Usage
+## Usage
 
 One of the facilities that Grassroots system provides is an API to access a [MongoDB](https://www.mongodb.org/) instance through JSON-based messages. All of the MongoDB messages are accessed using a **mongodb** key. 
 
