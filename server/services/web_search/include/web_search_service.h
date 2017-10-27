@@ -16,8 +16,9 @@
 
 /**
  * @file
- * @defgroup web_search_service The Web Search Services Module
+ * @addtogroup web_search_service The Web Search Services Module
  * @brief
+ * @{
  */
 #ifndef WEB_SERVICE_H
 #define WEB_SERVICE_H
@@ -38,7 +39,6 @@ extern "C"
  * @param config_p The service configuration data.
  * @return The ServicesArray containing all of the Web search Services or
  * <code>NULL</code> upon error.
- * @ingroup web_search_service
  */
 WEB_SEARCH_SERVICE_API ServicesArray *GetServices (json_t *config_p);
 
@@ -47,10 +47,11 @@ WEB_SEARCH_SERVICE_API ServicesArray *GetServices (json_t *config_p);
  * Free the ServicesArray containing the Web search Services.
  *
  * @param services_p The ServicesArray to free.
- * @ingroup web_search_service
  */
 WEB_SEARCH_SERVICE_API void ReleaseServices (ServicesArray *services_p);
 
+/* close the open doxygen group */
+/**@}*/
 
 #ifdef __cplusplus
 }

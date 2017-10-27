@@ -51,7 +51,7 @@ struct RemoteServiceJob;
 
 /**
  * A datatype for describing a remote Service
- * that can be used in conjuction with a local
+ * that can be used in conjunction with a local
  * Service.
  *
  * @ingroup services_group
@@ -144,7 +144,6 @@ GRASSROOTS_SERVICE_API PairedServiceNode *AllocatePairedServiceNode (PairedServi
  * @param server_name_s The name of the ExternalServer.
  * @param op_p The JSON fragment for the Service.
  * @param provider_p The JSON fragment representing the Provider.
- * @ref server_configuration_guide
  * @return The new PairedServiceNode or <code>NULL</code> upon error.
  * @memberof PairedServiceNode
  * @see AllocatePairedService
