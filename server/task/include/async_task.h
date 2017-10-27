@@ -48,7 +48,7 @@ typedef struct AsyncTask
 	void *at_data_p;
 
 	/**
-	 * An EvenetConsumer to notify when the AsyncTask has finished running.
+	 * An EventConsumer to notify when the AsyncTask has finished running.
 	 */
 	EventConsumer *at_consumer_p;
 } AsyncTask;

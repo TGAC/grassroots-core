@@ -563,7 +563,15 @@ GRASSROOTS_UTIL_API bool CopyJSONKeyIntegerValuePair (const json_t *src_p, json_
 
 
 
-
+/**
+ * Make a deep copy of a source JSON fragment to another.
+ *
+ * @param src_p The JSON object to copy.
+ * @param dest_pp A pointer to where the copied JSON fragment will be stored upon success
+ * @return <code>true</code> upon success, <code>false</code> upon failure.
+ *
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API bool DeepCopyValidJSON (const json_t *src_p, json_t **dest_pp);
 
 #ifdef __cplusplus
