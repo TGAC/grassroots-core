@@ -528,7 +528,11 @@ static json_t *GetServicesInfoRequest (const uuid_t **ids_pp, const uint32 num_i
 												}
 
 										}		/* if (*id_pp) */
-
+									else
+										{
+											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "UUID is NULL");
+											success_flag = false;
+										}
 								}		/* while ((i > 0) && success_flag) */
 
 							if (success_flag)
