@@ -1063,6 +1063,10 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p, bool omit_results_flag)
 																						}
 																				}
 																		}
+																	else
+																		{
+																			success_flag = true;
+																		}
 																}
 															else
 																{
