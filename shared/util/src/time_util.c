@@ -23,11 +23,41 @@
 #include "time_util.h"
 #include "memory_allocations.h"
 
+
 static bool ConvertNumber (const char * const buffer_s, size_t from, size_t to, int *result_p);
 
 static bool ConvertStringToTime (const char * const time_s, time_t *time_p, bool (*conv_fn) (const char * const time_s, struct tm *time_p, int *offset_p));
 
+static bool IsLeapYear (const int year);
+
 /***************************************/
+
+
+void AddIntervalToTime (struct tm *time_p, const int days)
+{
+	int hour = time_p -> tm_hour;
+	int min = time_p -> tm_min;
+	int sec = time_p -> tm_sec;
+
+	/* Take care of DST */
+	time_p -> tm_isdst = 0;
+	time_p -> tm_hour = 12;
+	time_p -> tm_min = 0;
+	time_p -> tm_sec = 0;
+
+	/* Normalise the date */
+	mktime (time_p);
+
+	/* Add the interval */
+	time_p -> tm_yday += days;
+
+	/* Normalise the date */
+	mktime (time_p);
+
+	time_p -> tm_hour = hour;
+	time_p -> tm_min = min;
+	time_p -> tm_sec = sec;
+}
 
 
 char *GetTimeAsString (const struct tm * const time_p)
@@ -260,3 +290,30 @@ static bool ConvertStringToTime (const char * const time_s, time_t *time_p, bool
 	return success_flag;
 }
 
+
+static bool IsLeapYear (const int year)
+{
+	bool result = false;
+
+	/* is it divisible by 4? */
+	if ((year >> 2) == 0)
+		{
+			/* if it is divisible by 100 it is not a leap year... */
+			if (year % 100 == 0)
+				{
+					/* ... unless it is divisible by by 400 */
+					if (year % 400 == 0)
+						{
+							result = true;
+						}
+
+				}		/* if (year % 100 == 0) */
+			else
+				{
+					result = true;
+				}
+
+		}		/* if ((year >> 2) == 0) */
+
+	return result;
+}

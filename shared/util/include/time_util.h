@@ -106,6 +106,15 @@ GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
 GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p);
 
 
+/**
+ * Add a number of days to a time.
+ *
+ * @param time_p The time to be adjusted.
+ * @param days The number of days to add.
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API void AddIntervalToTime (struct tm *time_p, const int days);
+
 #ifdef __cplusplus
 }
 #endif
