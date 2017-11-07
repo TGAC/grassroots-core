@@ -143,56 +143,80 @@ void FreeLinkedServiceNode (ListItem *node_p)
 }
 
 
+
+
 bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_service_p, ParameterSet *output_params_p)
 {
 	bool success_flag = false;
-	json_t *linked_services_array_p = json_object_get (request_p, LINKED_SERVICES_S);
+	json_t *linked_services_json_p = json_object_get (request_p, LINKED_SERVICES_S);
 
-	if (!linked_services_array_p)
+	if (!linked_services_json_p)
 		{
-			linked_services_array_p = json_array ();
+			linked_services_json_p = json_object ();
 
-			if (linked_services_array_p)
+			if (linked_services_json_p)
 				{
-					if (json_object_set (request_p, LINKED_SERVICES_S, linked_services_array_p) != 0)
+					if (json_object_set (request_p, LINKED_SERVICES_S, linked_services_json_p) != 0)
 						{
 							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, request_p, "Failed to add empty linked services array for \"%s\"", LINKED_SERVICES_S);
-							json_decref (linked_services_array_p);
-							linked_services_array_p = NULL;
+							json_decref (linked_services_json_p);
+							linked_services_json_p = NULL;
 						}
 				}
 
 		}
 
-	if (linked_services_array_p)
+	if (linked_services_json_p)
 		{
-			json_t *wrapper_p = json_object ();
+			json_t *services_p = json_object_get (linked_services_json_p, SERVICES_NAME_S);
 
-			if (wrapper_p)
+			if (!services_p)
 				{
-					json_t *run_service_p = GetInterestedServiceJSON (linked_service_p -> ls_output_service_s, NULL, output_params_p, false);
+					services_p = json_array ();
 
-					if (run_service_p)
+					if (services_p)
 						{
-							if (json_array_append_new (linked_services_array_p, run_service_p) == 0)
+							if (json_object_set (linked_services_json_p, SERVICES_NAME_S, services_p) != 0)
 								{
-									success_flag = true;
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, request_p, "Failed to add empty service object for linked services array for \"%s\"", LINKED_SERVICES_S);
+									json_decref (services_p);
+									services_p = NULL;
 								}
-							else
-								{
-									json_decref (run_service_p);
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
-								}
-						}
-
-					if (!success_flag)
-						{
-							json_decref (wrapper_p);
 						}
 				}
 
+			if (services_p)
+				{
+					json_t *wrapper_p = json_object ();
 
-		}		/* if (linked_services_array_p) */
+					if (wrapper_p)
+						{
+							json_t *run_service_p = GetInterestedServiceJSON (linked_service_p -> ls_output_service_s, NULL, output_params_p, false);
+
+							if (run_service_p)
+								{
+									if (json_array_append_new (services_p, run_service_p) == 0)
+										{
+											success_flag = true;
+										}
+									else
+										{
+											json_decref (run_service_p);
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
+										}
+								}
+
+							if (!success_flag)
+								{
+									json_decref (wrapper_p);
+								}
+
+						}		/* if (wrapper_p) */
+
+				}		/* if (services_p) */
+
+		}		/* if (linked_services_json_p) */
+
 
 	return success_flag;
 }
