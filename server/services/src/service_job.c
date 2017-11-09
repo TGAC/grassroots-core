@@ -1036,20 +1036,19 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p, bool omit_results_flag)
 														{
 															if (AddValidJSONString (job_json_p, JOB_DESCRIPTION_S, job_p -> sj_description_s))
 																{
-																	if (omit_results_flag)
+																	if ((job_p -> sj_status == OS_SUCCEEDED) || (job_p -> sj_status == OS_PARTIALLY_SUCCEEDED))
 																		{
-																			success_flag = (json_object_set_new (job_json_p, JOB_OMITTED_RESULTS_S, json_true ()) == 0);
-																		}
-																	else
-																		{
-																			if ((job_p -> sj_status == OS_SUCCEEDED) || (job_p -> sj_status == OS_PARTIALLY_SUCCEEDED))
+																			/*
+																			 * If this service has any linked services, fill in the data here
+																			 */
+																			if (omit_results_flag)
+																				{
+																					success_flag = (json_object_set_new (job_json_p, JOB_OMITTED_RESULTS_S, json_true ()) == 0);
+																				}
+																			else
 																				{
 																					if (AddValidJSON (job_json_p, JOB_RESULTS_S, job_p -> sj_result_p, false))
 																						{
-																							/*
-																							 * If this service has any linked services, fill in the data here
-																							 */
-
 																							success_flag = true;
 																							ProcessLinkedServices (job_p);
 
@@ -1062,11 +1061,6 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p, bool omit_results_flag)
 																						{
 																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add results to service job json");
 																						}
-
-																				}		/* if ((job_p -> sj_status == OS_SUCCEEDED) || (job_p -> sj_status == OS_PARTIALLY_SUCCEEDED)) */
-																			else
-																				{
-																					success_flag = true;
 																				}
 																		}
 																	else

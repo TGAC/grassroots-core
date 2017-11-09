@@ -49,16 +49,16 @@ struct JobsManager;
 typedef enum PluginStatus
 {
 	/** No attempt to load a plugin of this type yet. */
-	PS_UNSET,      //!< PS_UNSET
+	PS_UNSET,
 
 	/** Plugin of this type has been loaded successfully */
-	PS_LOADED,     //!< PS_LOADED
+	PS_LOADED,
 
 	/** Plugin of this type failed to previously load */
-	PS_UNAVAILABLE,//!< PS_UNAVAILABLE
+	PS_UNAVAILABLE,
 
 	/** Plugin is in the process of closing */
-	PS_CLOSING     //!< PS_CLOSING
+	PS_CLOSING
 
 } PluginStatus;
 
@@ -71,22 +71,22 @@ typedef enum PluginStatus
 typedef enum PluginNature
 {
 	/** Unknown type of Plugin */
-	PN_UNKNOWN = -1,//!< PN_UNKNOWN
+	PN_UNKNOWN = -1,
 
 	/** The Plugin creates a Service. */
-	PN_SERVICE,     //!< PN_SERVICE
+	PN_SERVICE,
 
 	/** The Plugin creates a Client. */
-	PN_CLIENT,      //!< PN_CLIENT
+	PN_CLIENT,
 
 	/** The Plugin creates a Handler. */
-	PN_HANDLER,     //!< PN_HANDLER
+	PN_HANDLER,
 
 	/** The Plugin creates a JobsManager. */
 	PN_JOBS_MANAGER,
 
 	/** The number of different PluginTypes */
-	PN_NUM_TYPES    //!< PN_NUM_TYPES
+	PN_NUM_TYPES
 } PluginNature;
 
 
