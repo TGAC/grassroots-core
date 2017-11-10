@@ -34,6 +34,7 @@
 #include "paired_service.h"
 #include "linked_service.h"
 #include "uuid/uuid.h"
+#include "service_metadata.h"
 
 #include "jansson.h"
 
@@ -143,6 +144,8 @@ typedef struct ServiceData
 	 */
 	bool sd_config_flag;
 } ServiceData;
+
+
 
 
 /**
@@ -307,7 +310,7 @@ typedef struct Service
 	LinkedList se_paired_services;
 
 	/**
-	 * Any LinkedServices that will  use the output from running this Service
+	 * Any LinkedServices that will use the output from running this Service
 	 * as input for itself
 	 */
 	LinkedList se_linked_services;
@@ -324,6 +327,10 @@ typedef struct Service
 	 */
 	bool se_running_flag;
 
+	/**
+	 * The ServiceMetadata for this Service.
+	 */
+	ServiceMetadata *se_metadata_p;
 } Service;
 
 
@@ -905,7 +912,7 @@ GRASSROOTS_SERVICE_API void SetServiceJobCustomFunctions (Service *service_p, st
  * Check if a Service is currently running any ServiceJobs.
  *
  * @param service_p The Service to check.
- * @return <code>true</code> if the Service is running, <code>false</code>if it is not.
+ * @return <code>true</code> if the Service is running, <code>false</code> if it is not.
  * @memberof Service
  */
 GRASSROOTS_SERVICE_API bool IsServiceRunning (Service *service_p);
@@ -915,10 +922,25 @@ GRASSROOTS_SERVICE_API bool IsServiceRunning (Service *service_p);
  * Set if a Service is currently running any ServiceJobs or not.
  *
  * @param service_p The Service to set.
- * @param b <code>true</code> if the Service is running, <code>false</code>if it is not.
+ * @param b <code>true</code> if the Service is running, <code>false</code> if it is not.
  * @memberof Service
  */
 GRASSROOTS_SERVICE_API void SetServiceRunning (Service *service_p, bool b);
+
+
+/**
+ * Set the values of a Service's ServiceMetadata object.
+ *
+ * @param service_p The Service to set.
+ * @param category_s The top-level application category to use.
+ * @param subcategory_s The application subcategory to use.
+ * @return <code>true</code> if the ServiceMetadata was set successfully, <code>false</code> if it was not.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API bool SetMetadataForService (Service *service_p, const char *category_s, const char *subcategory_s);
+
+
+
 
 
 #ifdef __cplusplus

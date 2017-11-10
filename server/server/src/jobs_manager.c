@@ -198,6 +198,7 @@ JobsManager *LoadJobsManager (const char *jobs_manager_s)
 					FreeCopiedString (full_jobs_managers_path_s);
 				}		/* if (full_jobs_managers_path_s) */
 
+			FreeCopiedString (plugin_name_s);
 		}		/* if (plugin_name_s) */
 
 	return manager_p;

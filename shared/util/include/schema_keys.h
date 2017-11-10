@@ -251,6 +251,9 @@ extern "C"
 	/** @name The Schema definitions for specifying Services. */
 	/* Start of doxygen member group */
 	/**@{*/
+
+	PREFIX const char *TYPE_SERVICE_S VAL("grassroots_service");
+
 	PREFIX const char *SERVICE_NAME_S VAL("service_name");
 	PREFIX const char *SERVICE_UUID_S VAL("service_uuid");
 	PREFIX const char *SERVICE_STATUS_VALUE_S VAL("status");

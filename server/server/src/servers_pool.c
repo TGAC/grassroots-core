@@ -106,7 +106,14 @@ LinkedList *GetAllExternalServersFromServersManager (ServersManager *manager_p, 
 
 bool FreeServersManager (ServersManager *manager_p)
 {
-	return manager_p -> sm_free_servers_manager_fn (manager_p);
+	bool success_flag = true;
+
+	if (manager_p -> sm_free_servers_manager_fn)
+		{
+			success_flag = manager_p -> sm_free_servers_manager_fn (manager_p);
+		}
+
+	return success_flag;
 }
 
 
