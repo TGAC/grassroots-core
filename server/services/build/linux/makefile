@@ -38,11 +38,13 @@ SRCS 	= \
 	provider.c \
 	providers_state_table.c \
 	remote_service_job.c \
+	schema_term.c \
 	service.c \
 	service_config.c \
 	service_job.c \
 	service_job_set_iterator.c \
 	service_matcher.c \
+	service_metadata.c \
 	web_service_util.c
 
 CPPFLAGS += -DUNIX -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS

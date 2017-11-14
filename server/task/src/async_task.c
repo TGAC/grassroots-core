@@ -5,6 +5,7 @@
  *      Author: billy
  */
 
+#include <string.h>
 
 #include "async_task.h"
 

@@ -79,7 +79,7 @@ static  uint32 AddLinkedServices (Service *service_p);
  * FUNCTION DEFINITIONS
  */
 
-void InitialiseService (Service * const service_p,
+bool InitialiseService (Service * const service_p,
 	const char *(*get_service_name_fn) (Service *service_p),
 	const char *(*get_service_description_fn) (Service *service_p),
 	const char *(*get_service_info_uri_fn) (struct Service *service_p),
@@ -91,59 +91,76 @@ void InitialiseService (Service * const service_p,
 	void (*customise_service_job_fn) (Service *service_p, ServiceJob *job_p),
 	bool specific_flag,
 	Synchronicity synchronous,
-	ServiceData *data_p)
+	ServiceData *data_p,
+	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p))
 {
-	service_p -> se_get_service_name_fn = get_service_name_fn;
-	service_p -> se_get_service_description_fn = get_service_description_fn;
-	service_p -> se_get_service_info_uri_fn = get_service_info_uri_fn;
-	service_p -> se_run_fn = run_fn;
-	service_p -> se_match_fn = match_fn;
-	service_p -> se_get_params_fn = get_parameters_fn;
-	service_p -> se_release_params_fn = release_parameters_fn;
-	service_p -> se_close_fn = close_fn;
-	service_p -> se_customise_service_job_fn = customise_service_job_fn;
+	bool success_flag = true;
 
-	service_p -> se_data_p = data_p;
-	
-	service_p -> se_is_specific_service_flag = specific_flag;
-	service_p -> se_synchronous = synchronous;
-
-
-	service_p -> se_running_flag = false;
-
-	uuid_clear (service_p -> se_id);
-
-	service_p -> se_plugin_p = NULL;
-	service_p -> se_has_permissions_fn = NULL;
-
-	service_p -> se_deserialise_job_json_fn = NULL;
-	service_p -> se_serialise_job_json_fn = NULL;
-	service_p -> se_process_linked_services_fn = NULL;
-
-	service_p -> se_jobs_p = NULL;
-
-	InitLinkedList (& (service_p -> se_paired_services));
-	SetLinkedListFreeNodeFunction (& (service_p -> se_paired_services), FreePairedServiceNode);
-
-	if (service_p -> se_data_p)
+	if (get_metadata_fn)
 		{
-			const char *service_name_s = service_p -> se_get_service_name_fn (service_p);
+			service_p -> se_get_service_name_fn = get_service_name_fn;
+			service_p -> se_get_service_description_fn = get_service_description_fn;
+			service_p -> se_get_service_info_uri_fn = get_service_info_uri_fn;
+			service_p -> se_run_fn = run_fn;
+			service_p -> se_match_fn = match_fn;
+			service_p -> se_get_params_fn = get_parameters_fn;
+			service_p -> se_release_params_fn = release_parameters_fn;
+			service_p -> se_close_fn = close_fn;
+			service_p -> se_customise_service_job_fn = customise_service_job_fn;
 
-			service_p -> se_data_p -> sd_service_p = service_p;
+			service_p -> se_data_p = data_p;
 
-			if (service_name_s)
+			service_p -> se_is_specific_service_flag = specific_flag;
+			service_p -> se_synchronous = synchronous;
+
+
+			service_p -> se_running_flag = false;
+
+			uuid_clear (service_p -> se_id);
+
+			service_p -> se_plugin_p = NULL;
+			service_p -> se_has_permissions_fn = NULL;
+
+			service_p -> se_deserialise_job_json_fn = NULL;
+			service_p -> se_serialise_job_json_fn = NULL;
+			service_p -> se_process_linked_services_fn = NULL;
+
+			service_p -> se_jobs_p = NULL;
+
+			InitLinkedList (& (service_p -> se_paired_services));
+			SetLinkedListFreeNodeFunction (& (service_p -> se_paired_services), FreePairedServiceNode);
+
+			if (service_p -> se_data_p)
 				{
-					service_p -> se_data_p -> sd_config_p = GetGlobalServiceConfig (service_name_s, & (service_p -> se_data_p -> sd_config_flag));
+					const char *service_name_s = service_p -> se_get_service_name_fn (service_p);
+
+					service_p -> se_data_p -> sd_service_p = service_p;
+
+					if (service_name_s)
+						{
+							service_p -> se_data_p -> sd_config_p = GetGlobalServiceConfig (service_name_s, & (service_p -> se_data_p -> sd_config_flag));
+						}
 				}
+
+
+			/*
+			 * Add the LinkedServices
+			 */
+			InitLinkedList (& (service_p -> se_linked_services));
+			SetLinkedListFreeNodeFunction (& (service_p -> se_linked_services), FreeLinkedServiceNode);
+			AddLinkedServices (service_p);
+
+			service_p -> se_get_metadata_fn = get_metadata_fn;
+			service_p -> se_metadata_p = service_p -> se_get_metadata_fn (service_p);
+
+			success_flag = (service_p -> se_metadata_p != NULL);
+		}		/* if (get_metadata_fn) */
+	else
+		{
+			success_flag = false;
 		}
 
-
-	/*
-	 * Add the LinkedServices
-	 */
-	InitLinkedList (& (service_p -> se_linked_services));
-	SetLinkedListFreeNodeFunction (& (service_p -> se_linked_services), FreeLinkedServiceNode);
-	AddLinkedServices (service_p);
+	return success_flag;
 }
 
 
@@ -1794,20 +1811,7 @@ json_t *GetInterestedServiceJSON (const char *service_name_s, const char *keywor
 
 
 
-bool SetMetadataForService (Service *service_p, const char *category_s, const char *subcategory_s)
+void SetMetadataForService (Service *service_p, SchemaTerm *category_p, SchemaTerm *subcategory_p)
 {
-	bool success_flag = false;
-
-	if (service_p -> se_metadata_p)
-		{
-
-		}
-	else
-		{
-			service_p -> se_metadata_p = AllocateServiceMetadata (category_s, subcategory_s);
-
-			success_flag = (service_p -> se_metadata_p != NULL);
-		}
-
-	return success_flag;
+	SetServiceMetadataValues (service_p -> se_metadata_p, category_p, subcategory_p);
 }

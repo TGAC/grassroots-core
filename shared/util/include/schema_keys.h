@@ -73,6 +73,8 @@ extern "C"
 #endif
 
 
+	PREFIX const char *S_PREFIX_SCHEMA_ORG_S VAL ("so:");
+
 	/**
 	 *  @nosubgrouping
 	 *
@@ -263,6 +265,15 @@ extern "C"
 	PREFIX const char *SERVICE_JOBS_S VAL("jobs");
 	/* End of doxygen member group */
 	/**@}*/
+
+
+	PREFIX const char *SERVICE_METADATA_APPLICATION_CATEGORY_S VAL("application_category");
+	PREFIX const char *SERVICE_METADATA_APPLICATION_SUBCATEGORY_S VAL("application_subcategory");
+
+	PREFIX const char *SCHEMA_TERM_URL_S VAL("url");
+	PREFIX const char *SCHEMA_TERM_NAME_S VAL("name");
+	PREFIX const char *SCHEMA_TERM_DESCRIPTION_S VAL("description");
+
 
 
 	/** @name The Schema definitions for specifying LinkedServices. */

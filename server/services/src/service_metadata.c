@@ -22,17 +22,38 @@
 
 #include "service_metadata.h"
 #include "string_utils.h"
+#include "memory_allocations.h"
 
-ServiceMetadata *AllocateServiceMetadata (const char *category_s, const char *subcategory_s)
+
+static bool AddSchemaTermToList (LinkedList *list_p, SchemaTerm *term_p);
+
+
+
+ServiceMetadata *AllocateServiceMetadata (SchemaTerm *category_p, SchemaTerm *subcategory_p)
 {
 	ServiceMetadata *metadata_p = (ServiceMetadata *) AllocMemory (sizeof (ServiceMetadata));
 
 	if (metadata_p)
 		{
-			if (SetServiceMetadataValues (metadata_p, category_s, subcategory_s))
+			LinkedList *input_types_p = AllocateLinkedList (FreeSchemaTermNode);
+
+			if (input_types_p)
 				{
-					return metadata_p;
-				}
+					LinkedList *output_types_p = AllocateLinkedList (FreeSchemaTermNode);
+
+					if (output_types_p)
+						{
+							SetServiceMetadataValues (metadata_p, category_p, subcategory_p);
+
+							metadata_p -> sm_input_types_p = input_types_p;
+							metadata_p -> sm_output_types_p = output_types_p;
+
+							return metadata_p;
+						}		/* if () */
+
+					FreeLinkedList (input_types_p);
+				}		/* if (input_types_p) */
+
 
 			FreeMemory (metadata_p);
 		}
@@ -43,17 +64,20 @@ ServiceMetadata *AllocateServiceMetadata (const char *category_s, const char *su
 
 void ClearServiceMetadata (ServiceMetadata *metadata_p)
 {
-	if (metadata_p -> sm_application_category_s)
+	if (metadata_p -> sm_application_category_p)
 		{
-			FreeCopiedString (metadata_p -> sm_application_category_s);
-			metadata_p -> sm_application_category_s = NULL;
+			FreeSchemaTerm (metadata_p -> sm_application_category_p);
+			metadata_p -> sm_application_category_p = NULL;
 		}
 
-	if (metadata_p -> sm_application_subcategory_s)
+	if (metadata_p -> sm_application_subcategory_p)
 		{
-			FreeCopiedString (metadata_p -> sm_application_subcategory_s);
-			metadata_p -> sm_application_subcategory_s = NULL;
+			FreeSchemaTerm (metadata_p -> sm_application_subcategory_p);
+			metadata_p -> sm_application_subcategory_p = NULL;
 		}
+
+	ClearLinkedList (metadata_p -> sm_input_types_p);
+	ClearLinkedList (metadata_p -> sm_output_types_p);
 }
 
 
@@ -61,81 +85,93 @@ void FreeServiceMetadata (ServiceMetadata *metadata_p)
 {
 	ClearServiceMetadata (metadata_p);
 
+	FreeLinkedList (metadata_p -> sm_input_types_p);
+	FreeLinkedList (metadata_p -> sm_output_types_p);
+
 	FreeMemory (metadata_p);
 }
 
 
-bool SetServiceMetadataValues (ServiceMetadata *metadata_p, const char *category_s, const char *subcategory_s)
+void SetServiceMetadataValues (ServiceMetadata *metadata_p, SchemaTerm *category_p, SchemaTerm *subcategory_p)
 {
-	bool success_flag = true;
-	char *copied_category_s = NULL;
-
-	if (category_s)
+	if (metadata_p -> sm_application_category_p)
 		{
-			copied_category_s = CopyToNewString (category_s, 0, false);
-
-			success_flag = (copied_category_s != NULL);
+			FreeSchemaTerm (metadata_p -> sm_application_category_p);
 		}
 
-	if (success_flag)
+	metadata_p -> sm_application_category_p = category_p;
+
+
+	if (metadata_p -> sm_application_subcategory_p)
 		{
-			char *copied_subcategory_s = NULL;
-
-			if (subcategory_s)
-				{
-					copied_subcategory_s = CopyToNewString (subcategory_s, 0, false);
-
-					success_flag = (copied_subcategory_s != NULL);
-				}
-
-			if (success_flag)
-				{
-					ClearServiceMetadata (metadata_p);
-
-					metadata_p -> sm_application_category_s = copied_category_s;
-					metadata_p -> sm_application_subcategory_s = copied_subcategory_s;
-
-				}
-
-			if (copied_subcategory_s)
-				{
-					FreeCopiedString (copied_subcategory_s);
-				}
+			FreeSchemaTerm (metadata_p -> sm_application_subcategory_p);
 		}
 
-	if (copied_category_s)
-		{
-			FreeCopiedString (copied_category_s);
-		}
-
-	return success_flag;
+	metadata_p -> sm_application_subcategory_p = subcategory_p;
 }
 
 
 bool AddServiceMetadataToJSON (const ServiceMetadata *metadata_p, json_t *service_json_p)
 {
-	bool success_flag = true;
+	bool success_flag = false;
 
-	if (metadata_p -> sm_application_category_s)
+	if (metadata_p -> sm_application_category_p)
 		{
-			if (json_object_set_new (service_json_p, "applicationCategory", json_string (metadata_p -> sm_application_category_s)) != 0)
+			json_t *category_p = GetSchemaTermAsJSON (metadata_p -> sm_application_category_p);
+
+			if (category_p)
 				{
-					success_flag = false;
+					if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_CATEGORY_S, category_p) == 0)
+						{
+							success_flag = true;
+						}
 				}
 		}
 
 	if (success_flag)
 		{
-			if (metadata_p -> sm_application_subcategory_s)
+			json_t *subcategory_p = GetSchemaTermAsJSON (metadata_p -> sm_application_subcategory_p);
+
+			if (subcategory_p)
 				{
-					if (json_object_set_new (service_json_p, "applicationSubCategory", json_string (metadata_p -> sm_application_subcategory_s)) != 0)
+					if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_SUBCATEGORY_S, subcategory_p) != 0)
 						{
 							success_flag = false;
 						}
+				}
+			else
+				{
+					success_flag = false;
 				}
 		}
 
 	return success_flag;
 }
 
+
+bool AddSchemaTermToServiceMetadataInput (ServiceMetadata *metadata_p, SchemaTerm *term_p)
+{
+	return AddSchemaTermToList (metadata_p -> sm_input_types_p, term_p);
+}
+
+
+bool AddSchemaTermToServiceMetadataOutput (ServiceMetadata *metadata_p, SchemaTerm *term_p)
+{
+	return AddSchemaTermToList (metadata_p -> sm_output_types_p, term_p);
+}
+
+
+static bool AddSchemaTermToList (LinkedList *list_p, SchemaTerm *term_p)
+{
+	bool success_flag = false;
+	SchemaTermNode *node_p = AllocateSchemaTermNode (term_p);
+
+	if (node_p)
+		{
+			LinkedListAddTail (list_p, (ListItem *) node_p);
+			success_flag = true;
+		}
+
+	return success_flag;
+}
 

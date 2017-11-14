@@ -24,8 +24,13 @@
 #define CORE_SERVER_SERVICES_INCLUDE_SERVICE_METADATA_H_
 
 #include "grassroots_service_library.h"
+#include "typedefs.h"
+#include "schema_term.h"
 
 #include "jansson.h"
+
+
+
 
 /**
  * A datatype for describing the type of application
@@ -35,17 +40,20 @@ typedef struct ServiceMetadata
 {
 	/**
 	 * This is the value used for defining the category of
-	 * the Service. This is defined by
-	 * http://schema.org/applicationCategory.
+	 * the Service.
 	 */
-	char *sm_application_category_s;
+	SchemaTerm *sm_application_category_p;
 
 	/**
 	 * This is the value used for defining the sub-category of
-	 * the Service. This is defined by
-	 * http://schema.org/applicationSubCategory.
+	 * the Service.
 	 */
-	char *sm_application_subcategory_s;
+	SchemaTerm *sm_application_subcategory_p;
+
+	LinkedList *sm_input_types_p;
+
+	LinkedList *sm_output_types_p;
+
 
 } ServiceMetadata;
 
@@ -60,12 +68,12 @@ extern "C"
 /**
  * Allocate a ServiceMetadata object.
  *
- * @param category_s The top-level application category to use.
- * @param subcategory_s The application subcategory to use.
+ * @param category_p The top-level application category to use.
+ * @param subcategory_p The application subcategory to use.
  * @return The new ServiceMetadata or <code>NULL</code> upon error.
  * @memberof ServiceMetadata
  */
-GRASSROOTS_SERVICE_API ServiceMetadata *AllocateServiceMetadata (const char *category_s, const char *subcategory_s);
+GRASSROOTS_SERVICE_API ServiceMetadata *AllocateServiceMetadata (SchemaTerm *category_p, SchemaTerm *subcategory_p);
 
 
 /**
@@ -90,12 +98,11 @@ GRASSROOTS_SERVICE_API void ClearServiceMetadata (ServiceMetadata *metadata_p);
  * Set the values of a ServiceMetadata object.
  *
  * @param metadata_p The ServiceMetadata to set.
- * @param category_s The top-level application category to use.
- * @param subcategory_s The application subcategory to use.
- * @return <code>true</code> if the ServiceMetadata was set successfully, <code>false</code> if it was not.
+ * @param category_p The top-level application category to use.
+ * @param subcategory_p The application subcategory to use.
  * @memberof ServiceMetadata
  */
-GRASSROOTS_SERVICE_API bool SetServiceMetadataValues (ServiceMetadata *metadata_p, const char *category_s, const char *subcategory_s);
+GRASSROOTS_SERVICE_API void SetServiceMetadataValues (ServiceMetadata *metadata_p, SchemaTerm *category_p, SchemaTerm *subcategory_p);
 
 
 
@@ -108,6 +115,14 @@ GRASSROOTS_SERVICE_API bool SetServiceMetadataValues (ServiceMetadata *metadata_
  * @memberof ServiceMetadata
  */
 GRASSROOTS_SERVICE_API bool AddServiceMetadataToJSON (const ServiceMetadata *metadata_p, json_t *service_json_p);
+
+
+
+GRASSROOTS_SERVICE_API bool AddSchemaTermToServiceMetadataInput (ServiceMetadata *metadata_p, SchemaTerm *term_p);
+
+
+GRASSROOTS_SERVICE_API bool AddSchemaTermToServiceMetadataOutput (ServiceMetadata *metadata_p, SchemaTerm *term_p);
+
 
 
 

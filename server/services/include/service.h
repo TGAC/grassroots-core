@@ -331,6 +331,17 @@ typedef struct Service
 	 * The ServiceMetadata for this Service.
 	 */
 	ServiceMetadata *se_metadata_p;
+
+
+	/**
+	 * Callback function used to create a Service's ServiceMetadata.
+	 *
+	 * @param service_p This Service.
+	 * @return <code>true</code> if the Service's ServiceMetadata was created successfully,
+	 * <code>false</code> otherwise.
+	 */
+	ServiceMetadata *(*se_get_metadata_fn) (struct Service *service_p);
+
 } Service;
 
 
@@ -415,9 +426,10 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
  * detailed by JSON configuration files, then this should be <code>false</code>.
  * @param synchronous The synchronicity for how this Service runs.
  * @param data_p The ServiceData for this Service.
+ * @param get_metadata_fn The callback function that the Service will call to create its ServiceMetadata.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API void InitialiseService (Service * const service_p,
+GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
 	const char *(*get_service_name_fn) (Service *service_p),
 	const char *(*get_service_description_fn) (Service *service_p),
 	const char *(*get_service_info_uri_fn) (struct Service *service_p),
@@ -429,7 +441,8 @@ GRASSROOTS_SERVICE_API void InitialiseService (Service * const service_p,
 	void (*customise_service_job_fn) (Service *service_p, struct ServiceJob *job_p),
  	bool specific_flag,
 	Synchronicity synchronous,
-	ServiceData *data_p);
+	ServiceData *data_p,
+	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p));
 
 
 /**
@@ -932,12 +945,12 @@ GRASSROOTS_SERVICE_API void SetServiceRunning (Service *service_p, bool b);
  * Set the values of a Service's ServiceMetadata object.
  *
  * @param service_p The Service to set.
- * @param category_s The top-level application category to use.
- * @param subcategory_s The application subcategory to use.
+ * @param category_p The top-level application category to use.
+ * @param subcategory_p The application subcategory to use.
  * @return <code>true</code> if the ServiceMetadata was set successfully, <code>false</code> if it was not.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API bool SetMetadataForService (Service *service_p, const char *category_s, const char *subcategory_s);
+GRASSROOTS_SERVICE_API void SetMetadataForService (Service *service_p, SchemaTerm *category_p, SchemaTerm *subcategory_p);
 
 
 

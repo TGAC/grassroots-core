@@ -121,7 +121,7 @@ static Service *GetWebService (json_t *operation_json_p, size_t UNUSED_PARAM (i)
 			
 			if (data_p)
 				{
-					InitialiseService (web_service_p,
+					if (InitialiseService (web_service_p,
 						GetWebServiceName,
 						GetWebServiceDesciption,
 						GetWebServiceInformationUri,
@@ -133,12 +133,13 @@ static Service *GetWebService (json_t *operation_json_p, size_t UNUSED_PARAM (i)
 						NULL,
 						false,
 						true,
-						data_p);
-
-					return web_service_p;
+						data_p))
+						{
+							return web_service_p;
+						}
 				}
 			
-			FreeMemory (web_service_p);
+			FreeService (web_service_p);
 		}		/* if (web_service_p) */
 			
 	return NULL;
