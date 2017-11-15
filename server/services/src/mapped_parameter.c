@@ -20,6 +20,7 @@
  *      Author: tyrrells
  */
 
+#include <string.h>
 
 #include "mapped_parameter.h"
 #include "memory_allocations.h"

@@ -139,15 +139,18 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 					if (process_exit_code == 0)
 						{
 							status = OS_SUCCEEDED;
+							PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", task_p -> std_command_line_s);
 						}
 					else
 						{
 							status = OS_ERROR;
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", task_p -> std_command_line_s, process_exit_code);
 						}
 				}
 			else
 				{
 					status = OS_ERROR;
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", task_p -> std_command_line_s, res);
 				}
 		}
 	else

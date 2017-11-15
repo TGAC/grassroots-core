@@ -101,7 +101,7 @@ bool FreeJobsManager (JobsManager *manager_p)
 			success_flag = (manager_p -> jm_delete_manager_fn (manager_p));
 		}
 
-	return true;
+	return success_flag;
 }
 
 
@@ -147,7 +147,7 @@ LinkedList *GetAllServiceJobsFromJobsManager (struct JobsManager *manager_p)
 
 JobsManager *LoadJobsManager (const char *jobs_manager_s)
 {
-	const char *plugin_name_s = MakePluginName (jobs_manager_s);
+	char *plugin_name_s = MakePluginName (jobs_manager_s);
 	JobsManager *manager_p = NULL;
 
 	if (plugin_name_s)
@@ -198,6 +198,7 @@ JobsManager *LoadJobsManager (const char *jobs_manager_s)
 					FreeCopiedString (full_jobs_managers_path_s);
 				}		/* if (full_jobs_managers_path_s) */
 
+			FreeCopiedString (plugin_name_s);
 		}		/* if (plugin_name_s) */
 
 	return manager_p;
