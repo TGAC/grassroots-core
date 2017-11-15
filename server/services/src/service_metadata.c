@@ -23,9 +23,12 @@
 #include "service_metadata.h"
 #include "string_utils.h"
 #include "memory_allocations.h"
+#include "schema_keys.h"
 
 
 static bool AddSchemaTermToList (LinkedList *list_p, SchemaTerm *term_p);
+
+static bool AddSchemaTermListToJSON (json_t *root_p, LinkedList *schema_term_list_p, const char * const key_s);
 
 
 
@@ -43,6 +46,8 @@ ServiceMetadata *AllocateServiceMetadata (SchemaTerm *category_p, SchemaTerm *su
 
 					if (output_types_p)
 						{
+							memset (metadata_p, 0, sizeof (ServiceMetadata));
+
 							SetServiceMetadataValues (metadata_p, category_p, subcategory_p);
 
 							metadata_p -> sm_input_types_p = input_types_p;
@@ -124,26 +129,50 @@ bool AddServiceMetadataToJSON (const ServiceMetadata *metadata_p, json_t *servic
 					if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_CATEGORY_S, category_p) == 0)
 						{
 							success_flag = true;
-						}
-				}
-		}
 
-	if (success_flag)
-		{
-			json_t *subcategory_p = GetSchemaTermAsJSON (metadata_p -> sm_application_subcategory_p);
+							if (metadata_p -> sm_application_subcategory_p)
+								{
+									json_t *subcategory_p = GetSchemaTermAsJSON (metadata_p -> sm_application_subcategory_p);
 
-			if (subcategory_p)
-				{
-					if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_SUBCATEGORY_S, subcategory_p) != 0)
-						{
-							success_flag = false;
-						}
-				}
-			else
-				{
-					success_flag = false;
-				}
-		}
+									if (subcategory_p)
+										{
+											if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_SUBCATEGORY_S, subcategory_p) != 0)
+												{
+													success_flag = false;
+												}
+										}
+									else
+										{
+											success_flag = false;
+										}
+
+								}		/* if (metadata_p -> sm_application_subcategory_p) */
+
+							if (success_flag)
+								{
+									/* Now add the input parameters */
+									if (metadata_p -> sm_input_types_p)
+										{
+											success_flag = AddSchemaTermListToJSON (service_json_p, metadata_p -> sm_input_types_p, SERVICE_METADATA_APPLICATION_INPUT_S);
+										}
+
+									if (success_flag)
+										{
+											/* Now add the output parameters */
+											if (metadata_p -> sm_input_types_p)
+												{
+													success_flag = AddSchemaTermListToJSON (service_json_p, metadata_p -> sm_output_types_p, SERVICE_METADATA_APPLICATION_OUTPUT_S);
+												}
+										}
+
+								}		/* if (success_flag) */
+
+						}		/* if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_CATEGORY_S, category_p) == 0) */
+
+				}		/* if (category_p) */
+
+		}		/* if (metadata_p -> sm_application_category_p) */
+
 
 	return success_flag;
 }
@@ -159,6 +188,51 @@ bool AddSchemaTermToServiceMetadataOutput (ServiceMetadata *metadata_p, SchemaTe
 {
 	return AddSchemaTermToList (metadata_p -> sm_output_types_p, term_p);
 }
+
+
+static bool AddSchemaTermListToJSON (json_t *root_p, LinkedList *schema_term_list_p, const char * const key_s)
+{
+	bool success_flag = true;
+	json_t *terms_array_p = json_array ();
+
+	if (terms_array_p)
+		{
+			SchemaTermNode *node_p = (SchemaTermNode *) (schema_term_list_p -> ll_head_p);
+
+			while (node_p && success_flag)
+				{
+					json_t *param_metadata_p = GetSchemaTermAsJSON (node_p -> stn_term_p);
+
+					if (param_metadata_p)
+						{
+							if (json_array_append_new (terms_array_p, param_metadata_p) == 0)
+								{
+									node_p = (SchemaTermNode *) (node_p -> stn_node.ln_next_p);
+								}
+							else
+								{
+									success_flag = false;
+								}
+						}
+					else
+						{
+							success_flag = false;
+						}
+
+				}		/* while (node_p && success_flag) */
+
+			if (success_flag)
+				{
+					if (json_object_set_new (root_p, key_s, terms_array_p) != 0)
+						{
+							success_flag = false;
+						}
+				}
+		}
+
+	return success_flag;
+}
+
 
 
 static bool AddSchemaTermToList (LinkedList *list_p, SchemaTerm *term_p)

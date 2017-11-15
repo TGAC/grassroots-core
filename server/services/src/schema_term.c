@@ -159,9 +159,15 @@ json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p)
 
 	if (root_p)
 		{
-			if (AddTermToJSON (root_p, SCHEMA_TERM_URL_S, "", "sameAs", term_p -> st_url_s))
+			if (json_object_set_new (root_p, SCHEMA_TERM_URL_S, json_string (term_p -> st_url_s)) == 0)
 				{
-					return root_p;
+					if (json_object_set_new (root_p, SCHEMA_TERM_NAME_S, json_string (term_p -> st_name_s)) == 0)
+						{
+							if (json_object_set_new (root_p, SCHEMA_TERM_DESCRIPTION_S, json_string (term_p -> st_description_s)) == 0)
+								{
+									return root_p;
+								}
+						}
 				}
 
 			json_decref (root_p);
@@ -182,7 +188,7 @@ static bool AddTermToJSON (json_t *root_p, const char *root_key_s, const char *t
 				{
 					if (json_object_set_new (data_p, key_s, json_string (value_s)) == 0)
 						{
-							if (json_object_set_new (root_p, root_key_s, json_string (value_s)) == 0)
+							if (json_object_set_new (root_p, root_key_s, data_p) == 0)
 								{
 									return true;
 								}		/* if (json_object_set_new (data_p "@type", json_string (type_s)) == 0) */

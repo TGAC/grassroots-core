@@ -42,3 +42,9 @@ const char *GetProviderDescription (const json_t * const data_p)
 {
 	return GetJSONString (data_p, PROVIDER_DESCRIPTION_S);
 }
+
+
+const char *GetProviderLogo (const json_t * const data_p)
+{
+	return GetJSONString (data_p, PROVIDER_LOGO_S);
+}
