@@ -35,10 +35,12 @@
 
 static json_t *LoadConfig (const char *path_s);
 
-
 static bool AddKeyAndStringValue (json_t *json_p, const char * const key_s, const char * const value_s);
 
 static json_t *GetServicesInfoRequest (const uuid_t **ids_pp, const uint32 num_ids, OperationStatus status, Connection *connection_p, const SchemaVersion * const sv_p);
+
+static bool AddContexts (json_t *data_p);
+
 
 
 void WipeJSON (json_t *json_p)
@@ -106,7 +108,10 @@ json_t *GetInitialisedMessage (const SchemaVersion * const sv_p)
 								{
 									if (json_object_set_new (header_p, SCHEMA_S, schema_p) == 0)
 										{
-											return message_p;
+											if (AddContexts (message_p))
+												{
+													return message_p;
+												}
 										}
 									else
 										{
@@ -128,7 +133,36 @@ json_t *GetInitialisedMessage (const SchemaVersion * const sv_p)
 }
 
 
+static bool AddContexts (json_t *data_p)
+{
+	bool success_flag = false;
+	json_t *context_p = json_object ();
 
+	if (context_p)
+		{
+			if (json_object_set_new (context_p, CONTEXT_PREFIX_SCHEMA_ORG_S, json_string (CONTEXT_URL_SCHEMA_ORG_S)) == 0)
+				{
+					if (json_object_set_new (context_p, CONTEXT_PREFIX_EDAM_ONTOLOGY_S, json_string (CONTEXT_URL_EDAM_ONOTOLOGY_S)) == 0)
+						{
+							if (json_object_set_new (data_p, "@context", context_p) == 0)
+								{
+									success_flag = true;
+								}
+
+						}		/* if (json_object_set_new (context_p, CONTEXT_PREFIX_SCHEMA_ORG_S, json_string (CONTEXT_URL_SCHEMA_ORG_S)) == 0) */
+
+				}		/* if (json_object_set_new (context_p, SCHEMA_ORG_PREFIX_S, json_string (SCHEMA_ORG_URL_S)) == 0) */
+
+
+			if (!success_flag)
+				{
+					json_decref (context_p);
+				}
+
+		}		/* if (context_p) */
+
+	return success_flag;
+}
 
 
 /*

@@ -74,8 +74,14 @@ extern "C"
 {
 #endif
 
-#define S_PREFIX_SCHEMA_ORG_S "so:"
-	//PREFIX const char S_PREFIX_SCHEMA_ORG_S [] VAL ("so:");
+
+#define CONTEXT_PREFIX_SCHEMA_ORG_S "so:"
+PREFIX const char *CONTEXT_URL_SCHEMA_ORG_S VAL("http://schema.org/");
+
+#define CONTEXT_PREFIX_EDAM_ONTOLOGY_S "eo:"
+PREFIX const char *CONTEXT_URL_EDAM_ONOTOLOGY_S VAL("http://edamontology.org/");
+
+
 
 	/**
 	 *  @nosubgrouping
@@ -159,7 +165,7 @@ extern "C"
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_NAME_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *PROVIDER_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 	/**
 	 * @brief The JSON key for the description of the Server to show to Clients and other connected
@@ -168,7 +174,7 @@ extern "C"
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *PROVIDER_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 
 	/**
@@ -178,7 +184,7 @@ extern "C"
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_LOGO_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "logo");
+	PREFIX const char *PROVIDER_LOGO_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "logo");
 
 
 	/**
@@ -187,7 +193,7 @@ extern "C"
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_URI_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "url");
+	PREFIX const char *PROVIDER_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -245,9 +251,9 @@ extern "C"
 	 *
 	 */
 	PREFIX const char *OPERATION_S VAL("operation");
-	PREFIX const char *OPERATION_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *OPERATION_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 	PREFIX const char *OPERATION_INFORMATION_URI_S VAL("about_url");
-	PREFIX const char *OPERATION_ICON_URI_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "image");
+	PREFIX const char *OPERATION_ICON_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
 	PREFIX const char *OPERATION_ICON_DATA_S VAL("icon_data");
 	PREFIX const char *OPERATION_SYNCHRONOUS_S VAL("synchronous");
 	/* End of doxygen member group */
@@ -258,7 +264,7 @@ extern "C"
 	/**@{*/
 	PREFIX const char *SERVICES_NAME_S VAL("services");
 	PREFIX const char *SERVICES_ID_S VAL("path");
-	PREFIX const char *SERVICES_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *SERVICES_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 	PREFIX const char *SERVICE_RUN_S VAL("start_service");
 	PREFIX const char *SERVICES_STATUS_S VAL("status");
 	PREFIX const char *SERVICES_STATUS_DEFAULT_S VAL("default");
@@ -288,9 +294,9 @@ extern "C"
 	PREFIX const char *SERVICE_METADATA_APPLICATION_INPUT_S VAL("input");
 	PREFIX const char *SERVICE_METADATA_APPLICATION_OUTPUT_S VAL("output");
 
-	PREFIX const char *SCHEMA_TERM_URL_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "sameAs");
-	PREFIX const char *SCHEMA_TERM_NAME_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "name");
-	PREFIX const char *SCHEMA_TERM_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *SCHEMA_TERM_URL_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "sameAs");
+	PREFIX const char *SCHEMA_TERM_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *SCHEMA_TERM_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 
 
@@ -319,7 +325,7 @@ extern "C"
 	/**
 	 * The JSON key for the name of a ServiceJob.
 	 */
-	PREFIX const char *JOB_NAME_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *JOB_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 	PREFIX const char *JOB_S VAL("job");
 
@@ -327,7 +333,7 @@ extern "C"
 	 * The JSON key of the Service name for a ServiceJob.
 	 */
 	PREFIX const char *JOB_SERVICE_S VAL("service_name");
-	PREFIX const char *JOB_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *JOB_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 
 	PREFIX const char *JOB_RESULTS_S VAL("results");
@@ -361,13 +367,13 @@ extern "C"
 	 * The JSON key for the name of ParameterSet object of the server response.
 	 * This is a child of @link PARAM_SET_KEY_S @endlink
 	 */
-	PREFIX const char *PARAM_SET_NAME_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *PARAM_SET_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 	/**
 	 * The JSON key for the description of ParameterSet object of the server response.
 	 * This is a child of @link PARAM_SET_KEY_S @endlink
 	 */
-	PREFIX const char *PARAM_SET_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *PARAM_SET_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 	/**
 	 * The JSON key for the child object detailing all of the Parameters within a ParameterSet.
@@ -403,7 +409,7 @@ extern "C"
 	/**
 	 * The JSON key for the display name of Parameter.
 	 */
-	PREFIX const char *PARAM_DISPLAY_NAME_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *PARAM_DISPLAY_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 
 	PREFIX const char *PARAM_CONCISE_DEFINITION_S VAL("concise");
@@ -411,11 +417,11 @@ extern "C"
 	/**
 	 * The JSON key for the description of Parameter.
 	 */
-	PREFIX const char *PARAM_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *PARAM_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 	PREFIX const char *PARAM_STORE_S VAL("store");
 
-	PREFIX const char *PARAM_REMOTE_NAME_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *PARAM_REMOTE_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 
 	PREFIX const char *PARAM_TYPE_S VAL("type");
@@ -519,7 +525,7 @@ extern "C"
 	/** @name  The Schema definitions for specifying SharedType values. */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *SHARED_TYPE_DESCRIPTION_S  CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *SHARED_TYPE_DESCRIPTION_S  CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 	PREFIX const char *SHARED_TYPE_VALUE_S  VAL("value");
 	/* End of doxygen member group */
 	/**@}*/
@@ -551,7 +557,7 @@ extern "C"
 	 * The JSON key for specifying the a user-friendly description
 	 * of a Resource.
 	 */
-	PREFIX const char *RESOURCE_DESCRIPTION_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *RESOURCE_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 	/**
 	 * The JSON key for specifying a title to display to Clients
@@ -585,7 +591,7 @@ extern "C"
 	/* Start of doxygen member group */
 	/**@{*/
 	PREFIX const char *CREDENTIALS_S VAL("credentials");
-	PREFIX const char *CREDENTIALS_NAME_S CONCAT_VAL(S_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *CREDENTIALS_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 	PREFIX const char *CREDENTIALS_USERNAME_S VAL("username");
 	PREFIX const char *CREDENTIALS_PASSWORD_S VAL("password");
 	PREFIX const char *CREDENTIALS_UUID_S VAL("user_uuid");

@@ -20,6 +20,8 @@
  *      Author: billy
  */
 
+#include <string.h>
+
 #include "service_metadata.h"
 #include "string_utils.h"
 #include "memory_allocations.h"
