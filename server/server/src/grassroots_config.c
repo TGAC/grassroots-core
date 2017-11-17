@@ -213,7 +213,7 @@ const json_t *GetProviderAsJSON (void)
 
 	if (config_p)
 		{
-			provider_p = json_object_get (config_p, SERVER_PROVIDER_S);
+			provider_p = GetProviderDetails (config_p);
 		}
 
 	return provider_p;

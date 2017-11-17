@@ -1066,7 +1066,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 																		}		/* while (node_p) */
 
 
-																	if (json_object_set_new (root_p, SERVER_PROVIDER_S, providers_array_p) != 0)
+																	if (json_object_set_new (root_p, SERVER_MULTIPLE_PROVIDERS_S, providers_array_p) != 0)
 																		{
 																			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, providers_array_p, "Failed to set providers array");
 

@@ -48,3 +48,17 @@ const char *GetProviderLogo (const json_t * const data_p)
 {
 	return GetJSONString (data_p, PROVIDER_LOGO_S);
 }
+
+
+
+const json_t *GetProviderDetails (const json_t *root_json_p)
+{
+	json_t *provider_p = json_object_get (root_json_p, SERVER_PROVIDER_S);
+
+	if (!provider_p)
+		{
+			provider_p = json_object_get (root_json_p, SERVER_MULTIPLE_PROVIDERS_S);
+		}
+
+	return provider_p;
+}

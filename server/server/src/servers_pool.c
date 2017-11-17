@@ -147,7 +147,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 
 									if (server_response_p)
 										{
-											json_t *default_external_provider_p = json_object_get (server_response_p, SERVER_PROVIDER_S);
+											json_t *default_external_provider_p = GetProviderDetails (server_response_p);
 
 											#if SERVERS_POOL_DEBUG >= STM_LEVEL_FINE
 											PrintJSONToLog (ops_array_p, "local server json:\n", STM_LEVEL_FINE, __FILE__, __LINE__);
@@ -188,7 +188,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 																							 * the default one
 																							 */
 																							bool success_flag = true;
-																							json_t *provider_p = json_object_get (server_response_p, SERVER_PROVIDER_S);
+																							json_t *provider_p = GetProviderDetails (server_response_p);
 
 																							if (!provider_p)
 																								{
@@ -197,7 +197,9 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 
 																							if (provider_p)
 																								{
-																									if (json_object_set (dest_p, SERVER_PROVIDER_S, provider_p) != 0)
+																									const char *key_s = json_is_array (provider_p) ? SERVER_MULTIPLE_PROVIDERS_S : SERVER_PROVIDER_S;
+
+																									if (json_object_set (dest_p, key_s, provider_p) != 0)
 																										{
 																											success_flag = false;
 																										}

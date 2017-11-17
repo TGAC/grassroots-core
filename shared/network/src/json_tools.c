@@ -698,10 +698,4 @@ const char *GetOperationIconURIFromJSON (const json_t * const root_p)
 }
 
 
-const json_t *GetProviderFromServiceJSON (const json_t *service_json_p)
-{
-	return json_object_get (service_json_p, SERVER_PROVIDER_S);
-}
-
-
 

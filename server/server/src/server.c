@@ -1645,7 +1645,7 @@ static int32 AddPairedServices (Service *internal_service_p, UserDetails *user_p
 																											 * if successful, then remove the external one
 																											 * from the json array
 																											 */
-																											const json_t *provider_p = json_object_get (service_response_p, SERVER_PROVIDER_S);
+																											const json_t *provider_p = GetProviderDetails (service_response_p);
 
 																											if (CreateAndAddPairedService (internal_service_p, external_server_p, op_name_s, matching_external_op_p, provider_p))
 																												{
