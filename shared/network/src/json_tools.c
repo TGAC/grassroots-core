@@ -144,10 +144,18 @@ static bool AddContexts (json_t *data_p)
 				{
 					if (json_object_set_new (context_p, CONTEXT_PREFIX_EDAM_ONTOLOGY_S, json_string (CONTEXT_URL_EDAM_ONOTOLOGY_S)) == 0)
 						{
-							if (json_object_set_new (data_p, "@context", context_p) == 0)
+							if (json_object_set_new (context_p, CONTEXT_PREFIX_EXPERIMENTAL_FACTOR_ONTOLOGY_S, json_string (CONTEXT_URL_EXPERIMENTAL_FACTOR_ONOTOLOGY_S)) == 0)
 								{
-									success_flag = true;
-								}
+									if (json_object_set_new (context_p, CONTEXT_PREFIX_SOFTWARE_ONTOLOGY_S, json_string (CONTEXT_URL_SOFTWARE_ONOTOLOGY_S)) == 0)
+										{
+											if (json_object_set_new (data_p, "@context", context_p) == 0)
+												{
+													success_flag = true;
+												}
+
+										}		/* if (json_object_set_new (context_p, CONTEXT_PREFIX_SOFTWARE_ONTOLOGY_S, json_string (CONTEXT_URL_SOFTWARE_ONOTOLOGY_S)) == 0) */
+
+								}		/* if (json_object_set_new (context_p, CONTEXT_PREFIX_EXPERIMENTAL_FACTOR_ONTOLOGY_S, json_string (CONTEXT_URL_EXPERIMENTAL_FACTOR_ONOTOLOGY_S)) == 0) */
 
 						}		/* if (json_object_set_new (context_p, CONTEXT_PREFIX_SCHEMA_ORG_S, json_string (CONTEXT_URL_SCHEMA_ORG_S)) == 0) */
 

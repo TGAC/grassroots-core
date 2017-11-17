@@ -81,6 +81,11 @@ PREFIX const char *CONTEXT_URL_SCHEMA_ORG_S VAL("http://schema.org/");
 #define CONTEXT_PREFIX_EDAM_ONTOLOGY_S "eo:"
 PREFIX const char *CONTEXT_URL_EDAM_ONOTOLOGY_S VAL("http://edamontology.org/");
 
+#define CONTEXT_PREFIX_EXPERIMENTAL_FACTOR_ONTOLOGY_S "efo:"
+PREFIX const char *CONTEXT_URL_EXPERIMENTAL_FACTOR_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/efo/");
+
+#define CONTEXT_PREFIX_SOFTWARE_ONTOLOGY_S "swo:"
+PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/swo/");
 
 
 	/**
@@ -278,7 +283,7 @@ PREFIX const char *CONTEXT_URL_EDAM_ONOTOLOGY_S VAL("http://edamontology.org/");
 
 	PREFIX const char *TYPE_SERVICE_S VAL("grassroots_service");
 
-	PREFIX const char *SERVICE_NAME_S VAL("service_name");
+	PREFIX const char *SERVICE_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 	PREFIX const char *SERVICE_UUID_S VAL("service_uuid");
 	PREFIX const char *SERVICE_STATUS_VALUE_S VAL("status");
 	PREFIX const char *SERVICE_STATUS_S VAL("status_text");
@@ -332,7 +337,7 @@ PREFIX const char *CONTEXT_URL_EDAM_ONOTOLOGY_S VAL("http://edamontology.org/");
 	/**
 	 * The JSON key of the Service name for a ServiceJob.
 	 */
-	PREFIX const char *JOB_SERVICE_S VAL("service_name");
+	PREFIX const char *JOB_SERVICE_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 	PREFIX const char *JOB_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 
