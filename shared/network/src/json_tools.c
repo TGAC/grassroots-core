@@ -391,6 +391,39 @@ bool GetUsernameAndPassword (const UserDetails * const user_p, const char *provi
 }
 
 
+Operation GetOperationFromJSON (const json_t * const json_p)
+{
+	Operation op = OP_NONE;
+	const json_t *server_op_p = json_object_get (json_p, SERVER_OPERATION_S);
+
+	if (!server_op_p)
+		{
+			server_op_p = json_object_get (json_p, SERVER_OPERATIONS_S);
+		}
+
+	if (server_op_p)
+		{
+			const char *op_s = GetJSONString (server_op_p, OPERATION_S);
+
+			if (op_s)
+				{
+					op = GetOperationFromString (op_s);
+				}		/* if (op_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get operation from \"%s\"", op_s);
+				}
+
+		}		/* if (server_op_p) */
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get operation");
+		}
+
+	return op;
+}
+
+
 json_t *GetOperationAsJSON (Operation op, const SchemaVersion * const sv_p)
 {
 	json_t *msg_p = GetInitialisedMessage (sv_p);

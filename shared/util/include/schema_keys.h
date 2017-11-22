@@ -231,7 +231,12 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *SERVER_OPERATIONS_S VAL("operation");
+
+	/**
+	 * @deprecated Use ::SERVER_OPERATION_S instead.
+	 */
+	PREFIX const char *SERVER_OPERATIONS_S VAL("operations");
+	PREFIX const char *SERVER_OPERATION_S VAL("operation");
 
 	/**
 	 * The key to specify the operation id.
@@ -247,7 +252,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	 *
 	 * @deprecated Use ::OPERATION_S instead.
 	 */
-	PREFIX const char *OPERATION_ID_S VAL("operation_id");
+	PREFIX const char *OPERATION_ID_S VAL("so:name");
 
 	/**
 	 * The key to specify the operation id.
@@ -257,7 +262,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	 */
 	PREFIX const char *OPERATION_S VAL("operation");
 	PREFIX const char *OPERATION_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
-	PREFIX const char *OPERATION_INFORMATION_URI_S VAL("about_url");
+	PREFIX const char *OPERATION_INFORMATION_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "about_url");
 	PREFIX const char *OPERATION_ICON_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
 	PREFIX const char *OPERATION_ICON_DATA_S VAL("icon_data");
 	PREFIX const char *OPERATION_SYNCHRONOUS_S VAL("synchronous");
