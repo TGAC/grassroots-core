@@ -699,3 +699,16 @@ const char *GetOperationIconURIFromJSON (const json_t * const root_p)
 
 
 
+const json_t *GetProviderFromServiceJSON (const json_t *service_json_p)
+{
+	json_t *provider_p = json_object_get (service_json_p, SERVER_PROVIDER_S);
+
+	if (!provider_p)
+		{
+			provider_p = json_object_get (service_json_p, SERVER_MULTIPLE_PROVIDERS_S);
+		}
+
+	return provider_p;
+
+}
+

@@ -22,6 +22,7 @@
 #include "json_util.h"
 #include "json_tools.h"
 #include "key_value_pair.h"
+#include "provider.h"
 
 
 #ifdef _DEBUG

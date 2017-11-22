@@ -21,6 +21,7 @@
 #include "string_utils.h"
 #include "filesystem_utils.h"
 #include "json_tools.h"
+#include "provider.h"
 
 
 static json_t *s_config_p = NULL;

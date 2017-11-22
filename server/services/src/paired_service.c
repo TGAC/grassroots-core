@@ -31,6 +31,7 @@
 #include "service.h"
 #include "service_config.h"
 #include "remote_service_job.h"
+#include "provider.h"
 
 
 #ifdef USE_PTHREADS
@@ -71,34 +72,38 @@ PairedService *AllocatePairedService (const uuid_t id, const char *service_name_
 
 													if (copied_provider_p)
 														{
-															PairedService *paired_service_p = (PairedService *) AllocMemory (sizeof (PairedService));
-
-															if (paired_service_p)
+															if (SetProviderType (copied_provider_p))
 																{
-																	uuid_copy (paired_service_p -> ps_extenal_server_id, id);
-																	paired_service_p -> ps_name_s = copied_name_s;
-																	paired_service_p -> ps_server_name_s = copied_server_name_s;
-																	paired_service_p -> ps_server_uri_s = copied_uri_s;
-																	paired_service_p -> ps_params_p = param_set_p;
-																	paired_service_p -> ps_provider_p = copied_provider_p;
+																	PairedService *paired_service_p = (PairedService *) AllocMemory (sizeof (PairedService));
 
-																	#if PAIRED_SERVICE_DEBUG >= STM_LEVEL_FINER
+																	if (paired_service_p)
 																		{
-																			char uuid_s [UUID_STRING_BUFFER_SIZE];
+																			uuid_copy (paired_service_p -> ps_extenal_server_id, id);
+																			paired_service_p -> ps_name_s = copied_name_s;
+																			paired_service_p -> ps_server_name_s = copied_server_name_s;
+																			paired_service_p -> ps_server_uri_s = copied_uri_s;
+																			paired_service_p -> ps_params_p = param_set_p;
+																			paired_service_p -> ps_provider_p = copied_provider_p;
 
-																			ConvertUUIDToString (paired_service_p -> ps_extenal_server_id, uuid_s);
-																			PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Added paired service at \"%s\" with name \"%s\" for server \"%s\"", paired_service_p -> ps_server_uri_s, paired_service_p -> ps_name_s, uuid_s);
+																			#if PAIRED_SERVICE_DEBUG >= STM_LEVEL_FINER
+																				{
+																					char uuid_s [UUID_STRING_BUFFER_SIZE];
 
-																			ConvertUUIDToString (id, uuid_s);
-																			PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Original id \"%s\"", uuid_s);
-																		}
-																	#endif
+																					ConvertUUIDToString (paired_service_p -> ps_extenal_server_id, uuid_s);
+																					PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Added paired service at \"%s\" with name \"%s\" for server \"%s\"", paired_service_p -> ps_server_uri_s, paired_service_p -> ps_name_s, uuid_s);
 
-																	return paired_service_p;
-																}		/* if (paired_service_p) */
+																					ConvertUUIDToString (id, uuid_s);
+																					PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Original id \"%s\"", uuid_s);
+																				}
+																			#endif
 
-															json_decref (copied_provider_p);
-														}		/* if (copied_provider_p) */
+																			return paired_service_p;
+																		}		/* if (paired_service_p) */
+
+																	json_decref (copied_provider_p);
+																}		/* if (copied_provider_p) */
+
+														}		/* if (SetProviderType (copied_provider_p)) */
 
 													FreeCopiedString (copied_server_name_s);
 												}		/* copied_server_name_s */

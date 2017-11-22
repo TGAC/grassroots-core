@@ -29,6 +29,8 @@
 #define PROVIDER_H_
 
 #include "grassroots_service_library.h"
+#include "typedefs.h"
+
 #include "jansson.h"
 
 
@@ -75,8 +77,26 @@ GRASSROOTS_SERVICE_API const char *GetProviderLogo (const json_t * const data_p)
 
 
 
-
+/**
+ * Get the JSON object containing the Provider details.
+ *
+ * @param root_json_p The JSON fragment to get the Provider details from.
+ * @return Upon success, if there is only one Provider then the returned object will
+ * be JSON object. If there are multiple providers, then the returned value will be a JSON array
+ * with each object representing each provider. Upon failure <code>NULL</code> will be returned.
+ */
 GRASSROOTS_SERVICE_API const json_t *GetProviderDetails (const json_t *root_json_p);
+
+
+/**
+ * Ensure that the correct json-ld datatype is set for a given JSON object representing
+ * a Provider. If the value is already set, then the object is unaltered.
+ *
+ * @param provider_p The Provider to check.
+ * @return <code>true</code> if the Provider has the correct datatype set succesfully, <code>
+ * false</code> otherwise.
+ */
+GRASSROOTS_SERVICE_API bool SetProviderType (json_t *provider_p);
 
 #ifdef __cplusplus
 }
