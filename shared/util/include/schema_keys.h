@@ -231,7 +231,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *SERVER_OPERATIONS_S VAL("operation");
+	PREFIX const char *SERVER_OPERATIONS_S VAL("operations");
 
 	/**
 	 * The key to specify the operation id.
