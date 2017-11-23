@@ -46,7 +46,7 @@
 //#include "irods_handle.h"
 #include "providers_state_table.h"
 #include "grassroots_config.h"
-
+#include "provider.h"
 
 
 #ifdef _DEBUG

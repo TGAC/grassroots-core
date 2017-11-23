@@ -335,6 +335,24 @@ GRASSROOTS_NETWORK_API const json_t *GetProviderFromServiceJSON (const json_t *s
 
 
 
+/**
+ * Get requested Operation from a JSON fragment.
+ *
+ * The fragment is of the form
+ *
+ * {
+ * ...
+ *   "operation": {
+ *     "operation": <operation string>
+ *   }
+ * }
+ *
+ * @param json_p The JSON fragment to get the Operation from
+ * @return The requested Operation or Operation :: OP_NONE if
+ * it could not be found.
+ */
+GRASSROOTS_NETWORK_API Operation GetOperationFromJSON (const json_t * const json_p);
+
 
 #ifdef __cplusplus
 }

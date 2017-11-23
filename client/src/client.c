@@ -30,6 +30,7 @@
 #include "filesystem_utils.h"
 #include "json_util.h"
 #include "json_tools.h"
+#include "provider.h"
 
 
 #ifdef _DEBUG
@@ -534,7 +535,7 @@ json_t *ShowServices (json_t *response_p, Client *client_p, UserDetails * UNUSED
 						{
 							json_t *service_json_p = json_array_get (service_defs_p, i);
 							json_t *ops_p = json_object_get (service_json_p, SERVER_OPERATIONS_S);
-							json_t *provider_p = GetProviderDetails (service_json_p);
+							const json_t *provider_p = GetProviderDetails (service_json_p);
 
 							#if STANDALONE_CLIENT_DEBUG >= STM_LEVEL_FINER
 							PrintJSONToLog (STANDALONE_CLIENT_DEBUG, __FILE__, __LINE__, service_json_p, "next service:\n");

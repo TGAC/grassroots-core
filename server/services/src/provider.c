@@ -62,3 +62,24 @@ const json_t *GetProviderDetails (const json_t *root_json_p)
 
 	return provider_p;
 }
+
+
+bool SetProviderType (json_t *provider_p)
+{
+	bool success_flag = true;
+	const char * const TYPE_KEY_S = "@type";
+	const char * const TYPE_VALUE_S = "so:Organization";
+
+	const char *type_s = GetJSONString (provider_p, TYPE_KEY_S);
+
+	if ((!type_s) || (stcrmp (TYPE_VALUE_S, type_s) != 0))
+		{
+			if (json_object_set_new (provider_p, TYPE_KEY_S, json_string (TYPE_VALUE_S)) != 0)
+				{
+					success_flag = false;
+				}
+		}
+
+	return success_flag;
+}
+

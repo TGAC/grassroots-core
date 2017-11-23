@@ -1019,86 +1019,95 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 
 									if (copied_provider_p)
 										{
-											/* Add any paired services details */
-											if (service_p -> se_paired_services.ll_size > 0)
+											if (SetProviderType (copied_provider_p))
 												{
-													json_t *providers_array_p = json_array ();
-
-													if (providers_array_p)
+													/* Add any paired services details */
+													if (service_p -> se_paired_services.ll_size > 0)
 														{
-															if (json_array_append_new (providers_array_p, copied_provider_p) == 0)
+															json_t *providers_array_p = json_array ();
+
+															if (providers_array_p)
 																{
-																	ServersManager *servers_manager_p = GetServersManager ();
-																	PairedServiceNode *node_p = (PairedServiceNode *) (service_p -> se_paired_services.ll_head_p);
-
-																	while (node_p)
+																	if (json_array_append_new (providers_array_p, copied_provider_p) == 0)
 																		{
-																			PairedService *paired_service_p = node_p -> psn_paired_service_p;
-																			ExternalServer *external_server_p = GetExternalServerFromServersManager (servers_manager_p, paired_service_p -> ps_server_uri_s, NULL);
+																			ServersManager *servers_manager_p = GetServersManager ();
+																			PairedServiceNode *node_p = (PairedServiceNode *) (service_p -> se_paired_services.ll_head_p);
 
-																			if (external_server_p)
+																			while (node_p)
 																				{
-																					json_t *external_provider_p = paired_service_p -> ps_provider_p;
+																					PairedService *paired_service_p = node_p -> psn_paired_service_p;
+																					ExternalServer *external_server_p = GetExternalServerFromServersManager (servers_manager_p, paired_service_p -> ps_server_uri_s, NULL);
 
-																					if (external_provider_p)
+																					if (external_server_p)
 																						{
-																							if (json_array_append (providers_array_p, external_provider_p) != 0)
+																							json_t *external_provider_p = paired_service_p -> ps_provider_p;
+
+																							if (external_provider_p)
 																								{
-																									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, external_provider_p, "Failed to append external provider to providers array");
+																									if (json_array_append (providers_array_p, external_provider_p) != 0)
+																										{
+																											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, external_provider_p, "Failed to append external provider to providers array");
 
-																									json_decref (external_provider_p);
-																								}		/* if (json_array_append_new (providers_array_p, external_provider_p) != 0) */
+																											json_decref (external_provider_p);
+																										}		/* if (json_array_append_new (providers_array_p, external_provider_p) != 0) */
 
-																						}		/* if (external_provider_p) */
+																								}		/* if (external_provider_p) */
+																							else
+																								{
+																									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create provider for external server %s at %s array", external_server_p -> es_name_s, external_server_p -> es_uri_s);
+																								}
+
+																							FreeExternalServer (external_server_p);
+																						}		/* if (external_server_p) */
 																					else
 																						{
-																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create provider for external server %s at %s array", external_server_p -> es_name_s, external_server_p -> es_uri_s);
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get external server for paired service at %s", paired_service_p -> ps_server_uri_s);
 																						}
 
-																					FreeExternalServer (external_server_p);
-																				}		/* if (external_server_p) */
-																			else
+																					node_p = (PairedServiceNode *) (node_p -> psn_node.ln_next_p);
+																				}		/* while (node_p) */
+
+
+																			if (json_object_set_new (root_p, SERVER_MULTIPLE_PROVIDERS_S, providers_array_p) != 0)
 																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get external server for paired service at %s", paired_service_p -> ps_server_uri_s);
-																				}
+																					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, providers_array_p, "Failed to set providers array");
 
-																			node_p = (PairedServiceNode *) (node_p -> psn_node.ln_next_p);
-																		}		/* while (node_p) */
+																					json_decref (providers_array_p);
+																				}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, providers_array_p) != 0) */
 
-
-																	if (json_object_set_new (root_p, SERVER_MULTIPLE_PROVIDERS_S, providers_array_p) != 0)
+																		}		/* if (json_array_append_new (providers_array_p, copied_provider_p) == 0) */
+																	else
 																		{
-																			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, providers_array_p, "Failed to set providers array");
+																			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to append copied provider to providers array");
 
+																			json_decref (copied_provider_p);
 																			json_decref (providers_array_p);
-																		}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, providers_array_p) != 0) */
+																		}
 
-																}		/* if (json_array_append_new (providers_array_p, copied_provider_p) == 0) */
+																}		/* if (providers_array_p) */
 															else
 																{
-																	PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to append copied provider to providers array");
-
-																	json_decref (copied_provider_p);
-																	json_decref (providers_array_p);
+																	PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create providers array for %s", service_name_s);
 																}
 
-														}		/* if (providers_array_p) */
+														}		/* if (service_p -> se_paired_services -> ll_size > 0) */
 													else
 														{
-															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create providers array for %s", service_name_s);
+															if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0)
+																{
+																	PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to set copied provider");
+
+																	WipeJSON (copied_provider_p);
+																	success_flag = false;
+																}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0) */
 														}
 
-												}		/* if (service_p -> se_paired_services -> ll_size > 0) */
+												}		/* if (SetProviderType (copied_provider_p)) */
 											else
 												{
-													if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0)
-														{
-															PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to set copied provider");
 
-															WipeJSON (copied_provider_p);
-															success_flag = false;
-														}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0) */
 												}
+
 
 										}		/* if (copied_provider_p) */
 									else
