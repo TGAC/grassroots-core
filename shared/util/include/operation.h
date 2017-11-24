@@ -23,6 +23,8 @@
 
 #include "grassroots_util_library.h"
 
+#include "jansson.h"
+
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -151,6 +153,10 @@ GRASSROOTS_UTIL_API const char *GetOperationStatusAsString (const OperationStatu
  */
 GRASSROOTS_UTIL_API OperationStatus GetOperationStatusFromString (const char *status_s);
 
+
+
+
+GRASSROOTS_UTIL_API Operation GetOperationFromJSON (json_t *ops_p);
 
 #ifdef __cplusplus
 }

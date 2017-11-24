@@ -93,7 +93,7 @@ GRASSROOTS_SERVICE_API const json_t *GetProviderDetails (const json_t *root_json
  * a Provider. If the value is already set, then the object is unaltered.
  *
  * @param provider_p The Provider to check.
- * @return <code>true</code> if the Provider has the correct datatype set succesfully, <code>
+ * @return <code>true</code> if the Provider has the correct datatype set successfully, <code>
  * false</code> otherwise.
  */
 GRASSROOTS_SERVICE_API bool SetProviderType (json_t *provider_p);

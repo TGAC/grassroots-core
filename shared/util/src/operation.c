@@ -23,7 +23,10 @@
 #include <string.h>
 
 #include "operation.h"
-
+#include "streams.h"
+#include "schema_keys.h"
+#include "math_utils.h"
+#include "json_util.h"
 
 
 static const char * const S_FAILED_S = "Failed";
@@ -50,6 +53,71 @@ static const char *S_OPERATIONS_SS [OP_NUM_OPERATIONS] =
 	"get_server_status"
 };
 
+
+
+
+Operation GetOperationFromJSON (json_t *ops_p)
+{
+	Operation op = OP_NONE;
+	json_t *op_p = json_object_get (ops_p, OPERATION_S);
+
+	if (op_p)
+		{
+			if (json_is_string (op_p))
+				{
+					const char *op_s = json_string_value (op_p);
+
+					if (op_s)
+						{
+							op = GetOperationFromString (op_s);
+
+							if (op == OP_NONE)
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, op_p, "Failed to get valid operation value");
+								}
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, ops_p, "%s value is NULL", OPERATION_S);
+						}
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, ops_p, "%s value is not a string", OPERATION_S);
+				}
+		}
+
+	if (op == OP_NONE)
+		{
+			op_p = json_object_get (ops_p, OPERATION_ID_S);
+
+			if (!op_p)
+				{
+					op_p = json_object_get (ops_p, OPERATION_ID_OLD_S);
+				}
+
+			if (op_p)
+				{
+					if (json_is_integer (op_p))
+						{
+							op = json_integer_value (op_p);
+						}
+					else if (json_is_string (op_p))
+						{
+							const char *value_s = json_string_value (op_p);
+							int i;
+
+							if (GetValidInteger (&value_s, &i))
+								{
+									op = i;
+								}
+						}
+				}
+
+		}
+
+	return op;
+}
 
 
 const char *GetOperationAsString (const Operation op)

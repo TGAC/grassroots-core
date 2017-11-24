@@ -28,49 +28,127 @@
  */
 #define ALLOCATE_SCHEMA_VERSION_TAGS
 
+#include <string.h>
+
 #include "schema_version.h"
 #include "json_util.h"
 #include "streams.h"
+#include "string_utils.h"
+#include "math_utils.h"
 
 
 json_t *GetSchemaVersionAsJSON (const SchemaVersion * const sv_p)
 {
-	json_error_t err;
-	json_t *res_p = json_pack_ex (&err, 0, "{s:i,s:i}", VERSION_MAJOR_S, sv_p -> sv_major, VERSION_MINOR_S, sv_p -> sv_minor);
+	json_t *res_p = json_object ();
 
-	if (!res_p)
+	if (res_p)
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create schema version json: \"%s\"\n\"%s\"\n%d %d %d\n", err.text, err.source, err.line, err.column, err.position);
+			if (json_object_set_new (res_p, VERSION_S, json_string (sv_p -> sv_version_s)) == 0)
+				{
+					return res_p;
+				}
+			else
+				{
+					json_decref (res_p);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add \"%s\": \"%s\" to schema version json", VERSION_S, sv_p -> sv_version_s);
+				}
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create schema version json");
 		}
 
-	return res_p;
+	return NULL;
 }
 
 
 SchemaVersion *GetSchemaVersionFromJSON (const json_t * const json_p)
 {
 	SchemaVersion *sv_p = NULL;
-	int major;
+	const char *version_s = GetJSONString (json_p, VERSION_S);
 
-	if (GetJSONInteger (json_p, VERSION_MAJOR_S, &major))
+	if (version_s)
 		{
-			int minor;
+			const char *dot_s = strchr (version_s, '.');
 
-			if (GetJSONInteger (json_p, VERSION_MINOR_S, &minor))
+			/* move past the dot */
+			if (dot_s && (++ dot_s != '\0'))
 				{
-					sv_p = AllocateSchemaVersion (major, minor);
+					int major;
+
+					if (GetValidInteger (&version_s, &major))
+						{
+							int minor;
+
+							if (GetValidInteger (&dot_s, &minor))
+								{
+									sv_p = AllocateSchemaVersion (major, minor);
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get %s from \"%s\"", VERSION_MINOR_S, version_s);
+								}
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get %s from \"%s\"", VERSION_MINOR_S, version_s);
+						}
 				}
-			else
-				{
-					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get %s", VERSION_MINOR_S);
-				}
-		}
-	else
-		{
-			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get %s", VERSION_MAJOR_S);
-		}
+
+		}		/* if (version_s) */
+
+
 
 	return sv_p;
+}
+
+
+
+bool SetSchemaVersionDetails (SchemaVersion *sv_p, const int major, const int minor)
+{
+	char *major_s = ConvertIntegerToString (major);
+
+	if (major_s)
+		{
+			char *minor_s = ConvertIntegerToString (minor);
+
+			if (minor_s)
+				{
+					char *version_s = ConcatenateVarargsStrings (major_s, ".", minor_s, NULL);
+
+					if (version_s)
+						{
+							if (sv_p -> sv_version_s)
+								{
+									FreeCopiedString (sv_p -> sv_version_s);
+								}
+
+							sv_p -> sv_major = major;
+							sv_p -> sv_minor = minor;
+							sv_p -> sv_version_s = version_s;
+
+							return true;
+						}		/* if (version_s) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create version identifier \"%s.%s\"", major_s, minor_s);
+						}
+
+					FreeCopiedString (minor_s);
+				}		/* if (minor_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create minor version identifier for \"%d", minor);
+				}
+
+			FreeCopiedString (major_s);
+		}		/* if (major_s) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create major version identifier for \"%d", major);
+		}
+
+	return false;
 }
 
 
@@ -80,19 +158,26 @@ SchemaVersion *AllocateSchemaVersion (const int major, const int minor)
 
 	if (sv_p)
 		{
-			sv_p -> sv_major = major;
-			sv_p -> sv_minor = minor;
-		}
-	else
-		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate memory for schema version");
+			memset (sv_p, 0, sizeof (SchemaVersion));
+
+			if (SetSchemaVersionDetails (sv_p, major, minor))
+				{
+					return sv_p;
+				}
+
+			FreeSchemaVersion (sv_p);
 		}
 
-	return sv_p;
+	return NULL;
 }
 
 
 void FreeSchemaVersion (SchemaVersion *sv_p)
 {
+	if (sv_p -> sv_version_s)
+		{
+			FreeCopiedString (sv_p -> sv_version_s);
+		}
+
 	FreeMemory (sv_p);
 }

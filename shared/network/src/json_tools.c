@@ -391,7 +391,7 @@ bool GetUsernameAndPassword (const UserDetails * const user_p, const char *provi
 }
 
 
-Operation GetOperationFromJSON (const json_t * const json_p)
+Operation GetOperationFromTopLevelJSON (const json_t * const json_p)
 {
 	Operation op = OP_NONE;
 	const json_t *server_op_p = json_object_get (json_p, SERVER_OPERATION_S);
@@ -683,7 +683,7 @@ bool GetUUIDFromJSON (const json_t *service_json_p, uuid_t uuid)
 
 const char *GetServiceDescriptionFromJSON (const json_t * const root_p)
 {
-	return GetJSONString (root_p, SERVICES_DESCRIPTION_S);
+	return GetJSONString (root_p, SERVICE_DESCRIPTION_S);
 }
 
 

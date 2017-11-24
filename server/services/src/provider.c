@@ -19,6 +19,7 @@
  *  Created on: 15 Sep 2015
  *      Author: tyrrells
  */
+#include <string.h>
 
 #include "provider.h"
 
@@ -72,7 +73,7 @@ bool SetProviderType (json_t *provider_p)
 
 	const char *type_s = GetJSONString (provider_p, TYPE_KEY_S);
 
-	if ((!type_s) || (stcrmp (TYPE_VALUE_S, type_s) != 0))
+	if ((!type_s) || (strcmp (TYPE_VALUE_S, type_s) != 0))
 		{
 			if (json_object_set_new (provider_p, TYPE_KEY_S, json_string (TYPE_VALUE_S)) != 0)
 				{

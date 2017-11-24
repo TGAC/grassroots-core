@@ -48,6 +48,13 @@ typedef struct SchemaVersion
 
 	/** The minor revision of the schema. */
 	uint32 sv_minor;
+
+	/**
+	 * The version as a string this will be of the form
+	 *
+	 * sv_major.sv_minor
+	 */
+	char *sv_version_s;
 } SchemaVersion;
 
 
@@ -113,6 +120,19 @@ extern "C"
  * @memberof SchemaVersion
  */
 GRASSROOTS_UTIL_API SchemaVersion *AllocateSchemaVersion (const int major, const int minor);
+
+
+/**
+ * Set the details for a given SchemaVersion.
+ *
+ * @param major The major revision to set the SchemaVersion to.
+ * @param minor The minor revision to set the SchemaVersion to.
+ * @param sv_p The SchemaVersion to amend.
+ * @return <code>true</code> if the SchemaVersion was amended successfully, <code>
+ * false</code> otherwise.
+ * @memberof SchemaVersion
+ */
+GRASSROOTS_UTIL_API bool SetSchemaVersionDetails (SchemaVersion *sv_p, const int major, const int minor);
 
 
 /**

@@ -36,6 +36,7 @@
 #include "servers_pool.h"
 #include "string_utils.h"
 #include "service_job.h"
+#include "provider.h"
 
 
 #ifdef _DEBUG
@@ -1129,7 +1130,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 
 							if (value_s)
 								{
-									success_flag = (json_object_set_new (root_p, SERVICES_DESCRIPTION_S, json_string (value_s)) == 0);
+									success_flag = (json_object_set_new (root_p, SERVICE_DESCRIPTION_S, json_string (value_s)) == 0);
 								}
 
 
@@ -1151,57 +1152,49 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 										{
 											success_flag = false;
 
-											if (AddServiceNameToJSON (service_p, operation_p))
+											if (AddServiceParameterSetToJSON (service_p, operation_p, sv_p, true, resource_p, user_p))
 												{
-													if (AddServiceDescriptionToJSON (service_p, operation_p))
+													if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, (service_p -> se_synchronous == SY_SYNCHRONOUS) ? json_true () : json_false ()) == 0)
 														{
-															if (AddServiceParameterSetToJSON (service_p, operation_p, sv_p, true, resource_p, user_p))
+															bool b = true;
+
+															if (add_id_flag)
 																{
-																	if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, (service_p -> se_synchronous == SY_SYNCHRONOUS) ? json_true () : json_false ()) == 0)
+																	if (!IsUUIDSet (service_p -> se_id))
 																		{
-																			bool b = true;
+																			GenerateServiceUUID (service_p);
+																		}
 
-																			if (add_id_flag)
+																	b = AddServiceUUIDToJSON (service_p, operation_p);
+																}
+
+															if (b)
+																{
+																	if ((service_p -> se_data_p) && (service_p -> se_data_p -> sd_config_p))
+																		{
+																			const char *icon_uri_s = GetJSONString (service_p -> se_data_p -> sd_config_p, OPERATION_ICON_URI_S);
+
+																			if (icon_uri_s)
 																				{
-																					if (!IsUUIDSet (service_p -> se_id))
+																					if (json_object_set_new (operation_p, OPERATION_ICON_URI_S, json_string (icon_uri_s)) != 0)
 																						{
-																							GenerateServiceUUID (service_p);
+																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon uri \"%s\" for service \"%s\"", icon_uri_s, service_name_s);
 																						}
-
-																					b = AddServiceUUIDToJSON (service_p, operation_p);
 																				}
+																		}
 
-																			if (b)
-																				{
-																					if ((service_p -> se_data_p) && (service_p -> se_data_p -> sd_config_p))
-																						{
-																							const char *icon_uri_s = GetJSONString (service_p -> se_data_p -> sd_config_p, OPERATION_ICON_URI_S);
+																	AddOperationInformationURIToJSON (service_p, operation_p);
 
-																							if (icon_uri_s)
-																								{
-																									if (json_object_set_new (operation_p, OPERATION_ICON_URI_S, json_string (icon_uri_s)) != 0)
-																										{
-																											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon uri \"%s\" for service \"%s\"", icon_uri_s, service_name_s);
-																										}
-																								}
-																						}
+																	success_flag = true;
+																}		/* if (b) */
 
-																					AddOperationInformationURIToJSON (service_p, operation_p);
+														}		/* if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, service_p -> se_synchronous_flag ? json_true () : json_false ()) == 0) */
 
-																					success_flag = true;
-																				}		/* if (b) */
-
-																		}		/* if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, service_p -> se_synchronous_flag ? json_true () : json_false ()) == 0) */
-
-																}		/* if (AddServiceParameterSetToJSON (service_p, operation_p, true, resource_p, json_p)) */
-
-														}		/* if (AddServiceDescriptionToJSON (service_p, operation_p)) */
-
-												}		/* if (AddServiceNameToJSON (service_p, operation_p)) */
+												}		/* if (AddServiceParameterSetToJSON (service_p, operation_p, true, resource_p, json_p)) */
 
 											if (success_flag)
 												{
-													if (json_object_set_new (root_p, SERVER_OPERATIONS_S, operation_p) == 0)
+													if (json_object_set_new (root_p, SERVER_OPERATION_S, operation_p) == 0)
 														{
 															success_flag = true;
 														}
@@ -1613,7 +1606,7 @@ bool AddServiceResponseHeader (Service *service_p, json_t *response_p)
 
 					if (service_description_s)
 						{
-							if (json_object_set_new (response_p, SERVICES_DESCRIPTION_S, json_string (service_description_s)) == 0)
+							if (json_object_set_new (response_p, SERVICE_DESCRIPTION_S, json_string (service_description_s)) == 0)
 								{
 									const char *info_uri_s = GetServiceInformationURI (service_p);
 
@@ -1661,7 +1654,7 @@ ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugi
 
 							if (strcmp (value_s, plugin_name_s) == 0)
 								{
-									json_t *ops_p = json_object_get (config_p, SERVER_OPERATIONS_S);
+									json_t *ops_p = json_object_get (config_p, SERVER_OPERATION_S);
 
 									if (ops_p)
 										{

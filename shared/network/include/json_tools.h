@@ -351,7 +351,7 @@ GRASSROOTS_NETWORK_API const json_t *GetProviderFromServiceJSON (const json_t *s
  * @return The requested Operation or Operation :: OP_NONE if
  * it could not be found.
  */
-GRASSROOTS_NETWORK_API Operation GetOperationFromJSON (const json_t * const json_p);
+GRASSROOTS_NETWORK_API Operation GetOperationFromTopLevelJSON (const json_t * const json_p);
 
 
 #ifdef __cplusplus

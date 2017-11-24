@@ -94,7 +94,7 @@ json_t *DisplayResultsInClient (Client *client_p, json_t *response_p)
 void FreeClient (Client *client_p)
 {
 	Plugin *plugin_p = client_p -> cl_plugin_p;
-
+	bool res;
 
 	if (client_p -> cl_data_p -> cd_schema_p)
 		{
@@ -102,7 +102,7 @@ void FreeClient (Client *client_p)
 			client_p -> cl_data_p -> cd_schema_p = NULL;
 		}
 
-	bool res = client_p -> cl_free_client_fn (client_p);
+	res = client_p -> cl_free_client_fn (client_p);
 
 	plugin_p -> pl_value.pv_client_p = NULL;
 	plugin_p -> pl_type = PN_UNKNOWN;
@@ -534,30 +534,12 @@ json_t *ShowServices (json_t *response_p, Client *client_p, UserDetails * UNUSED
 					for (i = 0; i < num_services; ++ i)
 						{
 							json_t *service_json_p = json_array_get (service_defs_p, i);
-							json_t *ops_p = json_object_get (service_json_p, SERVER_OPERATIONS_S);
-							const json_t *provider_p = GetProviderDetails (service_json_p);
 
 							#if STANDALONE_CLIENT_DEBUG >= STM_LEVEL_FINER
 							PrintJSONToLog (STANDALONE_CLIENT_DEBUG, __FILE__, __LINE__, service_json_p, "next service:\n");
 							#endif
 
-							if (ops_p)
-								{
-									if (json_is_array (ops_p))
-										{
-											size_t j;
-											json_t *op_p;
-
-											json_array_foreach (ops_p, j, op_p)
-												{
-													AddServiceDetailsToClient (client_p, op_p, provider_p);
-												}
-										}
-									else
-										{
-											AddServiceDetailsToClient (client_p, ops_p, provider_p);
-										}
-								}
+							AddServiceDetailsToClient (client_p, service_json_p);
 
 						}		/* for (i = 0; i < num_services; ++ i) */
 
@@ -601,34 +583,42 @@ void GetNamedServicesInClient (Client *client_p, const char * const service_s, U
 }
 
 
-int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p, const json_t *provider_p)
+int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p)
 {
 	int res = -1;
-	const char *op_name_s = GetJSONString (service_json_p, OPERATION_ID_S);
+	const char *name_s = GetJSONString (service_json_p, SERVICE_NAME_S);
 
 #if CLIENT_DEBUG >= STM_LEVEL_FINER
 	PrintJSONToLog (STANDALONE_CLIENT_DEBUG, __FILE__, __LINE__, service_json_p, "client received service:\n");
 #endif
 
-	if (op_name_s)
+	if (name_s)
 		{
-			const char *service_description_s = GetJSONString (service_json_p, SERVICES_DESCRIPTION_S);
+			const char *description_s = GetJSONString (service_json_p, SERVICE_DESCRIPTION_S);
 
-			if (service_description_s)
+			if (description_s)
 				{
-					ParameterSet *params_p = CreateParameterSetFromJSON (service_json_p, false);
+					json_t *operation_p = json_object_get (service_json_p, SERVER_OPERATION_S);
 
-					if (params_p)
+					if (operation_p)
 						{
-							const char *service_info_uri_s = GetJSONString (service_json_p, OPERATION_INFORMATION_URI_S);
-							const char *service_icon_uri_s = GetJSONString (service_json_p, OPERATION_ICON_URI_S);
+							ParameterSet *params_p = CreateParameterSetFromJSON (operation_p, false);
 
-							res = AddServiceToClient (client_p, op_name_s, service_description_s, service_info_uri_s, service_icon_uri_s,provider_p, params_p);
-						}		/* if (params_p) */
+							if (params_p)
+								{
+									const char *service_info_uri_s = GetJSONString (operation_p, OPERATION_INFORMATION_URI_S);
+									const char *service_icon_uri_s = GetJSONString (operation_p, OPERATION_ICON_URI_S);
+									const json_t *provider_p = GetProviderFromServiceJSON (service_json_p);
 
-				}		/* if (service_description_s) */
+									res = AddServiceToClient (client_p, name_s, description_s, service_info_uri_s, service_icon_uri_s, provider_p, params_p);
+								}		/* if (params_p) */
 
-		}		/* if (service_name_s) */
+						}
+
+
+				}		/* if (description_s) */
+
+		}		/* if (name_s) */
 
 	return res;
 }

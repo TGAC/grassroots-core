@@ -77,8 +77,6 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 
 static json_t *RunKeywordServices (const json_t * const req_p, UserDetails *user_p, const char *keyword_s);
 
-static Operation GetOperation (json_t *ops_p);
-
 static json_t *GetNamedServices (const json_t * const req_p, UserDetails *user_p);
 
 static json_t *GetServiceStatus (const json_t * const req_p, UserDetails *user_p);
@@ -152,6 +150,7 @@ json_t *ProcessServerJSONMessage (json_t *req_p, const int UNUSED_PARAM (socket_
 		{
 			if (json_is_object (req_p))
 				{
+					Operation op;
 					json_t *op_p = NULL;
 					UserDetails *user_p = NULL;
 					json_t *uri_p = NULL;
@@ -250,11 +249,10 @@ json_t *ProcessServerJSONMessage (json_t *req_p, const int UNUSED_PARAM (socket_
 							/* the request is for this server */
 						}
 
+					op = GetOperationFromTopLevelJSON (req_p);
 
-					if ((op_p = json_object_get (req_p, SERVER_OPERATIONS_S)) != NULL)
+					if (op != OP_NONE)
 						{
-							Operation op = GetOperation (op_p);
-
 							switch (op)
 								{
 									case OP_LIST_ALL_SERVICES:
@@ -327,10 +325,7 @@ json_t *ProcessServerJSONMessage (json_t *req_p, const int UNUSED_PARAM (socket_
 										break;
 								}		/* switch (op) */
 
-
-							//res_p = AddExternalServerOperationsToJSON (servers_manager_p, res_p, op);
-
-						}
+						}		/* if (op != OP_NONE) */
 					else if ((op_p = json_object_get (req_p, SERVICES_NAME_S)) != NULL)
 						{
 							json_t *service_results_p = json_array ();
@@ -648,72 +643,6 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 
 	return res;
 }
-
-
-static Operation GetOperation (json_t *ops_p)
-{
-	Operation op = OP_NONE;
-	json_t *op_p = json_object_get (ops_p, OPERATION_S);
-
-	if (op_p)
-		{
-			if (json_is_string (op_p))
-				{
-					const char *op_s = json_string_value (op_p);
-
-					if (op_s)
-						{
-							op = GetOperationFromString (op_s);
-
-							if (op == OP_NONE)
-								{
-									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, op_p, "Failed to get valid operation value");
-								}
-						}
-					else
-						{
-							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, ops_p, "%s value is NULL", OPERATION_S);
-						}
-				}
-			else
-				{
-					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, ops_p, "%s value is not a string", OPERATION_S);
-				}
-		}
-
-	if (op == OP_NONE)
-		{
-			op_p = json_object_get (ops_p, OPERATION_ID_S);
-
-			if (!op_p)
-				{
-					op_p = json_object_get (ops_p, OPERATION_ID_OLD_S);
-				}
-
-			if (op_p)
-				{
-					if (json_is_integer (op_p))
-						{
-							op = json_integer_value (op_p);
-						}
-					else if (json_is_string (op_p))
-						{
-							const char *value_s = json_string_value (op_p);
-							int i;
-
-							if (GetValidInteger (&value_s, &i))
-								{
-									op = i;
-								}
-						}
-				}
-
-		}
-
-	return op;
-}
-
-
 
 static Resource *GetResourceOfInterest (const json_t * const req_p)
 {

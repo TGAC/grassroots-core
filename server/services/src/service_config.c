@@ -76,10 +76,9 @@ const char *GetServerRootDirectory (void)
 
 
 
-void SetSchemaVersionDetails (const uint32 major, const uint32 minor)
+bool SetDefaultSchemaVersionDetails (const uint32 major, const uint32 minor)
 {
-	s_schema_version.sv_major = major;
-	s_schema_version.sv_minor = minor;
+	return SetSchemaVersionDetails (&s_schema_version, major, minor);
 }
 
 

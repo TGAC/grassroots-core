@@ -386,11 +386,10 @@ GRASSROOTS_CLIENT_API void GetNamedServicesInClient (Client *client_p, const cha
  *
  * @param client_p The Client to add the Service to.
  * @param service_json_p The JSON fragment for the Service.
- * @param provider_p A JSON fragment detailing the Proivider for this Service.
  * @return 0 upon success, non-zero on error.
  * @see AddServiceToClient
  */
-GRASSROOTS_CLIENT_LOCAL int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p, const json_t *provider_p);
+GRASSROOTS_CLIENT_LOCAL int AddServiceDetailsToClient (Client *client_p, json_t *service_json_pp);
 
 
 #ifdef __cplusplus

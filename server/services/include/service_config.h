@@ -66,8 +66,10 @@ GRASSROOTS_SERVICE_API const char *GetServerRootDirectory (void);
  *
  * @param major The major version of the schema to use.
  * @param minor The minor version of the schema to use.
+ * @return <code>true></code> if the SchemaVersion was set successfully,
+ * <code>false</code> otherwise.
  */
-GRASSROOTS_SERVICE_API void SetSchemaVersionDetails (const uint32 major, const uint32 minor);
+GRASSROOTS_SERVICE_API bool SetDefaultSchemaVersionDetails (const uint32 major, const uint32 minor);
 
 
 /**

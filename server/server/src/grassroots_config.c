@@ -335,5 +335,5 @@ static void InitSchemaVersionDetails (void)
 			GetJSONInteger (schema_p, VERSION_MINOR_S, (int *) &minor);
 		}
 
-	SetSchemaVersionDetails (major, minor);
+	SetDefaultSchemaVersionDetails (major, minor);
 }

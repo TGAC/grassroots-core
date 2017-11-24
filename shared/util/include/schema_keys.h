@@ -136,6 +136,9 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	 */
 	PREFIX const char *VERSION_MINOR_S VAL("minor");
 
+
+	PREFIX const char *VERSION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "softwareVersion");
+
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -261,7 +264,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	 */
 	PREFIX const char *OPERATION_S VAL("operation");
 	PREFIX const char *OPERATION_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
-	PREFIX const char *OPERATION_INFORMATION_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "about_url");
+	PREFIX const char *OPERATION_INFORMATION_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
 	PREFIX const char *OPERATION_ICON_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
 	PREFIX const char *OPERATION_ICON_DATA_S VAL("icon_data");
 	PREFIX const char *OPERATION_SYNCHRONOUS_S VAL("synchronous");
@@ -273,7 +276,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	/**@{*/
 	PREFIX const char *SERVICES_NAME_S VAL("services");
 	PREFIX const char *SERVICES_ID_S VAL("path");
-	PREFIX const char *SERVICES_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *SERVICE_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 	PREFIX const char *SERVICE_RUN_S VAL("start_service");
 	PREFIX const char *SERVICES_STATUS_S VAL("status");
 	PREFIX const char *SERVICES_STATUS_DEFAULT_S VAL("default");
