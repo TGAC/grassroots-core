@@ -42,6 +42,7 @@
 typedef struct MongoClientManager
 {
 	mongoc_client_pool_t *mcm_clients_p;
+	mongoc_uri_t *mcm_uri_p;
 } MongoClientManager;
 
 
@@ -69,6 +70,8 @@ static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 					if (clients_p)
 						{
 							manager_p -> mcm_clients_p = clients_p;
+							manager_p -> mcm_uri_p = uri_p;
+
 							return manager_p;
 						}
 					else
@@ -76,6 +79,7 @@ static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create mongodb client pool for %s", uri_s);
 						}
 				}
+
 			mongoc_uri_destroy (uri_p);
 		}
 	else
@@ -90,6 +94,8 @@ static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 static void FreeMongoClientManager (MongoClientManager *manager_p)
 {
 	mongoc_client_pool_destroy (manager_p -> mcm_clients_p);
+	mongoc_uri_destroy (manager_p -> mcm_uri_p);
+
 	FreeMemory (manager_p);
 }
 

@@ -148,7 +148,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 
 									if (server_response_p)
 										{
-											json_t *default_external_provider_p = GetProviderDetails (server_response_p);
+											const json_t *default_external_provider_p = GetProviderDetails (server_response_p);
 
 											#if SERVERS_POOL_DEBUG >= STM_LEVEL_FINE
 											PrintJSONToLog (ops_array_p, "local server json:\n", STM_LEVEL_FINE, __FILE__, __LINE__);
@@ -189,7 +189,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 																							 * the default one
 																							 */
 																							bool success_flag = true;
-																							json_t *provider_p = GetProviderDetails (server_response_p);
+																							const json_t *provider_p = GetProviderDetails (server_response_p);
 
 																							if (!provider_p)
 																								{

@@ -106,6 +106,7 @@ SchemaVersion *GetSchemaVersionFromJSON (const json_t * const json_p)
 
 bool SetSchemaVersionDetails (SchemaVersion *sv_p, const int major, const int minor)
 {
+	bool success_flag = false;
 	char *major_s = ConvertIntegerToString (major);
 
 	if (major_s)
@@ -127,7 +128,7 @@ bool SetSchemaVersionDetails (SchemaVersion *sv_p, const int major, const int mi
 							sv_p -> sv_minor = minor;
 							sv_p -> sv_version_s = version_s;
 
-							return true;
+							success_flag = true;
 						}		/* if (version_s) */
 					else
 						{
@@ -148,7 +149,7 @@ bool SetSchemaVersionDetails (SchemaVersion *sv_p, const int major, const int mi
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create major version identifier for \"%d", major);
 		}
 
-	return false;
+	return success_flag;
 }
 
 

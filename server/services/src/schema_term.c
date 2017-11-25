@@ -105,6 +105,7 @@ void FreeSchemaTerm (SchemaTerm *term_p)
 			FreeMemory (term_p -> st_description_s);
 		}
 
+	FreeMemory (term_p);
 }
 
 

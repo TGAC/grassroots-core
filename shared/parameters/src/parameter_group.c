@@ -207,7 +207,7 @@ bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_arra
 json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p)
 {
 	json_error_t err;
-	json_t *value_p = json_pack_ex (&err, 0, "{s:s,s:b,s:b}", PARAM_GROUP_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag);
+	json_t *value_p = json_pack_ex (&err, 0, "{s:s,s:b,s:b}", PARAM_GROUP_NAME_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag);
 
 	if (!value_p)
 		{

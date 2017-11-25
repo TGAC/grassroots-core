@@ -461,10 +461,17 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	PREFIX const char *PARAM_GROUP_S VAL("group");
 
 	/**
+	 * The JSON key for specifying the name of a ParameterGroup
+	 * to a user.
+	 */
+	PREFIX const char *PARAM_GROUP_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+
+	/**
 	 * The JSON key for specifying the default visibility of a ParameterGroup
 	 * to a user.
 	 */
 	PREFIX const char *PARAM_GROUP_VISIBLE_S VAL("visible");
+
 
 
 	/**

@@ -191,6 +191,11 @@ void FreeService (Service *service_p)
 			DecrementPluginOpenCount (plugin_p);
 		}
 
+	if (service_p -> se_metadata_p)
+		{
+			FreeServiceMetadata (service_p -> se_metadata_p);
+		}
+
 	FreeMemory (service_p);
 }
 
@@ -1198,16 +1203,17 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 														{
 															success_flag = true;
 														}
-													else
-														{
-															json_decref (operation_p);
-														}
 												}
 											else
 												{
 													json_object_clear (root_p);
 													json_decref (root_p);
 													root_p = NULL;
+												}
+
+											if (!success_flag)
+												{
+													json_decref (operation_p);
 												}
 
 										}		/* if (operation_p) */

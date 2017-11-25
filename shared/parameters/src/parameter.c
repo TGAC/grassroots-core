@@ -2441,7 +2441,6 @@ void InitSharedType (SharedType *st_p)
 }
 
 
-
 void ClearSharedType (SharedType *st_p, const ParameterType pt)
 {
 	switch (pt)
@@ -2461,6 +2460,7 @@ void ClearSharedType (SharedType *st_p, const ParameterType pt)
 			case PT_LARGE_STRING:
 			case PT_PASSWORD:
 			case PT_KEYWORD:
+			case PT_FASTA:
 				if (st_p -> st_string_value_s)
 					{
 						FreeCopiedString (st_p -> st_string_value_s);
@@ -2579,8 +2579,6 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, const bool conc
 									if (param_p)
 										{
 											/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
-											ClearSharedType (&current_value, pt);
-											ClearSharedType (&def, pt);
 
 											if (SetRemoteParameterDetailsFromJSON (param_p, root_p))
 												{
@@ -2599,7 +2597,10 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, const bool conc
 										}
 								}
 
-						}		/* if (GetParameterCurrentValueFromJSON (root_p, &tag)) */
+							ClearSharedType (&def, pt);
+							ClearSharedType (&current_value, pt);
+
+						}		/* if (GetValueFromJSON (root_p, PARAM_CURRENT_VALUE_S, pt, &current_value)) */
 
 				
 				}		/* if (GetParameterTypeFromJSON (root_p, &pt)) */	

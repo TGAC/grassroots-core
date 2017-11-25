@@ -122,59 +122,76 @@ bool AddServiceMetadataToJSON (const ServiceMetadata *metadata_p, json_t *servic
 {
 	bool success_flag = false;
 
-	if (metadata_p -> sm_application_category_p)
+	json_t *metadata_json_p = json_object ();
+
+	if (metadata_json_p)
 		{
-			json_t *category_p = GetSchemaTermAsJSON (metadata_p -> sm_application_category_p);
-
-			if (category_p)
+			if (metadata_p -> sm_application_category_p)
 				{
-					if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_CATEGORY_S, category_p) == 0)
+					json_t *category_p = GetSchemaTermAsJSON (metadata_p -> sm_application_category_p);
+
+					if (category_p)
 						{
-							success_flag = true;
-
-							if (metadata_p -> sm_application_subcategory_p)
+							if (json_object_set_new (metadata_json_p, SERVICE_METADATA_APPLICATION_CATEGORY_S, category_p) == 0)
 								{
-									json_t *subcategory_p = GetSchemaTermAsJSON (metadata_p -> sm_application_subcategory_p);
+									success_flag = true;
 
-									if (subcategory_p)
+									if (metadata_p -> sm_application_subcategory_p)
 										{
-											if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_SUBCATEGORY_S, subcategory_p) != 0)
+											json_t *subcategory_p = GetSchemaTermAsJSON (metadata_p -> sm_application_subcategory_p);
+
+											if (subcategory_p)
+												{
+													if (json_object_set_new (metadata_json_p, SERVICE_METADATA_APPLICATION_SUBCATEGORY_S, subcategory_p) != 0)
+														{
+															success_flag = false;
+														}
+												}
+											else
 												{
 													success_flag = false;
 												}
-										}
-									else
-										{
-											success_flag = false;
-										}
 
-								}		/* if (metadata_p -> sm_application_subcategory_p) */
-
-							if (success_flag)
-								{
-									/* Now add the input parameters */
-									if (metadata_p -> sm_input_types_p)
-										{
-											success_flag = AddSchemaTermListToJSON (service_json_p, metadata_p -> sm_input_types_p, SERVICE_METADATA_APPLICATION_INPUT_S);
-										}
+										}		/* if (metadata_p -> sm_application_subcategory_p) */
 
 									if (success_flag)
 										{
-											/* Now add the output parameters */
+											/* Now add the input parameters */
 											if (metadata_p -> sm_input_types_p)
 												{
-													success_flag = AddSchemaTermListToJSON (service_json_p, metadata_p -> sm_output_types_p, SERVICE_METADATA_APPLICATION_OUTPUT_S);
+													success_flag = AddSchemaTermListToJSON (metadata_json_p, metadata_p -> sm_input_types_p, SERVICE_METADATA_APPLICATION_INPUT_S);
 												}
-										}
 
-								}		/* if (success_flag) */
+											if (success_flag)
+												{
+													/* Now add the output parameters */
+													if (metadata_p -> sm_input_types_p)
+														{
+															success_flag = AddSchemaTermListToJSON (metadata_json_p, metadata_p -> sm_output_types_p, SERVICE_METADATA_APPLICATION_OUTPUT_S);
+														}
+												}
 
-						}		/* if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_CATEGORY_S, category_p) == 0) */
+											if (success_flag)
+												{
+													if (json_object_set_new (service_json_p, SERVICE_METADATA_S, metadata_json_p) != 0)
+														{
+															success_flag = false;
+														}
+												}
 
-				}		/* if (category_p) */
+										}		/* if (success_flag) */
 
-		}		/* if (metadata_p -> sm_application_category_p) */
+								}		/* if (json_object_set_new (service_json_p, SERVICE_METADATA_APPLICATION_CATEGORY_S, category_p) == 0) */
 
+						}		/* if (category_p) */
+
+				}		/* if (metadata_p -> sm_application_category_p) */
+
+			if (!success_flag)
+				{
+					json_decref (metadata_json_p);
+				}
+		}		/* if (metadata_json_p) */
 
 	return success_flag;
 }

@@ -107,6 +107,12 @@ bool DestroyInformationSystem ()
 	ExitDrmaaEnvironment ();
 	#endif
 
+
+	if (jobs_manager_p)
+		{
+			FreeJobsManager (jobs_manager_p);
+		}
+
 	//FreeExternalServers ();
 	ExitMongoDB ();
 	DestroyConfig ();
@@ -118,10 +124,6 @@ bool DestroyInformationSystem ()
 //	FreeDefaultOutputStream ();
 	DestroyHandlerUtil ();
 
-	if (jobs_manager_p)
-		{
-			FreeJobsManager (jobs_manager_p);
-		}
 
 	if (servers_manager_p)
 		{
