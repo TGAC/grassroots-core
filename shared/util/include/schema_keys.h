@@ -344,7 +344,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	/**
 	 * The JSON key of the Service name for a ServiceJob.
 	 */
-	PREFIX const char *JOB_SERVICE_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *JOB_SERVICE_S VAL("service_name");
 	PREFIX const char *JOB_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 

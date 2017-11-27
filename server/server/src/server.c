@@ -783,6 +783,7 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 		{
 			OperationStatus old_status = GetCachedServiceJobStatus (job_p);
 			OperationStatus current_status = GetServiceJobStatus (job_p);
+			Service *service_p = job_p -> sj_service_p;
 
 			/* Has the ServiceJob changed its status since the last check? */
 			switch (current_status)
@@ -845,7 +846,9 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get job %s for \"%s\" %s", identifier_s, job_p -> sj_name_s ? job_p -> sj_name_s : "", uuid_s);
 				}
 
+
 			FreeServiceJob (job_p);
+			FreeService (service_p);
 		}		/* if (job_p) */
 	else
 		{

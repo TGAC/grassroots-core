@@ -411,7 +411,23 @@ Operation GetOperationFromTopLevelJSON (const json_t * const json_p)
 				}		/* if (op_s) */
 			else
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get operation from \"%s\"", op_s);
+					int value;
+
+					if (GetJSONInteger (server_op_p, OPERATION_S, &value))
+						{
+							if ((value >= OP_NONE) && (value <= OP_NUM_OPERATIONS))
+								{
+									op = (Operation) value;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Operation value out of range %d", value);
+								}
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get operation from \"%s\"", op_s);
+						}
 				}
 
 		}		/* if (server_op_p) */
@@ -563,7 +579,7 @@ json_t *GetServicesResultsRequest (const uuid_t **ids_pp, const uint32 num_ids, 
 static json_t *GetServicesInfoRequest (const uuid_t **ids_pp, const uint32 num_ids, OperationStatus status, Connection * UNUSED_PARAM (connection_p), const SchemaVersion * const sv_p)
 {
 	json_error_t error;
-	json_t *req_p = json_pack_ex (&error, 0, "{s:{s:i}}", SERVER_OPERATIONS_S, OPERATION_ID_S, status);
+	json_t *req_p = json_pack_ex (&error, 0, "{s:{s:i}}", SERVER_OPERATIONS_S, SERVER_OPERATION_S, status);
 
 	if (req_p)
 		{

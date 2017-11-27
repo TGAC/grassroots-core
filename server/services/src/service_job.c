@@ -402,6 +402,12 @@ void ClearServiceJob (ServiceJob *job_p)
 			job_p -> sj_linked_services_p = NULL;
 		}
 
+	if (job_p -> sj_service_name_s)
+		{
+			FreeCopiedString (job_p -> sj_service_name_s);
+			job_p -> sj_service_name_s = NULL;
+		}
+
 	SetServiceJobStatus (job_p, OS_CLEANED_UP);
 }
 
@@ -833,12 +839,11 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 
 	if (job_json_p)
 		{
-			char *job_json_s = json_dumps (job_json_p, JSON_INDENT (2));
 			const char *service_name_s = GetJSONString (job_json_p, JOB_SERVICE_S);
 
-#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
-			PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Starting InitServiceJobFromJSON for \"%s\"  at %16X", job_json_s, job_json_p);
-#endif
+			#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
+			PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, job_json_p, "Starting InitServiceJobFromJSON");
+			#endif
 
 			if (service_name_s)
 				{
@@ -867,7 +872,7 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 														}
 													else
 														{
-
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't parse uuid \"%s\"", uuid_s);
 														}
 												}
 
@@ -901,37 +906,33 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 												}
 											else
 												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitServiceJob failed for job \"%s\"", uuid_s);
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "InitServiceJob failed for job \"%s\"", uuid_s);
 												}
 
 										}		/* if (service_p) */
 									else
 										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Couldn't get service \"%s\"", service_name_s);
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get service \"%s\"", service_name_s);
 										}
 
 								}		/* if (GetOperationStatusFromServiceJobJSON (job_json_p, &status)) */
 							else
 								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Couldn't get status from JSON \"%s\"", job_json_s ? job_json_s : "");
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get status from JSON");
 								}
 
 						}		/* if (uuid_s) */
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Couldn't get uuid from JSON \"%s\"", job_json_s ? job_json_s : "");
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get uuid from JSON");
 						}
 
 				}		/* if (service_name_s) */
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Couldn't get service name from JSON \"%s\"", job_json_s ? job_json_s : "");
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get service name from JSON");
 				}
 
-			if (job_json_s)
-				{
-					FreeCopiedString (job_json_s);
-				}
 		}		/* if (job_json_p) */
 	else
 		{
@@ -940,7 +941,7 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 
 
 #if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
-	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Ending InitServiceJobFromJSON, success = %d", success_flag);
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, job_json_p, "Ending InitServiceJobFromJSON, success = %d", success_flag);
 #endif
 
 	return success_flag;
