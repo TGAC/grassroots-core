@@ -46,6 +46,11 @@ typedef struct AsyncTasksManager
 	 * AsyncTasks have been completed.
 	 */
 	struct AsyncTasksManagerEventConsumer *atm_consumer_p;
+
+	bool (*atm_cleanup_fn) (void *data_p);
+
+	void *atm_cleanup_data_p;
+
 } AsyncTasksManager;
 
 
@@ -79,6 +84,7 @@ typedef struct AsyncTasksManagerCountTask
 
 
 
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -93,7 +99,7 @@ extern "C"
  * @return The new AsyncTasksManager or <code>NULL</code> upon error.
  * @memberof AsyncTasksManager
  */
-GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s);
+GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s, bool (*cleanup_fn) (void *data_p), void *cleanup_data_p);
 
 
 /**

@@ -15,10 +15,13 @@ export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 BUILD		:= debug
 
 VPATH	:= \
-	$(DIR_SRC) 
+	$(DIR_SRC) \
+	$(DIR_SRC)/platform
 
 INCLUDES = \
 	-I$(DIR_INCLUDE) \
+	-I$(DIR_INCLUDE)/platform \
+	-I$(DIR_GRASSROOTS_TASK_INC) \
 	-I$(DIR_GRASSROOTS_HANDLER_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
@@ -45,6 +48,7 @@ SRCS 	= \
 	service_job_set_iterator.c \
 	service_matcher.c \
 	service_metadata.c \
+	unix_sync_data.c \
 	web_service_util.c
 
 CPPFLAGS += -DUNIX -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS

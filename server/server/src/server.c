@@ -497,7 +497,7 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 {
 	/* Get the requested operation */
 	json_t *op_p = json_object_get (service_req_p, SERVICE_RUN_S);
-	int res = 0;
+	int8 res = 0;
 	char *req_s = json_dumps (service_req_p, JSON_PRESERVE_ORDER | JSON_INDENT (2));
 
 	if (op_p)
@@ -562,29 +562,42 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 															 */
 															if (ReinitProvidersStateTable (providers_p, paired_servers_req_p, server_uri_s, service_name_s))
 																{
-																	jobs_p = RunService (service_p, params_p, user_p, providers_p);
-
-																	if (jobs_p)
+																	if ((!IsServiceLockable (service_p)) || LockService (service_p))
 																		{
-																			if (ProcessServiceJobSet (jobs_p, res_p))
+																			jobs_p = RunService (service_p, params_p, user_p, providers_p);
+
+																			if (jobs_p)
 																				{
-																					++ res;
+																					if (ProcessServiceJobSet (jobs_p, res_p))
+																						{
+																							++ res;
+																						}
+
+																					#if SERVER_DEBUG >= STM_LEVEL_FINER
+																						{
+																							PrintJSONToLog (res_p, "initial results", STM_LEVEL_FINER, __FILE__, __LINE__);
+																							FlushLog ();
+																							PrintJSONRefCounts (res_p, "initial results: ",  STM_LEVEL_FINER, __FILE__, __LINE__);
+																						}
+																					#endif
+
+
+																				}		/* if (jobs_p) */
+																			else
+																				{
+																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "No jobs from running %s with params from %s", service_name_s, req_s);
 																				}
 
-																			#if SERVER_DEBUG >= STM_LEVEL_FINER
+																			if (! ((!IsServiceLockable (service_p)) || UnlockService (service_p)))
 																				{
-																					PrintJSONToLog (res_p, "initial results", STM_LEVEL_FINER, __FILE__, __LINE__);
-																					FlushLog ();
-																					PrintJSONRefCounts (res_p, "initial results: ",  STM_LEVEL_FINER, __FILE__, __LINE__);
+
 																				}
-																			#endif
-
-
-																		}		/* if (jobs_p) */
+																		}		/* if ((!IsServiceLockable ()) || LockService (service_p)) */
 																	else
 																		{
-																			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "No jobs from running %s with params from %s", service_name_s, req_s);
+																			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to lock Service %s", service_name_s);
 																		}
+
 
 																}		/* if (ReinitProvidersStateTable (providers_p, req_p, server_uri_s, service_name_s)) */
 
@@ -784,6 +797,7 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 			OperationStatus old_status = GetCachedServiceJobStatus (job_p);
 			OperationStatus current_status = GetServiceJobStatus (job_p);
 			Service *service_p = job_p -> sj_service_p;
+			int32 num_live_jobs = 0;
 
 			/* Has the ServiceJob changed its status since the last check? */
 			switch (current_status)
@@ -846,9 +860,18 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get job %s for \"%s\" %s", identifier_s, job_p -> sj_name_s ? job_p -> sj_name_s : "", uuid_s);
 				}
 
+			num_live_jobs = GetNumberOfLiveJobs (service_p -> se_jobs_p);
 
-			FreeServiceJob (job_p);
-			FreeService (service_p);
+			if (num_live_jobs == 0)
+				{
+					FreeService (service_p);
+				}
+			else if (num_live_jobs < 0)
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get number of live jobs for \"%s\"", GetServiceName (service_p));
+				}
+
+
 		}		/* if (job_p) */
 	else
 		{
@@ -864,7 +887,11 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 
 	if (job_json_p)
 		{
-			if (json_array_append_new (results_p, job_json_p) != 0)
+			if (json_array_append_new (results_p, job_json_p) == 0)
+				{
+					success_flag = true;
+				}
+			else
 				{
 					json_decref (job_json_p);
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s for \"%s\" %s", identifier_s, job_p -> sj_name_s ? job_p -> sj_name_s : "", uuid_s);

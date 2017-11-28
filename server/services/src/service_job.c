@@ -68,7 +68,7 @@ ServiceJobSet *AllocateSimpleServiceJobSet (struct Service *service_p, const cha
 
 	if (job_set_p)
 		{
-			ServiceJob *job_p = CreateAndAddServiceJobToServiceJobSet (job_set_p, job_name_s, job_description_s, NULL, NULL, NULL);
+			ServiceJob *job_p = CreateAndAddServiceJobToService (service_p, job_name_s, job_description_s, NULL, NULL, NULL, false);
 
 			if (job_p)
 				{
@@ -101,13 +101,13 @@ ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, cons
 }
 
 
-ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p))
+ServiceJob *CreateAndAddServiceJobToService (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), bool require_lock_flag)
 {
-	ServiceJob *job_p = AllocateServiceJob (job_set_p -> sjs_service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn);
+	ServiceJob *job_p = AllocateServiceJob (service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn);
 
 	if (job_p)
 		{
-			if (AddServiceJobToServiceJobSet (job_set_p, job_p))
+			if (AddServiceJobToService (service_p, job_p, require_lock_flag))
 				{
 					return job_p;
 				}
@@ -473,6 +473,11 @@ uint32 GetNumberOfServiceJobResults (const ServiceJob *job_p)
 
 void FreeServiceJob (ServiceJob *job_p)
 {
+	#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "FreeServiceJob freed job \"%s\" at %.16X", job_p -> sj_name_s, job_p);
+	#endif
+
+
 	if (job_p -> sj_free_fn)
 		{
 			job_p -> sj_free_fn (job_p);
@@ -557,20 +562,6 @@ void FreeServiceJobNode (ListItem *node_p)
 }
 
 
-bool AddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p)
-{
-	bool added_flag = false;
-	ServiceJobNode *node_p = AllocateServiceJobNode (job_p);
-
-	if (node_p)
-		{
-			LinkedListAddTail (job_set_p -> sjs_jobs_p, (ListItem *) node_p);
-			added_flag = true;
-		}
-
-	return added_flag;
-}
-
 
 ServiceJobNode *FindServiceJobNodeByUUIDInServiceJobSet (const ServiceJobSet *job_set_p, const uuid_t job_id)
 {
@@ -622,6 +613,21 @@ ServiceJobNode *FindServiceJobNodeInServiceJobSet (ServiceJobSet *job_set_p, Ser
 		}
 
 	return NULL;
+}
+
+
+bool RemoveServiceJobByUUIDFromServiceJobSet (ServiceJobSet *job_set_p, uuid_t job_id)
+{
+	bool removed_flag = false;
+	ServiceJobNode *node_p = FindServiceJobNodeByUUIDInServiceJobSet (job_set_p, job_id);
+
+	if (node_p)
+		{
+			LinkedListRemove (job_set_p -> sjs_jobs_p, (ListItem *) node_p);
+			removed_flag = true;
+		}
+
+	return removed_flag;
 }
 
 
@@ -994,6 +1000,24 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 								}
 						}
 
+
+					/*
+					 * Make sure that the ServiceJob's service parameter is set
+					 * and if it differs from the service_p created earlier, then
+					 * clean up service_p
+					 */
+					if (job_p -> sj_service_p)
+						{
+							if (job_p -> sj_service_p != service_p)
+								{
+									FreeService (service_p);
+								}
+						}
+					else
+						{
+							job_p -> sj_service_p = service_p;
+						}
+
 				}		/* if (service_p) */
 			else
 				{
@@ -1005,6 +1029,11 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 		{
 			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to get service name from job JSON");
 		}
+
+
+	#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "CreateServiceJobFromJSON created job \"%s\" at %.16X", job_p -> sj_name_s, job_p);
+	#endif
 
 	return job_p;
 }
@@ -1480,31 +1509,49 @@ json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs_p, bool omit_results_f
 
 
 
-bool AreAnyJobsLive (const ServiceJobSet *jobs_p)
+int32 GetNumberOfLiveJobs (const ServiceJobSet *jobs_p)
 {
-	ServiceJobNode *node_p = (ServiceJobNode *) (jobs_p -> sjs_jobs_p -> ll_head_p);
+	int32 num_live_jobs = 0;
+	Service *service_p = jobs_p -> sjs_service_p;
 
-	while (node_p)
+
+	if ((!IsServiceLockable (service_p)) || (LockService (service_p)))
 		{
-			ServiceJob *job_p = node_p -> sjn_job_p;
+			ServiceJobNode *node_p = (ServiceJobNode *) (jobs_p -> sjs_jobs_p -> ll_head_p);
 
-			switch (job_p -> sj_status)
-			{
-			case OS_IDLE:
-			case OS_PENDING:
-			case OS_STARTED:
-			case OS_SUCCEEDED:
-			case OS_FINISHED:
-				return true;
+			while (node_p)
+				{
+					ServiceJob *job_p = node_p -> sjn_job_p;
 
-			default:
-				break;
-			}
+					switch (job_p -> sj_status)
+						{
+							case OS_IDLE:
+							case OS_PENDING:
+							case OS_STARTED:
+							case OS_SUCCEEDED:
+							case OS_FINISHED:
+								++num_live_jobs;
+								break;
 
-			node_p = (ServiceJobNode *) (node_p -> sjn_node.ln_next_p);
-		}		/* while (node_p) */
+							default:
+								break;
+						}
 
-	return false;
+					node_p = (ServiceJobNode *) (node_p -> sjn_node.ln_next_p);
+				}		/* while (node_p) */
+
+			if (! ((!IsServiceLockable (service_p)) || (UnlockService (service_p))))
+				{
+					num_live_jobs = -1;
+				}
+		}
+	else
+		{
+			num_live_jobs = -1;
+		}
+
+
+	return num_live_jobs;
 }
 
 

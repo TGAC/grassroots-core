@@ -14,8 +14,11 @@ static void ConsumeFinishedWorkerTask (EventConsumer *consumer_p, struct AsyncTa
 
 static bool ContinueTask (void *data_p);
 
+static void RunAsyncTaskManagerCleanups (AsyncTasksManager *manager_p);
 
-AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
+
+
+AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s, bool (*cleanup_fn) (void *data_p), void *cleanup_data_p)
 {
 	LinkedList *tasks_p = AllocateLinkedList (FreeAsyncTaskNode);
 
@@ -45,6 +48,9 @@ AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s)
 													manager_p -> atm_sync_p = sync_data_p;
 													manager_p -> atm_monitor_p = monitor_p;
 													manager_p -> atm_consumer_p = consumer_p;
+
+													manager_p -> atm_cleanup_fn = cleanup_fn;
+													manager_p -> atm_cleanup_data_p = cleanup_data_p;
 
 													return manager_p;
 												}
@@ -256,15 +262,26 @@ void FreeAsyncTasksManagerCountTask (AsyncTasksManagerCountTask *task_p)
 static void *RunMonitor (void *data_p)
 {
 	AsyncTasksManagerCountTask *monitor_p = (AsyncTasksManagerCountTask *) data_p;
+	AsyncTasksManager *manager_p = monitor_p -> atmec_tasks_manager_p;
 
 	WaitOnSyncData (monitor_p -> atmct_base_task.cat_task_p -> at_sync_data_p, ContinueTask, monitor_p);
 
 	/* To get here, all worker threads have finished so we can delete the tasks manager */
-	FreeAsyncTasksManager (monitor_p -> atmec_tasks_manager_p);
+	RunAsyncTaskManagerCleanups (manager_p);
+
+	//FreeAsyncTasksManager (manager_p);
 
 	return NULL;
 }
 
+
+static void RunAsyncTaskManagerCleanups (AsyncTasksManager *manager_p)
+{
+	if (manager_p -> atm_cleanup_fn)
+		{
+			manager_p -> atm_cleanup_fn (manager_p -> atm_cleanup_data_p);
+		}
+}
 
 
 static bool ContinueTask (void *data_p)

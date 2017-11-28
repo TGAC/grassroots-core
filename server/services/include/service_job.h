@@ -227,9 +227,9 @@ GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p
  * @brief Allocate a ServiceJob and add it to a ServiceJobSet.
  *
  * This will call AllocateServiceJob and if successful will then
- * add the new ServiceJob to the given ServiceJobSet
+ * add the new ServiceJob to the given Service.
  *
- * @param job_set_p The ServiceJobSet to add the new ServiceJob to.
+ * @param service_p The Service to add the new ServiceJob to.
  * @param job_name_s The name to give to the ServiceJob.
  * @param job_description_s The description to give to the ServiceJob.
  * @param update_fn The callback function to use when checking the ServiceJob
@@ -247,7 +247,7 @@ GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p
  * @see AllocateServiceJob
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p));
+GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToService (struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), bool require_lock_flag);
 
 
 /**
@@ -329,6 +329,17 @@ GRASSROOTS_SERVICE_API struct Service *GetServiceFromServiceJob (ServiceJob *job
 GRASSROOTS_SERVICE_API ServiceJobNode *FindServiceJobNodeInServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p);
 
 
+GRASSROOTS_SERVICE_API ServiceJobNode *FindServiceJobNodeByUUIDInServiceJobSet (const ServiceJobSet *job_set_p, const uuid_t job_id);
+
+
+GRASSROOTS_SERVICE_API bool RemoveServiceJobByUUIDFromServiceJobSet (ServiceJobSet *job_set_p, uuid_t job_id);
+
+
+
+GRASSROOTS_SERVICE_API bool RemoveServiceJobFromServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p);
+
+
+
 /**
  * @brief Set the description of ServiceJob.
  *
@@ -386,30 +397,6 @@ GRASSROOTS_SERVICE_API ServiceJobSet *AllocateSimpleServiceJobSet (struct Servic
  * @memberof ServiceJobSet
  */
 GRASSROOTS_SERVICE_API void FreeServiceJobSet (ServiceJobSet *job_set_p);
-
-
-/**
- * Add a ServiceJob to a ServiceJobSet.
- *
- * @param job_set_p The ServiceJobSet to add to.
- * @param job_p The ServiceJob to add.
- * @return <code>true</code> if the ServiceJob was added to the ServiceJobSet successfully,
- * <code>false</code> otherwise.
- * @memberof ServiceJobSet
- */
-GRASSROOTS_SERVICE_API bool AddServiceJobToServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p);
-
-
-/**
- * Remove a ServiceJob from a ServiceJobSet.
- *
- * @param job_set_p The ServiceJobSet to remove the ServiceJob from.
- * @param job_p The ServiceJob to remove.
- * @return <code>true</code> if the ServiceJob was removed to the ServiceJobSet successfully,
- * <code>false</code> if could not as the ServiceJob is not a member of the ServiceJobSet
- * @memberof ServiceJobSet
- */
-GRASSROOTS_SERVICE_API bool RemoveServiceJobToServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p);
 
 
 
@@ -489,7 +476,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceJobStatusAsJSON (ServiceJob *job_p, boo
  * Each ServiceJob will have its status checked and updated if necessary along
  * with setting up any LinkedServices if available.
  *
- * @param jobs_p The ServicoeJobSet to process.
+ * @param jobs_p The ServiceJobSet to process.
  * @param res_p The JSON array where are any results will get appended.
  * @return <code>true</code> if all ServiceJobs within the ServiceJobSet
  * were processed successfully, <code>false</code> otherwise.
@@ -585,7 +572,7 @@ GRASSROOTS_SERVICE_API bool CloseServiceJob (ServiceJob *job_p);
  * that are still running, <code>false</code> otherwise.
  * @memberof ServiceJobSet
  */
-GRASSROOTS_SERVICE_API bool AreAnyJobsLive (const ServiceJobSet *jobs_p);
+GRASSROOTS_SERVICE_API int32 GetNumberOfLiveJobs (const ServiceJobSet *jobs_p);
 
 
 

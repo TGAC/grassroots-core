@@ -95,7 +95,7 @@ bool InitialiseService (Service * const service_p,
 	ServiceData *data_p,
 	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p))
 {
-	bool success_flag = true;
+	bool success_flag = false;
 
 	if (get_metadata_fn)
 		{
@@ -128,6 +128,8 @@ bool InitialiseService (Service * const service_p,
 
 			service_p -> se_jobs_p = NULL;
 
+			service_p -> se_sync_data_p = NULL;
+
 			InitLinkedList (& (service_p -> se_paired_services));
 			SetLinkedListFreeNodeFunction (& (service_p -> se_paired_services), FreePairedServiceNode);
 
@@ -154,12 +156,32 @@ bool InitialiseService (Service * const service_p,
 			service_p -> se_get_metadata_fn = get_metadata_fn;
 			service_p -> se_metadata_p = service_p -> se_get_metadata_fn (service_p);
 
-			success_flag = (service_p -> se_metadata_p != NULL);
+			if (service_p -> se_metadata_p)
+				{
+					if (synchronous == SY_ASYNCHRONOUS_ATTACHED)
+						{
+							if ((service_p -> se_sync_data_p = AllocateSyncData ()) != NULL)
+								{
+									success_flag = true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get SyncData for \"%s\"", GetServiceName (service_p));
+								}
+
+						}
+					else
+						{
+							success_flag = true;
+						}
+
+				}		/* if (service_p -> se_metadata_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get metadata for \"%s\"", GetServiceName (service_p));
+				}
+
 		}		/* if (get_metadata_fn) */
-	else
-		{
-			success_flag = false;
-		}
 
 	return success_flag;
 }
@@ -167,6 +189,10 @@ bool InitialiseService (Service * const service_p,
 
 void FreeService (Service *service_p)
 {
+	#if SERVICE_DEBUG >= STM_LEVEL_FINEST
+	PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "FreeService %s at %.16X", GetServiceName (service_p), service_p);
+	#endif
+
 	Plugin *plugin_p = service_p -> se_plugin_p;
 
 	if (service_p -> se_jobs_p)
@@ -194,6 +220,11 @@ void FreeService (Service *service_p)
 	if (service_p -> se_metadata_p)
 		{
 			FreeServiceMetadata (service_p -> se_metadata_p);
+		}
+
+	if (service_p -> se_sync_data_p)
+		{
+			FreeSyncData (service_p -> se_sync_data_p);
 		}
 
 	FreeMemory (service_p);
@@ -226,7 +257,9 @@ bool IsServiceLive (Service *service_p)
 
 	if (service_p -> se_jobs_p)
 		{
-			is_live_flag = AreAnyJobsLive (service_p -> se_jobs_p);
+			int32 num_jobs = GetNumberOfLiveJobs (service_p -> se_jobs_p);
+
+			is_live_flag = (num_jobs != 0);
 		}
 
 	return is_live_flag;
@@ -1823,3 +1856,132 @@ void SetMetadataForService (Service *service_p, SchemaTerm *category_p, SchemaTe
 {
 	SetServiceMetadataValues (service_p -> se_metadata_p, category_p, subcategory_p);
 }
+
+
+
+bool IsServiceLockable (const Service *service_p)
+{
+	return (service_p -> se_sync_data_p != NULL);
+}
+
+
+bool LockService (Service *service_p)
+{
+	bool success_flag = true;
+
+	if (service_p -> se_sync_data_p)
+		{
+			success_flag = AcquireSyncDataLock (service_p -> se_data_p);
+		}
+
+	return success_flag;
+}
+
+
+bool UnlockService (Service *service_p)
+{
+	bool success_flag = true;
+
+	if (service_p -> se_sync_data_p)
+		{
+			success_flag = ReleaseSyncDataLock (service_p -> se_data_p);
+		}
+
+	return success_flag;
+}
+
+
+bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require_lock_flag)
+{
+	bool added_flag = false;
+	ServiceJobNode *node_p = AllocateServiceJobNode (job_p);
+
+	if (node_p)
+		{
+			if (service_p -> se_sync_data_p)
+				{
+					if (require_lock_flag || AcquireSyncDataLock (service_p -> se_sync_data_p))
+						{
+							LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+
+							if (require_lock_flag || ReleaseSyncDataLock (service_p -> se_sync_data_p))
+								{
+									added_flag = true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+								}
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+						}
+				}
+			else
+				{
+					LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+					added_flag = true;
+				}
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+		}
+
+	return added_flag;
+}
+
+
+bool RemoveServiceJobFromService (Service *service_p, ServiceJob *job_p)
+{
+	bool removed_flag = false;
+
+	if (service_p -> se_sync_data_p)
+		{
+			if (AcquireSyncDataLock (service_p -> se_sync_data_p))
+				{
+					if (RemoveServiceJobByUUIDFromServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
+						{
+							removed_flag = true;
+						}
+					else
+						{
+							char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+							ConvertUUIDToString (job_p -> sj_id, uuid_s);
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find job \"%s\" for service \"%s\"", uuid_s, GetServiceName (service_p));
+						}
+
+					if (ReleaseSyncDataLock (service_p -> se_sync_data_p))
+						{
+							removed_flag = false;
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for removing job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for removing job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+				}
+		}
+	else
+		{
+			ServiceJobNode *node_p = FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id);
+
+			if (node_p)
+				{
+					LinkedListRemove (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+					removed_flag = true;
+				}
+			else
+				{
+					char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+					ConvertUUIDToString (job_p -> sj_id, uuid_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find job \"%s\" for service \"%s\"", uuid_s, GetServiceName (service_p));
+				}
+		}
+
+	return removed_flag;
+}
+

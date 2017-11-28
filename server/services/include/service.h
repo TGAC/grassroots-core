@@ -35,6 +35,7 @@
 #include "linked_service.h"
 #include "uuid/uuid.h"
 #include "service_metadata.h"
+#include "sync_data.h"
 
 #include "jansson.h"
 
@@ -341,6 +342,8 @@ typedef struct Service
 	 * <code>false</code> otherwise.
 	 */
 	ServiceMetadata *(*se_get_metadata_fn) (struct Service *service_p);
+
+	SyncData *se_sync_data_p;
 
 } Service;
 
@@ -954,6 +957,40 @@ GRASSROOTS_SERVICE_API void SetMetadataForService (Service *service_p, SchemaTer
 
 
 
+
+/**
+ * Add a ServiceJob to a Service.
+ *
+ * @param job_set_p The Service to add the ServiceJob to.
+ * @param job_p The ServiceJob to add.
+ * @return <code>true</code> if the ServiceJob was added to the Service successfully,
+ * <code>false</code> otherwise.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require_lock_flag);
+
+
+/**
+ * Remove a ServiceJob from a Service.
+ *
+ * @param job_set_p The Service to remove the ServiceJob from.
+ * @param job_p The ServiceJob to remove.
+ * @return <code>true</code> if the ServiceJob was removed to the ServiceJob successfully,
+ * <code>false</code> if could not as the ServiceJob is not a member of the Service
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API bool RemoveServiceJobFromService (Service *service_p, ServiceJob *job_p);
+
+
+
+
+GRASSROOTS_SERVICE_API bool IsServiceLockable (const Service *service_p);
+
+
+GRASSROOTS_SERVICE_API bool LockService (Service *service_p);
+
+
+GRASSROOTS_SERVICE_API bool UnlockService (Service *service_p);
 
 
 #ifdef __cplusplus

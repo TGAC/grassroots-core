@@ -79,17 +79,34 @@ bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)
 		{
 			if (AcquireSyncDataLock (sync_data_p))
 				{
+					/*
+					 * SendSyncData () attempts to get the lock which we
+					 * currently have. So if we need to call SendSyncData ()
+					 * we need to release our lock first. So we'll use a flag
+					 * which we'll check after the count limit check, to avoid
+					 * a deadlock.
+					 */
+					bool notify_flag = false;
+
 					++ (count_task_p -> cat_current_value);
 
 					success_flag = true;
 
 					if (count_task_p -> cat_current_value == count_task_p -> cat_limit)
 						{
-							/* send signal */
-							SendSyncData (sync_data_p);
+							notify_flag = true;
 						}
 
-					if (!ReleaseSyncDataLock (sync_data_p))
+					if (ReleaseSyncDataLock (sync_data_p))
+						{
+							/* send signal */
+							if (notify_flag)
+								{
+									SendSyncData (sync_data_p);
+								}
+
+						}
+					else
 						{
 							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock CountingAsyncTaskProducer");
 						}

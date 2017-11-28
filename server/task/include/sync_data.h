@@ -22,7 +22,7 @@
 #ifndef GRASSROOTS_TASK_SYNC_DATA_H
 #define GRASSROOTS_TASK_SYNC_DATA_H
 
-#include "grassroots_task_library.h"
+#include "grassroots_service_library.h"
 #include "typedefs.h"
 
 
@@ -49,7 +49,7 @@ extern "C"
  * @return The newly-allocated SyncData or <code>NULL</code> upon error.
  * @memberof SyncData
  */
-GRASSROOTS_TASK_API struct SyncData *AllocateSyncData (void);
+GRASSROOTS_SERVICE_API struct SyncData *AllocateSyncData (void);
 
 
 /**
@@ -58,7 +58,7 @@ GRASSROOTS_TASK_API struct SyncData *AllocateSyncData (void);
  * @param sync_data_p The SyncData to free.
  * @memberof SyncData
  */
-GRASSROOTS_TASK_API void FreeSyncData (struct SyncData *sync_data_p);
+GRASSROOTS_SERVICE_API void FreeSyncData (struct SyncData *sync_data_p);
 
 
 /**
@@ -70,7 +70,7 @@ GRASSROOTS_TASK_API void FreeSyncData (struct SyncData *sync_data_p);
  * false</code> otherwise.
  * @memberof SyncData
  */
-GRASSROOTS_TASK_API bool AcquireSyncDataLock (struct SyncData *sync_data_p);
+GRASSROOTS_SERVICE_API bool AcquireSyncDataLock (struct SyncData *sync_data_p);
 
 
 /**
@@ -81,7 +81,7 @@ GRASSROOTS_TASK_API bool AcquireSyncDataLock (struct SyncData *sync_data_p);
  * false</code> otherwise.
  * @memberof SyncData
  */
-GRASSROOTS_TASK_API bool ReleaseSyncDataLock (struct SyncData *sync_data_p);
+GRASSROOTS_SERVICE_API bool ReleaseSyncDataLock (struct SyncData *sync_data_p);
 
 
 /**
@@ -95,7 +95,7 @@ GRASSROOTS_TASK_API bool ReleaseSyncDataLock (struct SyncData *sync_data_p);
  * @param data_p The parameter to use as input for continue_fn if needed.
  * @memberof SyncData
  */
-GRASSROOTS_TASK_API void WaitOnSyncData (struct SyncData *sync_data_p, bool (*continue_fn) (void *data_p), void *data_p);
+GRASSROOTS_SERVICE_API void WaitOnSyncData (struct SyncData *sync_data_p, bool (*continue_fn) (void *data_p), void *data_p);
 
 
 /**
@@ -104,7 +104,7 @@ GRASSROOTS_TASK_API void WaitOnSyncData (struct SyncData *sync_data_p, bool (*co
  * @param sync_data_p The SyncData to send the signal from.
  * @memberof SyncData
  */
-GRASSROOTS_TASK_API void SendSyncData (struct SyncData *sync_data_p);
+GRASSROOTS_SERVICE_API void SendSyncData (struct SyncData *sync_data_p);
 
 
 

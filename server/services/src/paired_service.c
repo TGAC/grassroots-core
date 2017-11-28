@@ -354,7 +354,7 @@ int32 RunPairedServices (Service *service_p, ParameterSet *param_set_p, Provider
 }
 
 
-int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, ServiceJobSet *jobs_p, const char * const remote_service_s, const char * const remote_uri_s, const ServiceData *service_data_p, bool (*save_job_fn) (RemoteServiceJob *job_p, const ServiceData *service_data_p))
+int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *service_p, const char * const remote_service_s, const char * const remote_uri_s, const ServiceData *service_data_p, bool (*save_job_fn) (RemoteServiceJob *job_p, const ServiceData *service_data_p))
 {
 	int32 num_successful_runs = 0;
 
@@ -398,7 +398,6 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, ServiceJob
 																									uuid_t remote_id;
 																									size_t j;
 																									json_t *job_json_p;
-																									Service *service_p = jobs_p -> sjs_service_p;
 																									const char *name_s = GetJSONString (service_result_p, JOB_NAME_S);
 																									const char *description_s = GetJSONString (service_result_p, JOB_DESCRIPTION_S);
 																									const char *remote_id_s = GetJSONString (service_result_p, JOB_UUID_S);
@@ -430,7 +429,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, ServiceJob
 																																		{
 																																			uuid_copy (job_p -> rsj_job_id, remote_id);
 
-																																			if (AddServiceJobToServiceJobSet (jobs_p, & (job_p -> rsj_job)))
+																																			if (AddServiceJobToService (service_p, & (job_p -> rsj_job), false))
 																																				{
 																																					if ((save_job_fn != NULL) && (!save_job_fn (job_p, service_data_p)))
 																																						{

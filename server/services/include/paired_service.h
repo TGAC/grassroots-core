@@ -177,7 +177,7 @@ GRASSROOTS_SERVICE_API json_t *MakeRemotePairedServiceCall (const char * const s
 GRASSROOTS_SERVICE_API int32 RunPairedServices (struct Service *service_p, ParameterSet *param_set_p, ProvidersStateTable *providers_p, bool (*save_job_fn) (struct RemoteServiceJob *job_p, const struct ServiceData *service_data_p));
 
 
-GRASSROOTS_SERVICE_API int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, ServiceJobSet *jobs_p, const char * const remote_service_s, const char * const remote_uri_s, const struct ServiceData *service_data_p, bool (*save_job_fn) (struct RemoteServiceJob *job_p, const struct ServiceData *service_data_p));
+GRASSROOTS_SERVICE_API int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, struct Service *service_p, const char * const remote_service_s, const char * const remote_uri_s, const struct ServiceData *service_data_p, bool (*save_job_fn) (struct RemoteServiceJob *job_p, const struct ServiceData *service_data_p));
 
 
 
