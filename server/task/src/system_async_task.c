@@ -6,6 +6,7 @@
  */
 
 #include "system_async_task.h"
+#include "async_tasks_manager.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
 
@@ -20,9 +21,9 @@
 static void *RunAsyncSystemTaskHook (void *data_p);
 
 
-SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s, void (*on_success_callback_fn) (ServiceJob *job_p))
+SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, AsyncTasksManager *manager_p, bool add_flag, const char *command_s, void (*on_success_callback_fn) (ServiceJob *job_p))
 {
-	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
+	AsyncTask *async_task_p = AllocateAsyncTask (name_s, manager_p, add_flag);
 
 	if (async_task_p)
 		{

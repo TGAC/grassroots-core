@@ -537,11 +537,26 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 
 											if (providers_p)
 												{
-													ServiceNode *node_p = (ServiceNode *) (services_p -> ll_head_p);
+													ServiceNode *node_p = (ServiceNode *) LinkedListRemHead (services_p);
 													Service *service_p =  node_p -> sn_service_p;
 													ParameterSet *params_p = NULL;
+													bool delete_service_flag = true;
 
 													AddPairedServices (service_p, user_p, providers_p);
+
+													/* We no longer need the node so detach our service from it and delete it */
+													node_p -> sn_service_p = NULL;
+													FreeServiceNode ((ListItem *) node_p);
+
+													/*
+													 * If the service is asynchronous, let it
+													 * take care of deleting itself rather
+													 * than doing it after it has been run here.
+													 */
+													if (service_p -> se_synchronous != SY_SYNCHRONOUS)
+														{
+															delete_service_flag = false;
+														}
 
 													/*
 													 * Convert the json parameter set into a ParameterSet
@@ -588,6 +603,11 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "No jobs from running %s with params from %s", service_name_s, req_s);
 																				}
 
+																			/*
+																			 * If the Service is asynchronous, unlock it and from this point on it
+																			 * we can not assume anything about the current status of the Service
+																			 * as it's controlled and live in separate threads.
+																			 */
 																			if (! ((!IsServiceLockable (service_p)) || UnlockService (service_p)))
 																				{
 
@@ -607,6 +627,11 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 													else
 														{
 															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to get params from %s", req_s);
+														}
+
+													if (delete_service_flag)
+														{
+															FreeService (service_p);
 														}
 
 													FreeProvidersStateTable (providers_p);
@@ -860,7 +885,7 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get job %s for \"%s\" %s", identifier_s, job_p -> sj_name_s ? job_p -> sj_name_s : "", uuid_s);
 				}
 
-			num_live_jobs = GetNumberOfLiveJobs (service_p -> se_jobs_p);
+			num_live_jobs = GetNumberOfLiveJobs (service_p);
 
 			if (num_live_jobs == 0)
 				{

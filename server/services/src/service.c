@@ -257,7 +257,7 @@ bool IsServiceLive (Service *service_p)
 
 	if (service_p -> se_jobs_p)
 		{
-			int32 num_jobs = GetNumberOfLiveJobs (service_p -> se_jobs_p);
+			int32 num_jobs = GetNumberOfLiveJobs (service_p);
 
 			is_live_flag = (num_jobs != 0);
 		}
@@ -1884,7 +1884,7 @@ bool UnlockService (Service *service_p)
 
 	if (service_p -> se_sync_data_p)
 		{
-			success_flag = ReleaseSyncDataLock (service_p -> se_data_p);
+			success_flag = ReleaseSyncDataLock (service_p -> se_sync_data_p);
 		}
 
 	return success_flag;
@@ -1898,31 +1898,45 @@ bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require
 
 	if (node_p)
 		{
-			if (service_p -> se_sync_data_p)
+			if (! (service_p -> se_jobs_p))
 				{
-					if (require_lock_flag || AcquireSyncDataLock (service_p -> se_sync_data_p))
-						{
-							LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+					service_p -> se_jobs_p = AllocateServiceJobSet (service_p);
+				}
 
-							if (require_lock_flag || ReleaseSyncDataLock (service_p -> se_sync_data_p))
+			if (service_p -> se_jobs_p)
+				{
+					if (service_p -> se_sync_data_p)
+						{
+							if (require_lock_flag || AcquireSyncDataLock (service_p -> se_sync_data_p))
 								{
-									added_flag = true;
+									LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+
+									if (require_lock_flag || ReleaseSyncDataLock (service_p -> se_sync_data_p))
+										{
+											added_flag = true;
+										}
+									else
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+										}
 								}
 							else
 								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
 								}
 						}
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+							LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+							added_flag = true;
 						}
-				}
+
+				}		/* if (service_p -> se_jobs_p) */
 			else
 				{
-					LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
-					added_flag = true;
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "No ServiceJobSet for \"%s\"", GetServiceName (service_p));
 				}
+
 		}
 	else
 		{
@@ -1985,3 +1999,27 @@ bool RemoveServiceJobFromService (Service *service_p, ServiceJob *job_p)
 	return removed_flag;
 }
 
+
+int32 GetNumberOfLiveJobs (Service *service_p)
+{
+	int32 num_live_jobs = 0;
+
+	if (service_p -> se_jobs_p)
+		{
+			if ((!IsServiceLockable (service_p)) || (LockService (service_p)))
+				{
+
+					if (! ((!IsServiceLockable (service_p)) || (UnlockService (service_p))))
+						{
+							num_live_jobs = -1;
+						}
+				}
+			else
+				{
+					num_live_jobs = -1;
+				}
+
+		}		/* if (service_p -> se_jobs_p) */
+
+	return num_live_jobs;
+}

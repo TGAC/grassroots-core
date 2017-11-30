@@ -12,9 +12,10 @@
 #include "string_utils.h"
 #include "streams.h"
 #include "memory_allocations.h"
+#include "async_tasks_manager.h"
 
 
-bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s)
+bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s, AsyncTasksManager *manager_p, bool add_flag)
 {
 	bool success_flag = true;
 	char *copied_name_s = NULL;
@@ -23,11 +24,7 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s)
 		{
 			copied_name_s = CopyToNewString (name_s, 0, false);
 
-			if (copied_name_s)
-				{
-//					SyncData *sync_dataAllocateSyncData ();
-				}
-			else
+			if (!copied_name_s)
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy AsyncTask name \"%s\"", name_s);
 					success_flag = false;
@@ -42,6 +39,20 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s)
 			task_p -> at_sync_data_mem = MF_ALREADY_FREED;
 		}
 
+	task_p -> at_consumer_p = NULL;
+	task_p -> at_data_p = NULL;
+	task_p -> at_run_fn = NULL;
+	task_p -> at_sync_data_p = NULL;
+	task_p -> at_manager_p = manager_p;
+
+	if (add_flag)
+		{
+			if (!AddAsyncTaskToAsyncTasksManager (manager_p, task_p, MF_SHADOW_USE))
+				{
+					success_flag = false;
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add AsyncTask name \"%s\" to AsyncTasksManager", name_s);
+				}
+		}
 
 	return success_flag;
 }
@@ -76,6 +87,12 @@ void SetAsyncTaskRunData (AsyncTask *task_p, void *(*run_fn) (void *data_p), voi
 {
 	task_p -> at_run_fn = run_fn;
 	task_p -> at_data_p = data_p;
+}
+
+
+void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer *consumer_p)
+{
+	task_p -> at_consumer_p = consumer_p;
 }
 
 

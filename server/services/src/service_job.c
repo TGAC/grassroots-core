@@ -967,11 +967,14 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 
 			if (service_p)
 				{
+					bool add_job_flag = false;
+
 					if (DoesServiceHaveCustomServiceJobSerialisation (service_p))
 						{
-#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
+
+							#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
 							PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "CreateServiceJobFromJSON using custom deserialising for service \"%s\"", service_name_s);
-#endif
+							#endif
 
 							job_p = CreateSerialisedServiceJobFromService (service_p, job_json_p);
 
@@ -1011,12 +1014,29 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 							if (job_p -> sj_service_p != service_p)
 								{
 									FreeService (service_p);
+									service_p = job_p -> sj_service_p;
+									add_job_flag = true;
 								}
 						}
 					else
 						{
-							job_p -> sj_service_p = service_p;
+							add_job_flag = true;
 						}
+
+					if (add_job_flag)
+						{
+							if (!AddServiceJobToService (service_p, job_p, false))
+								{
+									char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+									ConvertUUIDToString (job_p -> sj_id, uuid_s);
+
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add deserialised ServiceJob \"%s\" with id \"%s\" to Service \"%s\"", job_p -> sj_name_s, uuid_s, service_name_s);
+
+									FreeServiceJob (job_p);
+									job_p = NULL;
+								}
+						}		/* if (add_job_flag) */
 
 				}		/* if (service_p) */
 			else
@@ -1509,50 +1529,6 @@ json_t *GetServiceJobSetAsJSON (const ServiceJobSet *jobs_p, bool omit_results_f
 
 
 
-int32 GetNumberOfLiveJobs (const ServiceJobSet *jobs_p)
-{
-	int32 num_live_jobs = 0;
-	Service *service_p = jobs_p -> sjs_service_p;
-
-
-	if ((!IsServiceLockable (service_p)) || (LockService (service_p)))
-		{
-			ServiceJobNode *node_p = (ServiceJobNode *) (jobs_p -> sjs_jobs_p -> ll_head_p);
-
-			while (node_p)
-				{
-					ServiceJob *job_p = node_p -> sjn_job_p;
-
-					switch (job_p -> sj_status)
-						{
-							case OS_IDLE:
-							case OS_PENDING:
-							case OS_STARTED:
-							case OS_SUCCEEDED:
-							case OS_FINISHED:
-								++num_live_jobs;
-								break;
-
-							default:
-								break;
-						}
-
-					node_p = (ServiceJobNode *) (node_p -> sjn_node.ln_next_p);
-				}		/* while (node_p) */
-
-			if (! ((!IsServiceLockable (service_p)) || (UnlockService (service_p))))
-				{
-					num_live_jobs = -1;
-				}
-		}
-	else
-		{
-			num_live_jobs = -1;
-		}
-
-
-	return num_live_jobs;
-}
 
 
 char *SerialiseServiceJobToJSON (ServiceJob * const job_p, bool omit_results_flag)
@@ -1897,5 +1873,33 @@ static bool AddResultEntryToServiceJob (ServiceJob *job_p, json_t **results_pp, 
 }
 
 
+int32 GetNumberOfLiveJobsFromServiceJobSet (const ServiceJobSet *jobs_p)
+{
+	int32 num_live_jobs = 0;
+	ServiceJobNode *node_p = (ServiceJobNode *) (jobs_p -> sjs_jobs_p -> ll_head_p);
+
+	while (node_p)
+		{
+			ServiceJob *job_p = node_p -> sjn_job_p;
+
+			switch (job_p -> sj_status)
+				{
+					case OS_IDLE:
+					case OS_PENDING:
+					case OS_STARTED:
+					case OS_SUCCEEDED:
+					case OS_FINISHED:
+						++ num_live_jobs;
+						break;
+
+					default:
+						break;
+				}
+
+			node_p = (ServiceJobNode *) (node_p -> sjn_node.ln_next_p);
+		}		/* while (node_p) */
+
+	return num_live_jobs;
+}
 
 

@@ -16,7 +16,6 @@
 
 /* forward declaration */
 struct AsyncTasksManagerEventConsumer;
-struct AsyncTasksManagerCountTask;
 
 
 /**
@@ -35,11 +34,11 @@ typedef struct AsyncTasksManager
 
 
 	/**
-	 * The AsyncTasksManagerCountTask that keeps the count of
+	 * The CountAsyncTask that keeps the count of
 	 * how many of the AsyncTasksManager's AsyncTasks have
 	 * been completed
 	 */
-	struct AsyncTasksManagerCountTask *atm_monitor_p;
+	struct CountAsyncTask *atm_monitor_p;
 
 	/**
 	 * The EventConsumer to call when all of this AsyncTasksManager's
@@ -51,6 +50,8 @@ typedef struct AsyncTasksManager
 
 	void *atm_cleanup_data_p;
 
+
+	bool atm_in_use_flag;
 } AsyncTasksManager;
 
 
@@ -68,18 +69,6 @@ typedef struct AsyncTasksManagerEventConsumer
 } AsyncTasksManagerEventConsumer;
 
 
-/**
- * A datatype that has a CountAsyncTask and a pointer to
- * the AsyncTasksManager that owns it.
- */
-typedef struct AsyncTasksManagerCountTask
-{
-	/** The CountAsyncTask. */
-	CountAsyncTask atmct_base_task;
-
-	/** The AsyncTasksManager where this AsyncTasksManagerCountTask is stored. */
-	AsyncTasksManager *atmec_tasks_manager_p;
-} AsyncTasksManagerCountTask;
 
 
 
@@ -109,17 +98,6 @@ GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (const char * c
  * @memberof AsyncTasksManager
  */
 GRASSROOTS_TASK_API void FreeAsyncTasksManager (AsyncTasksManager *manager_p);
-
-
-/**
- * Get the AsyncTask with the given name from an AsyncTasksManager.
- *
- * @param manager_p The AsyncTasksManager to search for the AsyncTask.
- * @param task_name_s The name of the AsyncTask to search for.
- * @return The matching AsyncTask or <code>NULL</code> if it could not be found.
- * @memberof AsyncTasksManager
- */
-GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromAsyncTasksManager (AsyncTasksManager *manager_p, const char * const task_name_s);
 
 
 /**
@@ -172,28 +150,6 @@ GRASSROOTS_TASK_API void FreeAsyncTasksManagerEventConsumer (AsyncTasksManagerEv
 
 
 /**
- * Allocate a new AsyncTasksManagerCountTask and add it a given AsyncTasksManager.
- *
- * @param name_s The name to give to the AsyncTasksManagerCountTask. This will be deep-copied.
- * @param limit The number of tasks that the AsyncTasksManagerCountTask will have to have to
- * before it notifies that it has been successful.
- * @param manager_p The AsyncTasksManager to add this new AsyncTasksManagerCountTask to.
- * @return The new AsyncTasksManagerCountTask or <code>NULL</code> upon error.
- * @memberof AsyncTasksManagerCountTask
- */
-GRASSROOTS_TASK_API AsyncTasksManagerCountTask *AllocateAsyncTasksManagerCountTask (const char *name_s, int32 limit, AsyncTasksManager *manager_p);
-
-
-/**
- * Free an AsyncTasksManagerCountTask.
- *
- * @param task_p The AsyncTasksManagerCountTask to free.
- * @memberof AsyncTasksManagerCountTask
- */
-GRASSROOTS_TASK_API void FreeAsyncTasksManagerCountTask (AsyncTasksManagerCountTask *task_p);
-
-
-/**
  * Perform the required functionality prior to running an AsyncTasksManager's
  * AsyncTasks.
  *
@@ -230,6 +186,9 @@ GRASSROOTS_TASK_API bool StartAsyncTaskManagerWorkers (AsyncTasksManager *manage
  * @memberof AsyncTasksManager
  */
 GRASSROOTS_TASK_API bool RunAsyncTasksManagerTasks (AsyncTasksManager *manager_p);
+
+
+GRASSROOTS_TASK_API bool IsAsyncTaskManagerRunning (const AsyncTasksManager *manager_p);
 
 
 #ifdef __cplusplus

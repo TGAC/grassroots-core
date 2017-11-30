@@ -565,18 +565,6 @@ GRASSROOTS_SERVICE_API bool CloseServiceJob (ServiceJob *job_p);
 
 
 /**
- * @brief Check if any ServiceJobs within ServiceJobSet are still running
- *
- * @param jobs_p The ServiceJobSet to check.
- * @return <code>true</code> if there are still some ServiceJobs in the given set
- * that are still running, <code>false</code> otherwise.
- * @memberof ServiceJobSet
- */
-GRASSROOTS_SERVICE_API int32 GetNumberOfLiveJobs (const ServiceJobSet *jobs_p);
-
-
-
-/**
  * Get the ServiceJob at a particular position in a ServiceJobSet.
  *
  * @param jobs_p The ServiceJobSet to get the ServiceJob from.
@@ -806,6 +794,9 @@ GRASSROOTS_SERVICE_API bool CalculateServiceJobResult (ServiceJob *job_p);
  */
 GRASSROOTS_SERVICE_API void SetServiceJobUUID (ServiceJob *job_p, const uuid_t new_job_id);
 
+
+
+GRASSROOTS_SERVICE_LOCAL int32 GetNumberOfLiveJobsFromServiceJobSet (const ServiceJobSet *jobs_p);
 
 
 #ifdef __cplusplus

@@ -15,6 +15,7 @@
 #include "memory_allocations.h"
 #include "event_consumer.h"
 
+struct AsyncTasksManager;
 
 /**
  * A datatype to use to run tasks asynchronously.
@@ -51,6 +52,12 @@ typedef struct AsyncTask
 	 * An EventConsumer to notify when the AsyncTask has finished running.
 	 */
 	EventConsumer *at_consumer_p;
+
+	/**
+	 * The AsyncTasksManager that has this AsyncTask.
+	 */
+	struct AsyncTasksManager *at_manager_p;
+
 } AsyncTask;
 
 
@@ -86,10 +93,13 @@ extern "C"
  * @param name_s The optional name to give to the AsyncTask. This will
  * be deep-copied by the AsyncTask so this value doesn't have to stay
  * in scope.
+ * @param manager_p The AsyncTasksManager that will own this AsyncTask.
+ * @param add_flag If this is <code>true</code> then the newly-allocated AsyncTask
+ * will be added to the given AsyncTasksManager's list of AsyncTasks, <code>false</code> otherwise.
  * @return The new AsyncTask or <code>NULL</code> upon error.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	AsyncTask *AllocateAsyncTask (const char *name_s);
+GRASSROOTS_TASK_API	AsyncTask *AllocateAsyncTask (const char *name_s, struct AsyncTasksManager *manager_p, bool add_flag);
 
 
 /**
@@ -109,11 +119,14 @@ GRASSROOTS_TASK_API	void FreeAsyncTask (AsyncTask *task_p);
  * @param name_s The optional name to give to the AsyncTask. This will
  * be deep-copied by the AsyncTask so this value doesn't have to stay
  * in scope.
+ * @param manager_p The AsyncTasksManager that will own this AsyncTask.
+ * @param add_flag If this is <code>true</code> then the newly-allocated AsyncTask
+ * will be added to the given AsyncTasksManager's list of AsyncTasks, <code>false</code> otherwise.
  * @return <code>true</code> if the AsyncTask was started
  * successfully, <code>false</code> otherwise.
  * @memberof AsyncTask
  */
-GRASSROOTS_TASK_API	bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s);
+GRASSROOTS_TASK_API	bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s, struct AsyncTasksManager *manager_p, bool add_flag);
 
 
 /**
@@ -217,6 +230,10 @@ GRASSROOTS_TASK_API	AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p, MEM
 GRASSROOTS_TASK_API	void FreeAsyncTaskNode (ListItem *node_p);
 
 
+
+GRASSROOTS_TASK_API void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer *consumer_p);
+
+
 /**
  * Run the EventConsumer for the given AsyncTask.
  *
@@ -224,6 +241,9 @@ GRASSROOTS_TASK_API	void FreeAsyncTaskNode (ListItem *node_p);
  * @memberof AsyncTask
  */
 GRASSROOTS_TASK_API void RunEventConsumerFromAsyncTask (AsyncTask *task_p);
+
+
+
 
 
 #ifdef __cplusplus

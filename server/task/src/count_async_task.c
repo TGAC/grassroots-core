@@ -6,14 +6,15 @@
  */
 
 #include "count_async_task.h"
+#include "async_tasks_manager.h"
 
 #include "streams.h"
 #include "memory_allocations.h"
 
 
-CountAsyncTask *AllocateCountAsyncTask (const char *name_s, int32 limit)
+CountAsyncTask *AllocateCountAsyncTask (const char *name_s, AsyncTasksManager *manager_p, bool add_flag, int32 limit)
 {
-	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
+	AsyncTask *async_task_p = AllocateAsyncTask (name_s, manager_p, add_flag);
 
 	if (async_task_p)
 		{
@@ -42,10 +43,10 @@ void FreeCountAsyncTask (CountAsyncTask *count_task_p)
 }
 
 
-bool InitCountAsyncTask (CountAsyncTask *count_task_p, const char *name_s, int32 limit)
+bool InitCountAsyncTask (CountAsyncTask *count_task_p, const char *name_s, AsyncTasksManager *manager_p, bool add_flag, int32 limit)
 {
 	bool success_flag = false;
-	AsyncTask *async_task_p = AllocateAsyncTask (name_s);
+	AsyncTask *async_task_p = AllocateAsyncTask (name_s, manager_p, add_flag);
 
 	if (async_task_p)
 		{
@@ -130,7 +131,7 @@ void SetCountAsyncTaskLimit (CountAsyncTask *task_p, int32 limit)
 }
 
 
-AsyncTask *GetAsyncTaskFromCountAsyncTask (const CountAsyncTask *count_task_p)
+AsyncTask *GetAsyncTaskFromCountAsyncTask (CountAsyncTask *count_task_p)
 {
 	return (count_task_p -> cat_task_p);
 }

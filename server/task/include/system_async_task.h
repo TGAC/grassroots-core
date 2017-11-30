@@ -89,7 +89,7 @@ extern "C"
  * @return The newly-allocated SystemAsyncTask or <code>NULL</code> upon error.
  * @memberof SystemAsyncTask
  */
-GRASSROOTS_TASK_API	SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, const char *command_s, void (*on_success_callback_fn) (ServiceJob *job_p));
+GRASSROOTS_TASK_API	SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s, struct AsyncTasksManager *manager_p, bool add_flag, const char *command_s, void (*on_success_callback_fn) (ServiceJob *job_p));
 
 
 /**

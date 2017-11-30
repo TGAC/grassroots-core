@@ -47,11 +47,14 @@ extern "C"
  * Allocate a CountAsyncTask.
  *
  * @param name_s The name to give to this CountAsyncTask. This value will be deep-copied.
+ * @param manager_p The AsyncTasksManager that will own this AsyncTask.
+ * @param add_flag If this is <code>true</code> then the newly-allocated CountAsyncTask
+ * will be added to the given AsyncTasksManager's list of AsyncTasks, <code>false</code> otherwise.
  * @param limit The limit at which this CountAsyncTask will signal its completion.
  * @return The newly-allocated CountAsyncTask or <code>NULL</code> upon error.
  * @memberof CountAsyncTask
  */
-GRASSROOTS_TASK_API CountAsyncTask *AllocateCountAsyncTask (const char *name_s, int32 limit);
+GRASSROOTS_TASK_API CountAsyncTask *AllocateCountAsyncTask (const char *name_s, struct AsyncTasksManager *manager_p, bool add_flag, int32 limit);
 
 
 /**
@@ -59,12 +62,15 @@ GRASSROOTS_TASK_API CountAsyncTask *AllocateCountAsyncTask (const char *name_s, 
  *
  * @param count_task_p The CountAsyncTask to initialise.
  * @param name_s The name to give to this CountAsyncTask. This value will be deep-copied.
+ * @param manager_p The AsyncTasksManager that will own this AsyncTask.
+ * @param add_flag If this is <code>true</code> then the newly-allocated CountAsyncTask
+ * will be added to the given AsyncTasksManager's list of AsyncTasks, <code>false</code> otherwise.
  * @param limit The limit at which this CountAsyncTask will signal its completion.
  * @return <code>true</code> if the CountAsyncTask was initialised successfully, <code>false</code>
  * otherwise.
  * @memberof CountAsyncTask
  */
-GRASSROOTS_TASK_API bool InitCountAsyncTask (CountAsyncTask *count_task_p, const char *name_s, int32 limit);
+GRASSROOTS_TASK_API bool InitCountAsyncTask (CountAsyncTask *count_task_p, const char *name_s, struct AsyncTasksManager *manager_p, bool add_flag, int32 limit);
 
 /**
  * Get the underlying AsyncTask for a given CountAsyncTask.
@@ -73,7 +79,7 @@ GRASSROOTS_TASK_API bool InitCountAsyncTask (CountAsyncTask *count_task_p, const
  * @return The AsyncTask.
  * @memberof CountAsyncTask
  */
-GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromCountAsyncTask (const CountAsyncTask *count_task_p);
+GRASSROOTS_TASK_API AsyncTask *GetAsyncTaskFromCountAsyncTask (CountAsyncTask *count_task_p);
 
 
 /**

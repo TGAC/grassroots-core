@@ -32,8 +32,11 @@
 #include "streams.h"
 
 #include "async_task.h"
+#include "async_tasks_manager.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
+
+
 
 
 typedef struct UnixAsyncTask
@@ -45,19 +48,13 @@ typedef struct UnixAsyncTask
 } UnixAsyncTask;
 
 
-typedef struct AsyncTaskData
-{
-	AsyncTask atd_task;
-	void *atd_data_p;
-} AsyncTaskData;
-
 
 static void *DoAsyncTaskRun (void *data_p);
 
 
 
 
-AsyncTask *AllocateAsyncTask (const char *name_s)
+AsyncTask *AllocateAsyncTask (const char *name_s, AsyncTasksManager *manager_p, bool add_flag)
 {
 	UnixAsyncTask *task_p = (UnixAsyncTask *) AllocMemory (sizeof (struct UnixAsyncTask));
 
@@ -65,7 +62,7 @@ AsyncTask *AllocateAsyncTask (const char *name_s)
 		{
 			memset (task_p, 0, sizeof (UnixAsyncTask));
 
-			if (InitialiseAsyncTask (& (task_p -> uat_base_task), name_s))
+			if (InitialiseAsyncTask (& (task_p -> uat_base_task), name_s, manager_p, add_flag))
 				{
 					task_p -> uat_thread = 0;
 					task_p -> uat_valid_thread_flag = false;

@@ -983,6 +983,17 @@ GRASSROOTS_SERVICE_API bool RemoveServiceJobFromService (Service *service_p, Ser
 
 
 
+/**
+ * @brief Check if any ServiceJobs within Service are still running
+ *
+ * @param service_p The Service to check.
+ * @return <code>true</code> if there are still some ServiceJobs in the given service
+ * that are still running, <code>false</code> otherwise.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API int32 GetNumberOfLiveJobs (Service *service_p);
+
+
 
 GRASSROOTS_SERVICE_API bool IsServiceLockable (const Service *service_p);
 
