@@ -39,6 +39,16 @@ SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s,
 							system_task_p -> std_service_job_p = job_p;
 							system_task_p -> std_on_success_callback_fn = on_success_callback_fn;
 
+
+							if (manager_p && add_flag)
+								{
+									system_task_p -> std_async_task_mem = MF_SHADOW_USE;
+								}
+							else
+								{
+									system_task_p -> std_async_task_mem = MF_SHALLOW_COPY;
+								}
+
 							return system_task_p;
 						}
 
@@ -92,7 +102,22 @@ bool SetSystemAsyncTaskCommand (SystemAsyncTask *task_p, const char *command_s)
 
 void FreeSystemAsyncTask (SystemAsyncTask *task_data_p)
 {
-	FreeAsyncTask (task_data_p -> std_async_task_p);
+	/*
+	 * If the underlying task is not within an AsyncTasksManager,
+	 * then we'll delete it. Otherwise the AsyncTasksManager has
+	 * the responsibility for deleting it.
+	 */
+	switch (task_data_p -> std_async_task_mem)
+		{
+			case MF_DEEP_COPY:
+			case MF_SHALLOW_COPY:
+				FreeAsyncTask (task_data_p -> std_async_task_p);
+				break;
+
+			default:
+				break;
+		}
+
 
 	if (task_data_p -> std_command_line_s)
 		{

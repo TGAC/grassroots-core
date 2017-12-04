@@ -52,6 +52,12 @@ typedef struct UnixAsyncTask
 static void *DoAsyncTaskRun (void *data_p);
 
 
+#ifdef _DEBUG
+	#define UNIX_ASYNC_TASK_DEBUG	(STM_LEVEL_FINEST)
+#else
+	#define UNIX_ASYNC_TASK_DEBUG	(STM_LEVEL_NONE)
+#endif
+
 
 
 AsyncTask *AllocateAsyncTask (const char *name_s, AsyncTasksManager *manager_p, bool add_flag)
@@ -83,6 +89,10 @@ AsyncTask *AllocateAsyncTask (const char *name_s, AsyncTasksManager *manager_p, 
 
 void FreeAsyncTask (AsyncTask *task_p)
 {
+	#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "FreeAsyncTask for \"%s\" at %.16X", task_p -> at_name_s, task_p);
+	#endif
+
 	CloseAsyncTask (task_p);
 
 	ClearAsyncTask (task_p);
@@ -161,8 +171,17 @@ bool RunAsyncTask (AsyncTask *task_p)
 static void *DoAsyncTaskRun (void *data_p)
 {
 	AsyncTask *async_task_p = (AsyncTask *) data_p;
+	void *res_p = NULL;
 
-	void *res_p = async_task_p -> at_run_fn (async_task_p -> at_data_p);
+	#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "DoAsyncTaskRun about to run for \"%s\" at %.16X", async_task_p -> at_name_s, async_task_p);
+	#endif
+
+	res_p = async_task_p -> at_run_fn (async_task_p -> at_data_p);
+
+	#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "DoAsyncTaskRun ran for \"%s\" at %.16X", async_task_p -> at_name_s, async_task_p);
+	#endif
 
 	if (async_task_p -> at_consumer_p)
 		{

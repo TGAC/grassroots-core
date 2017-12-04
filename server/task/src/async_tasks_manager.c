@@ -22,6 +22,12 @@ static void RunAsyncTaskManagerCleanups (AsyncTasksManager *manager_p);
 static CountAsyncTask *AllocateAsyncTasksManagerCountTask (const char *name_s, AsyncTasksManager *manager_p);
 
 
+#ifdef _DEBUG
+	#define ASYNC_TASKS_MANAGER_DEBUG	(STM_LEVEL_FINEST)
+#else
+	#define ASYNC_TASKS_MANAGER_DEBUG	(STM_LEVEL_NONE)
+#endif
+
 
 AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s, bool (*cleanup_fn) (void *data_p), void *cleanup_data_p)
 {
@@ -116,12 +122,13 @@ void PrepareAsyncTasksManager (AsyncTasksManager *manager_p)
 		{
 			AsyncTaskNode *node_p = (AsyncTaskNode *) (manager_p -> atm_tasks_p -> ll_head_p);
 			CountAsyncTask *monitor_task_p = manager_p -> atm_monitor_p;
+			EventConsumer *manager_consumer_p =  & (manager_p -> atm_consumer_p -> atmec_base_consumer);
 
 			while (node_p)
 				{
 					AsyncTask *task_p = node_p -> atn_task_p;
 
-					task_p -> at_consumer_p = & (manager_p -> atm_consumer_p -> atmec_base_consumer);
+					SetAsyncTaskConsumer (task_p, manager_consumer_p, MF_SHADOW_USE);
 
 					node_p = (AsyncTaskNode *) (node_p -> atn_node.ln_next_p);
 				}		/* while (node_p) */
@@ -216,7 +223,7 @@ static CountAsyncTask *AllocateAsyncTasksManagerCountTask (const char *name_s, A
 
 			if (task_p)
 				{
-					SetAsyncTaskConsumer (task_p -> cat_task_p, consumer_p);
+					SetAsyncTaskConsumer (task_p -> cat_task_p, consumer_p, MF_SHALLOW_COPY);
 					return task_p;
 				}
 
@@ -277,6 +284,10 @@ static void ConsumeFinishedWorkerTask (EventConsumer *consumer_p, struct AsyncTa
 static void CloseAsyncTasksManager (struct EventConsumer *consumer_p, struct AsyncTask *task_p)
 {
 	CountAsyncTask *manager_count_task_p = (CountAsyncTask *) task_p;
+
+	#if ASYNC_TASKS_MANAGER_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "CloseAsyncTasksManager about to free  %.16X for \"%s\" at %.16X", task_p -> at_manager_p, task_p -> at_name_s, task_p);
+	#endif
 
 	FreeAsyncTasksManager (task_p -> at_manager_p);
 }

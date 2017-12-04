@@ -53,6 +53,11 @@ typedef struct AsyncTask
 	 */
 	EventConsumer *at_consumer_p;
 
+	/** The memory flag indicating the ownership of the EventConsumer. */
+	MEM_FLAG at_consumer_mem;
+
+
+
 	/**
 	 * The AsyncTasksManager that has this AsyncTask.
 	 */
@@ -231,7 +236,7 @@ GRASSROOTS_TASK_API	void FreeAsyncTaskNode (ListItem *node_p);
 
 
 
-GRASSROOTS_TASK_API void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer *consumer_p);
+GRASSROOTS_TASK_API void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer *consumer_p, MEM_FLAG mem);
 
 
 /**

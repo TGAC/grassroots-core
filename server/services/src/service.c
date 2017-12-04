@@ -1871,7 +1871,7 @@ bool LockService (Service *service_p)
 
 	if (service_p -> se_sync_data_p)
 		{
-			success_flag = AcquireSyncDataLock (service_p -> se_data_p);
+			success_flag = AcquireSyncDataLock (service_p -> se_sync_data_p);
 		}
 
 	return success_flag;

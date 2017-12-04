@@ -15,6 +15,13 @@
 #include "async_tasks_manager.h"
 
 
+#ifdef _DEBUG
+	#define ASYNC_TASK_DEBUG	(STM_LEVEL_FINEST)
+#else
+	#define ASYNC_TASK_DEBUG	(STM_LEVEL_NONE)
+#endif
+
+
 bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s, AsyncTasksManager *manager_p, bool add_flag)
 {
 	bool success_flag = true;
@@ -36,23 +43,30 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s, AsyncTasksManag
 			memset (task_p, 0, sizeof (AsyncTask));
 
 			task_p -> at_name_s = copied_name_s;
+
+			task_p -> at_sync_data_p = NULL;
 			task_p -> at_sync_data_mem = MF_ALREADY_FREED;
-		}
 
-	task_p -> at_consumer_p = NULL;
-	task_p -> at_data_p = NULL;
-	task_p -> at_run_fn = NULL;
-	task_p -> at_sync_data_p = NULL;
-	task_p -> at_manager_p = manager_p;
+			task_p -> at_consumer_p = NULL;
+			task_p -> at_consumer_mem = MF_ALREADY_FREED;
 
-	if (add_flag)
-		{
-			if (!AddAsyncTaskToAsyncTasksManager (manager_p, task_p, MF_SHADOW_USE))
+			task_p -> at_data_p = NULL;
+			task_p -> at_run_fn = NULL;
+			task_p -> at_manager_p = manager_p;
+
+			if (add_flag)
 				{
-					success_flag = false;
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add AsyncTask name \"%s\" to AsyncTasksManager", name_s);
+					if (!AddAsyncTaskToAsyncTasksManager (manager_p, task_p, MF_SHALLOW_COPY))
+						{
+							success_flag = false;
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add AsyncTask name \"%s\" to AsyncTasksManager", name_s);
+						}
 				}
 		}
+
+	#if ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "InitialiseAsyncTask for \"%s\" at %.16X is %d", task_p -> at_name_s, task_p, success_flag);
+	#endif
 
 	return success_flag;
 }
@@ -79,7 +93,24 @@ void ClearAsyncTask (AsyncTask *task_p)
 
 	task_p -> at_data_p = NULL;
 	task_p -> at_run_fn = NULL;
-	task_p -> at_consumer_p = NULL;
+
+
+	if (task_p -> at_consumer_p)
+		{
+			switch (task_p -> at_consumer_mem)
+				{
+					case MF_DEEP_COPY:
+					case MF_SHALLOW_COPY:
+						FreeEventConsumer (task_p -> at_consumer_p);
+						break;
+
+					default:
+						break;
+				}
+
+			task_p -> at_consumer_p = NULL;
+		}
+
 }
 
 
@@ -90,9 +121,10 @@ void SetAsyncTaskRunData (AsyncTask *task_p, void *(*run_fn) (void *data_p), voi
 }
 
 
-void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer *consumer_p)
+void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer *consumer_p, MEM_FLAG mem)
 {
 	task_p -> at_consumer_p = consumer_p;
+	task_p -> at_consumer_mem = mem;
 }
 
 

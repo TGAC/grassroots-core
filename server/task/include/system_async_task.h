@@ -34,9 +34,8 @@
 #include "service_job.h"
 #include "jobs_manager.h"
 #include "async_task.h"
+#include "memory_allocations.h"
 
-/* forward declaration */
-struct SystemAsyncTask;
 
 /**
  * A datatype to allow the running of command-line applications
@@ -46,6 +45,8 @@ typedef struct SystemAsyncTask
 {
 	/** The underlying AsyncTask. */
 	AsyncTask *std_async_task_p;
+
+	MEM_FLAG std_async_task_mem;
 
 	/**
 	 * The ServiceJob that will run this SystemAsyncTask.
