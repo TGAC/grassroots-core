@@ -887,22 +887,31 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 
 			num_live_jobs = GetNumberOfLiveJobs (service_p);
 
+
+			#if SERVER_DEBUG >= STM_LEVEL_FINE
+				PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "num_live_jobs = " INT32_FMT " for %s", num_live_jobs, GetServiceName (service_p));
+			#endif
+
 			if (num_live_jobs == 0)
 				{
 					FreeService (service_p);
 				}
-			else if (num_live_jobs < 0)
+			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get number of live jobs for \"%s\"", GetServiceName (service_p));
-				}
+					if (num_live_jobs < 0)
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get number of live jobs for \"%s\"", GetServiceName (service_p));
+						}
 
+					FreeServiceJob (job_p);
+				}
 
 		}		/* if (job_p) */
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find %s in services table", uuid_s);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to deserialise job %s from services table", uuid_s);
 
-			job_json_p = json_pack ("{s:s,s:s}", JOB_UUID_S, uuid_s, ERROR_S, "Failed to find uuid in services table");
+			job_json_p = json_pack ("{s:s,s:s}", JOB_UUID_S, uuid_s, ERROR_S, "Failed to deserialise job from services table");
 
 			if (!job_json_p)
 				{

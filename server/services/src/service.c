@@ -2008,6 +2008,19 @@ int32 GetNumberOfLiveJobs (Service *service_p)
 		{
 			if ((!IsServiceLockable (service_p)) || (LockService (service_p)))
 				{
+					ServiceJobNode *node_p = (ServiceJobNode *) (service_p -> se_jobs_p -> sjs_jobs_p -> ll_head_p);
+
+					while (node_p)
+						{
+							OperationStatus status = GetCachedServiceJobStatus (node_p -> sjn_job_p);
+
+							if ((status == OS_PENDING) || (status == OS_STARTED))
+								{
+									++ num_live_jobs;
+								}
+
+							node_p = (ServiceJobNode *) (node_p -> sjn_node.ln_next_p);
+						}
 
 					if (! ((!IsServiceLockable (service_p)) || (UnlockService (service_p))))
 						{
