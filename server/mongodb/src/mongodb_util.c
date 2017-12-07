@@ -27,16 +27,30 @@
 #include "json_util.h"
 #include "streams.h"
 #include "mongo_client_manager.h"
+#include "mongoc.h"
 
 
 bool InitMongoDB (void)
 {
-	return InitMongoClientManager ();
+	bool b;
+
+	mongoc_init ();
+
+	b = InitMongoClientManager();
+
+	if (!b)
+		{
+			mongoc_cleanup ();
+		}
+
+	return b;
 }
 
 
 void ExitMongoDB (void)
 {
 	ExitMongoClientManager ();
+
+	mongoc_cleanup ();
 }
 

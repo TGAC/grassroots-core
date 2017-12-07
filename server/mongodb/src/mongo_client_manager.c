@@ -34,7 +34,7 @@
 #include "streams.h"
 
 
-#undef mongoc_client_t
+//#undef mongoc_client_t
 #include "mongoc.h"
 
 
@@ -57,7 +57,9 @@ static void FreeMongoClientManager (MongoClientManager *manager_p);
 
 static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 {
-	mongoc_uri_t *uri_p = mongoc_uri_new (uri_s);
+	mongoc_uri_t *uri_p = NULL;
+
+	uri_p = mongoc_uri_new (uri_s);
 
 	if (uri_p)
 		{
@@ -69,10 +71,21 @@ static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 
 					if (clients_p)
 						{
-							manager_p -> mcm_clients_p = clients_p;
-							manager_p -> mcm_uri_p = uri_p;
+							const int ERROR_API_LEVEL = 2;
 
-							return manager_p;
+							if (mongoc_client_pool_set_error_api (clients_p, ERROR_API_LEVEL))
+								{
+									manager_p -> mcm_clients_p = clients_p;
+									manager_p -> mcm_uri_p = uri_p;
+
+									return manager_p;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set mongodb client pool error api to %d", ERROR_API_LEVEL);
+								}
+
+							mongoc_client_pool_destroy (clients_p);
 						}
 					else
 						{
@@ -87,6 +100,8 @@ static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get mongodb uri for %s", uri_s);
 		}
 
+
+	mongoc_cleanup ();
 	return NULL;
 }
 
@@ -96,6 +111,7 @@ static void FreeMongoClientManager (MongoClientManager *manager_p)
 	mongoc_client_pool_destroy (manager_p -> mcm_clients_p);
 	mongoc_uri_destroy (manager_p -> mcm_uri_p);
 
+	mongoc_cleanup ();
 	FreeMemory (manager_p);
 }
 
@@ -164,6 +180,8 @@ mongoc_client_t *GetMongoClientFromMongoClientManager (void)
 	if (s_manager_p)
 		{
 			client_p = mongoc_client_pool_try_pop (s_manager_p -> mcm_clients_p);
+
+			mongoc_client_set_appname (client_p, "grassroots");
 		}
 
 	return client_p;
