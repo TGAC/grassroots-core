@@ -301,6 +301,19 @@ GRASSROOTS_UTIL_API char *ConvertIntegerToString (const int value);
 
 
 /**
+ * Get an int64 as a string, e.g.
+ *
+ *  1 would be converted to "1"
+ *
+ * @param value The value to convert to a string.
+ * @return The c-style string or <code>NULL</code> upon error.
+ * This needs to be freed using FreeCopiedString().
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API char *ConvertLongToString (const int64 value);
+
+
+/**
  * Get an double as a string, e.g.
  *
  *  1.03 would be converted to "1.03"

@@ -32,18 +32,30 @@
 #include "jansson.h"
 #include "sqlite_library.h"
 #include "sqlite3.h"
+#include "linked_list.h"
+
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #ifdef ALLOCATE_SQLITE_TAGS
-	#define _PREFIX GRASSROOTS_SQLITE_API
-	#define _VAL(x)	= x
+	#define SQLITE_PREFIX GRASSROOTS_SQLITE_API
+	#define SQLITE_VAL(x)	= x
 #else
-	#define _PREFIX extern
-	#define _VAL(x)
+	#define SQLITE_PREFIX extern
+	#define SQLITE_VAL(x)
 #endif
 
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
+
+/** The identifier used to uniquely specify a MongoDB document.
+ *
+ * @memberof MongoTool
+ */
+SQLITE_PREFIX const char *SQLITE_OP_EQUALS_S SQLITE_VAL("=");
+
+
 
 
 /*
@@ -60,6 +72,8 @@ typedef struct SQLiteTool
 	 * This is the current mongo client.
 	 */
 	sqlite3 *sqlt_database_p;
+
+	const char *sqlt_table_s;
 
 } SQLiteTool;
 
@@ -81,7 +95,7 @@ extern "C"
  * <code>false</code> otherwise.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db_s, int flags);
+GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db_s, int flags, const char *table_s);
 
 
 /**
@@ -92,7 +106,7 @@ GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db
  * @memberof SQLiteTool
  * @see InitSQLite
  */
-GRASSROOTS_SQLITE_API SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags);
+GRASSROOTS_SQLITE_API SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s);
 
 
 
@@ -106,7 +120,7 @@ GRASSROOTS_SQLITE_API bool CloseSQLiteTool (SQLiteTool *tool_p);
  * @param tool_p The SQLiteTool to free.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API void FreeSQLite (SQLiteTool *tool_p);
+GRASSROOTS_SQLITE_API void FreeSQLiteTool (SQLiteTool *tool_p);
 
 
 /**
@@ -149,7 +163,7 @@ GRASSROOTS_SQLITE_API bool RemoveSQLiteRows (SQLiteTool *tool_p, const json_t *s
  * <code>false</code> otherwise.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API bool FindMatchingSQLiteDocumentsByJSON (SQLiteTool *tool_p, const json_t *query_json_p, const char **fields_ss);
+GRASSROOTS_SQLITE_API json_t *FindMatchingSQLiteDocuments (SQLiteTool *tool_p, LinkedList *where_clauses_p, const char **fields_ss, char **error_ss);
 
 
 /**
