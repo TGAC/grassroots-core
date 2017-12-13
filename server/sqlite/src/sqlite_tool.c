@@ -196,7 +196,8 @@ json_t *FindMatchingSQLiteDocuments (SQLiteTool *tool_p, LinkedList *where_claus
 
 							if (error_s)
 								{
-									sqlite3_free (error_s);
+									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "FindMatchingSQLiteDocuments failed for query: \"%s\", error: \"%s\"", sql_s, error_s);
+									*error_ss = error_s;
 								}
 
 							json_decref (results_p);
@@ -210,6 +211,16 @@ json_t *FindMatchingSQLiteDocuments (SQLiteTool *tool_p, LinkedList *where_claus
 
 	return NULL;
 }
+
+
+void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *error_s)
+{
+	if (error_s)
+		{
+			sqlite3_free (error_s);
+		}
+}
+
 
 
 json_t *GetCurrentValuesAsJSON (SQLiteTool *tool_p, const char **fields_ss, const size_t num_fields)

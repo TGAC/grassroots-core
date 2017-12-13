@@ -74,7 +74,6 @@ typedef struct SQLiteTool
 	sqlite3 *sqlt_database_p;
 
 	const char *sqlt_table_s;
-
 } SQLiteTool;
 
 
@@ -264,7 +263,11 @@ GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, 
  * @return An error string or <code>NULL</code> if the updates were successful.
  * @memberof SQLiteTool
  */
-const char *EasyInsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char *const primary_key_id_s);
+GRASSROOTS_SQLITE_API const char *EasyInsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char *const primary_key_id_s);
+
+
+GRASSROOTS_SQLITE_API void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *error_s);
+
 
 
 #ifdef __cplusplus
