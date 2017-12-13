@@ -173,7 +173,7 @@ bool AddServiceMetadataToJSON (const ServiceMetadata *metadata_p, json_t *servic
 
 											if (success_flag)
 												{
-													if (json_object_set_new (service_json_p, SERVICE_METADATA_S, metadata_json_p) != 0)
+													if (json_object_set_new (service_json_p, SERVICE_CATEGORY_S, metadata_json_p) != 0)
 														{
 															success_flag = false;
 														}

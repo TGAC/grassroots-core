@@ -295,7 +295,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	PREFIX const char *SERVICE_STATUS_VALUE_S VAL("status");
 	PREFIX const char *SERVICE_STATUS_S VAL("status_text");
 	PREFIX const char *SERVICE_RESULTS_S VAL("results");
-	PREFIX const char *SERVICE_METADATA_S VAL("metadata");
+	PREFIX const char *SERVICE_CATEGORY_S VAL("category");
 	PREFIX const char *SERVICE_JOBS_S VAL("jobs");
 	/* End of doxygen member group */
 	/**@}*/
