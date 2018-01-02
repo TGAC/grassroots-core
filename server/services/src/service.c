@@ -40,7 +40,7 @@
 
 
 #ifdef _DEBUG
-	#define SERVICE_DEBUG	(STM_LEVEL_FINER)
+	#define SERVICE_DEBUG	(STM_LEVEL_INFO)
 #else
 	#define SERVICE_DEBUG	(STM_LEVEL_NONE)
 #endif
@@ -1161,7 +1161,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 					if (success_flag)
 						{
 							#if SERVICE_DEBUG >= STM_LEVEL_FINER
-							PrintJSON (stderr, root_p, "GetServiceAsJSON - path :: ");
+							PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - path :: ");
 							#endif
 
 							const char *value_s = GetServiceDescription (service_p);
@@ -1183,7 +1183,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 									json_t *operation_p = json_object ();
 
 									#if SERVICE_DEBUG >= STM_LEVEL_FINER
-									PrintJSON (stderr, root_p, "GetServiceAsJSON - description :: ");
+									PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - description :: ");
 									#endif
 
 									if (operation_p)
@@ -1262,7 +1262,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 
 
 			#if SERVICE_DEBUG >= STM_LEVEL_FINER
-			PrintJSON (stderr, root_p, "GetServiceAsJSON - service :: ");
+			PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - service :: ");
 			#endif
 
 		}		/* if (root_p) */
@@ -1284,7 +1284,7 @@ static bool AddServiceNameToJSON (Service * const service_p, json_t *root_p)
 		}
 
 	#if SERVICE_DEBUG >= STM_LEVEL_FINER
-	PrintJSON (stderr, root_p, "AddServiceNameToJSON :: operationId -> ");
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceNameToJSON  :: ");
 	#endif
 
 	return success_flag;
@@ -1302,7 +1302,7 @@ static bool AddServiceDescriptionToJSON (Service * const service_p, json_t *root
 		}
 
 	#if SERVICE_DEBUG >= STM_LEVEL_FINER
-	PrintJSON (stderr, root_p, "AddServiceDescriptionToJSON :: description -> ");
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceDescriptionToJSON  :: ");
 	#endif
 
 	return success_flag;
@@ -1321,7 +1321,7 @@ static bool AddServiceUUIDToJSON (Service * const service_p, json_t *root_p)
 		}
 
 	#if SERVICE_DEBUG >= STM_LEVEL_FINER
-	PrintJSON (stderr, root_p, "AddServiceUUIDToJSON :: uuid -> ");
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceUUIDToJSON  :: ");
 	#endif
 
 	return success_flag;
@@ -1341,7 +1341,7 @@ static bool AddOperationInformationURIToJSON (Service * const service_p, json_t 
 
 
 	#if SERVICE_DEBUG >= STM_LEVEL_FINER
-	PrintJSON (stderr, root_p, "AddOperationInformationURIToJSON :: uri_s -> ");
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddOperationInformationURIToJSON  :: ");
 	#endif
 
 	return success_flag;
@@ -1374,7 +1374,7 @@ static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *roo
 		}
 
 	#if SERVICE_DEBUG >= STM_LEVEL_FINER
-	PrintJSON (stderr, root_p, "AddServiceParameterSetToJSON :: parameters -> ");
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceParameterSetToJSON  :: ");
 	#endif
 	
 	return success_flag;

@@ -1907,7 +1907,7 @@ static bool AddParameterOptionsToJSON (const Parameter * const param_p, json_t *
 		}
 
 	#if SERVER_DEBUG >= STM_LEVEL_FINER
-	PrintJSON (stderr, json_p, "AddParameterOptionsToJSON - json_p :: ");
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, json_p, "AddParameterOptionsToJSON");
 	#endif
 
 	return success_flag;
@@ -1976,7 +1976,7 @@ static bool AddParameterBoundsToJSON (const Parameter * const param_p, json_t *j
 		}
 
 	#if SERVER_DEBUG >= STM_LEVEL_FINER
-	PrintJSON (stderr, json_p, "AddParameterBoundsToJSON - json_p :: ");
+	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, json_p, "AddParameterBoundsToJSON");
 	#endif
 
 	return success_flag;
