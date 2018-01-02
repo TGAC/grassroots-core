@@ -40,7 +40,7 @@ bool SetServerRootDirectory (const char * const path_s)
 	
 	if (path_s)
 		{
-			char *copied_path_s = CopyToNewString (path_s, 0, false);
+			char *copied_path_s = EasyCopyToNewString (path_s);
 			
 			if (copied_path_s)
 				{

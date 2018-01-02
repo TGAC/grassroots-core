@@ -44,6 +44,13 @@ void FreeCopiedString (char *str_p)
 		}
 }
 
+
+char *EasyCopyToNewString (const char * const src_s)
+{
+	return CopyToNewString (src_s, 0, false);
+}
+
+
 /**
  * Copy a string to a newly created string.
  *

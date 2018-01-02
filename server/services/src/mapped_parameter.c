@@ -40,11 +40,11 @@ MappedParameter *AllocateMappedParameter (const char *input_s, const char *outpu
 
 	if (param_p)
 		{
-			char *input_copy_s = CopyToNewString (input_s, 0, false);
+			char *input_copy_s = EasyCopyToNewString (input_s);
 
 			if (input_copy_s)
 				{
-					char *output_copy_s = CopyToNewString (output_s, 0, false);
+					char *output_copy_s = EasyCopyToNewString (output_s);
 
 					if (output_copy_s)
 						{

@@ -64,11 +64,11 @@ RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_
 				{
 					if (remote_uri_s && remote_service_s)
 						{
-							char *uri_s = CopyToNewString (remote_uri_s, 0, false);
+							char *uri_s = EasyCopyToNewString (remote_uri_s);
 
 							if (uri_s)
 								{
-									char *service_s = CopyToNewString (remote_service_s, 0, false);
+									char *service_s = EasyCopyToNewString (remote_service_s);
 
 									if (service_s)
 										{

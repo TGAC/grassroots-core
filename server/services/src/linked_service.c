@@ -38,7 +38,7 @@
 
 LinkedService *AllocateLinkedService (const char *input_service_s, const char *input_key_s)
 {
-	char *input_service_copy_s = CopyToNewString (input_service_s, 0, false);
+	char *input_service_copy_s = EasyCopyToNewString (input_service_s);
 
 	if (input_service_copy_s)
 		{
@@ -48,7 +48,7 @@ LinkedService *AllocateLinkedService (const char *input_service_s, const char *i
 
 			if (input_key_s)
 				{
-					input_key_copy_s = CopyToNewString (input_key_s, 0, false);
+					input_key_copy_s = EasyCopyToNewString (input_key_s);
 
 					if (!input_key_copy_s)
 						{

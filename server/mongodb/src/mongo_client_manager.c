@@ -75,8 +75,15 @@ static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 
 							if (mongoc_client_pool_set_error_api (clients_p, ERROR_API_LEVEL))
 								{
+									const char * const APP_NAME_S = "grassroots";
+
 									manager_p -> mcm_clients_p = clients_p;
 									manager_p -> mcm_uri_p = uri_p;
+
+									if (!mongoc_client_pool_set_appname  (clients_p, APP_NAME_S))
+										{
+											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set mongodb client pool app name to %s", APP_NAME_S);
+										}
 
 									return manager_p;
 								}
@@ -180,8 +187,6 @@ mongoc_client_t *GetMongoClientFromMongoClientManager (void)
 	if (s_manager_p)
 		{
 			client_p = mongoc_client_pool_try_pop (s_manager_p -> mcm_clients_p);
-
-			mongoc_client_set_appname (client_p, "grassroots");
 		}
 
 	return client_p;

@@ -66,7 +66,7 @@ void FreeParameterGroupNode (ListItem *node_p)
 
 ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, const bool repeatable_flag, ServiceData *service_data_p)
 {
-	char *copied_name_s = CopyToNewString (name_s, 0, false);
+	char *copied_name_s = EasyCopyToNewString (name_s);
 
 	if (copied_name_s)
 		{
@@ -75,7 +75,7 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, c
 
 			if (key_s)
 				{
-					copied_key_s = CopyToNewString (key_s, 0, false);
+					copied_key_s = EasyCopyToNewString (key_s);
 
 					if (!copied_key_s)
 						{

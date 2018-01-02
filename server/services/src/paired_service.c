@@ -56,15 +56,15 @@ PairedService *AllocatePairedService (const uuid_t id, const char *service_name_
 
 					if (param_set_p)
 						{
-							char *copied_name_s = CopyToNewString (service_name_s, 0, false);
+							char *copied_name_s = EasyCopyToNewString (service_name_s);
 
 							if (copied_name_s)
 								{
-									char *copied_uri_s = CopyToNewString (uri_s, 0, false);
+									char *copied_uri_s = EasyCopyToNewString (uri_s);
 
 									if (copied_uri_s)
 										{
-											char *copied_server_name_s = CopyToNewString (server_name_s, 0, false);
+											char *copied_server_name_s = EasyCopyToNewString (server_name_s);
 
 											if (copied_server_name_s)
 												{
@@ -421,9 +421,9 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																													 * Save the details to access the remote service with a file named using
 																													 * the local uuid
 																													 */
-																													if ((job_p -> rsj_uri_s = CopyToNewString (remote_uri_s, 0, false)) != NULL)
+																													if ((job_p -> rsj_uri_s = EasyCopyToNewString (remote_uri_s)) != NULL)
 																														{
-																															if ((job_p -> rsj_service_name_s = CopyToNewString (remote_service_s, 0, false)) != NULL)
+																															if ((job_p -> rsj_service_name_s = EasyCopyToNewString (remote_service_s)) != NULL)
 																																{
 																																	if (id_flag)
 																																		{

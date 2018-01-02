@@ -70,7 +70,7 @@ bool SetSystemAsyncTaskCommand (SystemAsyncTask *task_p, const char *command_s)
 
 	if (command_s)
 		{
-			char *copied_command_s = CopyToNewString (command_s, 0, false);
+			char *copied_command_s = EasyCopyToNewString (command_s);
 
 			if (copied_command_s)
 				{

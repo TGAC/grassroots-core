@@ -512,11 +512,11 @@ ExternalServer *AllocateExternalServer (const char *name_s, const char *uri_s, c
 
 	if (connection_p)
 		{
-			char *copied_name_s = CopyToNewString (name_s, 0, false);
+			char *copied_name_s = EasyCopyToNewString (name_s);
 
 			if (copied_name_s)
 				{
-					char *copied_uri_s = CopyToNewString (uri_s, 0, false);
+					char *copied_uri_s = EasyCopyToNewString (uri_s);
 
 					if (copied_uri_s)
 						{

@@ -16,7 +16,7 @@
 
 
 #ifdef _DEBUG
-	#define ASYNC_TASK_DEBUG	(STM_LEVEL_FINEST)
+	#define ASYNC_TASK_DEBUG	(STM_LEVEL_INFO)
 #else
 	#define ASYNC_TASK_DEBUG	(STM_LEVEL_NONE)
 #endif
@@ -29,7 +29,7 @@ bool InitialiseAsyncTask (AsyncTask *task_p, const char *name_s, AsyncTasksManag
 
 	if (name_s)
 		{
-			copied_name_s = CopyToNewString (name_s, 0, false);
+			copied_name_s = EasyCopyToNewString (name_s);
 
 			if (!copied_name_s)
 				{

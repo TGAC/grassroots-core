@@ -360,7 +360,7 @@ static char *GetInnerText (const htmlcxx :: HTML :: Node *node_p, const char *da
 
 					if (success_flag)
 						{
-							inner_text_s = CopyToNewString (GetByteBufferData (buffer_p), 0, false);
+							inner_text_s = EasyCopyToNewString (GetByteBufferData (buffer_p));
 						}
 				}
 		}
@@ -416,7 +416,7 @@ static bool InitHtmlLink (HtmlLink *link_p, const char *title_s, const char *uri
 
 			if ((strncmp (HTTP_S, uri_s, strlen (HTTP_S)) == 0) || (strncmp (HTTPS_S, uri_s, strlen (HTTPS_S)) == 0))
 				{
-					value_s = CopyToNewString (uri_s, 0, false);
+					value_s = EasyCopyToNewString (uri_s);
 
 					if (!value_s)
 						{
@@ -479,7 +479,7 @@ static bool InitHtmlLink (HtmlLink *link_p, const char *title_s, const char *uri
 		}		/* if (base_uri_s) */
 	else
 		{
-			value_s = CopyToNewString (uri_s, 0, false);
+			value_s = EasyCopyToNewString (uri_s);
 
 			if (!value_s)
 				{
@@ -496,7 +496,7 @@ static bool InitHtmlLink (HtmlLink *link_p, const char *title_s, const char *uri
 		{
 			link_p -> hl_uri_s = value_s;
 
-			value_s = CopyToNewString (data_s, 0, false);
+			value_s = EasyCopyToNewString (data_s);
 
 			if (value_s)
 				{
@@ -506,7 +506,7 @@ static bool InitHtmlLink (HtmlLink *link_p, const char *title_s, const char *uri
 
 					if (title_s)
 						{
-							value_s = CopyToNewString (title_s, 0, false);
+							value_s = EasyCopyToNewString (title_s);
 
 							if (value_s)
 								{

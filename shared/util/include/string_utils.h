@@ -68,6 +68,9 @@
 GRASSROOTS_UTIL_API char *CopyToNewString (const char * const src_p, const size_t length_to_copy, bool trim);
 
 
+GRASSROOTS_UTIL_API char *EasyCopyToNewString (const char * const src_s);
+
+
 /**
  * Delete a string previously allocated using CopyToNewString.
  *

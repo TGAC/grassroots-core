@@ -28,7 +28,7 @@
 
 RemoteParameterDetails *AllocateRemoteParameterDetails (const char * const uri_s, const char * const param_s)
 {
-	char *copied_uri_s = CopyToNewString (uri_s, 0, false);
+	char *copied_uri_s = EasyCopyToNewString(uri_s);
 
 	if (copied_uri_s)
 		{
@@ -36,7 +36,7 @@ RemoteParameterDetails *AllocateRemoteParameterDetails (const char * const uri_s
 
 			if (param_s)
 				{
-					copied_param_s = CopyToNewString (param_s, 0, false);
+					copied_param_s = EasyCopyToNewString (param_s);
 				}
 
 			if ((!param_s) || (param_s && copied_param_s))

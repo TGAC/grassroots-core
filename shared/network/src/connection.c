@@ -160,7 +160,7 @@ Connection *AllocateWebServerConnection (const char * const full_uri_s)
 
 			if (curl_p)
 				{
-					char *uri_s = CopyToNewString (full_uri_s, 0, false);
+					char *uri_s = EasyCopyToNewString (full_uri_s);
 
 					if (uri_s)
 						{

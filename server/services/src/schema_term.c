@@ -33,7 +33,7 @@ static bool AddTermToJSON (json_t *root_p, const char *root_key_s, const char *t
 
 SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const char *description_s)
 {
-	char *copied_url_s = CopyToNewString (url_s, 0, false);
+	char *copied_url_s = EasyCopyToNewString (url_s);
 
 	if (copied_url_s)
 		{
@@ -42,7 +42,7 @@ SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const cha
 
 			if (name_s)
 				{
-					copied_name_s = CopyToNewString (name_s, 0, false);
+					copied_name_s = EasyCopyToNewString (name_s);
 					success_flag = (copied_name_s != NULL);
 				}
 
@@ -53,7 +53,7 @@ SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const cha
 
 					if (description_s)
 						{
-							copied_description_s = CopyToNewString (description_s, 0, false);
+							copied_description_s = EasyCopyToNewString (description_s);
 							success_flag = (copied_description_s != NULL);
 						}
 

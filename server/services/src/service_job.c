@@ -1595,13 +1595,13 @@ bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, 
 
 	if (name_s)
 		{
-			job_p -> sj_name_s = CopyToNewString (name_s, 0, false);
+			job_p -> sj_name_s = EasyCopyToNewString (name_s);
 
 			if (job_p -> sj_name_s)
 				{
 					if (description_s)
 						{
-							job_p -> sj_description_s = CopyToNewString (description_s, 0, false);
+							job_p -> sj_description_s = EasyCopyToNewString (description_s);
 
 							if (! (job_p -> sj_description_s))
 								{

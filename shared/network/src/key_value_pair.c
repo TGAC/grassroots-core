@@ -20,11 +20,11 @@
 
 KeyValuePair *AllocateKeyValuePair (const char *key_s, const char *value_s)
 {
-	char *copied_key_s = CopyToNewString (key_s, 0, false);
+	char *copied_key_s = EasyCopyToNewString (key_s);
 
 	if (copied_key_s)
 		{
-			char *copied_value_s = CopyToNewString (value_s, 0, false);
+			char *copied_value_s = EasyCopyToNewString (value_s);
 
 			if (copied_value_s)
 				{

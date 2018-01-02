@@ -204,7 +204,7 @@ static SearchTermNode *AllocateSearchTermNode (const char *clause_s, const char 
 						{
 							if (AppendStringsToByteBuffer (buffer_p, "='", key_s, "'", NULL))
 								{
-									node_p -> stn_term.st_key_buffer_s = CopyToNewString (GetByteBufferData (buffer_p), 0, false);
+									node_p -> stn_term.st_key_buffer_s = EasyCopyToNewString (GetByteBufferData (buffer_p));
 
 									success_flag = (node_p -> stn_term.st_key_buffer_s != NULL);
 								}
@@ -239,7 +239,7 @@ static SearchTermNode *AllocateSearchTermNode (const char *clause_s, const char 
 								{
 									if (AppendStringsToByteBuffer (buffer_p, op_s, " '", value_s, "'", NULL))
 										{
-											node_p -> stn_term.st_value_buffer_s = CopyToNewString (GetByteBufferData (buffer_p), 0, false);
+											node_p -> stn_term.st_value_buffer_s = EasyCopyToNewString (GetByteBufferData (buffer_p));
 
 											success_flag = (node_p -> stn_term.st_value_buffer_s != NULL);
 										}
@@ -529,7 +529,7 @@ QueryResults *DoMetaSearch (const IRodsSearch * const search_p, struct IRodsConn
 											if (zone_s)
 												{
 													/** @REPLACE IRODS CALL */
-													char *zone_key_s = CopyToNewString (ZONE_KW, 0, false);
+													char *zone_key_s = EasyCopyToNewString (ZONE_KW);
 
 													if (zone_key_s)
 														{

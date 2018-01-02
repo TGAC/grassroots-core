@@ -451,8 +451,8 @@ ParameterBounds *CopyParameterBounds (const ParameterBounds * const src_p, const
 					case PT_PASSWORD:
 					case PT_KEYWORD:
 						{
-							bounds_p -> pb_lower.st_string_value_s = CopyToNewString (src_p -> pb_lower.st_string_value_s, 0, false);
-							bounds_p -> pb_upper.st_string_value_s = CopyToNewString (src_p -> pb_upper.st_string_value_s, 0, false);
+							bounds_p -> pb_lower.st_string_value_s = EasyCopyToNewString (src_p -> pb_lower.st_string_value_s);
+							bounds_p -> pb_upper.st_string_value_s = EasyCopyToNewString (src_p -> pb_upper.st_string_value_s);
 
 							if (! ((bounds_p -> pb_lower.st_string_value_s) && (bounds_p -> pb_upper.st_string_value_s)))
 								{
@@ -1706,7 +1706,7 @@ static bool GetValueFromJSON (const json_t * const root_p, const char *key_s, co
 
 								if (strlen (src_s) > 0)
 									{
-										char *value_s = CopyToNewString (src_s, 0, false);
+										char *value_s = EasyCopyToNewString (src_s);
 
 										if (value_s)
 											{
@@ -2337,7 +2337,7 @@ bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterTy
 				{
 					if (src.st_string_value_s)
 						{
-							char *copied_value_s = CopyToNewString (src.st_string_value_s, 0, false);
+							char *copied_value_s = EasyCopyToNewString (src.st_string_value_s);
 
 							if (copied_value_s)
 								{
@@ -2646,7 +2646,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 			case PT_BOOLEAN:
 				{
 					const char *src_s = (value_p -> st_boolean_value == true) ? "true" : "false";
-					value_s = CopyToNewString (src_s, 0, false);
+					value_s = EasyCopyToNewString (src_s);
 					*alloc_flag_p = true;
 				}
 				break;
@@ -3171,7 +3171,7 @@ static bool SetSharedTypeStringValue (SharedType *value_p, const char * const sr
 
 	if (src_s)
 		{
-			char *copied_value_s = CopyToNewString (src_s, 0, false);
+			char *copied_value_s = EasyCopyToNewString (src_s);
 
 			if (copied_value_s)
 				{
@@ -3503,7 +3503,7 @@ static bool GetParameterStringFromConfig (const json_t *service_config_p, const 
 
 			if (value_s)
 				{
-					char *copied_value_s = CopyToNewString (value_s, 0, false);
+					char *copied_value_s = EasyCopyToNewString (value_s);
 
 					if (copied_value_s)
 						{

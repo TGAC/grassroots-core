@@ -147,7 +147,7 @@ bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t 
 {
 	memset (tool_p, 0, sizeof (*tool_p));
 
-	tool_p -> dt_program_name_s = CopyToNewString (program_name_s, 0, false);
+	tool_p -> dt_program_name_s = EasyCopyToNewString (program_name_s);
 
 	if (tool_p -> dt_program_name_s)
 		{
@@ -358,7 +358,7 @@ bool SetDrmaaToolEmailNotifications (DrmaaTool *tool_p, const char **email_addre
 					success_flag = true;
 					while (loop_flag)
 						{
-							char *copied_address_s = CopyToNewString (*address_ss, 0, false);
+							char *copied_address_s = EasyCopyToNewString (*address_ss);
 
 							if (copied_address_s)
 								{
@@ -910,7 +910,7 @@ static bool BuildNativeSpecification (DrmaaTool *tool_p)
 				{
 					const char *data_s = GetByteBufferData (buffer_p);
 
-					char *spec_s = CopyToNewString (data_s, 0, false);
+					char *spec_s = EasyCopyToNewString (data_s);
 
 					if (spec_s)
 						{
