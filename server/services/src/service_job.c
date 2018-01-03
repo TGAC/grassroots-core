@@ -694,21 +694,38 @@ static bool AddValidJSON (json_t *parent_p, const char * const key_s, json_t *ch
 
 	if (child_p)
 		{
-			if (set_as_new_flag)
+			bool add_flag = true;
+
+			/* check that the JSON object is not empty */
+			if (json_is_array (child_p))
 				{
-					if (json_object_set_new (parent_p, key_s, child_p) != 0)
-						{
-							success_flag = false;
-						}
+					add_flag = (json_array_size (child_p) != 0);
 				}
-			else
+			else if (json_is_object (child_p))
 				{
-					if (json_object_set (parent_p, key_s, child_p) != 0)
-						{
-							success_flag = false;
-						}
+					add_flag = (json_object_size (child_p) != 0);
 				}
-		}
+
+			if (add_flag)
+				{
+					if (set_as_new_flag)
+						{
+							if (json_object_set_new (parent_p, key_s, child_p) != 0)
+								{
+									success_flag = false;
+								}
+						}
+					else
+						{
+							if (json_object_set (parent_p, key_s, child_p) != 0)
+								{
+									success_flag = false;
+								}
+						}
+
+				}		/* if (add_flag) */
+
+		}		/* if (child_p) */
 
 	if (!success_flag)
 		{

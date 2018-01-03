@@ -694,9 +694,13 @@ void LoadMatchingServicesByName (LinkedList *services_p, const char * const serv
 	
 	InitOperationNameServiceMatcher (&matcher, service_name_s);
 	
-	GetMatchingServices (services_path_s, & (matcher.nsm_base_matcher), user_p, services_p, true);
+	/* Since we're after a service with a given name, we don't need multiple matches */
+	GetMatchingServices (services_path_s, & (matcher.nsm_base_matcher), user_p, services_p, false);
 	
-	AddReferenceServices (services_p, REFERENCES_PATH_S, services_path_s, service_name_s, user_p);
+	if (services_p -> ll_size == 0)
+		{
+			AddReferenceServices (services_p, REFERENCES_PATH_S, services_path_s, service_name_s, user_p);
+		}
 }
 
 

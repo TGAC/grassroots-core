@@ -165,7 +165,7 @@ bool AddServiceMetadataToJSON (const ServiceMetadata *metadata_p, json_t *servic
 											if (success_flag)
 												{
 													/* Now add the output parameters */
-													if (metadata_p -> sm_input_types_p)
+													if (metadata_p -> sm_output_types_p)
 														{
 															success_flag = AddSchemaTermListToJSON (metadata_json_p, metadata_p -> sm_output_types_p, SERVICE_METADATA_APPLICATION_OUTPUT_S);
 														}

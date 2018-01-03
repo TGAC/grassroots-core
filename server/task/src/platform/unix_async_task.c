@@ -77,6 +77,10 @@ AsyncTask *AllocateAsyncTask (const char *name_s, AsyncTasksManager *manager_p, 
 					pthread_attr_init (& (task_p -> uat_attributes));
 					pthread_attr_setdetachstate (& (task_p -> uat_attributes), PTHREAD_CREATE_JOINABLE);
 
+					#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "AllocateAsyncTask for \"%s\" at %.16X", task_p -> uat_base_task.at_name_s, task_p);
+					#endif
+
 					return (& (task_p -> uat_base_task));
 				}
 

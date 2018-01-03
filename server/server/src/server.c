@@ -131,6 +131,7 @@ json_t *ProcessServerRawMessage (const char * const request_s, const int socket_
 					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Error \"%s\" from ProcessServerJSONMessage for :\n%s\n", error_s, request_s);
 				}
 
+			json_decref (req_p);
 		}
 	else
 		{
