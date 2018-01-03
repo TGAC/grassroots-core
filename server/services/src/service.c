@@ -932,7 +932,7 @@ ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, UserDet
 		}
 	else if (plugin_p -> pl_type == PN_UNKNOWN)
 		{
-			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetServices");
+			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetReferenceServices");
 
 			if (symbol_p)
 				{
