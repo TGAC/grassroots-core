@@ -26,6 +26,7 @@
 #include "string_utils.h"
 #include "math_utils.h"
 #include "service_config.h"
+#include "schema_keys.h"
 
 
 #ifdef _DEBUG
@@ -34,8 +35,6 @@
 	#define WEB_SERVICE_UTIL_DEBUG	(STM_LEVEL_NONE)
 #endif
 
-static const char *S_METHOD_S = "method";
-static const char *S_URI_S = "uri";
 
 
 static const char *S_MATCH_TYPE_VALUES_SS [MT_NUM_MATCH_TYPES] =
@@ -55,7 +54,7 @@ static bool AppendParameterValue (ByteBuffer *buffer_p, const Parameter *param_p
 SubmissionMethod GetSubmissionMethod (const json_t *op_json_p)
 {
 	SubmissionMethod sm = SM_UNKNOWN;
-	json_t *method_json_p = json_object_get (op_json_p, S_METHOD_S);
+	json_t *method_json_p = json_object_get (op_json_p, WEB_SERVICE_METHOD_S);
 
 	if (method_json_p)
 		{
@@ -86,67 +85,58 @@ SubmissionMethod GetSubmissionMethod (const json_t *op_json_p)
 
 
 
-bool InitWebServiceData (WebServiceData * const data_p, json_t *op_json_p)
+bool InitWebServiceData (WebServiceData * const data_p, json_t *service_config_p)
 {
-	data_p -> wsd_config_p = op_json_p;
-	data_p -> wsd_name_s = GetOperationNameFromJSON (op_json_p);
+	json_t *op_p = json_object_get (service_config_p, SERVER_OPERATION_S);
 
-	if (data_p -> wsd_name_s)
+	if (op_p)
 		{
-			data_p -> wsd_description_s = GetOperationDescriptionFromJSON (op_json_p);
+			data_p -> wsd_config_p = service_config_p;
 
-			if (data_p -> wsd_description_s)
+			data_p -> wsd_name_s = GetServiceNameFromJSON (service_config_p);
+
+			if (data_p -> wsd_name_s)
 				{
-					data_p -> wsd_buffer_p = AllocateByteBuffer (1024);
-
-					if (data_p -> wsd_buffer_p)
+					if ((data_p -> wsd_description_s = GetServiceDescriptionFromJSON (service_config_p)) != NULL)
 						{
-							json_t *param_set_p = json_object_get (op_json_p, PARAM_SET_KEY_S);
+							data_p -> wsd_buffer_p = AllocateByteBuffer (1024);
 
-							if (param_set_p)
+							if (data_p -> wsd_buffer_p)
 								{
-									json_t *params_p = json_object_get (param_set_p, PARAM_SET_PARAMS_S);
+									data_p -> wsd_params_p = CreateParameterSetFromJSON (op_p, false);
 
-									if (params_p)
+									if (data_p -> wsd_params_p)
 										{
-											data_p -> wsd_params_p = CreateParameterSetFromJSON (op_json_p, false);
+											data_p -> wsd_curl_data_p = AllocateCurlTool (CM_MEMORY);
 
-											if (data_p -> wsd_params_p)
+											if (data_p -> wsd_curl_data_p)
 												{
-													data_p -> wsd_curl_data_p = AllocateCurlTool (CM_MEMORY);
+													data_p -> wsd_method = GetSubmissionMethod (op_p);
 
-													if (data_p -> wsd_curl_data_p)
+													if (data_p -> wsd_method != SM_UNKNOWN)
 														{
-															data_p -> wsd_method = GetSubmissionMethod (op_json_p);
-
-															if (data_p -> wsd_method != SM_UNKNOWN)
+															if ((data_p -> wsd_base_uri_s = GetJSONString (op_p, WEB_SERVICE_URL_S)) != NULL)
 																{
-																	data_p -> wsd_base_uri_s = GetJSONString (op_json_p, S_URI_S);
+																	data_p -> wsd_info_uri_s = GetOperationInformationURIFromJSON (service_config_p);
 
-																	if (data_p -> wsd_base_uri_s)
-																		{
-																			data_p -> wsd_info_uri_s = GetOperationInformationURIFromJSON (op_json_p);
-
-																			return true;
-																		}
+																	return true;
 																}
-
-															FreeCurlTool (data_p -> wsd_curl_data_p);
 														}
 
-													FreeParameterSet (data_p -> wsd_params_p);
+													FreeCurlTool (data_p -> wsd_curl_data_p);
 												}
 
-										}		/* if (params_p) */
+											FreeParameterSet (data_p -> wsd_params_p);
+										}
 
-								}		/* if (param_set_p) */
+									FreeByteBuffer (data_p -> wsd_buffer_p);
+								}		/* if (data_p -> wsd_buffer_p) */
 
-							FreeByteBuffer (data_p -> wsd_buffer_p);
-						}		/* if (data_p -> wsd_buffer_p) */
+						}		/* if (data_p -> wsd_description_s) */
 
-				}		/* if (data_p -> wsd_description_s) */
+				}		/* if (data_p -> wsd_name_s) */
 
-		}		/* if (data_p -> wsd_name_s) */
+		}		/* if (op_p) */
 
 	return false;
 }

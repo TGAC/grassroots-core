@@ -72,6 +72,7 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 
 static void GenerateServiceUUID (Service *service_p);
 
+static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i));
 
 static  uint32 AddLinkedServices (Service *service_p);
 
@@ -1676,6 +1677,8 @@ bool AddServiceResponseHeader (Service *service_p, json_t *response_p)
 }
 
 
+
+
 ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i))
 {
 	ServicesArray *services_p = NULL;
@@ -1686,129 +1689,25 @@ ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugi
 
 	if (config_p)
 		{
-			/* Make sure that the config refers to our service */
-			json_t *value_p = json_object_get (config_p, PLUGIN_NAME_S);
-
-			if (value_p)
+			if (json_is_object (config_p))
 				{
-					if (json_is_string (value_p))
+					services_p = GetServiceFromConfigJSON (config_p, plugin_name_s, get_service_fn);
+				}
+			else if (json_is_array (config_p))
+				{
+					size_t i;
+					json_t *service_config_p;
+
+					json_array_foreach (config_p, i, service_config_p)
 						{
-							const char *value_s = json_string_value (value_p);
 
-							if (strcmp (value_s, plugin_name_s) == 0)
-								{
-									json_t *ops_p = json_object_get (config_p, SERVER_OPERATION_S);
+						}
 
-									if (ops_p)
-										{
-											if (json_is_array (ops_p))
-												{
-													size_t num_ops = json_array_size (ops_p);
-
-													services_p = AllocateServicesArray (num_ops);
-
-													if (services_p)
-														{
-															size_t i = 0;
-															Service **service_pp = services_p -> sa_services_pp;
-
-															while (i < num_ops)
-																{
-																	json_t *op_p =  json_array_get (ops_p, i);
-																	json_t *copied_op_p = json_deep_copy (op_p);
-
-																	if (copied_op_p)
-																		{
-																			Service *service_p = get_service_fn (copied_op_p, i);
-
-																			if (service_p)
-																				{
-																					*service_pp = service_p;
-																				}
-																			else
-																				{
-																					char *dump_s = json_dumps (op_p, JSON_INDENT (2) | JSON_PRESERVE_ORDER);
-
-																					if (dump_s)
-																						{
-																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create service %lu from:\n%s\n", i, dump_s);
-																							free (dump_s);
-																						}
-																					else
-																						{
-																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create service %lu\n", i);
-																						}
-
-																					json_decref (copied_op_p);
-																				}
-
-																		}		/* if (copied_op_p) */
-																	else
-																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy refererence service %lu\n", i);
-																		}
-
-
-																	++ i;
-																	++ service_pp;
-																}		/* while (i < num_ops) */
-
-														}		/* if (services_p) */
-
-												}		/* if (json_is_array (ops_p)) */
-											else
-												{
-													services_p = AllocateServicesArray (1);
-
-													if (services_p)
-														{
-															Service **service_pp = services_p -> sa_services_pp;
-															json_t *copied_op_p = json_deep_copy (ops_p);
-
-															if (copied_op_p)
-																{
-																	Service *service_p = get_service_fn (copied_op_p, 0);
-
-																	if (service_p)
-																		{
-																			*service_pp = service_p;
-																		}
-																	else
-																		{
-																			char *dump_s = json_dumps (copied_op_p, JSON_INDENT (2) | JSON_PRESERVE_ORDER);
-
-																			if (dump_s)
-																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create service 0 from:\n%s\n", dump_s);
-																					free (dump_s);
-																				}
-																			else
-																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create service 0\n");
-																				}
-
-																			FreeServicesArray (services_p);
-																			services_p = NULL;
-																			json_decref (copied_op_p);
-																		}
-
-																}
-															else
-																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy single refererence service\n");
-																}
-
-
-														}		/* if (services_p)  */
-												}
-
-										}
-
-								}		/* if (strcmp (value_s, plugin_name_s) == 0) */
-
-						}		/* if (json_is_string (value_p)) */
-
-				}		/* if (value_p) */
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, config_p, "reference config is not of required type");
+				}
 
 		}		/* if (config_p) */
 
@@ -2039,4 +1938,115 @@ int32 GetNumberOfLiveJobs (Service *service_p)
 		}		/* if (service_p -> se_jobs_p) */
 
 	return num_live_jobs;
+}
+
+
+static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i))
+{
+	ServicesArray *services_p = NULL;
+
+	/* Make sure that the config refers to our service */
+	json_t *value_p = json_object_get (service_config_p, PLUGIN_NAME_S);
+
+	if (value_p)
+		{
+			if (json_is_string (value_p))
+				{
+					const char *value_s = json_string_value (value_p);
+
+					if (strcmp (value_s, plugin_name_s) == 0)
+						{
+							json_t *ops_p = json_object_get (service_config_p, SERVER_OPERATION_S);
+
+							if (ops_p)
+								{
+									if (json_is_array (ops_p))
+										{
+											size_t num_ops = json_array_size (ops_p);
+
+											services_p = AllocateServicesArray (num_ops);
+
+											if (services_p)
+												{
+													size_t i = 0;
+													Service **service_pp = services_p -> sa_services_pp;
+
+													while (i < num_ops)
+														{
+															json_t *op_p =  json_array_get (ops_p, i);
+															json_t *copied_op_p = json_deep_copy (op_p);
+
+															if (copied_op_p)
+																{
+																	Service *service_p = get_service_fn (copied_op_p, i);
+
+																	if (service_p)
+																		{
+																			*service_pp = service_p;
+																		}
+																	else
+																		{
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, op_p, "Failed to create service %lu\n", i);
+																			json_decref (copied_op_p);
+																		}
+
+																}		/* if (copied_op_p) */
+															else
+																{
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy refererence service %lu\n", i);
+																}
+
+
+															++ i;
+															++ service_pp;
+														}		/* while (i < num_ops) */
+
+												}		/* if (services_p) */
+
+										}		/* if (json_is_array (ops_p)) */
+									else
+										{
+											services_p = AllocateServicesArray (1);
+
+											if (services_p)
+												{
+													Service **service_pp = services_p -> sa_services_pp;
+													json_t *copied_service_config_p = json_deep_copy (service_config_p);
+
+													if (copied_service_config_p)
+														{
+															Service *service_p = get_service_fn (copied_service_config_p, 0);
+
+															if (service_p)
+																{
+																	*service_pp = service_p;
+																}
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, ops_p, "Failed to create service\n");
+
+																	FreeServicesArray (services_p);
+																	services_p = NULL;
+																	json_decref (copied_service_config_p);
+																}
+
+														}
+													else
+														{
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy single refererence service\n");
+														}
+
+
+												}		/* if (services_p)  */
+										}
+
+								}
+
+						}		/* if (strcmp (value_s, plugin_name_s) == 0) */
+
+				}		/* if (json_is_string (value_p)) */
+
+		}		/* if (value_p) */
+
+	return services_p;
 }

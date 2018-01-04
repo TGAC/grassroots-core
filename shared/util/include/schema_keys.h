@@ -646,6 +646,9 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	/**@}*/
 
 
+	PREFIX const char *WEB_SERVICE_METHOD_S VAL("method");
+	PREFIX const char *WEB_SERVICE_URL_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
+
 
 #ifdef __cplusplus
 }
