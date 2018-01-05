@@ -705,6 +705,8 @@ GRASSROOTS_SERVICE_API json_t *GetServiceAsJSON (Service * const service_p, Reso
 
 
 
+GRASSROOTS_SERVICE_API const char *GetServiceIcon (Service *service_p);
+
 
 /**
  * Close a Services-based Plugin and free all of the Services.

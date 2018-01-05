@@ -1213,16 +1213,13 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 
 															if (b)
 																{
-																	if ((service_p -> se_data_p) && (service_p -> se_data_p -> sd_config_p))
-																		{
-																			const char *icon_uri_s = GetJSONString (service_p -> se_data_p -> sd_config_p, OPERATION_ICON_URI_S);
+																	const char *icon_uri_s = GetServiceIcon (service_p);
 
-																			if (icon_uri_s)
+																	if (icon_uri_s)
+																		{
+																			if (json_object_set_new (operation_p, OPERATION_ICON_URI_S, json_string (icon_uri_s)) != 0)
 																				{
-																					if (json_object_set_new (operation_p, OPERATION_ICON_URI_S, json_string (icon_uri_s)) != 0)
-																						{
-																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon uri \"%s\" for service \"%s\"", icon_uri_s, service_name_s);
-																						}
+																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon uri \"%s\" for service \"%s\"", icon_uri_s, service_name_s);
 																				}
 																		}
 
@@ -1276,6 +1273,18 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 	return root_p;
 }
 
+
+const char *GetServiceIcon (Service *service_p)
+{
+	const char *icon_uri_s = NULL;
+
+	if ((service_p -> se_data_p) && (service_p -> se_data_p -> sd_config_p))
+		{
+			icon_uri_s = GetJSONString (service_p -> se_data_p -> sd_config_p, OPERATION_ICON_URI_S);
+		}
+
+	return icon_uri_s;
+}
 
 
 static bool AddServiceNameToJSON (Service * const service_p, json_t *root_p)
@@ -1716,12 +1725,14 @@ ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugi
 
 
 
-json_t *GetInterestedServiceJSON (const char *service_name_s, const char *keyword_s, const ParameterSet * const params_p, const bool full_definition_flag)
+json_t *GetInterestedServiceJSON (Service *service_p, const char *keyword_s, const ParameterSet * const params_p, const bool full_definition_flag)
 {
 	json_t *res_p = NULL;
 	json_error_t json_err;
+	const char *service_name_s = GetServiceName (service_p);
 
-	res_p = json_pack_ex (&json_err, 0, "{s:s,s:b,s:s}", JOB_SERVICE_S, service_name_s, SERVICE_RUN_S, true, "@type", "grassroots_service");
+
+	res_p = json_pack_ex (&json_err, 0, "{s:s,s:b,s:s}", SERVICE_NAME_S, service_name_s, SERVICE_RUN_S, true, "@type", "grassroots_service");
 
 	if (res_p)
 		{
@@ -1732,7 +1743,15 @@ json_t *GetInterestedServiceJSON (const char *service_name_s, const char *keywor
 				{
 					if (json_object_set_new (res_p, PARAM_SET_KEY_S, params_json_p) == 0)
 						{
+							const char *icon_s = GetServiceIcon (service_p);
 
+							if (icon_s)
+								{
+									if (json_object_set_new (res_p, OPERATION_ICON_URI_S, json_string (icon_s)) != 0)
+										{
+											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon uri \"%s\" for service \"%s\"", icon_s, service_name_s);
+										}
+								}
 						}
 					else
 						{

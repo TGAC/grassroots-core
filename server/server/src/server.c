@@ -278,20 +278,11 @@ json_t *ProcessServerJSONMessage (json_t *req_p, const int UNUSED_PARAM (socket_
 
 											if (keyword_json_group_p)
 												{
-													json_t *keyword_json_value_p = json_object_get (keyword_json_group_p, KEYWORDS_QUERY_S);
+													const char *keyword_s = GetJSONString (keyword_json_group_p, KEYWORDS_QUERY_S);
 
-													if (keyword_json_value_p)
+													if (keyword_s)
 														{
-															if (json_is_string (keyword_json_value_p))
-																{
-																	const char *keyword_s = json_string_value (keyword_json_value_p);
-
-																	res_p = RunKeywordServices (req_p, user_p, keyword_s);
-																}
-															else
-																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, keyword_json_value_p, "Keyword not a string");
-																}
+															res_p = RunKeywordServices (req_p, user_p, keyword_s);
 														}
 													else
 														{
@@ -1493,8 +1484,7 @@ static json_t *RunKeywordServices (const json_t * const req_p, UserDetails *user
 																			 * Add the information that the service is interested in this keyword
 																			 * and can be ran.
 																			 */
-																			const char *service_name_s = GetServiceName (service_p);
-																			json_t *interested_app_p = GetInterestedServiceJSON (service_name_s, keyword_s, params_p, true);
+																			json_t *interested_app_p = GetInterestedServiceJSON (service_p, keyword_s, params_p, true);
 
 																			if (interested_app_p)
 																				{
