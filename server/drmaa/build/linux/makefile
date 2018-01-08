@@ -77,6 +77,10 @@ CPPFLAGS += -DLSF_DRMAA_ENABLED
 endif
 
 
+ifeq ($(CONDOR_DRMAA_ENABLED),1)
+CPPFLAGS += -DCONDOR_DRMAA_ENABLED
+endif
+
 
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 

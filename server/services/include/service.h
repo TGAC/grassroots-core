@@ -899,7 +899,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceRunRequest (const char * const service_
  * knows of this keyword but cannot run on it directly. For example, a Blast
  * Service might know that the keyword refers to some if its databases.
  *
- * @param service_name_s The name of the Service that has registered an interest in the given keyword.
+ * @param service_p The Service that has registered an interest in the given keyword.
  * @param keyword_s The keyword.
  * @param params_p The parameters to encode within the JSON fragment. This will be set up based upon the
  * keyword used to check whether the Service was interested.
@@ -910,7 +910,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceRunRequest (const char * const service_
  * @see IsServiceMatch
  * @see GetParameterAsJSON
  */
-GRASSROOTS_SERVICE_API json_t *GetInterestedServiceJSON (const char *service_name_s, const char *keyword_s, const ParameterSet * const params_p, const bool full_definition_flag);
+GRASSROOTS_SERVICE_API json_t *GetInterestedServiceJSON (Service *service_p, const char *keyword_s, const ParameterSet * const params_p, const bool full_definition_flag);
 
 
 /**
