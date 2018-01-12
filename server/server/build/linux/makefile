@@ -6,11 +6,9 @@ DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
 
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../build_utils/linux)
+export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
 endif
-ifneq ($(PROPERTIES_SET),1)
-include $(DIR_ROOT)/project.properties
-endif
+include $(DIR_BUILD_CONFIG)/project.properties
 
 export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 
@@ -57,7 +55,19 @@ LDFLAGS = -lpthread -L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_MONGODB_LIB) -l$(GRASSROOTS_MONGODB_LIB_NAME) \
 	
 
-ifeq ($(DRMAA_ENABLED),1)
+add_drmaa = 0
+ifeq ($(SLURM_DRMAA_ENABLED), 1)
+    add_drmaa = 1
+endif
+ifeq ($(HTCONDOR_DRMAA_ENABLED), 1)
+    add_drmaa = 1
+endif
+ifeq ($(LSF_DRMAA_ENABLED), 1)
+    add_drmaa = 1
+endif
+
+
+ifeq ($(add_drmaa),1)
 SRCS += drmaa_util.c
 LDFLAGS += -L$(DIR_GRASSROOTS_DRMAA_LIB) -l$(GRASSROOTS_DRMAA_LIB_NAME)
 INCLUDES += -I$(DIR_GRASSROOTS_DRMAA_INC)

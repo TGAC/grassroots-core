@@ -10,15 +10,15 @@ include $(DIR_BUILD_CONFIG)/project.properties
 
 
 ifeq ($(SLURM_DRMAA_ENABLED),1)
-DRMAA_IMPLEMENTATIONS += SLURM
+DRMAA_IMPLEMENTATIONS += slurm
 endif
 
 ifeq ($(LSF_DRMAA_ENABLED),1)
-DRMAA_IMPLEMENTATIONS += LSF
+DRMAA_IMPLEMENTATIONS += lsf
 endif
 
 ifeq ($(HTCONDOR_DRMAA_ENABLED),1)
-DRMAA_IMPLEMENTATIONS += HTCONDOR
+DRMAA_IMPLEMENTATIONS += htcondor
 endif
 
 
@@ -29,4 +29,11 @@ clean:
 	
 all:
 	@echo "DRMAA_IMPLEMENTATIONS '$(DRMAA_IMPLEMENTATIONS)'"
-	$(foreach imp,$(DRMAA_IMPLEMENTATIONS), "make -f library.makefile clean -D$(imp)=1\n")
+	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
+		make -f $(imp).makefile clean all;)
+
+install:
+	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
+		make -f $(imp).makefile clean install;)
+
+		

@@ -1,4 +1,5 @@
-NAME 		:= grassroots_drmaa_$(DRMAA_IMPLEMENTATION_NAME)
+BASE_LIBNAME := grassroots_drmaa
+NAME 		:= $(BASE_LIBNAME)_$(DRMAA_IMPLEMENTATION_NAME)
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
@@ -9,9 +10,10 @@ export DIR_BUILD_CONFIG := $(realpath $(DIR_BUILD)/../../../../../build-config/l
 endif
 
 
+
 include $(DIR_BUILD_CONFIG)/project.properties
 
-export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib/drmaa
+export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib/drmaa/$(DRMAA_IMPLEMENTATION_NAME)
 
 TEST_EXE_NAME = drmaa_tool_test_$(DRMAA_IMPLEMENTATION_NAME)
 
@@ -39,7 +41,7 @@ INCLUDES = \
 SRCS 	= \
 	drmaa_tool.c 
 
-BASE_LDFLAGS = -ldl \
+BASE_LDFLAGS += -ldl \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_SERVICES_LIB) -l$(GRASSROOTS_SERVICES_LIB_NAME) \
@@ -47,8 +49,7 @@ BASE_LDFLAGS = -ldl \
 	-L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_DRMAA_IMPLEMENTATION_LIB) -l$(DRMAA_IMPLEMENTATION_LIB_NAME)
 
-CPPFLAGS += -DGRASSROOTS_DRMAA_LIBRARY_EXPORTS
-
+CPPFLAGS += -DGRASSROOTS_DRMAA_LIBRARY_EXPORTS -D$(DRMAA_DEFS)=1
 LDFLAGS += $(BASE_LDFLAGS)
 
 EXE_LDFLAGS = -L$(DIR_GRASSROOTS_SERVER_LIB) -l$(GRASSROOTS_SERVER_LIB_NAME) \
@@ -83,9 +84,16 @@ endif
 
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
-.PHONY:	test test_install
+.PHONY:	test test_install clean make_symbolic_links lib_install
 
-#install: test test_install
+ifeq ($(DRMAA_IMPLEMENTATION_NAME),$(DRMAA_DEFAULT_LIB))
+install: lib_install make_symbolic_links
+else
+install: lib_install
+endif
+	
+clean:
+	rm -fr $(DIR_OBJS)/*.o
 
 test:
 	gcc $(CPPFLAGS) -Wl,--no-as-needed -I/usr/include $(EXE_INCLUDES) -L$(DIR_OBJS)/ -l$(NAME) -lm $(BASE_LDFLAGS) $(EXE_LDFLAGS) $(INCLUDES) ../clients/standalone/src/services_list.c ../clients/standalone/src/servers_manager.c \
@@ -97,3 +105,17 @@ test_install: test install
 	cp $(BUILD)/$(TEST_EXE_NAME) $(DIR_GRASSROOTS_INSTALL)/  
 
 
+lib_install: all
+	@echo "ROOT DIR $(DIR_ROOT)"
+	@echo "THIS DIR $(THIS_DIR)"
+	@echo "Installing DRMAA library $(TARGET_NAME) to $(DIR_INSTALL)"
+	mkdir -p $(DIR_INSTALL)
+	cp $(DIR_OBJS)/$(TARGET_NAME) $(DIR_INSTALL)/  
+	@echo "checking DRMAA_IMPLEMENTATION_NAME: '$(DRMAA_IMPLEMENTATION_NAME)' against DRMAA_DEFAULT_LIB: '$(DRMAA_DEFAULT_LIB)'"
+
+make_symbolic_links:
+	@echo "making symbolic link for $(DIR_INSTALL)/$(TARGET_NAME) to $(DIR_GRASSROOTS_INSTALL)/lib/lib$(BASE_LIBNAME).so"
+	rm -f  $(DIR_GRASSROOTS_INSTALL)/lib/lib$(BASE_LIBNAME).so
+	ln -s $(DIR_INSTALL)/$(TARGET_NAME)  $(DIR_GRASSROOTS_INSTALL)/lib/lib$(BASE_LIBNAME).so
+	rm -f $(DIR_OBJS)/lib$(BASE_LIBNAME).so
+	ln -s $(DIR_OBJS)/$(TARGET_NAME) $(DIR_OBJS)/lib$(BASE_LIBNAME).so
