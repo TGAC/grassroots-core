@@ -35,6 +35,8 @@
 	static const char S_QUEUE_KEY_S [] = "-q ";
 #elif SLURM_DRMAA_ENABLED
 	static const char S_QUEUE_KEY_S [] = "-p ";
+#elif HTCONDOR_DRMAA_ENABLED
+	static const char S_QUEUE_KEY_S [] = NULL;
 #endif
 
 
@@ -857,7 +859,7 @@ static bool BuildNativeSpecification (DrmaaTool *tool_p)
 
 	if (buffer_p)
 		{
-			if (tool_p -> dt_queue_name_s)
+			if ((tool_p -> dt_queue_name_s) && (S_QUEUE_KEY_S != NULL))
 				{
 					success_flag = AppendStringsToByteBuffer (buffer_p, S_QUEUE_KEY_S, tool_p -> dt_queue_name_s, NULL);
 				}
