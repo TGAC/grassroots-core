@@ -32,11 +32,11 @@
 
 
 #ifdef LSF_DRMAA_ENABLED
-	static const char S_QUEUE_KEY_S [] = "-q ";
+	static const char * const S_QUEUE_KEY_S = "-q ";
 #elif SLURM_DRMAA_ENABLED
-	static const char S_QUEUE_KEY_S [] = "-p ";
+	static const char * const S_QUEUE_KEY_S = "-p ";
 #elif HTCONDOR_DRMAA_ENABLED
-	static const char S_QUEUE_KEY_S [] = NULL;
+	static const char * const S_QUEUE_KEY_S = NULL;
 #endif
 
 
