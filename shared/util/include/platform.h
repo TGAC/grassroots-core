@@ -25,7 +25,7 @@
 #define PLATFORM_H
 
 #include "typedefs.h"
-#include "grassroots_task_library.h"
+#include "grassroots_util_library.h"
 
 #ifdef __cplusplus
 	extern "C" {
@@ -40,7 +40,7 @@
  *
  * @ingroup utility_group
  */
-GRASSROOTS_TASK_API bool InitPlatform (void);
+GRASSROOTS_UTIL_API bool InitPlatform (void);
 
 
 /**
@@ -48,7 +48,7 @@ GRASSROOTS_TASK_API bool InitPlatform (void);
  *
  * @ingroup utility_group
  */
-GRASSROOTS_TASK_API void ExitPlatform (void);
+GRASSROOTS_UTIL_API void ExitPlatform (void);
 
 
 /**
@@ -60,7 +60,7 @@ GRASSROOTS_TASK_API void ExitPlatform (void);
  *
  * @ingroup utility_group
  */
-GRASSROOTS_TASK_API uint32 Snooze (uint32 milliseconds);
+GRASSROOTS_UTIL_API uint32 Snooze (uint32 milliseconds);
 
 
 #ifdef __cplusplus

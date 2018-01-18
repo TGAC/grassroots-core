@@ -22,7 +22,7 @@ DRMAA_IMPLEMENTATIONS += htcondor
 endif
 
 
-.PHONY: all clean install
+.PHONY: all clean install test
 
 clean:
 	make -f library.makefile clean
@@ -35,5 +35,9 @@ all:
 install:
 	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
 		make -f $(imp).makefile clean install;)
+		
+test:
+	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
+		make -f $(imp).makefile test;)
 
 		

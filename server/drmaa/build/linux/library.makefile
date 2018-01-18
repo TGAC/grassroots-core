@@ -52,15 +52,22 @@ BASE_LDFLAGS += -ldl \
 CPPFLAGS += -DGRASSROOTS_DRMAA_LIBRARY_EXPORTS -D$(DRMAA_DEFS)=1
 LDFLAGS += $(BASE_LDFLAGS)
 
+EXE_SRCS = $(DIR_SRC)/drmaa_tool_test.c
+
 EXE_LDFLAGS = -L$(DIR_GRASSROOTS_SERVER_LIB) -l$(GRASSROOTS_SERVER_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_SERVICES_LIB) -l$(GRASSROOTS_SERVICES_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_SERVER_LIB) -l$(GRASSROOTS_SERVER_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_HANDLER_LIB) -l$(GRASSROOTS_HANDLER_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_IRODS_LIB) -l$(GRASSROOTS_IRODS_LIB_NAME) \
+	-L$(DIR_GRASSROOTS_MONGODB_LIB) -l$(GRASSROOTS_MONGODB_LIB_NAME) \
 	-L$(DIR_HTMLCXX_LIB) -lhtmlcxx \
 	-L$(DIR_HCXSELECT_LIB) -lhcxselect \
-	-L$(DIR_SHARED_IRODS_LIB) -lirods
+	-L$(DIR_IRODS_LIB) 	-lirods_client -lirods_common -lirods_plugin_dependencies \
+	-L$(DIR_UUID_LIB) -luuid \
+	-L$(DIR_PCRE_LIB) -lpcre \
+	-L$(DIR_MONGODB_LIB) -lmongoc-1.0 \
+	-L$(DIR_BSON_LIB) -lbson-1.0 
 
 EXE_INCLUDES = \
 	-I$(DIR_GRASSROOTS_SERVICES_INC) \
@@ -96,8 +103,8 @@ clean:
 	rm -fr $(DIR_OBJS)/*.o
 
 test:
-	gcc $(CPPFLAGS) -Wl,--no-as-needed -I/usr/include $(EXE_INCLUDES) -L$(DIR_OBJS)/ -l$(NAME) -lm $(BASE_LDFLAGS) $(EXE_LDFLAGS) $(INCLUDES) ../clients/standalone/src/services_list.c ../clients/standalone/src/servers_manager.c \
-	$(DIR_SRC)/$(TEST_EXE_NAME).c -g -o $(BUILD)/$(TEST_EXE_NAME)
+	@echo "Building DRMAA test tool $(BUILD)/$(TEST_EXE_NAME)"
+	gcc $(CPPFLAGS) -Wl,--no-as-needed -I/usr/include $(EXE_INCLUDES) -L$(DIR_OBJS)/ -l$(NAME) -lm $(BASE_LDFLAGS) $(EXE_LDFLAGS) $(INCLUDES) $(EXE_SRCS) -g -o $(BUILD)/$(TEST_EXE_NAME)
 
 
 test_install: test install

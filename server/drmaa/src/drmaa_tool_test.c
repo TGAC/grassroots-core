@@ -19,19 +19,24 @@
 #include "drmaa_tool.h"
 #include "drmaa_util.h"
 #include "memory_allocations.h"
+#include "platform.h"
 
-DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s);
+
+static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s, const char **email_addresses_ss);
+
 
 int main (int argc, char *argv [])
 {
 	int ret = 10;
 	int num_runs = 5;
-	char *program_name_s = "/tgac/software/testing/blast/2.2.30/x86_64/bin/blastn";
-	char *query_filename_s = "/tgac/services/wheatis/query.txt";
-	char *output_filename_s = "/tgac/services/wheatis/drmaa_test.txt";
-	char *db_name_s =  "/tgac/public/databases/blast/triticum_aestivum/IWGSC/v2/IWGSCv2.0.00";
+	const char *program_name_s = "/tgac/software/testing/blast/2.2.30/x86_64/bin/blastn";
+	const char *query_filename_s = "/tgac/services/wheatis/query.txt";
+	const char *output_filename_s = "/tgac/services/wheatis/drmaa_test.txt";
+	const char *db_name_s =  "/tgac/public/databases/blast/triticum_aestivum/IWGSC/v2/IWGSCv2.0.00";
+	const char *log_filename_s = "drmaa_tool_test.log";
+	const char *email_addresses_ss  [] = { "simon.tyrrell@earlham.ac.uk", NULL };
 
-	switch (argc)
+ 	switch (argc)
 		{
 			case 6:
 				db_name_s = argv [5];
@@ -66,7 +71,7 @@ int main (int argc, char *argv [])
 
 							for (i = 0; i < num_runs; ++ i)
 								{
-									DrmaaTool *tool_p = CreateBlastDrmaaJob (program_name_s, db_name_s, query_filename_s, output_filename_s);
+									DrmaaTool *tool_p = CreateBlastDrmaaJob (program_name_s, db_name_s, query_filename_s, output_filename_s, email_addresses_ss);
 
 									if (tool_p)
 										{
@@ -83,7 +88,7 @@ int main (int argc, char *argv [])
 								{
 									for (i = 0; i < num_runs; ++ i)
 										{
-											success_flag = RunDrmaaTool (* (tools_pp + i), true);
+											success_flag = RunDrmaaTool (* (tools_pp + i), true, log_filename_s);
 
 											if (!success_flag)
 												{
@@ -96,7 +101,7 @@ int main (int argc, char *argv [])
 											bool loop_flag = true;
 
 											/* pause for 5 seconds */
-											sleep (5);
+											Snooze (5000);
 
 											while (loop_flag)
 												{
@@ -107,7 +112,7 @@ int main (int argc, char *argv [])
 															DrmaaTool *tool_p = * (tools_pp + i);
 
 															OperationStatus status = GetDrmaaToolStatus (tool_p);
-															printf ("drmaa tool %lu status %lu\n", i, status);
+															printf ("drmaa tool " SIZET_FMT " status " INT32_FMT " \n", i, status);
 
 															if (status == OS_STARTED || status == OS_PENDING)
 																{
@@ -122,7 +127,7 @@ int main (int argc, char *argv [])
 													else
 														{
 															/* pause for 1 seconds */
-															sleep (1);
+															Snooze (1000);
 														}
 												}
 										}
@@ -149,17 +154,20 @@ int main (int argc, char *argv [])
 
 
 
-DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s, const char **email_addresses_ss)
+static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s, const char **email_addresses_ss)
 {
-	DrmaaTool *tool_p = AllocateDrmaaTool (program_name_s);
+	DrmaaTool *tool_p = NULL;
+	uuid_t id;
+
+	uuid_generate (id);
+
+	tool_p = AllocateDrmaaTool (program_name_s, id);
 
 	if (tool_p)
 		{
 			if (SetDrmaaToolQueueName (tool_p, "webservices"))
 				{
-					const char **email_addresses_ss = { "simon.tyrrell@tgac.ac.uk", NULL };
-
-					if (SetDrmaaToolEmailNotifictaions (tool_p, email_addresses_ss))
+					if (SetDrmaaToolEmailNotifications (tool_p, email_addresses_ss))
 						{
 							if (AddDrmaaToolArgument (tool_p, "-db"))
 								{
