@@ -485,7 +485,7 @@ bool SetDrmaaToolOutputFilename (DrmaaTool *tool_p, const char *output_name_s)
 			char *temp_s = NULL;
 			const char *path_to_use_s = NULL;
 
-			if (*output_name_s != ':')
+			if (*output_name_s == ':')
 				{
 					path_to_use_s = output_name_s;
 				}
