@@ -20,141 +20,163 @@
 #include "drmaa_util.h"
 #include "memory_allocations.h"
 #include "platform.h"
+#include "jansson.h"
 
-
-static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s, const char **email_addresses_ss);
+static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s, const char *log_filename_s, const char **email_addresses_ss, const char *env_vars_s);
 
 
 int main (int argc, char *argv [])
 {
 	int ret = 10;
-	int num_runs = 5;
-	const char *program_name_s = "/tgac/software/testing/blast/2.2.30/x86_64/bin/blastn";
-	const char *query_filename_s = "/tgac/services/wheatis/query.txt";
-	const char *output_filename_s = "/tgac/services/wheatis/drmaa_test.txt";
-	const char *db_name_s =  "/tgac/public/databases/blast/triticum_aestivum/IWGSC/v2/IWGSCv2.0.00";
-	const char *log_filename_s = "drmaa_tool_test.log";
-	const char *email_addresses_ss  [] = { "simon.tyrrell@earlham.ac.uk", NULL };
+	int num_runs = 1;
 
- 	switch (argc)
+	json_t *config_p = NULL;
+
+
+	if (argc == 2)
 		{
-			case 6:
-				db_name_s = argv [5];
+			json_error_t err;
 
-			case 5:
-				output_filename_s = argv [4];
+			config_p = json_load_file (argv [1], 0, &err);
 
-			case 4:
-				query_filename_s = argv [3];
-
-			case 3:
-				program_name_s = argv [2];
-
-			case 2:
-				num_runs = atoi (argv [1]);
-				break;
-
-			default:
-				break;
-		}
-
-	if (program_name_s)
-		{
-			if (InitDrmaa ())
+			if (config_p)
 				{
-					DrmaaTool **tools_pp = AllocMemoryArray (num_runs, sizeof (DrmaaTool *));
+					const char *program_name_s = NULL;
 
-					if (tools_pp)
+					if ((program_name_s = GetJSONString (config_p, "program")) != NULL)
 						{
-							size_t i;
-							bool success_flag = true;
+							const char *query_filename_s = NULL;
 
-							for (i = 0; i < num_runs; ++ i)
+							if ((query_filename_s = GetJSONString (config_p, "query")) != NULL)
 								{
-									DrmaaTool *tool_p = CreateBlastDrmaaJob (program_name_s, db_name_s, query_filename_s, output_filename_s, email_addresses_ss);
+									const char *output_filename_s = NULL;
 
-									if (tool_p)
+									if ((output_filename_s = GetJSONString (config_p, "output")) != NULL)
 										{
-											* (tools_pp + i) = tool_p;
-										}
-									else
-										{
-											success_flag = false;
-											i = num_runs;
-										}
-								}
+											const char *db_name_s = NULL;
 
-							if (success_flag)
-								{
-									for (i = 0; i < num_runs; ++ i)
-										{
-											success_flag = RunDrmaaTool (* (tools_pp + i), true, log_filename_s);
-
-											if (!success_flag)
+											if ((db_name_s = GetJSONString (config_p, "db")) != NULL)
 												{
-													printf ("failed to run drmaa tool %lu\n", i);
-												}
-										}
+													const char *log_filename_s = NULL;
 
-									if (success_flag)
-										{
-											bool loop_flag = true;
-
-											/* pause for 5 seconds */
-											Snooze (5000);
-
-											while (loop_flag)
-												{
-													bool all_finished_flag = true;
-
-													for (i = 0; i < num_runs; ++ i)
+													if ((log_filename_s = GetJSONString (config_p, "log")) != NULL)
 														{
-															DrmaaTool *tool_p = * (tools_pp + i);
+															const char *env_vars_s = GetJSONString (config_p, "env");
+															const char *email_addresses_ss [2] = { NULL, NULL };
 
-															OperationStatus status = GetDrmaaToolStatus (tool_p);
-															printf ("drmaa tool " SIZET_FMT " status " INT32_FMT " \n", i, status);
+															email_addresses_ss [0] =  GetJSONString (config_p, "email");
 
-															if (status == OS_STARTED || status == OS_PENDING)
+
+															if (InitDrmaa ())
 																{
-																	all_finished_flag = false;
-																}
-														}
+																	DrmaaTool **tools_pp = AllocMemoryArray (num_runs, sizeof (DrmaaTool *));
 
-													if (all_finished_flag)
-														{
-															loop_flag = false;
-														}
-													else
-														{
-															/* pause for 1 seconds */
-															Snooze (1000);
-														}
-												}
-										}
-								}
+																	if (tools_pp)
+																		{
+																			size_t i;
+																			bool success_flag = true;
 
-							for (i = 0; i < num_runs; ++ i)
-								{
-									if (* (tools_pp + i))
-										{
-											FreeDrmaaTool (* (tools_pp + i));
-										}
-								}
+																			for (i = 0; i < num_runs; ++ i)
+																				{
+																					DrmaaTool *tool_p = CreateBlastDrmaaJob (program_name_s, db_name_s, query_filename_s, output_filename_s, log_filename_s, email_addresses_ss, env_vars_s);
 
-							FreeMemory (tools_pp);
-						}		/* if (tools_pp) */
+																					if (tool_p)
+																						{
+																							* (tools_pp + i) = tool_p;
+																						}
+																					else
+																						{
+																							success_flag = false;
+																							i = num_runs;
+																						}
+																				}
 
-					ExitDrmaa ();
-				}		/* if (InitDrmaa ()) */
+																			if (success_flag)
+																				{
+																					for (i = 0; i < num_runs; ++ i)
+																						{
+																							success_flag = RunDrmaaTool (* (tools_pp + i), true, log_filename_s);
 
-		}		/* if (program_name_s) */
+																							if (!success_flag)
+																								{
+																									printf ("failed to run drmaa tool %lu\n", i);
+																								}
+																						}
+
+																					if (success_flag)
+																						{
+																							bool loop_flag = true;
+
+																							/* pause for 5 seconds */
+																							Snooze (5000);
+
+																							while (loop_flag)
+																								{
+																									bool all_finished_flag = true;
+
+																									for (i = 0; i < num_runs; ++ i)
+																										{
+																											DrmaaTool *tool_p = * (tools_pp + i);
+
+																											OperationStatus status = GetDrmaaToolStatus (tool_p);
+																											printf ("drmaa tool " SIZET_FMT " status " INT32_FMT " \n", i, status);
+
+																											if (status == OS_STARTED || status == OS_PENDING)
+																												{
+																													all_finished_flag = false;
+																												}
+																										}
+
+																									if (all_finished_flag)
+																										{
+																											loop_flag = false;
+																										}
+																									else
+																										{
+																											/* pause for 1 seconds */
+																											Snooze (1000);
+																										}
+																								}
+																						}
+																				}
+
+																			for (i = 0; i < num_runs; ++ i)
+																				{
+																					if (* (tools_pp + i))
+																						{
+																							FreeDrmaaTool (* (tools_pp + i));
+																						}
+																				}
+
+																			FreeMemory (tools_pp);
+																		}		/* if (tools_pp) */
+
+																	ExitDrmaa ();
+																}		/* if (InitDrmaa ()) */
+
+
+														}		/* if ((log_filename_s = GetJSONString (config_p, "log")) != NULL) */
+
+												}		/* if ((db_name_s = GetJSONString (config_p, "db")) != NULL) */
+
+										}		/* if ((output_filename_s = GetJSONString (config_p, "output")) != NULL) */
+
+								}		/* if ((query_filename_s = GetJSONString (config_p, "query")) != NULL) */
+
+						}		/* if ((program_name_s = GetJSONString (config_p, "program")) != NULL) */
+
+					json_decref (config_p);
+
+				}		/* if (config_p) */
+
+		}
 
 	return ret;
 }
 
 
 
-static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s, const char **email_addresses_ss)
+static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *db_name_s, const char *query_filename_s, const char *output_filename_s, const char *log_filename_s, const char **email_addresses_ss, const char *env_vars_s)
 {
 	DrmaaTool *tool_p = NULL;
 	uuid_t id;
@@ -165,7 +187,7 @@ static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *d
 
 	if (tool_p)
 		{
-			if (SetDrmaaToolQueueName (tool_p, "webservices"))
+			if (1 /*SetDrmaaToolQueueName (tool_p, "webservices")*/)
 				{
 					if (SetDrmaaToolEmailNotifications (tool_p, email_addresses_ss))
 						{
@@ -181,7 +203,20 @@ static DrmaaTool *CreateBlastDrmaaJob (const char *program_name_s, const char *d
 																{
 																	if (AddDrmaaToolArgument (tool_p, output_filename_s))
 																		{
-																			return tool_p;
+																			if (SetDrmaaToolOutputFilename (tool_p, log_filename_s))
+																				{
+																					bool success_flag = true;
+
+																					if (env_vars_s)
+																						{
+																							success_flag = SetDrmaaToolEnvVars (tool_p, env_vars_s);
+																						}
+
+																					if (success_flag)
+																						{
+																							return tool_p;
+																						}
+																				}
 																		}		/* if (AddDrmaaToolArgument (tool_p, output_filename_s)) */
 
 																}		/* if (AddDrmaaToolArgument (tool_p, "-out")) */

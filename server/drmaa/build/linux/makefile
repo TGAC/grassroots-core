@@ -40,4 +40,8 @@ test:
 	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
 		make -f $(imp).makefile test;)
 
+
+test_install:
+	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
+		make -f $(imp).makefile test_install;)
 		

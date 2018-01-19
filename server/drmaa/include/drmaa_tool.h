@@ -74,6 +74,8 @@ typedef struct DrmaaTool
 	char **dt_email_addresses_ss;
 
 
+	char *dt_environment_s;
+
 	bool (*dt_run_fn) (struct DrmaaTool *tool_p, const bool async_flag);
 
 	OperationStatus (*dt_get_status_fn) (struct DrmaaTool *tool_p);
@@ -180,6 +182,19 @@ GRASSROOTS_DRMAA_API bool SetDrmaaToolCurrentWorkingDirectory (DrmaaTool *tool_p
  * @memberof DrmaaTool
  */
 GRASSROOTS_DRMAA_API bool SetDrmaaToolQueueName (DrmaaTool *tool_p, const char *queue_name_s);
+
+
+
+/**
+ * Set the environment variables that a DrmaaTool will set when it runs its program.
+ *
+ * @param tool_p The DrmaaTool to set the  environment variables for.
+ * @param env_vars_s The environment variables to use. The DrmaaTool will make a copy of this so the parameter
+ * does not need to remain in memory after this call.
+ * @return <code>true</code> if the environment variables were set successfully, <code>false</code> otherwise.
+ * @memberof DrmaaTool
+ */
+GRASSROOTS_DRMAA_API bool SetDrmaaToolEnvVars (DrmaaTool *tool_p, const char *env_vars_s);
 
 
 /**

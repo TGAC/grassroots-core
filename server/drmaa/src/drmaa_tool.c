@@ -24,6 +24,11 @@
 #include "byte_buffer.h"
 #include "filesystem_utils.h"
 
+
+#if HTCONDOR_DRMAA_ENABLED
+	#include "auxDrmaa.h"
+#endif
+
 #ifdef _DEBUG
 	#define DRMAA_TOOL_DEBUG (STM_LEVEL_FINEST)
 #else
@@ -174,6 +179,8 @@ bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t 
 															memset (tool_p -> dt_id_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
 															memset (tool_p -> dt_id_out_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
 
+															tool_p -> dt_environment_s = NULL;
+
 															return true;
 														}		/* if (SetDrmaaAttribute (tool_p, DRMAA_REMOTE_COMMAND, program_name_s)) */
 													else
@@ -265,7 +272,7 @@ void ClearDrmaaTool (DrmaaTool *tool_p)
 	if (tool_p -> dt_queue_name_s)
 		{
 			#if DRMAA_TOOL_DEBUG >= STM_LEVEL_FINEST
-			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "deleting dt_args_p");
+			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "deleting dt_queue_name_s");
 			#endif
 
 			FreeCopiedString (tool_p -> dt_queue_name_s);
@@ -317,6 +324,16 @@ void ClearDrmaaTool (DrmaaTool *tool_p)
 	#if DRMAA_TOOL_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "exiting ClearDrmaaTool");
 	#endif
+
+
+	if (tool_p -> dt_environment_s)
+		{
+			#if DRMAA_TOOL_DEBUG >= STM_LEVEL_FINEST
+			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "deleting dt_environment_s");
+			#endif
+
+			FreeCopiedString (tool_p -> dt_environment_s);
+		}
 }
 
 
@@ -494,6 +511,14 @@ bool SetDrmaaToolQueueName (DrmaaTool *tool_p, const char *queue_name_s)
 }
 
 
+bool SetDrmaaToolEnvVars (DrmaaTool *tool_p, const char *env_vars_s)
+{
+	bool success_flag = ReplaceStringValue (& (tool_p -> dt_environment_s), env_vars_s);
+
+	return success_flag;
+}
+
+
 bool AddDrmaaToolArgument (DrmaaTool *tool_p, const char *arg_s)
 {
 	bool success_flag = false;
@@ -577,105 +602,122 @@ bool RunDrmaaTool (DrmaaTool *tool_p, const bool async_flag, const char * const 
 			if (args_ss)
 				{
 					char error_s [DRMAA_ERROR_STRING_BUFFER] = { 0 };
+					int result = 0;
 
-					/*run a job*/
-					int result = drmaa_run_job (tool_p -> dt_id_s, DRMAA_ID_BUFFER_SIZE - 1, tool_p -> dt_job_p, error_s, DRMAA_ERROR_STRING_BUFFER);
 
-					/* Now the job has started we can delete its template */
-					DeleteJobTemplate (tool_p);
-
-					if (result == DRMAA_ERRNO_SUCCESS)
+					#if HTCONDOR_DRMAA_ENABLED
+					if (tool_p -> dt_environment_s)
 						{
-							/* Log the job id if requested */
-							if (log_s)
+							result = set_environment_variables (tool_p -> dt_environment_s);
+						}
+					#endif
+
+					if (result == 0)
+						{
+							/*run a job*/
+							result = drmaa_run_job (tool_p -> dt_id_s, DRMAA_ID_BUFFER_SIZE - 1, tool_p -> dt_job_p, error_s, DRMAA_ERROR_STRING_BUFFER);
+
+							/* Now the job has started we can delete its template */
+							DeleteJobTemplate (tool_p);
+
+							if (result == DRMAA_ERRNO_SUCCESS)
 								{
-									FILE *log_f = fopen (log_s, "a");
-
-									if (log_f)
+									/* Log the job id if requested */
+									if (log_s)
 										{
-											int res;
+											FILE *log_f = fopen (log_s, "a");
 
-											if (fprintf (log_f, "job id: \"%s\"\n", tool_p -> dt_id_s) < 0)
+											if (log_f)
 												{
-													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to write job id %s to %s", tool_p -> dt_id_s, log_s);
-												}
+													int res;
 
-											res = fclose (log_f);
+													if (fprintf (log_f, "job id: \"%s\"\n", tool_p -> dt_id_s) < 0)
+														{
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to write job id %s to %s", tool_p -> dt_id_s, log_s);
+														}
 
-											if (res != 0)
-												{
-													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to close job file for %s", log_s);
-												}		/* if (res != 0) */
+													res = fclose (log_f);
 
-										}		/* if (log_f) */
-									else
-										{
-											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to open log file %s", log_s);
-										}
+													if (res != 0)
+														{
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to close job file for %s", log_s);
+														}		/* if (res != 0) */
 
-								}		/* if (log_s) */
-
-
-							if (async_flag)
-								{
-									success_flag = true;
-								}
-							else
-								{
-									int stat;
-
-									result = drmaa_wait (tool_p -> dt_id_s, tool_p -> dt_id_out_s, DRMAA_ID_BUFFER_SIZE, &stat,
-										DRMAA_TIMEOUT_WAIT_FOREVER, NULL, error_s, DRMAA_ERROR_STRING_BUFFER);
-
-									if (result == DRMAA_ERRNO_SUCCESS)
-										{
-											int exited;
-											int exit_status;
-
-											success_flag = true;
-
-											if (drmaa_wifexited (&exited, stat, error_s, DRMAA_ERROR_STRING_BUFFER) == 0)
-												{
-													PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "job <%s> may not have finished correctly", tool_p -> dt_id_s, exited);
-												}
-
-											if (exited)
-												{
-													drmaa_wexitstatus (&exit_status, stat, error_s, DRMAA_ERROR_STRING_BUFFER);
-
-													PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "job <%s> finished with exit code %d\n", tool_p -> dt_id_s, exit_status);
-												}
+												}		/* if (log_f) */
 											else
 												{
-													int signal_status;
+													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to open log file %s", log_s);
+												}
 
-													drmaa_wifsignaled (&signal_status, stat, error_s, DRMAA_ERROR_STRING_BUFFER);
+										}		/* if (log_s) */
 
-													if (signal_status)
+
+									if (async_flag)
+										{
+											success_flag = true;
+										}
+									else
+										{
+											int stat;
+
+											result = drmaa_wait (tool_p -> dt_id_s, tool_p -> dt_id_out_s, DRMAA_ID_BUFFER_SIZE, &stat,
+												DRMAA_TIMEOUT_WAIT_FOREVER, NULL, error_s, DRMAA_ERROR_STRING_BUFFER);
+
+											if (result == DRMAA_ERRNO_SUCCESS)
+												{
+													int exited;
+													int exit_status;
+
+													success_flag = true;
+
+													if (drmaa_wifexited (&exited, stat, error_s, DRMAA_ERROR_STRING_BUFFER) == 0)
 														{
-															char termsig [DRMAA_SIGNAL_BUFFER+1];
-															drmaa_wtermsig (termsig, DRMAA_SIGNAL_BUFFER, stat, error_s, DRMAA_ERROR_STRING_BUFFER);
+															PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "job <%s> may not have finished correctly", tool_p -> dt_id_s, exited);
+														}
 
-															PrintLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, "job <%s> finished due to signal %s\n", tool_p -> dt_id_s, termsig);
+													if (exited)
+														{
+															drmaa_wexitstatus (&exit_status, stat, error_s, DRMAA_ERROR_STRING_BUFFER);
+
+															PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "job <%s> finished with exit code %d\n", tool_p -> dt_id_s, exit_status);
 														}
 													else
 														{
-															PrintLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, "job <%s> is aborted\n", tool_p -> dt_id_s);
+															int signal_status;
+
+															drmaa_wifsignaled (&signal_status, stat, error_s, DRMAA_ERROR_STRING_BUFFER);
+
+															if (signal_status)
+																{
+																	char termsig [DRMAA_SIGNAL_BUFFER+1];
+																	drmaa_wtermsig (termsig, DRMAA_SIGNAL_BUFFER, stat, error_s, DRMAA_ERROR_STRING_BUFFER);
+
+																	PrintLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, "job <%s> finished due to signal %s\n", tool_p -> dt_id_s, termsig);
+																}
+															else
+																{
+																	PrintLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, "job <%s> is aborted\n", tool_p -> dt_id_s);
+																}
 														}
+
+												}		/* if (result == DRMAA_ERRNO_SUCCESS) */
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "drmaa_wait failed with code %d, \"%s", result, error_s);
 												}
 
-										}		/* if (result == DRMAA_ERRNO_SUCCESS) */
-									else
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "drmaa_wait failed with code %d, \"%s", result, error_s);
-										}
+										}		/* if (!async_flag) */
 
-								}		/* if (!async_flag) */
+								}		/* if (result == DRMAA_ERRNO_SUCCESS) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "drmaa_run_job failed with code %d, \"%s", result, error_s);
+								}
 
-						}		/* if (result == DRMAA_ERRNO_SUCCESS) */
+						}		/* if (result == 0) */
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "drmaa_run_job failed with code %d, \"%s", result, error_s);
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set drmaa environment variables");
 						}
 
 					FreeAndRemoveArgsArray (tool_p, args_ss);
