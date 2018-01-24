@@ -94,18 +94,18 @@ endif
 
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
-.PHONY:	test test_install clean make_symbolic_links lib_install
+.PHONY:	test test_install clean make_install_symbolic_link make_all_symbolic_link lib_install lib_all
 
 ifeq ($(DRMAA_IMPLEMENTATION_NAME),$(DRMAA_DEFAULT_LIB))
-install: lib_install make_symbolic_links
+install: lib_install make_install_symbolic_link
+lib_all: all make_all_symbolic_link
 else
 install: lib_install
+lib_all: all 
 endif
 	
 clean:
 	rm -fr $(DIR_OBJS)/*.o
-
-
 
 test: 
 	@echo "Building DRMAA test tool $(BUILD)/$(TEST_EXE_NAME)"
@@ -116,6 +116,8 @@ test_install: test install
 	@echo "Installing $(TEST_EXE_NAME) to $(DIR_GRASSROOTS_INSTALL)"
 	cp $(BUILD)/$(TEST_EXE_NAME) $(DIR_GRASSROOTS_INSTALL)/  
 
+lib_all: 
+
 
 lib_install: all
 	@echo "ROOT DIR $(DIR_ROOT)"
@@ -125,9 +127,13 @@ lib_install: all
 	cp $(DIR_OBJS)/$(TARGET_NAME) $(DIR_INSTALL)/  
 	@echo "checking DRMAA_IMPLEMENTATION_NAME: '$(DRMAA_IMPLEMENTATION_NAME)' against DRMAA_DEFAULT_LIB: '$(DRMAA_DEFAULT_LIB)'"
 
-make_symbolic_links:
+
+make_install_symbolic_link:
 	@echo "making symbolic link for $(DIR_INSTALL)/$(TARGET_NAME) to $(DIR_GRASSROOTS_INSTALL)/lib/lib$(BASE_LIBNAME).so"
 	rm -f  $(DIR_GRASSROOTS_INSTALL)/lib/lib$(BASE_LIBNAME).so
 	ln -s $(DIR_INSTALL)/$(TARGET_NAME)  $(DIR_GRASSROOTS_INSTALL)/lib/lib$(BASE_LIBNAME).so
+
+make_all_symbolic_link:
+	@echo "making symbolic link for $(DIR_OBJS)/$(TARGET_NAME) to $(DIR_OBJS)/lib$(BASE_LIBNAME).so"
 	rm -f $(DIR_OBJS)/lib$(BASE_LIBNAME).so
 	ln -s $(DIR_OBJS)/$(TARGET_NAME) $(DIR_OBJS)/lib$(BASE_LIBNAME).so

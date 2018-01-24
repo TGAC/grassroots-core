@@ -629,6 +629,7 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	/**@{*/
 	PREFIX const char *DRMAA_S VAL("drmaa");
 	PREFIX const char *DRMAA_PROGRAM_NAME_S VAL("program_name");
+	PREFIX const char *DRMAA_ENVIRONMENT_S VAL("env_vars");
 	PREFIX const char *DRMAA_JOB_NAME_S VAL("job_name");
 	PREFIX const char *DRMAA_QUEUE_S VAL("queue");
 	PREFIX const char *DRMAA_WORKING_DIR_S VAL("working_dir");

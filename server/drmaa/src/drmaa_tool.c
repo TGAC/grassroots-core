@@ -26,7 +26,7 @@
 
 
 #if HTCONDOR_DRMAA_ENABLED
-	#include "auxDrmaa.h"
+	#include "htcondor_env_patch.h"
 #endif
 
 #ifdef _DEBUG
@@ -67,6 +67,7 @@ static bool DeleteJobTemplate (DrmaaTool *tool_p);
 static bool SetUpDrmaaToolValue (const json_t * const json_p, const char * const key_s, DrmaaTool * drmaa_p, bool (*assign_value_fn) (DrmaaTool *drmaa_p, const char *value_s), const bool optional_flag);
 
 
+static bool InitDrmaaToolEnvVars (DrmaaTool *tool_p);
 
 /*
  * API FUNCTIONS
@@ -150,6 +151,7 @@ DrmaaTool *AllocateDrmaaTool (const char *program_name_s, const uuid_t id)
 }
 
 
+
 bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t id)
 {
 	memset (tool_p, 0, sizeof (*tool_p));
@@ -176,12 +178,18 @@ bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t 
 													/* the job to be run */
 													if (SetDrmaaAttribute (tool_p, DRMAA_REMOTE_COMMAND, program_name_s))
 														{
-															memset (tool_p -> dt_id_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
-															memset (tool_p -> dt_id_out_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
+															if (InitDrmaaToolEnvVars (tool_p))
+																{
+																	memset (tool_p -> dt_id_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
+																	memset (tool_p -> dt_id_out_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
 
-															tool_p -> dt_environment_s = NULL;
 
-															return true;
+																	return true;
+																}		/* if (InitDrmaaToolEnvVars (tool_p)) */
+															else
+																{
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitDrmaaToolEnvVars failed");													}
+
 														}		/* if (SetDrmaaAttribute (tool_p, DRMAA_REMOTE_COMMAND, program_name_s)) */
 													else
 														{
@@ -1043,61 +1051,69 @@ json_t *ConvertDrmaaToolToJSON (const DrmaaTool * const tool_p)
 														{
 															if (json_object_set_new (drmaa_json_p, DRMAA_UUID_S, json_string (tool_p -> dt_grassroots_uuid_s)) == 0)
 																{
-																	if (AddValidJSONString (drmaa_json_p, DRMAA_HOSTNAME_S, tool_p -> dt_host_name_s))
+																	if (AddValidJSONString (drmaa_json_p, DRMAA_ENVIRONMENT_S, tool_p -> dt_environment_s))
 																		{
-																			if (AddValidJSONString (drmaa_json_p, DRMAA_USERNAME_S, tool_p -> dt_user_name_s))
+																			if (AddValidJSONString (drmaa_json_p, DRMAA_HOSTNAME_S, tool_p -> dt_host_name_s))
 																				{
-																					bool continue_flag = true;
-
-																					if (tool_p -> dt_num_cores > 0)
+																					if (AddValidJSONString (drmaa_json_p, DRMAA_USERNAME_S, tool_p -> dt_user_name_s))
 																						{
-																							if (json_object_set_new (drmaa_json_p, DRMAA_NUM_CORES_S, json_integer (tool_p -> dt_num_cores)) != 0)
-																								{
-																									continue_flag = false;
-																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_num_cores " UINT32_FMT " to drmaa tool json", tool_p -> dt_num_cores);
-																								}
+																							bool continue_flag = true;
 
-																						}		/* if (tool_p -> dt_num_cores > 0) */
-
-																					if (continue_flag)
-																						{
-																							if (tool_p -> dt_mb_mem_usage > 0)
+																							if (tool_p -> dt_num_cores > 0)
 																								{
-																									if (json_object_set_new (drmaa_json_p, DRMAA_MEM_USAGE_S, json_integer (tool_p -> dt_mb_mem_usage)) != 0)
+																									if (json_object_set_new (drmaa_json_p, DRMAA_NUM_CORES_S, json_integer (tool_p -> dt_num_cores)) != 0)
 																										{
 																											continue_flag = false;
-																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_mb_mem_usage " UINT32_FMT " to drmaa tool json", tool_p -> dt_mb_mem_usage);
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_num_cores " UINT32_FMT " to drmaa tool json", tool_p -> dt_num_cores);
 																										}
-																								}		/* if (tool_p -> dt_mb_mem_usage > 0) */
 
-																						}		/* if (continue_flag) */
+																								}		/* if (tool_p -> dt_num_cores > 0) */
 
-																					if (continue_flag)
-																						{
-																							if (tool_p -> dt_email_addresses_ss)
+																							if (continue_flag)
 																								{
-																									continue_flag = AddStringArrayToJSON (drmaa_json_p, (const char ** const ) tool_p -> dt_email_addresses_ss, DRMAA_EMAILS_S);
+																									if (tool_p -> dt_mb_mem_usage > 0)
+																										{
+																											if (json_object_set_new (drmaa_json_p, DRMAA_MEM_USAGE_S, json_integer (tool_p -> dt_mb_mem_usage)) != 0)
+																												{
+																													continue_flag = false;
+																													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_mb_mem_usage " UINT32_FMT " to drmaa tool json", tool_p -> dt_mb_mem_usage);
+																												}
+																										}		/* if (tool_p -> dt_mb_mem_usage > 0) */
+
+																								}		/* if (continue_flag) */
+
+																							if (continue_flag)
+																								{
+																									if (tool_p -> dt_email_addresses_ss)
+																										{
+																											continue_flag = AddStringArrayToJSON (drmaa_json_p, (const char ** const ) tool_p -> dt_email_addresses_ss, DRMAA_EMAILS_S);
+																										}
 																								}
+
+																							if (continue_flag)
+																								{
+																									if (tool_p -> dt_args_p -> ll_size > 0)
+																										{
+																											success_flag = AddStringListToJSON (drmaa_json_p, tool_p -> dt_args_p, DRMAA_ARGS_S);
+																										}
+																								}		/* if (continue_flag) */
+
+																						}		/* if (AddValidJSONString (drmaa_json_p, DRMAA_USERNAME_S, tool_p -> dt_user_name_s)) */
+																					else
+																						{
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_user_name_s \"%s\" to drmaa tool json", tool_p -> dt_user_name_s);
 																						}
 
-																					if (continue_flag)
-																						{
-																							if (tool_p -> dt_args_p -> ll_size > 0)
-																								{
-																									success_flag = AddStringListToJSON (drmaa_json_p, tool_p -> dt_args_p, DRMAA_ARGS_S);
-																								}
-																						}		/* if (continue_flag) */
-
-																				}		/* if (AddValidJSONString (drmaa_json_p, DRMAA_USERNAME_S, tool_p -> dt_user_name_s)) */
+																				}		/* if (AddValidJSONString (drmaa_json_p, DRMAA_HOSTNAME_S, tool_p -> dt_host_name_s)) */
 																			else
 																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_user_name_s \"%s\" to drmaa tool json", tool_p -> dt_user_name_s);
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_host_name_s \"%s\" to drmaa tool json", tool_p -> dt_host_name_s);
 																				}
 
-																		}		/* if (AddValidJSONString (drmaa_json_p, DRMAA_HOSTNAME_S, tool_p -> dt_host_name_s)) */
+																		}		/* if (AddValidJSONString (drmaa_json_p, DRMAA_ENVIRONMENT_S, tool_p -> dt_environment_s)) */
 																	else
 																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add dt_host_name_s \"%s\" to drmaa tool json", tool_p -> dt_host_name_s);
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add environment \"%s\" to drmaa tool json", tool_p -> dt_environment_s);
 																		}
 
 																}		/* if (json_object_set_new (drmaa_json_p, DRMAA_UUID_S, json_string (tool_p -> dt_uuid_s)) == 0) */
@@ -1297,68 +1313,76 @@ DrmaaTool *ConvertDrmaaToolFromJSON (const json_t * const json_p)
 												{
 													if (SetUpDrmaaToolValue (json_p, DRMAA_QUEUE_S, drmaa_p, SetDrmaaToolQueueName, true))
 														{
-															if (SetUpDrmaaToolValue (json_p, DRMAA_HOSTNAME_S, drmaa_p, SetDrmaaToolHostName, true))
+															if (SetUpDrmaaToolValue (json_p, DRMAA_ENVIRONMENT_S, drmaa_p, SetDrmaaToolEnvVars, true))
 																{
-																	if (SetUpDrmaaToolValue (json_p, DRMAA_JOB_NAME_S, drmaa_p, SetDrmaaToolJobName, true))
+																	if (SetUpDrmaaToolValue (json_p, DRMAA_HOSTNAME_S, drmaa_p, SetDrmaaToolHostName, true))
 																		{
-																			if (SetUpDrmaaToolValue (json_p, DRMAA_OUTPUT_FILE_S, drmaa_p, SetDrmaaToolOutputFilename, true))
+																			if (SetUpDrmaaToolValue (json_p, DRMAA_JOB_NAME_S, drmaa_p, SetDrmaaToolJobName, true))
 																				{
-																					if (SetUpDrmaaToolValue (json_p, DRMAA_WORKING_DIR_S, drmaa_p, SetDrmaaToolCurrentWorkingDirectory, true))
+																					if (SetUpDrmaaToolValue (json_p, DRMAA_OUTPUT_FILE_S, drmaa_p, SetDrmaaToolOutputFilename, true))
 																						{
-																							drmaa_p -> dt_args_p = GetProgramArguments (json_p);
-
-																							if (drmaa_p -> dt_args_p)
+																							if (SetUpDrmaaToolValue (json_p, DRMAA_WORKING_DIR_S, drmaa_p, SetDrmaaToolCurrentWorkingDirectory, true))
 																								{
-																									int i = 0;
+																									drmaa_p -> dt_args_p = GetProgramArguments (json_p);
 
-																									if (GetJSONInteger (json_p, DRMAA_NUM_CORES_S, &i))
+																									if (drmaa_p -> dt_args_p)
 																										{
-																											if (!SetDrmaaToolCores (drmaa_p, i))
+																											int i = 0;
+
+																											if (GetJSONInteger (json_p, DRMAA_NUM_CORES_S, &i))
 																												{
-																													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set num cores to %d", i);
+																													if (!SetDrmaaToolCores (drmaa_p, i))
+																														{
+																															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set num cores to %d", i);
+																														}
 																												}
+
+																											if (GetJSONInteger (json_p, DRMAA_MEM_USAGE_S, &i))
+																												{
+																													if (!SetDrmaaToolMemory (drmaa_p, i))
+																														{
+																															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set memory usage to %d", i);
+																														}
+																												}
+
+																											drmaa_p -> dt_email_addresses_ss = GetEmailAddresses (json_p);
+
+
+																											return drmaa_p;
+																										}		/* if (drmaa_p -> dt_args_p) */
+																									else
+																										{
+																											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to get program arguments");
 																										}
 
-																									if (GetJSONInteger (json_p, DRMAA_MEM_USAGE_S, &i))
-																										{
-																											if (!SetDrmaaToolMemory (drmaa_p, i))
-																												{
-																													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set memory usage to %d", i);
-																												}
-																										}
-
-																									drmaa_p -> dt_email_addresses_ss = GetEmailAddresses (json_p);
-
-
-																									return drmaa_p;
-																								}		/* if (drmaa_p -> dt_args_p) */
+																								}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_WORKING_DIR_S, drmaa_p, SetDrmaaToolCurrentWorkingDirectory)) */
 																							else
 																								{
-																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to get program arguments");
+																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_WORKING_DIR_S);
 																								}
 
-																						}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_WORKING_DIR_S, drmaa_p, SetDrmaaToolCurrentWorkingDirectory)) */
+																						}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_OUTPUT_FILE_S, drmaa_p, SetDrmaaToolOutputFilename)) */
 																					else
 																						{
-																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_WORKING_DIR_S);
+																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_OUTPUT_FILE_S);
 																						}
 
-																				}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_OUTPUT_FILE_S, drmaa_p, SetDrmaaToolOutputFilename)) */
+																				}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_JOB_NAME_S, drmaa_p, SetDrmaaToolJobName)) */
 																			else
 																				{
-																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_OUTPUT_FILE_S);
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_JOB_NAME_S);
 																				}
 
-																		}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_JOB_NAME_S, drmaa_p, SetDrmaaToolJobName)) */
+																		}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_HOSTNAME_S, drmaa_p, SetDrmaaToolHostName)) */
 																	else
 																		{
-																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_JOB_NAME_S);
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_HOSTNAME_S);
 																		}
 
-																}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_HOSTNAME_S, drmaa_p, SetDrmaaToolHostName)) */
+																}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_ENVIRONMENT_S, drmaa_p, SetDrmaaToolEnvVars, true)) */
 															else
 																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_HOSTNAME_S);
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to set %s", DRMAA_ENVIRONMENT_S);
 																}
 
 														}		/* if (SetUpDrmaaToolValue (json_p, DRMAA_QUEUE_S, drmaa_p, SetDrmaaToolQueueName)) */
@@ -1474,6 +1498,31 @@ static bool SetDrmaaVectorAttribute (DrmaaTool *tool_p, const char *name_s, cons
 			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set %s beginning with %s for %s, error %d, %s", name_s, *values_ss, tool_p -> dt_id_s, res, error_s);
 			success_flag = false;
 		}
+
+	return success_flag;
+}
+
+
+
+static bool InitDrmaaToolEnvVars (DrmaaTool *tool_p)
+{
+	bool success_flag = true;
+	json_t *config_p = NULL;
+
+	tool_p -> dt_environment_s = NULL;
+
+	config_p = GetGlobalConfigValue (DRMAA_S);
+
+	if (config_p)
+		{
+			const char *env_s = GetJSONString (config_p, DRMAA_ENVIRONMENT_S);
+
+			if (env_s)
+				{
+					success_flag = SetDrmaaToolEnvVars (tool_p, env_s);
+				}		/* if (env_s) */
+
+		}		/* if (config_p) */
 
 	return success_flag;
 }
