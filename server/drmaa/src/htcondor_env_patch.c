@@ -21,6 +21,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 static const char *s_env_vars_s = NULL;
 

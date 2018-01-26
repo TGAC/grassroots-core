@@ -98,10 +98,10 @@ include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
 ifeq ($(DRMAA_IMPLEMENTATION_NAME),$(DRMAA_DEFAULT_LIB))
 install: lib_install make_install_symbolic_link
-lib_all: all make_all_symbolic_link
+all: lib_all make_all_symbolic_link
 else
 install: lib_install
-lib_all: all 
+all: lib_all 
 endif
 	
 clean:
