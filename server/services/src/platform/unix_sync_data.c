@@ -12,6 +12,13 @@
 #include "memory_allocations.h"
 
 
+#ifdef _DEBUG
+	#define UNIX_SYNC_DATA_DEBUG	(STM_LEVEL_FINEST)
+#else
+	#define UNIX_SYNC_DATA_DEBUG	(STM_LEVEL_NONE)
+#endif
+
+
 
 
 SyncData *AllocateSyncData (void)
@@ -253,6 +260,11 @@ void WaitOnSyncData (struct SyncData *sync_data_p, bool (*continue_fn) (void *da
 				{
 					pthread_cond_wait (& (sync_data_p -> sd_cond), & (sync_data_p -> sd_mutex));
 				}
+
+			#if UNIX_SYNC_DATA_DEBUG >= STM_LEVEL_FINER
+			PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "WaitOnSyncData finished");
+			#endif
+
 
 			if (!ReleaseSyncDataLock (sync_data_p))
 				{

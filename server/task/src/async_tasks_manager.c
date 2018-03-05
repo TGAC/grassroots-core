@@ -251,6 +251,11 @@ static void *RunMonitor (void *data_p)
 
 	WaitOnSyncData (monitor_p -> cat_task_p -> at_sync_data_p, ContinueTask, monitor_p);
 
+
+	#if ASYNC_TASKS_MANAGER_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "RunMonitor about to call RunAsyncTaskManagerCleanups");
+	#endif
+
 	/* To get here, all worker threads have finished so we can delete the tasks manager */
 	RunAsyncTaskManagerCleanups (manager_p);
 
