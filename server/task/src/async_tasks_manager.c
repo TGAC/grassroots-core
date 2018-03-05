@@ -108,6 +108,10 @@ bool AddAsyncTaskToAsyncTasksManager (AsyncTasksManager *manager_p, AsyncTask *t
 
 			task_p -> at_manager_p = manager_p;
 
+			#if ASYNC_TASKS_MANAGER_DEBUG >= STM_LEVEL_FINER
+			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Added AsyncTask for \"%s\" at %.16X to AsyncTasksManager", task_p -> at_name_s, task_p);
+			#endif
+
 			success_flag = true;
 		}
 

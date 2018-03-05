@@ -115,7 +115,6 @@ void CloseAsyncTask (AsyncTask *task_p)
 		}
 
 	pthread_attr_destroy (& (unix_task_p -> uat_attributes));
-
 }
 
 
@@ -146,7 +145,7 @@ bool IsAsyncTaskRunning (const AsyncTask *task_p)
 
 bool CloseAllAsyncTasks (void)
 {
-	//pthread_exit (NULL);
+	pthread_exit (NULL);
 	return true;
 }
 
