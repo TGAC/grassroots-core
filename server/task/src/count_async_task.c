@@ -11,6 +11,12 @@
 #include "streams.h"
 #include "memory_allocations.h"
 
+#ifdef _DEBUG
+	#define COUNT_ASYNC_TASK_DEBUG	(STM_LEVEL_FINEST)
+#else
+	#define COUNT_ASYNC_TASK_DEBUG	(STM_LEVEL_NONE)
+#endif
+
 
 CountAsyncTask *AllocateCountAsyncTask (const char *name_s, AsyncTasksManager *manager_p, bool add_flag, int32 limit)
 {
@@ -91,6 +97,11 @@ bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)
 
 					++ (count_task_p -> cat_current_value);
 
+					#if COUNT_ASYNC_TASK_DEBUG >= STM_LEVEL_FINER
+					PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "IncrementCountAsyncTask incremented current value to  " INT32_FMT " limit " INT32_FMT " for %s", count_task_p -> cat_current_value, count_task_p -> cat_limit, count_task_p -> cat_task_p -> at_name_s);
+					#endif
+
+
 					success_flag = true;
 
 					if (count_task_p -> cat_current_value == count_task_p -> cat_limit)
@@ -103,6 +114,10 @@ bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)
 							/* send signal */
 							if (notify_flag)
 								{
+									#if COUNT_ASYNC_TASK_DEBUG >= STM_LEVEL_FINER
+									PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "IncrementCountAsyncTask about to notify current value to  " INT32_FMT " limit " INT32_FMT " for %s", count_task_p -> cat_current_value, count_task_p -> cat_limit, count_task_p -> cat_task_p -> at_name_s);
+									#endif
+
 									SendSyncData (sync_data_p);
 								}
 
@@ -120,6 +135,10 @@ bool IncrementCountAsyncTask (CountAsyncTask *count_task_p)
 
 bool ContinueCountAsyncTask (const CountAsyncTask *count_task_p)
 {
+	#if COUNT_ASYNC_TASK_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "ContinueCountAsyncTask current " INT32_FMT " limit " INT32_FMT, count_task_p -> cat_current_value, count_task_p -> cat_limit);
+	#endif
+
 	return (count_task_p -> cat_current_value < count_task_p -> cat_limit);
 }
 
