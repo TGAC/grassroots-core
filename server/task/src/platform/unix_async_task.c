@@ -189,6 +189,11 @@ static void *DoAsyncTaskRun (void *data_p)
 
 	if (async_task_p -> at_consumer_p)
 		{
+
+		#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+		PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Sending message to EventConsumer as task \"%s\" has completed", async_task_p -> at_name_s);
+		#endif
+
 			RunEventConsumer (async_task_p -> at_consumer_p, async_task_p);
 		}
 

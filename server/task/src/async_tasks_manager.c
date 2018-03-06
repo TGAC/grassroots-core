@@ -281,6 +281,10 @@ static void ConsumeFinishedWorkerTask (EventConsumer *consumer_p, struct AsyncTa
 	AsyncTasksManagerEventConsumer *manager_consumer_p = (AsyncTasksManagerEventConsumer *) consumer_p;
 	AsyncTasksManager *manager_p = manager_consumer_p -> atmec_tasks_manager_p;
 
+	#if ASYNC_TASKS_MANAGER_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "ConsumeFinishedWorkerTask is about to call IncrementCountAsyncTask as %.16X with name \"%s\" has finished", task_p, task_p -> at_name_s);
+	#endif
+
 	IncrementCountAsyncTask (manager_p -> atm_monitor_p);
 }
 
