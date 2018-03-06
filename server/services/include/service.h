@@ -345,6 +345,9 @@ typedef struct Service
 
 	SyncData *se_sync_data_p;
 
+
+	void (*se_release_service_fn) (struct Service *service_p);
+
 } Service;
 
 
@@ -590,6 +593,29 @@ GRASSROOTS_SERVICE_API char *GetServiceUUIDAsString (Service *service_p);
  * @memberof Service
  */
 GRASSROOTS_SERVICE_API void FreeService (Service *service_p);
+
+
+/**
+ * For an asynchronous Service, tell it that it is no longer needed
+ * by the Grassroots system.
+ *
+ * @param service_p The Service to release.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API void ReleaseService (Service *service_p);
+
+
+
+/**
+ * For an asynchronous Service, set the function that will be called
+ * if ReleaseService() is called.
+ *
+ * @param service_p The Service to set the release function for.
+ * @param release_fn The release function to set for the given Service.
+ * @memberof Service
+ */
+
+GRASSROOTS_SERVICE_API void SetServiceReleaseFunction (Service *service_p, void (*release_fn) (Service *service_p));
 
 
 /**

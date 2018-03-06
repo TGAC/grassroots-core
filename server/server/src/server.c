@@ -625,6 +625,15 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 														{
 															FreeService (service_p);
 														}
+													else
+														{
+															/*
+															 * Let the service know that we have finished with it and it can
+															 * delete itself when appropriate e.g. after its jobs have finished
+															 * running.
+															 */
+															ReleaseService (service_p);
+														}
 
 													FreeProvidersStateTable (providers_p);
 												}		/* if (providers_p) */

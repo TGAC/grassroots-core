@@ -114,7 +114,7 @@ bool AddAsyncTaskToAsyncTasksManager (AsyncTasksManager *manager_p, AsyncTask *t
 	return success_flag;
 }
 
-void PrepareAsyncTasksManager (AsyncTasksManager *manager_p)
+void PrepareAsyncTasksManager (AsyncTasksManager *manager_p, const int32 initial_counter_value)
 {
 	const uint32 num_tasks = manager_p -> atm_tasks_p -> ll_size;
 
@@ -137,7 +137,7 @@ void PrepareAsyncTasksManager (AsyncTasksManager *manager_p)
 			/*
 			 * Set up the monitoring AsyncTask
 			 */
-			SetCountAsyncTaskLimit (monitor_task_p, manager_p -> atm_tasks_p -> ll_size);
+			SetCountAsyncTaskLimit (monitor_task_p, initial_counter_value + (manager_p -> atm_tasks_p -> ll_size));
 			SetAsyncTaskRunData (monitor_task_p -> cat_task_p, RunMonitor, manager_p -> atm_monitor_p);
 
 			manager_p -> atm_in_use_flag = true;
@@ -180,7 +180,7 @@ bool StartAsyncTaskManagerWorkers (AsyncTasksManager *manager_p)
 
 bool RunAsyncTasksManagerTasks (AsyncTasksManager *manager_p)
 {
-	PrepareAsyncTasksManager (manager_p);
+	PrepareAsyncTasksManager (manager_p, 0);
 
 	return StartAsyncTaskManagerWorkers (manager_p);
 }
@@ -285,6 +285,12 @@ static void ConsumeFinishedWorkerTask (EventConsumer *consumer_p, struct AsyncTa
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "ConsumeFinishedWorkerTask is about to call IncrementCountAsyncTask as %.16X with name \"%s\" has finished", task_p, task_p -> at_name_s);
 	#endif
 
+	IncrementAsyncTaskManagerCount (manager_p);
+}
+
+
+void IncrementAsyncTaskManagerCount (AsyncTasksManager *manager_p)
+{
 	IncrementCountAsyncTask (manager_p -> atm_monitor_p);
 }
 

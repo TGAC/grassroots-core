@@ -160,7 +160,7 @@ GRASSROOTS_TASK_API void FreeAsyncTasksManagerEventConsumer (AsyncTasksManagerEv
  * running its tasks.
  * @memberof AsyncTasksManager
  */
-GRASSROOTS_TASK_API void PrepareAsyncTasksManager (AsyncTasksManager *manager_p);
+GRASSROOTS_TASK_API void PrepareAsyncTasksManager (AsyncTasksManager *manager_p, const int32 initial_counter_value);
 
 
 /**
@@ -189,6 +189,9 @@ GRASSROOTS_TASK_API bool RunAsyncTasksManagerTasks (AsyncTasksManager *manager_p
 
 
 GRASSROOTS_TASK_API bool IsAsyncTaskManagerRunning (const AsyncTasksManager *manager_p);
+
+
+GRASSROOTS_TASK_API void IncrementAsyncTaskManagerCount (AsyncTasksManager *manager_p);
 
 
 #ifdef __cplusplus
