@@ -95,10 +95,16 @@ void InitJobsManager (JobsManager *manager_p,
 bool FreeJobsManager (JobsManager *manager_p)
 {
 	bool success_flag = true;
+	Plugin *plugin_p = manager_p -> jm_plugin_p;
 
 	if (manager_p -> jm_delete_manager_fn)
 		{
 			success_flag = (manager_p -> jm_delete_manager_fn (manager_p));
+		}
+
+	if (plugin_p)
+		{
+			FreePlugin (plugin_p);
 		}
 
 	return success_flag;

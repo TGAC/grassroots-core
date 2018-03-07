@@ -77,13 +77,6 @@ ServicesArray *GetServices (json_t *config_p)
 
 
 
-void ReleaseService (Service *service_p)
-{
-	FreeWebServiceData ((WebServiceData *) (service_p -> se_data_p));
-	FreeMemory (service_p);
-}
-
-
 /*
  * STATIC FUNCTIONS
  */

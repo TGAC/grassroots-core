@@ -49,6 +49,11 @@ SystemAsyncTask *AllocateSystemAsyncTask (ServiceJob *job_p, const char *name_s,
 									system_task_p -> std_async_task_mem = MF_SHALLOW_COPY;
 								}
 
+							#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
+							PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "AllocateSystemAsyncTask at 0x%16x with task at 0x%16x for %s", system_task_p, system_task_p -> std_async_task_p, name_s);
+							#endif
+
+
 							return system_task_p;
 						}
 
@@ -100,18 +105,22 @@ bool SetSystemAsyncTaskCommand (SystemAsyncTask *task_p, const char *command_s)
 }
 
 
-void FreeSystemAsyncTask (SystemAsyncTask *task_data_p)
+void FreeSystemAsyncTask (SystemAsyncTask *system_task_p)
 {
+	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "FreeSystemAsyncTask at 0x%16x with task at 0x%16x with name %s", system_task_p, system_task_p -> std_async_task_p, system_task_p -> std_async_task_p -> at_name_s);
+	#endif
+
 	/*
 	 * If the underlying task is not within an AsyncTasksManager,
 	 * then we'll delete it. Otherwise the AsyncTasksManager has
 	 * the responsibility for deleting it.
 	 */
-	switch (task_data_p -> std_async_task_mem)
+	switch (system_task_p -> std_async_task_mem)
 		{
 			case MF_DEEP_COPY:
 			case MF_SHALLOW_COPY:
-				FreeAsyncTask (task_data_p -> std_async_task_p);
+				FreeAsyncTask (system_task_p -> std_async_task_p);
 				break;
 
 			default:
@@ -119,12 +128,13 @@ void FreeSystemAsyncTask (SystemAsyncTask *task_data_p)
 		}
 
 
-	if (task_data_p -> std_command_line_s)
+	if (system_task_p -> std_command_line_s)
 		{
-			FreeCopiedString (task_data_p -> std_command_line_s);
+			FreeCopiedString (system_task_p -> std_command_line_s);
 		}
 
-	FreeMemory (task_data_p);
+
+	FreeMemory (system_task_p);
 }
 
 
@@ -204,20 +214,18 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
 				}
 
+/*
 			if (task_p -> std_async_task_p -> at_consumer_p)
 				{
+					#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
+					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Sending message to EventConsumer for %s", uuid_s);
+					#endif
+
 					RunEventConsumerFromAsyncTask (task_p -> std_async_task_p);
 					//SendSyncData (task_data_p -> std_async_task_p -> at_sync_data_p);
 				}
+*/
 		}
-
-	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
-	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to call FreeSystemTaskData for %s in RunAsyncSystemTaskHook with \"%s\"", uuid_s, task_p -> std_command_line_s);
-	#endif
-
-
-
-//	FreeSystemAsyncTask (task_p);
 
 	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Leaving RunAsyncSystemTaskHook for %s with status %d", uuid_s, status);

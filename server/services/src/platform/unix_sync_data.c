@@ -213,6 +213,11 @@ bool AcquireSyncDataLock (struct SyncData *sync_data_p)
 				}
 		}
 
+	#if UNIX_SYNC_DATA_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "AcquireSyncDataLock %d", success_flag);
+	#endif
+
+
 	return success_flag;
 
 }
@@ -247,6 +252,12 @@ bool ReleaseSyncDataLock (struct SyncData *sync_data_p)
 						break;
 				}
 		}
+
+
+	#if UNIX_SYNC_DATA_DEBUG >= STM_LEVEL_FINER
+	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "ReleaseSyncDataLock %d", success_flag);
+	#endif
+
 
 	return success_flag;
 }

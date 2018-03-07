@@ -131,6 +131,8 @@ bool InitialiseService (Service * const service_p,
 
 			service_p -> se_sync_data_p = NULL;
 
+			service_p -> se_release_service_fn = NULL;
+
 			InitLinkedList (& (service_p -> se_paired_services));
 			SetLinkedListFreeNodeFunction (& (service_p -> se_paired_services), FreePairedServiceNode);
 
@@ -241,6 +243,21 @@ bool CloseService (Service *service_p)
 	return service_p -> se_close_fn (service_p);
 }
 
+
+void ReleaseService (Service *service_p)
+{
+	if (service_p -> se_release_service_fn)
+		{
+			service_p -> se_release_service_fn (service_p);
+		}
+}
+
+
+
+void SetServiceReleaseFunction (Service *service_p, void (*release_fn) (Service *service_p))
+{
+	service_p -> se_release_service_fn = release_fn;
+}
 
 
 void ReleaseServiceData (ServiceData *data_p)

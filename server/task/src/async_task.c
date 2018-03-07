@@ -181,6 +181,6 @@ void FreeAsyncTaskNode (ListItem *node_p)
 
 void RunEventConsumerFromAsyncTask (AsyncTask *task_p)
 {
-	task_p -> at_consumer_p -> at_consumer_fn (task_p -> at_consumer_p, task_p);
+	RunEventConsumer (task_p -> at_consumer_p, task_p);
 }
 
