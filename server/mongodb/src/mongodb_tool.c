@@ -1326,12 +1326,16 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 							if (BSON_APPEND_UTF8 (query_p, insert_key_s, primary_key_value_s))
 								{
+									const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL);
+
 									#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
-									PrintBSONToLog (MONGODB_TOOL_DEBUG, __FILE__, __LINE__, query_p, "InsertOrUpdateMongoData query: ");
+									PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "FindMatchingMongoDocumentsByBSON returned %s", exists_flag ? "true" : "false");
 									#endif
 
-									if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL))
+
+									if (exists_flag)
 										{
+
 											if (object_key_s)
 												{
 													json_t *doc_p = json_object ();
