@@ -1430,7 +1430,3 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 	return error_s;
 }
-
-
-
-
