@@ -486,37 +486,43 @@ bool SetDrmaaToolOutputFilename (DrmaaTool *tool_p, const char *output_name_s)
 
 	if (output_name_s)
 		{
+
+			char *path_to_use_s = NULL;
+
 			/*
 			 * drmaa output paths require a mandatory ":" at the start of the path
 			 * so add it if it's not already there.
 			 */
-			char *temp_s = NULL;
-			const char *path_to_use_s = NULL;
-
 			if (*output_name_s == ':')
 				{
-					path_to_use_s = output_name_s;
+					path_to_use_s = EasyCopyToNewString (output_name_s);
 				}
 			else
 				{
-					temp_s = ConcatenateStrings (":", output_name_s);
-
-					if (temp_s)
-						{
-							path_to_use_s = temp_s;
-						}
+					path_to_use_s = ConcatenateStrings (":", output_name_s);
 				}
 
 			if (path_to_use_s)
 				{
 					success_flag = SetDrmaaAttribute (tool_p, DRMAA_OUTPUT_PATH, path_to_use_s);
+
+					if (success_flag)
+						{
+							tool_p -> dt_output_filename_s = path_to_use_s;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set DrmaaTool output filename to \"%s\"", path_to_use_s);
+							FreeCopiedString (path_to_use_s);
+						}
+
+				}		/* if (path_to_use_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to copy DrmaaTool output filename from \"%s\"", output_name_s);
 				}
 
-			if (path_to_use_s == temp_s)
-				{
-					FreeCopiedString (temp_s);
-				}
-		}
+		}		/* if (output_name_s) */
 	else
 		{
 			if (tool_p -> dt_output_filename_s)
