@@ -74,7 +74,8 @@ GRASSROOTS_UTIL_API char *EasyCopyToNewString (const char * const src_s);
 /**
  * Delete a string previously allocated using CopyToNewString.
  *
- * @param str_p The string to deallocate.
+ * @param str_p The string to deallocate. This is checked for being <code>NULL</code> in which
+ * case this function becomes a no-op routine.
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API void FreeCopiedString (char *str_p);

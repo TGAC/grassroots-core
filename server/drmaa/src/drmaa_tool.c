@@ -23,7 +23,7 @@
 #include "string_linked_list.h"
 #include "byte_buffer.h"
 #include "filesystem_utils.h"
-
+#include "grassroots_config.h"
 
 #if HTCONDOR_DRMAA_ENABLED
 	#include "htcondor_env_patch.h"

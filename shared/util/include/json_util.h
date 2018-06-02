@@ -574,6 +574,12 @@ GRASSROOTS_UTIL_API bool CopyJSONKeyIntegerValuePair (const json_t *src_p, json_
  */
 GRASSROOTS_UTIL_API bool DeepCopyValidJSON (const json_t *src_p, json_t **dest_pp);
 
+
+
+
+
+GRASSROOTS_UTIL_API bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term_s, const bool add_id_flag);
+
 #ifdef __cplusplus
 }
 #endif

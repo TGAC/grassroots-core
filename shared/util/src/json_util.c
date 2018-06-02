@@ -1256,3 +1256,49 @@ bool DeepCopyValidJSON (const json_t *src_p, json_t **dest_pp)
 	return success_flag;
 }
 
+
+
+bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term_s, const bool add_id_flag)
+{
+	json_t *term_p = json_object ();
+
+	if (term_p)
+		{
+			if (json_object_set_new (term_p, "@context", json_string (term_s)) == 0)
+				{
+					if ((!add_id_flag) || (json_object_set_new (term_p, "@type", json_string ("@id")) == 0))
+						{
+							if (json_object_set_new (root_p, key_s, term_p) == 0)
+								{
+									return true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add json object to root object with context \"%s\" with key \"%s", term_s, key_s);
+								}
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add json object type for context \"%s\" with key \"%s", term_s, key_s);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add json object context \"%s\" with key \"%s", term_s, key_s);
+				}
+
+			json_decref (term_p);
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create json object for context \"%s\" with key \"%s", term_s, key_s);
+		}
+
+
+	return false;
+}
+
+
+
+
+
