@@ -50,3 +50,6 @@ make_all_symbolic_link:
 	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
 		make -f $(imp).makefile make_all_symbolic_link;)	
 		
+make_install_symbolic_link:
+	@$(foreach imp,$(DRMAA_IMPLEMENTATIONS), \
+		make -f $(imp).makefile make_install_symbolic_link;)	
