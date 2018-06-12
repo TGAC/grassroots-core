@@ -1571,7 +1571,7 @@ static int32 AddPairedServices (Service *internal_service_p, UserDetails *user_p
 										{
 											if (!IsServiceInProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
 												{
-													const char *op_name_s = pairs_node_p -> kvpn_pair_p -> kvp_value_s;
+													const char *service_name_s = pairs_node_p -> kvpn_pair_p -> kvp_value_s;
 													json_t *req_p = GetAvailableServicesRequestForAllProviders (providers_p, user_p, sv_p);
 
 													/* We don't need to loop after this iteration */
@@ -1598,62 +1598,29 @@ static int32 AddPairedServices (Service *internal_service_p, UserDetails *user_p
 																					for (i = 0; i < size; ++ i)
 																						{
 																							json_t *service_response_p = json_array_get (services_p, i);
-																							json_t *external_operations_p = json_object_get (service_response_p, SERVER_OPERATIONS_S);
 
-																							if (external_operations_p)
+																							/* Do we have our remote service definition? */
+																							if (IsRequiredExternalOperation (service_response_p, service_name_s))
 																								{
-																									json_t *matching_external_op_p = NULL;
+																									/*
+																									 * Merge the external service with our own and
+																									 * if successful, then remove the external one
+																									 * from the json array
+																									 */
+																									const json_t *provider_p = GetProviderDetails (service_response_p);
 
-																									if (json_is_array (external_operations_p))
+																									if (CreateAndAddPairedService (internal_service_p, external_server_p, service_name_s, service_response_p, provider_p))
 																										{
-																											size_t j;
-																											const size_t num_ops = json_array_size (external_operations_p);
+																											++ num_added_services;
 
-																											for (j = 0; j < num_ops; ++ j)
+																											if (!AddToProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
 																												{
-																													json_t *external_op_p = json_array_get (external_operations_p, j);
-
-																													if (IsRequiredExternalOperation (external_op_p, op_name_s))
-																														{
-																															matching_external_op_p = external_op_p;
-																															j = num_ops;		/* force exit from loop */
-																														}
-
-																												}		/* for (j = 0; j < num_ops; ++ j) */
-
-																										}		/* if (json_is_array (external_operations_json_p)) */
-																									else if (json_is_object (external_operations_p))
-																										{
-																											if (IsRequiredExternalOperation (external_operations_p, op_name_s))
-																												{
-																													matching_external_op_p = external_operations_p;
+																													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add external service %s:%s to providers table", external_server_p -> es_name_s, external_service_name_s);
 																												}
-																										}
+																										}		/* if (CreateAndAddPairedService (matching_internal_service_p, external_server_p, matching_external_op_p)) */
 
-																									/* Do we have our remote service definition? */
-																									if (matching_external_op_p)
-																										{
-																											/*
-																											 * Merge the external service with our own and
-																											 * if successful, then remove the external one
-																											 * from the json array
-																											 */
-																											const json_t *provider_p = GetProviderDetails (service_response_p);
-
-																											if (CreateAndAddPairedService (internal_service_p, external_server_p, op_name_s, matching_external_op_p, provider_p))
-																												{
-																													++ num_added_services;
-
-																													if (!AddToProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
-																														{
-																															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add external service %s:%s to providers table", external_server_p -> es_name_s, external_service_name_s);
-																														}
-																												}		/* if (CreateAndAddPairedService (matching_internal_service_p, external_server_p, matching_external_op_p)) */
-
-																											i = size;		/* force exit from loop */
-																										}		/* if (matching_external_op_p) */
-
-																								}		/* if (external_operations_json_p) */
+																									i = size;		/* force exit from loop */
+																								}
 
 																						}		/* for (i = 0; i < size; ++ i) */
 
