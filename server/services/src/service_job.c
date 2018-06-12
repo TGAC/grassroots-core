@@ -1628,8 +1628,6 @@ bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, 
 
 					if (success_flag)
 						{
-							const char *value_s = GetJSONString (results_p, RESOURCE_PROTOCOL_S);
-
 							SetServiceJobStatus (job_p, status);
 
 							job_p -> sj_service_p = service_p;
@@ -1639,55 +1637,63 @@ bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, 
 
 							uuid_generate (job_p -> sj_id);
 
-							if (value_s)
+							if (results_p)
 								{
-									if (strcmp (value_s, PROTOCOL_INLINE_S) == 0)
+									const char *value_s = GetJSONString (results_p, RESOURCE_PROTOCOL_S);
+
+									if (value_s)
 										{
-											json_t *data_p = json_object_get (results_p, RESOURCE_DATA_S);
-
-											if (data_p)
+											if (strcmp (value_s, PROTOCOL_INLINE_S) == 0)
 												{
-													json_t *results_array_p = json_array ();
+													json_t *data_p = json_object_get (results_p, RESOURCE_DATA_S);
 
-													if (results_array_p)
+													if (data_p)
 														{
-															char uuid_s [UUID_STRING_BUFFER_SIZE];
-															char *title_s = NULL;
-															json_t *resource_p = NULL;
+															json_t *results_array_p = json_array ();
 
-															ConvertUUIDToString (job_p -> sj_id, uuid_s);
-
-															title_s = ConcatenateVarargsStrings (job_p -> sj_name_s, " (", uuid_s, ")", NULL);
-
-															resource_p = GetResourceAsJSONByParts (PROTOCOL_INLINE_S, NULL, title_s ? title_s : uuid_s, data_p);
-
-															if (title_s)
+															if (results_array_p)
 																{
-																	FreeCopiedString (title_s);
-																}
+																	char uuid_s [UUID_STRING_BUFFER_SIZE];
+																	char *title_s = NULL;
+																	json_t *resource_p = NULL;
 
-															if (resource_p)
-																{
-																	if (json_array_append_new (results_array_p, resource_p) == 0)
+																	ConvertUUIDToString (job_p -> sj_id, uuid_s);
+
+																	title_s = ConcatenateVarargsStrings (job_p -> sj_name_s, " (", uuid_s, ")", NULL);
+
+																	resource_p = GetResourceAsJSONByParts (PROTOCOL_INLINE_S, NULL, title_s ? title_s : uuid_s, data_p);
+
+																	if (title_s)
 																		{
-																			job_p -> sj_result_p = results_array_p;
-																		}		/* if (json_array_append_new (results_array_p, resource_p) == 0) */
-																	else
+																			FreeCopiedString (title_s);
+																		}
+
+																	if (resource_p)
 																		{
-																			json_decref (resource_p);
+																			if (json_array_append_new (results_array_p, resource_p) == 0)
+																				{
+																					job_p -> sj_result_p = results_array_p;
+																				}		/* if (json_array_append_new (results_array_p, resource_p) == 0) */
+																			else
+																				{
+																					json_decref (resource_p);
+																				}
+																		}
+
+																	if (! (job_p -> sj_result_p))
+																		{
+																			json_decref (results_array_p);
 																		}
 																}
 
-															if (! (job_p -> sj_result_p))
-																{
-																	json_decref (results_array_p);
-																}
-														}
+														}		/* if (data_p) */
 
-												}		/* if (data_p) */
-
+												}
 										}
-								}
+
+								}		/* if (results_p) */
+
+
 
 						}
 

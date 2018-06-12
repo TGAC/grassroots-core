@@ -46,13 +46,16 @@
 #endif
 
 
-PairedService *AllocatePairedService (const uuid_t id, const char *service_name_s, const char *uri_s, const char * const server_name_s, const json_t *op_p, const json_t *provider_p)
+static bool AddRemoteServiceJob (RemoteServiceJob *job_p, Service *service_p, const char *remote_uri_s, const char *remote_service_s, const uuid_t *remote_id_p,  const ServiceData *service_data_p, bool (*save_job_fn) (RemoteServiceJob *job_p, const ServiceData *service_data_p));
+
+
+PairedService *AllocatePairedService (const uuid_t id, const char *service_name_s, const char *uri_s, const char * const server_name_s, const json_t *service_json_p, const json_t *provider_p)
 {
 	if (service_name_s && uri_s && server_name_s)
 		{
-			if (op_p)
+			if (service_json_p)
 				{
-					ParameterSet *param_set_p = CreateParameterSetFromJSON (op_p, false);
+					ParameterSet *param_set_p = CreateParameterSetFromJSON (service_json_p, false);
 
 					if (param_set_p)
 						{
@@ -322,7 +325,7 @@ int32 RunPairedServices (Service *service_p, ParameterSet *param_set_p, Provider
 
 									if (res_p)
 										{
-											int res = AddRemoteResultsToServiceJobs (res_p, service_p -> se_jobs_p, paired_service_p -> ps_name_s, paired_service_p -> ps_server_uri_s, service_p -> se_data_p, save_job_fn);
+											int res = AddRemoteResultsToServiceJobs (res_p, service_p, paired_service_p -> ps_name_s, paired_service_p -> ps_server_uri_s, service_p -> se_data_p, save_job_fn);
 
 											if (res >= 0)
 												{
@@ -373,7 +376,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 								{
 									json_array_foreach (service_results_p, i, service_result_p)
 										{
-											const char *service_name_s = GetJSONString (service_result_p, SERVICE_NAME_S);
+											const char *service_name_s = GetJSONString (service_result_p, JOB_SERVICE_S);
 
 											if (service_name_s)
 												{
@@ -383,8 +386,46 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 
 															if (GetStatusFromJSON (service_result_p, &status))
 																{
+																	const char *name_s = GetJSONString (service_result_p, JOB_NAME_S);
+																	const char *description_s = GetJSONString (service_result_p, JOB_DESCRIPTION_S);
+																	const char *remote_id_s = GetJSONString (service_result_p, JOB_UUID_S);
+
+																	uuid_t *remote_id_p = NULL;
+																	uuid_t remote_id;
+																	size_t j;
+																	json_t *job_json_p;
+
+
+																	if (remote_id_s)
+																		{
+																			if (uuid_parse (remote_id_s, remote_id) == 0)
+																				{
+																					remote_id_p = &remote_id;
+																				}
+																		}
+
+
 																	switch (status)
 																		{
+																			case OS_STARTED:
+																				{
+																					RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (NULL, service_p, name_s, description_s, status);
+
+																					if (job_p)
+																						{
+																							if (AddRemoteServiceJob (job_p, service_p, remote_uri_s, remote_service_s, remote_id_p, service_data_p, save_job_fn))
+																								{
+																									++ num_successful_runs;
+																								}
+																						}		/* if (job_p) */
+																					else
+																						{
+																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to create RemoteServiceJob ");
+																						}
+
+																					break;
+																				}
+
 																			case OS_SUCCEEDED:
 																				{
 																					/* Get the results and add them to our list of jobs */
@@ -394,77 +435,20 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																						{
 																							if (json_is_array (results_p))
 																								{
-																									bool id_flag = false;
-																									uuid_t remote_id;
-																									size_t j;
-																									json_t *job_json_p;
-																									const char *name_s = GetJSONString (service_result_p, JOB_NAME_S);
-																									const char *description_s = GetJSONString (service_result_p, JOB_DESCRIPTION_S);
-																									const char *remote_id_s = GetJSONString (service_result_p, JOB_UUID_S);
-
-																									if (remote_id_s)
-																										{
-																											if (uuid_parse (remote_id_s, remote_id) == 0)
-																												{
-																													id_flag = true;
-																												}
-																										}
-
 																									json_array_foreach (results_p, j, job_json_p)
 																										{
 																											RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (job_json_p, service_p, name_s, description_s, status);
 
 																											if (job_p)
 																												{
-																													bool added_flag = false;
-																													/*
-																													 * Save the details to access the remote service with a file named using
-																													 * the local uuid
-																													 */
-																													if ((job_p -> rsj_uri_s = EasyCopyToNewString (remote_uri_s)) != NULL)
+																													if (AddRemoteServiceJob (job_p, service_p, remote_uri_s, remote_service_s, remote_id_p, service_data_p, save_job_fn))
 																														{
-																															if ((job_p -> rsj_service_name_s = EasyCopyToNewString (remote_service_s)) != NULL)
-																																{
-																																	if (id_flag)
-																																		{
-																																			uuid_copy (job_p -> rsj_job_id, remote_id);
-
-																																			if (AddServiceJobToService (service_p, & (job_p -> rsj_job), false))
-																																				{
-																																					if ((save_job_fn != NULL) && (!save_job_fn (job_p, service_data_p)))
-																																						{
-																																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to save remote info file for \"%s\"", remote_id_s);
-																																						}
-
-																																					added_flag = true;
-																																					++ num_successful_runs;
-																																				}
-																																			else
-																																				{
-																																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to add ServiceJob to ServiceJobSet ");
-																																				}
-
-																																		}
-																																}
-																															else
-																																{
-																																	PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add remote service name \"%s\"", remote_service_s);
-																																}		/* if (! (job_p -> bsj_job.sj_remote_uri_s)) */
+																															++ num_successful_runs;
 																														}
-																													else
-																														{
-																															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add remote uri \"%s\"", remote_uri_s);
-																														}		/* if (! (job_p -> bsj_job.sj_remote_uri_s)) */
-
-																													if (!added_flag)
-																														{
-																															ClearServiceJob (& (job_p -> rsj_job));
-																														}
-
 																												}		/* if (job_p) */
 																											else
 																												{
-																													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to create ServiceJob ");
+																													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to create RemoteServiceJob ");
 																												}
 
 																										}		/* json_array_foreach (results_p, j, job_json_p) */
@@ -517,4 +501,61 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 	return num_successful_runs;
 }
 
+
+static bool AddRemoteServiceJob (RemoteServiceJob *job_p, Service *service_p, const char *remote_uri_s, const char *remote_service_s, const uuid_t *remote_id_p,  const ServiceData *service_data_p, bool (*save_job_fn) (RemoteServiceJob *job_p, const ServiceData *service_data_p))
+{
+	bool added_flag = false;
+	/*
+	 * Save the details to access the remote service with a file named using
+	 * the local uuid
+	 */
+	if ((job_p -> rsj_uri_s = EasyCopyToNewString (remote_uri_s)) != NULL)
+		{
+			if ((job_p -> rsj_service_name_s = EasyCopyToNewString (remote_service_s)) != NULL)
+				{
+					if (remote_id_p)
+						{
+							uuid_copy (job_p -> rsj_job_id, *remote_id_p);
+
+							if (AddServiceJobToService (service_p, & (job_p -> rsj_job), false))
+								{
+									if ((save_job_fn != NULL) && (!save_job_fn (job_p, service_data_p)))
+										{
+											char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+											ConvertUUIDToString (*remote_id_p, uuid_s);
+
+											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to save remote info file for \"%s\"", uuid_s);
+										}
+
+									added_flag = true;
+								}
+							else
+								{
+									char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+									ConvertUUIDToString (*remote_id_p, uuid_s);
+
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add RemoteServiceJob \"%s\" to ServiceJobSet", uuid_s);
+								}
+
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add remote service name \"%s\"", remote_service_s);
+				}		/* if (! (job_p -> bsj_job.sj_remote_uri_s)) */
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add remote uri \"%s\"", remote_uri_s);
+		}		/* if (! (job_p -> bsj_job.sj_remote_uri_s)) */
+
+	if (!added_flag)
+		{
+			ClearServiceJob (& (job_p -> rsj_job));
+		}
+
+	return added_flag;
+}
 

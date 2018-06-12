@@ -356,26 +356,13 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, const bool 
 
 	if (op_p)
 		{
-			const char *name_s = NULL;
-			const char *description_s = NULL;
+			const char *name_s = GetJSONString (op_p, PARAM_SET_NAME_S);
+			const char *description_s = GetJSONString (op_p, PARAM_SET_DESCRIPTION_S);
 
 			#if PARAMETER_SET_DEBUG >= STM_LEVEL_FINER
 			PrintJSONToLog (op_p, "CreateParameterSetFromJSON op:\n", PARAMETER_SET_DEBUG, __FILE__, __LINE__);
 			#endif
 			
-			/* Get the name */
-			json_t *json_p = json_object_get (op_p, PARAM_SET_NAME_S);
-			if (json_p && json_is_string (json_p))
-				{
-					name_s = json_string_value (json_p);
-				}
-
-			/* Get the description */
-			json_p = json_object_get (op_p, PARAM_SET_DESCRIPTION_S);
-			if (json_p && json_is_string (json_p))
-				{
-					description_s = json_string_value (json_p);
-				}
 
 			params_p = AllocateParameterSet (name_s, description_s);
 			

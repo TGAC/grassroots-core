@@ -108,12 +108,12 @@ extern "C"
  * @param name_s The name of the PairedService.
  * @param server_uri_s The URI for the ExternalServer's Grassroots access.
  * @param server_name_s The name of the ExternalServer.
- * @param op_p The JSON fragment for the Service.
+ * @param service_json_p The JSON fragment for the Service.
  * @param provider_p The JSON fragment from the server configuration file detailing the Provider of this PairedService.
  * @return The new PairedService or <code>NULL</code> upon error.
  * @memberof PairedService
  */
-GRASSROOTS_SERVICE_API PairedService *AllocatePairedService (const uuid_t id, const char *name_s, const char *server_uri_s, const char *server_name_s, const json_t *op_p, const json_t *provider_p);
+GRASSROOTS_SERVICE_API PairedService *AllocatePairedService (const uuid_t id, const char *name_s, const char *server_uri_s, const char *server_name_s, const json_t *service_json_p, const json_t *provider_p);
 
 
 /**
