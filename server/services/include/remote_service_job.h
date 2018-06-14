@@ -102,8 +102,7 @@ GRASSROOTS_SERVICE_API void FreeRemoteServiceJob (ServiceJob *job_p);
  * @return The newly-created RemoteServiceJob or <code>NULL</code> upon error.
  * @memberof RemoteServiceJob
  */
-GRASSROOTS_SERVICE_API RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status);
-
+GRASSROOTS_SERVICE_API RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_service_s, const char *remote_uri_s, const uuid_t remote_id, const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status);
 
 
 /**
@@ -116,6 +115,27 @@ GRASSROOTS_SERVICE_API RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (
  */
 GRASSROOTS_SERVICE_API bool RefreshRemoteServiceJob (RemoteServiceJob *job_p);
 
+
+/**
+ * Test whether a given JSON object represents a RemoteServiceJob.
+ *
+ * @param job_json_p The JSON object to check.
+ * @return <code>true</code> if theSON object represents a RemoteServiceJob,
+ * <code>false</code> otherwise.
+ * @memberof RemoteServiceJob
+ */
+GRASSROOTS_SERVICE_API bool IsRemoteServiceJobJSON (const json_t *job_json_p);
+
+
+
+/**
+ * Create a RemoteServiceJob from a given JSON fragment.
+ *
+ * @param job_json_p The JSON fragment to create the RemoteServiceJob from.
+ * @return The newly-allocated RemoteServiceJob or <code>NULL</code> upno error.
+ * @memberof RemoteServiceJob
+ */
+GRASSROOTS_SERVICE_API RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p);
 
 #ifdef __cplusplus
 }

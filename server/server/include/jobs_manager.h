@@ -133,10 +133,9 @@ typedef struct JobsManager
 	 *
 	 * @param manager_p The JobsManager to search on.
 	 * @param key The uuid_t for the ServiceJob to search for.
-	 * @param deserialise_fn The function used to deserialise the data stored in this JobsManager to create a ServiceJob.
-	 * If this is <code>NULL</code> then DeserialiseServiceJobFromJSON is used by default.
-	 * @return A json_t for the matching ServiceJob or <code>NULL</code>
-	 * if it could not be found.
+	 * @param get_job_flag If this is <code>true</code> then the removed ServiceJon will be returned if
+	 * possible. If this is <code>false</code>, then <code>NULL</code> will be returned.
+	 * @return The removed ServiceJob or <code>NULL</code>, depending upon get_job_flag.
 	 * @memberof JobsManager
 	 * @see RemoveServiceJobFromJobsManager
 	 */

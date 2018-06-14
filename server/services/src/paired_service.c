@@ -410,7 +410,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																			case OS_PENDING:
 																			case OS_STARTED:
 																				{
-																					RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (NULL, service_p, name_s, description_s, status);
+																					RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_uri_s, remote_service_s, remote_id_p, NULL, service_p, name_s, description_s, status);
 
 																					if (job_p)
 																						{
@@ -439,7 +439,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																								{
 																									json_array_foreach (results_p, j, job_json_p)
 																										{
-																											RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (job_json_p, service_p, name_s, description_s, status);
+																											RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_uri_s, remote_service_s, remote_id_p, job_json_p, service_p, name_s, description_s, status);
 
 																											if (job_p)
 																												{
@@ -519,47 +519,28 @@ static bool AddRemoteServiceJob (RemoteServiceJob *job_p, Service *service_p, co
 	 * Save the details to access the remote service with a file named using
 	 * the local uuid
 	 */
-	if ((job_p -> rsj_uri_s = EasyCopyToNewString (remote_uri_s)) != NULL)
-		{
-			if ((job_p -> rsj_service_name_s = EasyCopyToNewString (remote_service_s)) != NULL)
-				{
-					if (remote_id_p)
-						{
-							uuid_copy (job_p -> rsj_remote_job_id, *remote_id_p);
 
-							if (AddServiceJobToService (service_p, & (job_p -> rsj_job), false))
-								{
-									if ((save_job_fn != NULL) && (!save_job_fn (job_p, service_data_p)))
-										{
-											char uuid_s [UUID_STRING_BUFFER_SIZE];
+		if (AddServiceJobToService (service_p, & (job_p -> rsj_job), false))
+			{
+				if ((save_job_fn != NULL) && (!save_job_fn (job_p, service_data_p)))
+					{
+						char uuid_s [UUID_STRING_BUFFER_SIZE];
 
-											ConvertUUIDToString (*remote_id_p, uuid_s);
+						ConvertUUIDToString (*remote_id_p, uuid_s);
 
-											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to save remote info file for \"%s\"", uuid_s);
-										}
+						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to save remote info file for \"%s\"", uuid_s);
+					}
 
-									added_flag = true;
-								}
-							else
-								{
-									char uuid_s [UUID_STRING_BUFFER_SIZE];
+				added_flag = true;
+			}
+		else
+			{
+				char uuid_s [UUID_STRING_BUFFER_SIZE];
 
-									ConvertUUIDToString (*remote_id_p, uuid_s);
+				ConvertUUIDToString (*remote_id_p, uuid_s);
 
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add RemoteServiceJob \"%s\" to ServiceJobSet", uuid_s);
-								}
-
-						}
-				}
-			else
-				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add remote service name \"%s\"", remote_service_s);
-				}		/* if (! (job_p -> bsj_job.sj_remote_uri_s)) */
-		}
-	else
-		{
-			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add remote uri \"%s\"", remote_uri_s);
-		}		/* if (! (job_p -> bsj_job.sj_remote_uri_s)) */
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add RemoteServiceJob \"%s\" to ServiceJobSet", uuid_s);
+			}
 
 	if (!added_flag)
 		{

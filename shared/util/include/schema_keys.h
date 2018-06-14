@@ -355,6 +355,9 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	PREFIX const char *JOB_UUID_S VAL("job_uuid");
 	PREFIX const char *JOB_REMOTE_URI_S  VAL("remote_uri");
 	PREFIX const char *JOB_REMOTE_UUID_S  VAL("remote_uuid");
+	PREFIX const char *JOB_REMOTE_SERVICE_S  VAL("remote_service");
+	PREFIX const char *JOB_REMOTE_S  VAL("remote_job");
+
 	/* End of doxygen member group */
 	/**@}*/
 

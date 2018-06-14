@@ -971,7 +971,6 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 }
 
 
-
 ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 {
 	ServiceJob *job_p = NULL;
@@ -1563,23 +1562,6 @@ char *SerialiseServiceJobToJSON (ServiceJob * const job_p, bool omit_results_fla
 }
 
 
-ServiceJob *DeserialiseServiceJobFromJSON (char *raw_json_data_s)
-{
-	ServiceJob *job_p = NULL;
-	json_error_t err;
-	json_t *job_json_p = json_loads (raw_json_data_s, 0, &err);
-
-	if (job_json_p)
-		{
-
-		}		/* if (job_json_p) */
-	else
-		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to load service json from \"%s\"", raw_json_data_s);
-		}
-
-	return job_p;
-}
 
 
 ServiceJob *GetServiceJobFromServiceJobSet (const ServiceJobSet *jobs_p, const uint32 job_index)

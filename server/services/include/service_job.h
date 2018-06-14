@@ -617,20 +617,6 @@ GRASSROOTS_SERVICE_API char *SerialiseServiceJobToJSON (ServiceJob * const job_p
 
 
 /**
- * Recreate a ServiceJob from a persistent format. This is used to
- * access a ServiceJob stored in the JobsManager.
- *
- * @param raw_json_data_s The data representing the ServiceJob.
- * @return The ServiceJob or <code>NULL</code>
- * upon error.
- * @see JobsManager
- * @see SerialiseServiceJobToJSON
- * @memberof ServiceJob
- */
-GRASSROOTS_SERVICE_API ServiceJob *DeserialiseServiceJobFromJSON (char *raw_json_data_s);
-
-
-/**
  * @brief Create a ServiceJob from a JSON Resource fragment.
  *
  * This is useful when combining results from a PairedService. The resultant
