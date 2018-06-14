@@ -407,6 +407,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 
 																	switch (status)
 																		{
+																			case OS_PENDING:
 																			case OS_STARTED:
 																				{
 																					RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (NULL, service_p, name_s, description_s, status);
@@ -426,6 +427,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																					break;
 																				}
 
+																			case OS_PARTIALLY_SUCCEEDED:
 																			case OS_SUCCEEDED:
 																				{
 																					/* Get the results and add them to our list of jobs */
@@ -464,6 +466,13 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																				}		/* case OS_SUCCEEDED: */
 																				break;
 
+
+																			case OS_ERROR:
+																			case OS_FAILED:
+																			case OS_FAILED_TO_START:
+																				PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_result_p, "RemoteServiceJob failed to run: \"%s\"", GetOperationStatusAsString (status));
+																				break;
+
 																			default:
 																				break;
 																		}		/* switch (status) */
@@ -475,6 +484,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																}
 
 														}		/* if (strcmp (service_name_s = service_p -> ps_name_s) == 0) */
+
 												}		/* if (service_name_s) */
 											else
 												{
@@ -515,7 +525,7 @@ static bool AddRemoteServiceJob (RemoteServiceJob *job_p, Service *service_p, co
 				{
 					if (remote_id_p)
 						{
-							uuid_copy (job_p -> rsj_job_id, *remote_id_p);
+							uuid_copy (job_p -> rsj_remote_job_id, *remote_id_p);
 
 							if (AddServiceJobToService (service_p, & (job_p -> rsj_job), false))
 								{

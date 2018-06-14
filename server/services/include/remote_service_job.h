@@ -53,8 +53,9 @@ typedef struct RemoteServiceJob
 	/** The name of the Service that will run the RemoteServiceJob. */
 	char *rsj_service_name_s;
 
-	/** The UUID of the RemoteServiceJob on this local Server. */
-	uuid_t rsj_job_id;
+	/** The UUID of the RemoteServiceJob on its remote Server. */
+	uuid_t rsj_remote_job_id;
+
 } RemoteServiceJob;
 
 
@@ -102,6 +103,18 @@ GRASSROOTS_SERVICE_API void FreeRemoteServiceJob (ServiceJob *job_p);
  * @memberof RemoteServiceJob
  */
 GRASSROOTS_SERVICE_API RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status);
+
+
+
+/**
+ * Refresh the status and results of a given RemoteServiceJob.
+ *
+ * @param job_p The RemoteServiceJob to refresh.
+ * @return <code>true</code> if the RemoteServiceJob was refreshed successfully,
+ * <code>false</code> upon error.
+ * @memberof RemoteServiceJob
+ */
+GRASSROOTS_SERVICE_API bool RefreshRemoteServiceJob (RemoteServiceJob *job_p);
 
 
 #ifdef __cplusplus

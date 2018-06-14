@@ -38,7 +38,7 @@ RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const json_t *results_p
 				{
 					job_p -> rsj_job.sj_free_fn = FreeRemoteServiceJob;
 
-					uuid_clear (job_p -> rsj_job_id);
+					uuid_clear (job_p -> rsj_remote_job_id);
 					job_p -> rsj_service_name_s = NULL;
 					job_p -> rsj_uri_s = NULL;
 
@@ -60,7 +60,7 @@ RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_
 		{
 			ServiceJob * const base_service_job_p = & (remote_job_p -> rsj_job);
 
-			if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL, NULL, FreeRemoteServiceJob, & (remote_job_p -> rsj_job_id)))
+			if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL, NULL, FreeRemoteServiceJob, NULL))
 				{
 					if (remote_uri_s && remote_service_s)
 						{
@@ -74,6 +74,8 @@ RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_
 										{
 											remote_job_p -> rsj_service_name_s = service_s;
 											remote_job_p -> rsj_uri_s = uri_s;
+
+											uuid_copy (remote_job_p -> rsj_remote_job_id, remote_job_id);
 
 											return remote_job_p;
 										}
@@ -113,7 +115,31 @@ void FreeRemoteServiceJob (ServiceJob *job_p)
 }
 
 
+bool RefreshRemoteServiceJob (RemoteServiceJob *job_p)
+{
+	bool success_flag = false;
+	const uuid_t **id_pp = & (job_p -> rsj_remote_job_id);
 
+	json_t *req_p = GetServicesResultsRequest (id_pp, 1, connection_p, schema_p);
+
+
+	return success_flag;
+}
+
+
+
+json_t *GetRemoteServiceJobAsJSON (RemoteServiceJob *job_p, bool omit_results_flag)
+{
+	json_t *job_json_p = GetServiceJobAsJSON (& (job_p -> rsj_job), omit_results_flag);
+
+	if (job_json_p)
+		{
+
+			return job_json_p;
+		}
+
+	return NULL;
+}
 
 
 
