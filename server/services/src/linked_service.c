@@ -191,19 +191,30 @@ bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_ser
 
 					if (wrapper_p)
 						{
-							json_t *run_service_p = GetInterestedServiceJSON (linked_service_p -> ls_output_service_s, NULL, output_params_p, false);
+							Service *service_p = GetServiceByName (linked_service_p -> ls_output_service_s);
 
-							if (run_service_p)
+							if (service_p)
 								{
-									if (json_array_append_new (services_p, run_service_p) == 0)
+									json_t *run_service_p = GetInterestedServiceJSON (service_p, NULL, output_params_p, false);
+
+									if (run_service_p)
 										{
-											success_flag = true;
+											if (json_array_append_new (services_p, run_service_p) == 0)
+												{
+													success_flag = true;
+												}
+											else
+												{
+													json_decref (run_service_p);
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
+												}
 										}
-									else
-										{
-											json_decref (run_service_p);
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
-										}
+
+									FreeService (service_p);
+								}		/* if (service_p) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find Service with name \"%s\"", linked_service_p -> ls_output_service_s);
 								}
 
 							if (!success_flag)
