@@ -1588,7 +1588,7 @@ ServiceJob *GetServiceJobFromServiceJobSet (const ServiceJobSet *jobs_p, const u
 }
 
 
-bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, Service *service_p, const char *name_s, const char *description_s, OperationStatus status)
+bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *type_s)
 {
 	bool success_flag = true;
 	OperationStatus (*update_status_fn) (ServiceJob *job_p) = NULL;
@@ -1619,6 +1619,7 @@ bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, 
 
 							job_p -> sj_update_fn = NULL;
 							job_p -> sj_free_fn = NULL;
+							job_p -> sj_type_s = type_s;
 
 							uuid_generate (job_p -> sj_id);
 
@@ -1694,13 +1695,13 @@ bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, 
 }
 
 
-ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, Service *service_p, const char *name_s, const char *description_s, OperationStatus status)
+ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *type_s)
 {
 	ServiceJob *job_p = (ServiceJob *) AllocMemory (sizeof (ServiceJob));
 
 	if (job_p)
 		{
-			if (InitServiceJobFromResultsJSON (job_p, results_p, service_p, name_s, description_s, status))
+			if (InitServiceJobFromResultsJSON (job_p, results_p, service_p, name_s, description_s, status, type_s))
 				{
 					return job_p;
 				}

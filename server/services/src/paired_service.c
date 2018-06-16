@@ -102,14 +102,30 @@ PairedService *AllocatePairedService (const uuid_t id, const char *service_name_
 
 																			return paired_service_p;
 																		}		/* if (paired_service_p) */
+																	else
+																		{
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate paired service for \"%s\"", copied_uri_s);
+																		}
 
 																	json_decref (copied_provider_p);
-																}		/* if (copied_provider_p) */
+																}		/* if (SetProviderType (copied_provider_p)) */
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, copied_provider_p, "SetProviderType failed");
+																}
 
-														}		/* if (SetProviderType (copied_provider_p)) */
+														}		/* if (copied_provider_p) */
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, provider_p, "Failed to allocate copied provider");
+														}
 
 													FreeCopiedString (copied_server_name_s);
 												}		/* copied_server_name_s */
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy server name \"%s\"", server_name_s);
+												}
 
 											FreeCopiedString (copied_uri_s);
 										}		/* if (copied_uri_s) */
@@ -129,15 +145,19 @@ PairedService *AllocatePairedService (const uuid_t id, const char *service_name_
 						}		/* if (param_set_p) */
 					else
 						{
-
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_json_p, "CreateParameterSetFromJSON failed");
 						}
 
-				}		/* if (op_p) */
+				}		/* if (service_json_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "service_json_p is NULL");
+				}
 
-		}		/* if (name_s && uri_s) */
+		}		/* if (service_name_s && uri_s && server_name_s) */
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Name \"%s\" and URI \"%s\" must exist", service_name_s ? service_name_s : "NULL", uri_s ? uri_s : "NULL");
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "service name \"%s\", URI \"%s\" and server name \"%s\" must exist", service_name_s ? service_name_s : "NULL", uri_s ? uri_s : "NULL", server_name_s ? server_name_s : "NULL");
 		}
 
 	return NULL;

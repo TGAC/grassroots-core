@@ -656,7 +656,7 @@ GRASSROOTS_SERVICE_API char *SerialiseServiceJobToJSON (ServiceJob * const job_p
  * @memberof ServiceJob
  * @see InitServiceJobFromResultsJSON
  */
-GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status);
+GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *type_s);
 
 
 
@@ -673,7 +673,7 @@ GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromResultsJSON (const json_t
  * <code>false</code> otherwise.
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status);
+GRASSROOTS_SERVICE_API bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *type_s);
 
 
 /**

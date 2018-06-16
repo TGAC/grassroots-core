@@ -1613,16 +1613,32 @@ static int32 AddPairedServices (Service *internal_service_p, UserDetails *user_p
 																										{
 																											const json_t *provider_p = GetProviderDetails (service_response_p);
 
-																											if (CreateAndAddPairedService (internal_service_p, external_server_p, service_name_s, op_p, provider_p))
+																											if (provider_p)
 																												{
-																													++ num_added_services;
-
-																													if (!AddToProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
+																													if (json_is_object (provider_p))
 																														{
-																															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add external service %s:%s to providers table", external_server_p -> es_name_s, external_service_name_s);
+																															if (CreateAndAddPairedService (internal_service_p, external_server_p, service_name_s, op_p, provider_p))
+																																{
+																																	++ num_added_services;
+
+																																	if (!AddToProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
+																																		{
+																																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add external service %s:%s to providers table", external_server_p -> es_name_s, external_service_name_s);
+																																		}
+
+																																}		/* if (CreateAndAddPairedService (matching_internal_service_p, external_server_p, matching_external_op_p)) */
+
+																														}		/* if (json_is_object (provider_p)) */
+																													else if (json_is_array (provider_p))
+																														{
+
+																														}
+																													else
+																														{
+
 																														}
 
-																												}		/* if (CreateAndAddPairedService (matching_internal_service_p, external_server_p, matching_external_op_p)) */
+																												}		/* if (provider_p) */
 
 																										}
 																									else

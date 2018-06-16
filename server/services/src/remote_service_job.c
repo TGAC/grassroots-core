@@ -35,7 +35,7 @@ RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_serv
 
 	if (job_p)
 		{
-			if (InitServiceJobFromResultsJSON (& (job_p -> rsj_job), results_p, service_p, name_s, description_s, status))
+			if (InitServiceJobFromResultsJSON (& (job_p -> rsj_job), results_p, service_p, name_s, description_s, status, RSJ_TYPE_S))
 				{
 					char *copied_service_s = EasyCopyToNewString (remote_service_s);
 
