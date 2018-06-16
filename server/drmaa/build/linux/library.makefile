@@ -98,14 +98,14 @@ include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 .PHONY:	test test_install clean make_install_symbolic_link make_all_symbolic_link lib_install lib_all
 
 ifeq ($(DRMAA_IMPLEMENTATION_NAME),$(DRMAA_DEFAULT_LIB))
-install: lib_install make_install_symbolic_link
-all: lib_all make_all_symbolic_link
+install:: lib_install make_install_symbolic_link
+all:: lib_all make_all_symbolic_link
 else
-install: lib_install
-all: lib_all 
+install:: lib_install
+all:: lib_all 
 endif
 	
-clean:
+clean::
 	rm -fr $(DIR_OBJS)/*.o
 
 test: 

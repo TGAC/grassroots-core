@@ -15,6 +15,7 @@
  */
 #include <string.h>
 
+#define ALLOCATE_SERVICE_JOB_TAGS (1)
 #include "service_job.h"
 #include "service.h"
 
@@ -83,13 +84,13 @@ ServiceJobSet *AllocateSimpleServiceJobSet (struct Service *service_p, const cha
 
 
 
-ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p))
+ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), const char *job_type_s)
 {
 	ServiceJob *job_p = AllocateEmptyServiceJob ();
 
 	if (job_p)
 		{
-			if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn, NULL))
+			if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn, NULL, job_type_s))
 				{
 					return job_p;
 				}
@@ -103,7 +104,7 @@ ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, cons
 
 ServiceJob *CreateAndAddServiceJobToService (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), bool require_lock_flag)
 {
-	ServiceJob *job_p = AllocateServiceJob (service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn);
+	ServiceJob *job_p = AllocateServiceJob (service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn, SJ_DEFAULT_TYPE_S);
 
 	if (job_p)
 		{
@@ -119,7 +120,7 @@ ServiceJob *CreateAndAddServiceJobToService (Service *service_p, const char *job
 }
 
 
-bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p)
+bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p, const char *job_type_s)
 {
 #if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Initialising Job: %.16x\n", job_p);
@@ -172,6 +173,8 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 											job_p -> sj_calculate_result_fn = calculate_results_fn;
 
 											job_p -> sj_is_updating_flag = false;
+
+											job_p -> sj_type_s = job_type_s;
 
 #if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
 											{
@@ -899,7 +902,7 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 														}
 												}
 
-											if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, NULL, NULL, NULL, id_p))
+											if (InitServiceJob (job_p, service_p, job_name_s, job_description_s, NULL, NULL, NULL, id_p, SJ_DEFAULT_TYPE_S))
 												{
 													if (CopyValidJSON (job_json_p, JOB_RESULTS_S, & (job_p -> sj_result_p)))
 														{

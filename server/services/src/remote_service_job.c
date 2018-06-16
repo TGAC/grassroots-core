@@ -21,6 +21,7 @@
  *      Author: billy
  */
 
+#define ALLOCATE_REMOTE_SERVICE_JOB_TAGS (1)
 #include "remote_service_job.h"
 #include "memory_allocations.h"
 #include "service.h"
@@ -85,7 +86,7 @@ RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_
 		{
 			ServiceJob * const base_service_job_p = & (remote_job_p -> rsj_job);
 
-			if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL, NULL, FreeRemoteServiceJob, NULL))
+			if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL, NULL, FreeRemoteServiceJob, NULL, RSJ_TYPE_S))
 				{
 					if (remote_uri_s && remote_service_s)
 						{
@@ -201,7 +202,7 @@ json_t *GetRemoteServiceJobAsJSON (RemoteServiceJob *job_p, bool omit_results_fl
 		}		/* if (job_json_p) */
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to allocate JSON object for RemoteServiceJob");
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to allocate JSON object for RemoteServiceJob");
 		}
 
 	return NULL;

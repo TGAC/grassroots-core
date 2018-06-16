@@ -45,6 +45,22 @@ struct ServiceJob;
 struct LinkedService;
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#ifdef ALLOCATE_SERVICE_JOB_TAGS
+	#define SERVICE_JOB_PREFIX GRASSROOTS_SERVICE_API
+	#define SERVICE_JOB_VAL(x)	= x
+#else
+	#define SERVICE_JOB_PREFIX extern
+	#define SERVICE_JOB_VAL(x)
+#endif
+
+#endif
+
+
+SERVICE_JOB_PREFIX const char *SJ_DEFAULT_TYPE_S SERVICE_JOB_VAL ("default_service_job");
+
+
 /**
  * @brief A datatype to represent a running task.
  *
@@ -128,6 +144,14 @@ typedef struct ServiceJob
 	 */
 	bool sj_is_updating_flag;
 
+
+	/**
+	 * The type of ServiceJob
+	 *
+	 * This is used to denote a subclass of ServiceJob if needed and
+	 * you need to check its type
+	 */
+	const char *sj_type_s;
 } ServiceJob;
 
 
@@ -219,7 +243,7 @@ GRASSROOTS_SERVICE_API void FreeBaseServiceJob (ServiceJob *job_p);
  * @see ClearServiceJob
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p));
+GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), const char *job_type_s);
 
 
 
@@ -275,7 +299,7 @@ GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToService (struct Servi
  * @return <code>true</code> if the ServiceJob was initialised successfully, <code>false</code> otherwise
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p);
+GRASSROOTS_SERVICE_API bool InitServiceJob (ServiceJob *job_p, struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), uuid_t *id_p, const char *job_type_s);
 
 
 /**

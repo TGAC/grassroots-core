@@ -35,6 +35,22 @@
 #include "grassroots_service_library.h"
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#ifdef ALLOCATE_REMOTE_SERVICE_JOB_TAGS
+	#define REMOTE_SERVICE_JOB_PREFIX GRASSROOTS_SERVICE_API
+	#define REMOTE_SERVICE_JOB_VAL(x)	= x
+#else
+	#define REMOTE_SERVICE_JOB_PREFIX extern
+	#define REMOTE_SERVICE_JOB_VAL(x)
+#endif
+
+#endif
+
+
+REMOTE_SERVICE_JOB_PREFIX const char *RSJ_TYPE_S REMOTE_SERVICE_JOB_VAL ("remote_service_job");
+
+
 /**
  * A datatype describing a ServiceJob that is run on a remote
  * Grassroots Server.
