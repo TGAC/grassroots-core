@@ -760,3 +760,91 @@ const json_t *GetProviderFromServiceJSON (const json_t *service_json_p)
 
 }
 
+
+
+void UpdateStatuses (const uuid_t **ids_pp, const size_t size, Connection *connection_p, const SchemaVersion *schema_p)
+{
+	json_t *req_p = GetServicesResultsRequest (ids_pp, size, connection_p, schema_p);
+
+	if (req_p)
+		{
+			json_t *results_json_p = MakeRemoteJsonCall (req_p, connection_p);
+
+			if (results_json_p)
+				{
+					json_t *services_json_p = json_object_get (results_json_p, SERVICES_NAME_S);
+
+					if (services_json_p)
+						{
+							if (json_is_array (services_json_p))
+								{
+									const size_t num_services = json_array_size (services_json_p);
+									size_t i;
+									json_t *service_json_p;
+
+									json_array_foreach (services_json_p, i, service_json_p)
+										{
+											const char *uuid_s = GetJSONString (service_json_p, SERVICE_UUID_S);
+
+											if (uuid_s)
+												{
+													uuid_t uuid;
+
+													if (uuid_parse (uuid_s, uuid) == 0)
+														{
+															size_t j;
+															json_t *job_p;
+
+															json_array_foreach (results_json_p, j, job_p)
+																{
+																	const char *service_name_s = GetJSONString (job_p, SERVICE_NAME_S);
+																	const char *service_description_s = GetJSONString (job_p, OPERATION_DESCRIPTION_S);
+																	const char *service_uri_s =  GetJSONString (job_p, OPERATION_INFORMATION_URI_S);
+
+																	/* Get the job status */
+																	OperationStatus status = OS_ERROR;
+																	const char *value_s = GetJSONString (job_p, SERVICE_STATUS_S);
+
+																	if (value_s)
+																		{
+																			status = GetOperationStatusFromString (value_s);
+																		}
+																	else
+																		{
+																			int k;
+																			/* Get the job status */
+
+																			if (GetJSONInteger(job_p, SERVICE_STATUS_VALUE_S, k))
+																				{
+																					if ((k > OS_LOWER_LIMIT) && (k < OS_UPPER_LIMIT))
+																						{
+																							status = (OperationStatus) k;
+																						}
+																				}
+																		}
+
+																	if ((status == OS_SUCCEEDED) || (status == OS_PARTIALLY_SUCCEEDED))
+																		{
+
+																		}		/* if ((status == OS_SUCCEEDED) || (status == OS_PARTIALLY_SUCCEEDED)) */
+
+																}		/* json_array_foreach (results_json_p, j, job_p) */
+
+														}		/* if (uuid_parse (uuid_s, uuid) == 0) */
+
+												}		/* if (uuid_s) */
+
+										}		/* for (size_t i = 0; i < num_services; ++ i) */
+
+								}		/* if (json_is_array (services_json_p)) */
+
+
+						}		/* if (services_json_p) */
+
+				}		/* if (results_json_p) */
+
+		}		/* if (req_p) */
+
+
+}
+

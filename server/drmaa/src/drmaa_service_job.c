@@ -75,5 +75,5 @@ json_t *GetDrmaaServiceJobAsJSON (const DrmaaServiceJob * const job_p)
 
 DrmaaServiceJob *GetDrmaaServiceJobFromJSON (const json_t * const json_p)
 {
-
+	return NULL;
 }

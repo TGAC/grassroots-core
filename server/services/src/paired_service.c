@@ -430,7 +430,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																			case OS_PENDING:
 																			case OS_STARTED:
 																				{
-																					RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_uri_s, remote_service_s, remote_id_p, NULL, service_p, name_s, description_s, status);
+																					RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_service_s, remote_uri_s, remote_id_p, NULL, service_p, name_s, description_s, status);
 
 																					if (job_p)
 																						{
@@ -459,7 +459,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																								{
 																									json_array_foreach (results_p, j, job_json_p)
 																										{
-																											RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_uri_s, remote_service_s, remote_id_p, job_json_p, service_p, name_s, description_s, status);
+																											RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_service_s, remote_uri_s, remote_id_p, job_json_p, service_p, name_s, description_s, status);
 
 																											if (job_p)
 																												{

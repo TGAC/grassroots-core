@@ -28,6 +28,8 @@
 #include "string_utils.h"
 
 
+static bool UpdateRemoteServiceJob (ServiceJob *job_p);
+
 
 RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_service_s, const char *remote_uri_s, const uuid_t remote_id, const json_t *results_p, Service *service_p, const char *name_s, const char *description_s, OperationStatus status)
 {
@@ -37,38 +39,19 @@ RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_serv
 		{
 			if (InitServiceJobFromResultsJSON (& (job_p -> rsj_job), results_p, service_p, name_s, description_s, status, RSJ_TYPE_S))
 				{
-					char *copied_service_s = EasyCopyToNewString (remote_service_s);
-
-					if (copied_service_s)
+					if (SetRemoteServiceJobDetails (job_p, remote_service_s, remote_uri_s, remote_id))
 						{
-							char *copied_uri_s = EasyCopyToNewString (remote_uri_s);
-
-							if (copied_uri_s)
-								{
-									job_p -> rsj_job.sj_free_fn = FreeRemoteServiceJob;
-
-									uuid_copy (job_p -> rsj_remote_job_id, remote_id);
-									job_p -> rsj_service_name_s = copied_service_s;
-									job_p -> rsj_uri_s = copied_uri_s;
-
-									return job_p;
-
-								}		/* if (copied_uri_s) */
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy remote uri \"%s\"", remote_uri_s);
-								}
-
-						}		/* if (copied_service_s) */
+							return job_p;
+						}		/* if (SetRemoteServiceJobDetails (job_p, remote_service_s, remote_uri_s, remote_id))) */
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy remote service \"%s\"", remote_service_s);
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetRemoteServiceJobDetails failed for \"%s\"", name_s);
 						}
 
 				}		/* if (InitServiceJobFromResultsJSON (& (job_p -> rsj_job), results_p, service_p, name_s, description_s, status)) */
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy remote service \"%s\"", remote_service_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitServiceJobFromResultsJSON failed for \"%s\"", name_s);
 				}
 
 			FreeMemory (job_p);
@@ -76,6 +59,9 @@ RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_serv
 
 	return NULL;
 }
+
+
+
 
 
 RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_name_s, const char *job_description_s, const char *remote_service_s, const char *remote_uri_s, uuid_t remote_job_id)
@@ -86,31 +72,14 @@ RemoteServiceJob *AllocateRemoteServiceJob (Service *service_p, const char *job_
 		{
 			ServiceJob * const base_service_job_p = & (remote_job_p -> rsj_job);
 
+			memset (remote_job_p, 0, sizeof (RemoteServiceJob));
+
 			if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL, NULL, FreeRemoteServiceJob, NULL, RSJ_TYPE_S))
 				{
-					if (remote_uri_s && remote_service_s)
+					if (SetRemoteServiceJobDetails (remote_job_p, remote_service_s, remote_uri_s, remote_job_id))
 						{
-							char *uri_s = EasyCopyToNewString (remote_uri_s);
-
-							if (uri_s)
-								{
-									char *service_s = EasyCopyToNewString (remote_service_s);
-
-									if (service_s)
-										{
-											remote_job_p -> rsj_service_name_s = service_s;
-											remote_job_p -> rsj_uri_s = uri_s;
-
-											uuid_copy (remote_job_p -> rsj_remote_job_id, remote_job_id);
-
-											return remote_job_p;
-										}
-
-									FreeCopiedString (uri_s);
-								}
-
-							FreeCopiedString (uri_s);
-						}		/* if (remote_uri_s) */
+							return remote_job_p;
+						}		/* if (SetRemoteServiceJobDetails (remote_job_p, remote_service_s, remote_uri_s, remote_job_id)) */
 
 				}		/* if (InitServiceJob (base_service_job_p, service_p, job_name_s, job_description_s, NULL)) */
 
@@ -219,52 +188,6 @@ bool IsRemoteServiceJobJSON (const json_t *job_json_p)
 }
 
 
-
-
-/*
-if (job_json_p)
-	{
-		if (json_object_set_new (job_json_p, JOB_REMOTE_S, json_true ()) == 0)
-			{
-				if (json_object_set_new (job_json_p, JOB_REMOTE_URI_S, json_string (job_p -> rsj_uri_s)) == 0)
-					{
-						char uuid_s [UUID_STRING_BUFFER_SIZE];
-
-						ConvertUUIDToString (job_p -> rsj_remote_job_id, uuid_s);
-
-						if (json_object_set_new (job_json_p, JOB_REMOTE_UUID_S, json_string (uuid_s)) == 0)
-							{
-								if (json_object_set_new (job_json_p, JOB_REMOTE_SERVICE_S, json_string (job_p -> rsj_service_name_s)) == 0)
-									{
-										return job_json_p;
-									}		 if (json_object_set_new (job_json_p, JOB_REMOTE_SERVICE_S, json_string (job_p -> rsj_service_name_s)) == 0)
-								else
-									{
-										PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to add \"%s\": \"%s\"", JOB_REMOTE_SERVICE_S, job_p -> rsj_service_name_s);
-									}
-
-							}		 if (json_object_set_new (job_json_p, JOB_REMOTE_UUID_S, json_string (uuid_s)) == 0)
-						else
-							{
-								PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to add \"%s\": \"%s\"", JOB_REMOTE_UUID_S, uuid_s);
-							}
-
-					}		 if (json_object_set_new (job_json_p, JOB_REMOTE_URI_S, json_string (job_p -> rsj_uri_s)) == 0)
-				else
-					{
-						PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to add \"%s\": \"%s\"", JOB_REMOTE_URI_S, job_p -> rsj_uri_s));
-					}
-
-
-			}		 if (json_object_set_new (job_json_p, JOB_REMOTE_S, json_true ()) == 0)
-		else
-			{
-				PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to add \"%s\": true", JOB_REMOTE_S);
-			}
-
-*/
-
-
 RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p)
 {
 	if (IsRemoteServiceJobJSON (job_json_p))
@@ -285,12 +208,20 @@ RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p)
 										{
 											uuid_t remote_id;
 
-											if (uuid_parse (remote_uuid_s, remote_id))
+											if (uuid_parse (remote_uuid_s, remote_id) == 0)
 												{
 													const char *remote_uri_s;
 
 													if ((remote_uri_s = GetJSONString (job_json_p, JOB_REMOTE_URI_S)) != NULL)
 														{
+															if (SetRemoteServiceJobDetails (job_p, remote_service_s, remote_uri_s, remote_id))
+																{
+																	return job_p;
+																}		/* if (SetRemoteServiceJobDetails (job_p, remote_service_s, remote_uri_s, remote_id)) */
+															else
+																{
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetRemoteServiceJobDetails failed  for service name \"%s\", remote uri \"%s\", remote uuid \"%s\"", remote_service_s, remote_uri_s, remote_uuid_s);
+																}
 
 														}		/* if ((remote_uri_s = GetJSONString (job_json_p, JOB_REMOTE_URI_S)) != NULL) */
 													else
@@ -327,4 +258,168 @@ RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p)
 	return NULL;
 }
 
+
+bool SetRemoteServiceJobDetails (RemoteServiceJob *remote_job_p, const char *remote_service_s, const char *remote_uri_s, const uuid_t remote_job_id)
+{
+	if (remote_uri_s)
+		{
+			if (remote_service_s)
+				{
+					char *uri_s = EasyCopyToNewString (remote_uri_s);
+
+					if (uri_s)
+						{
+							char *service_s = EasyCopyToNewString (remote_service_s);
+
+							if (service_s)
+								{
+									ServiceJob *base_job_p = & (remote_job_p -> rsj_job);
+
+									remote_job_p -> rsj_service_name_s = service_s;
+									remote_job_p -> rsj_uri_s = uri_s;
+
+									uuid_copy (remote_job_p -> rsj_remote_job_id, remote_job_id);
+
+									SetServiceJobUpdateFunction (base_job_p, UpdateRemoteServiceJob);
+									SetServiceJobFreeFunction (base_job_p, FreeRemoteServiceJob);
+
+									return true;
+								}		/* if (service_s) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy remote service name \"%s\"", service_s);
+								}
+
+							FreeCopiedString (uri_s);
+						}		/* if (uri_s) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy remote uri \"%s\"", remote_uri_s);
+						}
+
+				}		/* if (remote_service_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "No remote service name");
+				}
+
+		}		/* if (remote_uri_s) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "No remote service uri");
+		}
+
+	return false;
+}
+
+
+static bool UpdateRemoteServiceJob (ServiceJob *job_p)
+{
+	bool success_flag = false;
+	RemoteServiceJob *remote_job_p = (RemoteServiceJob *) job_p;
+	SchemaVersion *schema_p = AllocateSchemaVersion (CURRENT_SCHEMA_VERSION_MAJOR, CURRENT_SCHEMA_VERSION_MINOR);
+
+	if (schema_p)
+		{
+			Connection *connection_p = AllocateWebServerConnection (remote_job_p -> rsj_uri_s);
+
+			if (connection_p)
+				{
+					const uuid_t *id_pp [1];
+					json_t *req_p;
+
+					*id_pp = & (remote_job_p -> rsj_remote_job_id);
+					req_p = GetServicesResultsRequest (id_pp, 1, connection_p, schema_p);
+
+					if (req_p)
+						{
+							json_t *response_p = MakeRemoteJsonCall (req_p, connection_p);
+
+							if (response_p)
+								{
+									json_t *all_results_p = json_object_get (response_p, SERVICE_RESULTS_S);
+
+									if (all_results_p)
+										{
+											if (json_is_array (all_results_p))
+												{
+													size_t i;
+													json_t *job_p;
+
+													json_array_foreach (all_results_p, i, job_p)
+														{
+															const char *service_name_s = GetJSONString (job_p, SERVICE_NAME_S);
+															const char *uuid_s =  GetJSONString (job_p, JOB_UUID_S);
+
+															/*
+															 *  Check that the uuid matches our RemoteServiceJob's
+															 *  remote uuid.
+															 */
+															if (uuid_s)
+																{
+																	uuid_t remote_id;
+
+																	if (uuid_parse (uuid_s, remote_id) == 0)
+																		{
+																			if (uuid_compare (remote_id, remote_job_p) == 0)
+																				{
+																					json_t *job_results_p = json_object_get (remote_job_p, JOB_RESULTS_S);
+
+																					if (job_results_p)
+																						{
+
+																							if (json_is_array (job_results_p))
+																								{
+																									/*
+																									 * Add each of the results
+																									 */
+																									size_t j;
+																									json_t *job_result_p;
+
+																									json_array_foreach (job_results_p, j, job_result_p)
+																										{
+																											json_t *copied_result_p = json_deep_copy (job_result_p);
+
+																											if (copied_result_p)
+																												{
+																													if (AddResultToServiceJob (job_p, copied_result_p))
+																														{
+
+																														}		/* if (AddResultToServiceJob (job_p, copied_result_p))*/
+
+																												}		/* if (copied_result_p) */
+
+																										}		/* json_array_foreach (job_results_p, j, job_result_p) */
+
+																								}		/* if (json_is_array (job_results_p)) */
+
+
+																						}		/* if (job_results_p) */
+
+																				}		/* if (uuid_compare (remote_id, remote_job_p) == 0) */
+
+																		}		/* if (uuid_parse (uuid_s, remote_id) == 0) */
+
+																}		/* if (uiuid_s) */
+
+														}		/* json_array_foreach (all_results_p, i, job_p) */
+
+												}		/* if (json_is_array (all_results_p)) */
+
+										}		/* if (all_results_p) */
+
+									json_decref (response_p);
+								}		/* if (response_p) */
+
+							json_decref (req_p);
+						}		/* if (req_p) */
+
+					FreeConnection (connection_p);
+				}		/* if (connection_p) */
+
+			FreeSchemaVersion (schema_p);
+		}		/* if (schema_p) */
+
+	return success_flag;
+}
 

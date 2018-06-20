@@ -1601,105 +1601,79 @@ ServiceJob *GetServiceJobFromServiceJobSet (const ServiceJobSet *jobs_p, const u
 
 bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *type_s)
 {
-	bool success_flag = true;
-	OperationStatus (*update_status_fn) (ServiceJob *job_p) = NULL;
+	bool success_flag = false;
+	bool (*update_status_fn) (ServiceJob *job_p) = NULL;
+	bool (*calculate_results_fn) (struct ServiceJob *job_p) = NULL;
+	void (*free_job_fn) (struct ServiceJob *job_p) = NULL;
 
 	memset (job_p, 0, sizeof (*job_p));
 
-	if (name_s)
+	if (InitServiceJob (job_p, service_p, name_s, description_s, update_status_fn, calculate_results_fn, free_job_fn, NULL, type_s))
 		{
-			job_p -> sj_name_s = EasyCopyToNewString (name_s);
+			SetServiceJobStatus (job_p, status);
 
-			if (job_p -> sj_name_s)
+			if (results_p)
 				{
-					if (description_s)
+					const char *value_s = GetJSONString (results_p, RESOURCE_PROTOCOL_S);
+
+					if (value_s)
 						{
-							job_p -> sj_description_s = EasyCopyToNewString (description_s);
-
-							if (! (job_p -> sj_description_s))
+							if (strcmp (value_s, PROTOCOL_INLINE_S) == 0)
 								{
-									success_flag = false;
-								}		/* if (! (job_p -> sj_description_s)) */
-						}
+									json_t *data_p = json_object_get (results_p, RESOURCE_DATA_S);
 
-					if (success_flag)
-						{
-							SetServiceJobStatus (job_p, status);
-
-							job_p -> sj_service_p = service_p;
-
-							job_p -> sj_update_fn = NULL;
-							job_p -> sj_free_fn = NULL;
-							job_p -> sj_type_s = type_s;
-
-							uuid_generate (job_p -> sj_id);
-
-							if (results_p)
-								{
-									const char *value_s = GetJSONString (results_p, RESOURCE_PROTOCOL_S);
-
-									if (value_s)
+									if (data_p)
 										{
-											if (strcmp (value_s, PROTOCOL_INLINE_S) == 0)
+											json_t *results_array_p = json_array ();
+
+											if (results_array_p)
 												{
-													json_t *data_p = json_object_get (results_p, RESOURCE_DATA_S);
+													char uuid_s [UUID_STRING_BUFFER_SIZE];
+													char *title_s = NULL;
+													json_t *resource_p = NULL;
 
-													if (data_p)
+													ConvertUUIDToString (job_p -> sj_id, uuid_s);
+
+													title_s = ConcatenateVarargsStrings (job_p -> sj_name_s, " (", uuid_s, ")", NULL);
+
+													resource_p = GetResourceAsJSONByParts (PROTOCOL_INLINE_S, NULL, title_s ? title_s : uuid_s, data_p);
+
+													if (title_s)
 														{
-															json_t *results_array_p = json_array ();
+															FreeCopiedString (title_s);
+														}
 
-															if (results_array_p)
+													if (resource_p)
+														{
+															if (json_array_append_new (results_array_p, resource_p) == 0)
 																{
-																	char uuid_s [UUID_STRING_BUFFER_SIZE];
-																	char *title_s = NULL;
-																	json_t *resource_p = NULL;
-
-																	ConvertUUIDToString (job_p -> sj_id, uuid_s);
-
-																	title_s = ConcatenateVarargsStrings (job_p -> sj_name_s, " (", uuid_s, ")", NULL);
-
-																	resource_p = GetResourceAsJSONByParts (PROTOCOL_INLINE_S, NULL, title_s ? title_s : uuid_s, data_p);
-
-																	if (title_s)
-																		{
-																			FreeCopiedString (title_s);
-																		}
-
-																	if (resource_p)
-																		{
-																			if (json_array_append_new (results_array_p, resource_p) == 0)
-																				{
-																					job_p -> sj_result_p = results_array_p;
-																				}		/* if (json_array_append_new (results_array_p, resource_p) == 0) */
-																			else
-																				{
-																					json_decref (resource_p);
-																				}
-																		}
-
-																	if (! (job_p -> sj_result_p))
-																		{
-																			json_decref (results_array_p);
-																		}
+																	job_p -> sj_result_p = results_array_p;
+																	success_flag = true;
+																}		/* if (json_array_append_new (results_array_p, resource_p) == 0) */
+															else
+																{
+																	json_decref (resource_p);
 																}
+														}
 
-														}		/* if (data_p) */
-
+													if (! (job_p -> sj_result_p))
+														{
+															json_decref (results_array_p);
+														}
 												}
-										}
 
-								}		/* if (results_p) */
+										}		/* if (data_p) */
 
-
-
+								}
 						}
 
-				}		/* if (job_p -> sj_name_s) */
+				}		/* if (results_p) */
 			else
 				{
-					success_flag = false;
+					success_flag = true;
 				}
-		}
+
+		}		/* if (InitServiceJob (job_p, service_p, name_s, description_s, update_status_fn, calculate_results_fn, free_job_fn, NULL, type_s)) */
 
 
 	return success_flag;
@@ -1776,6 +1750,12 @@ bool CalculateServiceJobResult (ServiceJob *job_p)
 void SetServiceJobUpdateFunction (ServiceJob *job_p, bool (*update_fn) (ServiceJob *job_p))
 {
 	job_p -> sj_update_fn = update_fn;
+}
+
+
+void SetServiceJobFreeFunction (ServiceJob *job_p, bool (*free_fn) (ServiceJob *job_p))
+{
+	job_p -> sj_free_fn = free_fn;
 }
 
 

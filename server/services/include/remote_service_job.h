@@ -148,10 +148,39 @@ GRASSROOTS_SERVICE_API bool IsRemoteServiceJobJSON (const json_t *job_json_p);
  * Create a RemoteServiceJob from a given JSON fragment.
  *
  * @param job_json_p The JSON fragment to create the RemoteServiceJob from.
- * @return The newly-allocated RemoteServiceJob or <code>NULL</code> upno error.
+ * @return The newly-allocated RemoteServiceJob or <code>NULL</code> upon error.
  * @memberof RemoteServiceJob
  */
 GRASSROOTS_SERVICE_API RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p);
+
+
+
+/**
+ * Create a given JSON fragment for a given RemoteServiceJob.
+ *
+ * @param job_p The RemoteServiceJob to create the JSON fragment for.
+ * @param omit_results_flag <code>true</code> if the BlastServiceJob is to exclude
+ * any results from the created JSON fragment, <code>false</code> to include them.
+ * @return The newly-created JSON fragment or <code>NULL</code> upon error.
+ * @memberof RemoteServiceJob
+ */
+GRASSROOTS_SERVICE_API json_t *GetRemoteServiceJobAsJSON (RemoteServiceJob *job_p, bool omit_results_flag);
+
+
+/**
+ * Set the RemoteServiceJob-specific details for a given RemoteServiceJob.
+ *
+ * @param remote_job_p The RemoteServiceJob to update.
+ * @param remote_service_s The name of the Service on the ExternalServer that will run the RemoteServiceJob.
+ * @param remote_uri_s  The URI for the ExternalServer that is running the RemoteServiceJob.
+ * @param remote_job_id The UUID of the RemoteServiceJob on the ExternalServer.
+ * @return <code>true</code> if the RemoteServiceJob was updated successfully,
+ * <code>false</code> upon error
+ * @memberof RemoteServiceJob
+ */
+GRASSROOTS_SERVICE_API bool SetRemoteServiceJobDetails (RemoteServiceJob *remote_job_p, const char *remote_service_s, const char *remote_uri_s, const uuid_t remote_job_id);
+
+
 
 #ifdef __cplusplus
 }
