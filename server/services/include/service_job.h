@@ -151,7 +151,7 @@ typedef struct ServiceJob
 	 * This is used to denote a subclass of ServiceJob if needed and
 	 * you need to check its type
 	 */
-	const char *sj_type_s;
+	char *sj_type_s;
 } ServiceJob;
 
 
@@ -720,6 +720,17 @@ GRASSROOTS_SERVICE_API void SetServiceJobStatus (ServiceJob *job_p, OperationSta
  * @memberof ServiceJob
  */
 GRASSROOTS_SERVICE_API void SetServiceJobUpdateFunction (ServiceJob *job_p, bool (*update_fn) (ServiceJob *job_p));
+
+
+/**
+ * Set the function that a ServiceJob will use to free itself.
+ *
+ * @param job_p The ServiceJob to amend.
+ * @param free_fn The new function that will be used for the ServiceJob to free itself.
+ * @memberof ServiceJob
+ */
+GRASSROOTS_SERVICE_API void SetServiceJobFreeFunction (ServiceJob *job_p, void (*free_fn) (ServiceJob *job_p));
+
 
 
 /**

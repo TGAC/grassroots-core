@@ -160,32 +160,41 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 								{
 									if (CloneValidString (job_description_s, &copied_job_description_s))
 										{
-											job_p -> sj_name_s = copied_job_name_s;
-											job_p -> sj_description_s = copied_job_description_s;
-											job_p -> sj_service_name_s = copied_service_name_s;
+											char *copied_job_type_s = NULL;
 
-											job_p -> sj_result_p = NULL;
-											job_p -> sj_metadata_p = NULL;
+											if (CloneValidString (job_type_s, &copied_job_type_s))
+												{
+													job_p -> sj_name_s = copied_job_name_s;
+													job_p -> sj_description_s = copied_job_description_s;
+													job_p -> sj_service_name_s = copied_service_name_s;
 
-											job_p -> sj_update_fn = update_fn;
-											job_p -> sj_free_fn = free_job_fn;
+													job_p -> sj_result_p = NULL;
+													job_p -> sj_metadata_p = NULL;
 
-											job_p -> sj_calculate_result_fn = calculate_results_fn;
+													job_p -> sj_update_fn = update_fn;
+													job_p -> sj_free_fn = free_job_fn;
 
-											job_p -> sj_is_updating_flag = false;
+													job_p -> sj_calculate_result_fn = calculate_results_fn;
 
-											job_p -> sj_type_s = job_type_s;
+													job_p -> sj_is_updating_flag = false;
 
-#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
-											{
-												char uuid_s [UUID_STRING_BUFFER_SIZE];
+													job_p -> sj_type_s = copied_job_type_s;
 
-												ConvertUUIDToString (job_p -> sj_id, uuid_s);
-												PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Job: %s\n", uuid_s);
-											}
-#endif
+		#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
+													{
+														char uuid_s [UUID_STRING_BUFFER_SIZE];
 
-											return true;
+														ConvertUUIDToString (job_p -> sj_id, uuid_s);
+														PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Job: %s\n", uuid_s);
+													}
+		#endif
+
+													return true;
+												}
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy job type \"%s\"", job_type_s);
+												}
 										}
 									else
 										{
@@ -409,6 +418,12 @@ void ClearServiceJob (ServiceJob *job_p)
 		{
 			FreeCopiedString (job_p -> sj_service_name_s);
 			job_p -> sj_service_name_s = NULL;
+		}
+
+	if (job_p -> sj_type_s)
+		{
+			FreeCopiedString (job_p -> sj_type_s);
+			job_p -> sj_type_s = NULL;
 		}
 
 	SetServiceJobStatus (job_p, OS_CLEANED_UP);
@@ -1753,7 +1768,7 @@ void SetServiceJobUpdateFunction (ServiceJob *job_p, bool (*update_fn) (ServiceJ
 }
 
 
-void SetServiceJobFreeFunction (ServiceJob *job_p, bool (*free_fn) (ServiceJob *job_p))
+void SetServiceJobFreeFunction (ServiceJob *job_p, void (*free_fn) (ServiceJob *job_p))
 {
 	job_p -> sj_free_fn = free_fn;
 }

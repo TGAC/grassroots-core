@@ -28,6 +28,13 @@
 #include "string_utils.h"
 
 
+#ifdef _DEBUG
+	#define REMOTE_SERVICE_JOB_DEBUG	(STM_LEVEL_FINEST)
+#else
+	#define REMOTE_SERVICE_JOB_DEBUG	(STM_LEVEL_NONE)
+#endif
+
+
 static bool UpdateRemoteServiceJob (ServiceJob *job_p);
 
 
@@ -339,6 +346,10 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 								{
 									json_t *all_results_p = json_object_get (response_p, SERVICE_RESULTS_S);
 
+									#if REMOTE_SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
+									PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, response_p, "UpdateRemoteServiceJob response");
+									#endif
+
 									if (all_results_p)
 										{
 											if (json_is_array (all_results_p))
@@ -348,7 +359,6 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 
 													json_array_foreach (all_results_p, i, job_p)
 														{
-															const char *service_name_s = GetJSONString (job_p, SERVICE_NAME_S);
 															const char *uuid_s =  GetJSONString (job_p, JOB_UUID_S);
 
 															/*
@@ -367,7 +377,6 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 
 																					if (job_results_p)
 																						{
-
 																							if (json_is_array (job_results_p))
 																								{
 																									/*
@@ -375,6 +384,7 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 																									 */
 																									size_t j;
 																									json_t *job_result_p;
+																									size_t num_results_copied = 0;
 
 																									json_array_foreach (job_results_p, j, job_result_p)
 																										{
@@ -384,41 +394,93 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 																												{
 																													if (AddResultToServiceJob (job_p, copied_result_p))
 																														{
-
+																															++ num_results_copied;
 																														}		/* if (AddResultToServiceJob (job_p, copied_result_p))*/
+																													else
+																														{
+																															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_p, "AddResultToServiceJob faIled");
+																														}
 
 																												}		/* if (copied_result_p) */
+																											else
+																												{
+																													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_result_p, "Failed to copy JSON chunk");
+																												}
 
 																										}		/* json_array_foreach (job_results_p, j, job_result_p) */
 
-																								}		/* if (json_is_array (job_results_p)) */
+																									if (num_results_copied == json_array_size (job_results_p))
+																										{
+																											success_flag = true;
+																										}
 
+																								}		/* if (json_is_array (job_results_p)) */
+																							else
+																								{
+																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_results_p, "\"%s\" is not an array");
+																								}
 
 																						}		/* if (job_results_p) */
+																					else
+																						{
+																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, remote_job_p, "Failed to get \"%s\"", JOB_RESULTS_S);
+																						}
 
 																				}		/* if (uuid_compare (remote_id, remote_job_p) == 0) */
 
 																		}		/* if (uuid_parse (uuid_s, remote_id) == 0) */
+																	else
+																		{
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to parse \"%s\" to a uuid", uuid_s);
+																		}
 
 																}		/* if (uiuid_s) */
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "Failed to get \"%s\"", JOB_UUID_S);
+																}
 
 														}		/* json_array_foreach (all_results_p, i, job_p) */
 
 												}		/* if (json_is_array (all_results_p)) */
+											else
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "\"%s\" is not an array", SERVICE_RESULTS_S);
+												}
 
 										}		/* if (all_results_p) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "Failed to get \"%s\"", SERVICE_RESULTS_S);
+										}
 
 									json_decref (response_p);
 								}		/* if (response_p) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "MakeRemoteJsonCall failed for \"%s\"", remote_job_p -> rsj_uri_s);
+								}
 
 							json_decref (req_p);
 						}		/* if (req_p) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetServicesResultsRequest failed for \"%s\"", remote_job_p -> rsj_uri_s);
+						}
 
 					FreeConnection (connection_p);
 				}		/* if (connection_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate connection to \"%s\"", remote_job_p -> rsj_uri_s);
+				}
 
 			FreeSchemaVersion (schema_p);
 		}		/* if (schema_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate schema");
+		}
 
 	return success_flag;
 }
