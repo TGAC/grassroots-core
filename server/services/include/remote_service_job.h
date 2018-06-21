@@ -122,17 +122,6 @@ GRASSROOTS_SERVICE_API RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (
 
 
 /**
- * Refresh the status and results of a given RemoteServiceJob.
- *
- * @param job_p The RemoteServiceJob to refresh.
- * @return <code>true</code> if the RemoteServiceJob was refreshed successfully,
- * <code>false</code> upon error.
- * @memberof RemoteServiceJob
- */
-GRASSROOTS_SERVICE_API bool RefreshRemoteServiceJob (RemoteServiceJob *job_p);
-
-
-/**
  * Test whether a given JSON object represents a RemoteServiceJob.
  *
  * @param job_json_p The JSON object to check.

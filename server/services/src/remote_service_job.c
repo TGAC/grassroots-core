@@ -21,6 +21,8 @@
  *      Author: billy
  */
 
+#include <string.h>
+
 #define ALLOCATE_REMOTE_SERVICE_JOB_TAGS (1)
 #include "remote_service_job.h"
 #include "memory_allocations.h"
@@ -35,7 +37,13 @@
 #endif
 
 
+
 static bool UpdateRemoteServiceJob (ServiceJob *job_p);
+
+
+static bool CalculateResultForRemoteServiceJob (ServiceJob *job_p);
+
+
 
 
 RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_service_s, const char *remote_uri_s, const uuid_t remote_id, const json_t *results_p, Service *service_p, const char *name_s, const char *description_s, OperationStatus status)
@@ -114,18 +122,6 @@ void FreeRemoteServiceJob (ServiceJob *job_p)
 
 	ClearServiceJob (& (remote_job_p -> rsj_job));
 	FreeMemory (remote_job_p);
-}
-
-
-bool RefreshRemoteServiceJob (RemoteServiceJob *job_p)
-{
-	bool success_flag = false;
-	//const uuid_t **id_pp = & (job_p -> rsj_remote_job_id);
-
-//	json_t *req_p = GetServicesResultsRequest (id_pp, 1, connection_p, schema_p);
-
-
-	return success_flag;
 }
 
 
@@ -289,6 +285,8 @@ bool SetRemoteServiceJobDetails (RemoteServiceJob *remote_job_p, const char *rem
 
 									SetServiceJobUpdateFunction (base_job_p, UpdateRemoteServiceJob);
 									SetServiceJobFreeFunction (base_job_p, FreeRemoteServiceJob);
+									SetServiceJobCalculateResultFunction (base_job_p, CalculateResultForRemoteServiceJob);
+
 
 									return true;
 								}		/* if (service_s) */
@@ -344,114 +342,130 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 
 							if (response_p)
 								{
-									json_t *all_results_p = json_object_get (response_p, SERVICE_RESULTS_S);
-
 									#if REMOTE_SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
 									PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, response_p, "UpdateRemoteServiceJob response");
 									#endif
 
-									if (all_results_p)
+									if (json_is_array (response_p))
 										{
-											if (json_is_array (all_results_p))
+											size_t i;
+											json_t *job_json_p;
+
+											json_array_foreach (response_p, i, job_json_p)
 												{
-													size_t i;
-													json_t *job_p;
+													const char *uuid_s =  GetJSONString (job_json_p, JOB_UUID_S);
 
-													json_array_foreach (all_results_p, i, job_p)
+													/*
+													 *  Check that the uuid matches our RemoteServiceJob's
+													 *  remote uuid.
+													 */
+													if (uuid_s)
 														{
-															const char *uuid_s =  GetJSONString (job_p, JOB_UUID_S);
+															uuid_t remote_id;
 
-															/*
-															 *  Check that the uuid matches our RemoteServiceJob's
-															 *  remote uuid.
-															 */
-															if (uuid_s)
+															if (uuid_parse (uuid_s, remote_id) == 0)
 																{
-																	uuid_t remote_id;
-
-																	if (uuid_parse (uuid_s, remote_id) == 0)
+																	if (uuid_compare (remote_id, remote_job_p -> rsj_remote_job_id) == 0)
 																		{
-																			if (uuid_compare (remote_id, remote_job_p) == 0)
+																			OperationStatus remote_status = OS_ERROR;
+
+																			if (GetOperationStatusFromServiceJobJSON (job_json_p, &remote_status))
 																				{
-																					json_t *job_results_p = json_object_get (remote_job_p, JOB_RESULTS_S);
+																					const bool job_results_flag = (remote_status == OS_SUCCEEDED) || (remote_status == OS_PARTIALLY_SUCCEEDED);
 
-																					if (job_results_p)
+																					SetServiceJobStatus (job_p, remote_status);
+
+																					if (job_results_flag)
 																						{
-																							if (json_is_array (job_results_p))
+		 																					json_t *job_results_p = json_object_get (job_json_p, JOB_RESULTS_S);
+
+																							if (job_results_p)
 																								{
-																									/*
-																									 * Add each of the results
-																									 */
-																									size_t j;
-																									json_t *job_result_p;
-																									size_t num_results_copied = 0;
-
-																									json_array_foreach (job_results_p, j, job_result_p)
+																									if (json_is_array (job_results_p))
 																										{
-																											json_t *copied_result_p = json_deep_copy (job_result_p);
+																											/*
+																											 * Add each of the results
+																											 */
+																											size_t j;
+																											json_t *job_result_p;
+																											size_t num_results_copied = 0;
 
-																											if (copied_result_p)
+																											json_array_foreach (job_results_p, j, job_result_p)
 																												{
-																													if (AddResultToServiceJob (job_p, copied_result_p))
+																													json_t *copied_result_p = json_deep_copy (job_result_p);
+
+																													if (copied_result_p)
 																														{
-																															++ num_results_copied;
-																														}		/* if (AddResultToServiceJob (job_p, copied_result_p))*/
+																															if (AddResultToServiceJob (job_p, copied_result_p))
+																																{
+																																	++ num_results_copied;
+																																}		/* if (AddResultToServiceJob (job_p, copied_result_p))*/
+																															else
+																																{
+																																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "AddResultToServiceJob faIled");
+																																}
+
+																														}		/* if (copied_result_p) */
 																													else
 																														{
-																															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_p, "AddResultToServiceJob faIled");
+																															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_result_p, "Failed to copy JSON chunk");
 																														}
 
-																												}		/* if (copied_result_p) */
-																											else
+																												}		/* json_array_foreach (job_results_p, j, job_result_p) */
+
+																											if (num_results_copied == json_array_size (job_results_p))
 																												{
-																													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_result_p, "Failed to copy JSON chunk");
+																													success_flag = true;
 																												}
 
-																										}		/* json_array_foreach (job_results_p, j, job_result_p) */
-
-																									if (num_results_copied == json_array_size (job_results_p))
+																										}		/* if (json_is_array (job_results_p)) */
+																									else
 																										{
-																											success_flag = true;
+																											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_results_p, "\"%s\" is not an array");
 																										}
 
-																								}		/* if (json_is_array (job_results_p)) */
+																								}		/* if (job_results_p) */
 																							else
 																								{
-																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_results_p, "\"%s\" is not an array");
+																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to get \"%s\"", JOB_RESULTS_S);
 																								}
 
-																						}		/* if (job_results_p) */
-																					else
-																						{
-																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, remote_job_p, "Failed to get \"%s\"", JOB_RESULTS_S);
-																						}
 
-																				}		/* if (uuid_compare (remote_id, remote_job_p) == 0) */
+																							if (!success_flag)
+																								{
+																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to update results for job \"%s\", setting status to failed", uuid_s);
+																									SetServiceJobStatus (job_p, OS_FAILED);
+																								}
 
-																		}		/* if (uuid_parse (uuid_s, remote_id) == 0) */
-																	else
-																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to parse \"%s\" to a uuid", uuid_s);
-																		}
+																						}		/* if (job_results_flag) */
 
-																}		/* if (uiuid_s) */
+																				}		/* if (GetOperationStatusFromServiceJobJSON (job_json_p, &remote_status)) */
+																			else
+																				{
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to get Operation status");
+																				}
+
+
+																		}		/* if (uuid_compare (remote_id, remote_job_p) == 0) */
+
+																}		/* if (uuid_parse (uuid_s, remote_id) == 0) */
 															else
 																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "Failed to get \"%s\"", JOB_UUID_S);
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to parse \"%s\" to a uuid", uuid_s);
 																}
 
-														}		/* json_array_foreach (all_results_p, i, job_p) */
+														}		/* if (uiuid_s) */
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "Failed to get \"%s\"", JOB_UUID_S);
+														}
 
-												}		/* if (json_is_array (all_results_p)) */
-											else
-												{
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "\"%s\" is not an array", SERVICE_RESULTS_S);
-												}
+												}		/* json_array_foreach (all_results_p, i, job_p) */
 
-										}		/* if (all_results_p) */
+										}		/* if (json_is_array (all_results_p)) */
 									else
 										{
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "Failed to get \"%s\"", SERVICE_RESULTS_S);
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "\"%s\" is not an array", SERVICE_RESULTS_S);
 										}
 
 									json_decref (response_p);
@@ -485,3 +499,24 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 	return success_flag;
 }
 
+
+/*
+ * Rather than make two separate requests, one for getting the job status and one for getting its
+ * results, UpdateRemoteServiceJob takes care of both. So all we do here is call it if it has not
+ * already been called previously
+ */
+static bool CalculateResultForRemoteServiceJob (ServiceJob *job_p)
+{
+	bool success_flag = false;
+
+	if (job_p -> sj_result_p)
+		{
+			success_flag = true;
+		}
+	else
+		{
+			success_flag = UpdateRemoteServiceJob (job_p);
+		}
+
+	return success_flag;
+}

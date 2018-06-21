@@ -814,7 +814,7 @@ void UpdateStatuses (const uuid_t **ids_pp, const size_t size, Connection *conne
 																			int k;
 																			/* Get the job status */
 
-																			if (GetJSONInteger(job_p, SERVICE_STATUS_VALUE_S, k))
+																			if (GetJSONInteger(job_p, SERVICE_STATUS_VALUE_S, &k))
 																				{
 																					if ((k > OS_LOWER_LIMIT) && (k < OS_UPPER_LIMIT))
 																						{

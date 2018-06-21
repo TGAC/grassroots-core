@@ -734,6 +734,17 @@ GRASSROOTS_SERVICE_API void SetServiceJobFreeFunction (ServiceJob *job_p, void (
 
 
 /**
+ * Set the function that a ServiceJob will use to calculate its results.
+ *
+ * @param job_p The ServiceJob to amend.
+ * @param calculate_fn The new function that will be used for the ServiceJob tocalculate its results.
+ * @memberof ServiceJob
+ */
+GRASSROOTS_SERVICE_API void SetServiceJobCalculateResultFunction (ServiceJob *job_p, bool (*calculate_fn) (ServiceJob *job_p));
+
+
+
+/**
  * Update, if appropriate, a given ServiceJob.
  *
  * If the ServiceJob was previously in an unfinished state,
@@ -818,6 +829,10 @@ GRASSROOTS_SERVICE_API void SetServiceJobUUID (ServiceJob *job_p, const uuid_t n
 
 
 GRASSROOTS_SERVICE_LOCAL int32 GetNumberOfLiveJobsFromServiceJobSet (const ServiceJobSet *jobs_p);
+
+
+
+GRASSROOTS_SERVICE_LOCAL bool GetOperationStatusFromServiceJobJSON (const json_t *value_p, OperationStatus *status_p);
 
 
 #ifdef __cplusplus

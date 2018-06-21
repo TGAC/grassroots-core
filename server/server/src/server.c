@@ -836,13 +836,16 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 					case OS_SUCCEEDED:
 					case OS_PARTIALLY_SUCCEEDED:
 						{
-							RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+							//RemoveServiceJobFromJobsManager (manager_p, job_id, false);
 
 							if (! (job_p -> sj_result_p))
 								{
 									if (! (CalculateServiceJobResult (job_p)))
 										{
+											char job_uuid_s [UUID_STRING_BUFFER_SIZE];
 
+											ConvertUUIDToString (job_id, job_uuid_s);
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to calculate results for job \"%s\"", job_uuid_s);
 										}
 								}
 						}

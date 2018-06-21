@@ -64,7 +64,7 @@ static bool ReleaseIRodsConnection (rcComm_t *connection_p)
 }
 
 
-IRodsConnection *CreateIRodsConnectionFromUserDetails (UserDetails *user_p)
+IRodsConnection *CreateIRodsConnectionFromUserDetails (const UserDetails *user_p)
 {
 	IRodsConnection *connection_p = NULL;
 

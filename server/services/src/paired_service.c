@@ -410,7 +410,6 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																	const char *description_s = GetJSONString (service_result_p, JOB_DESCRIPTION_S);
 																	const char *remote_id_s = GetJSONString (service_result_p, JOB_UUID_S);
 
-																	uuid_t *remote_id_p = NULL;
 																	uuid_t remote_id;
 																	size_t j;
 																	json_t *job_json_p;
@@ -420,82 +419,91 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																		{
 																			if (uuid_parse (remote_id_s, remote_id) == 0)
 																				{
-																					remote_id_p = &remote_id;
-																				}
-																		}
+																					uuid_t *remote_id_p = &remote_id;
 
-
-																	switch (status)
-																		{
-																			case OS_PENDING:
-																			case OS_STARTED:
-																				{
-																					RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_service_s, remote_uri_s, remote_id_p, NULL, service_p, name_s, description_s, status);
-
-																					if (job_p)
+																					switch (status)
 																						{
-																							if (AddRemoteServiceJob (job_p, service_p, remote_uri_s, remote_service_s, remote_id_p, service_data_p, save_job_fn))
+																							case OS_PENDING:
+																							case OS_STARTED:
 																								{
-																									++ num_successful_runs;
-																								}
-																						}		/* if (job_p) */
-																					else
-																						{
-																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to create RemoteServiceJob ");
-																						}
+																									RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_service_s, remote_uri_s, remote_id, NULL, service_p, name_s, description_s, status);
 
-																					break;
-																				}
-
-																			case OS_PARTIALLY_SUCCEEDED:
-																			case OS_SUCCEEDED:
-																				{
-																					/* Get the results and add them to our list of jobs */
-																					json_t *results_p = json_object_get (service_result_p, SERVICE_RESULTS_S);
-
-																					if (results_p)
-																						{
-																							if (json_is_array (results_p))
-																								{
-																									json_array_foreach (results_p, j, job_json_p)
+																									if (job_p)
 																										{
-																											RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_service_s, remote_uri_s, remote_id_p, job_json_p, service_p, name_s, description_s, status);
-
-																											if (job_p)
+																											if (AddRemoteServiceJob (job_p, service_p, remote_uri_s, remote_service_s, remote_id_p, service_data_p, save_job_fn))
 																												{
-																													if (AddRemoteServiceJob (job_p, service_p, remote_uri_s, remote_service_s, remote_id_p, service_data_p, save_job_fn))
-																														{
-																															++ num_successful_runs;
-																														}
-																												}		/* if (job_p) */
-																											else
-																												{
-																													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to create RemoteServiceJob ");
+																													++ num_successful_runs;
 																												}
+																										}		/* if (job_p) */
+																									else
+																										{
+																											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to create RemoteServiceJob ");
+																										}
 
-																										}		/* json_array_foreach (results_p, j, job_json_p) */
+																									break;
+																								}
 
-																								}		/* if (json_is_array (results_p)) */
+																							case OS_PARTIALLY_SUCCEEDED:
+																							case OS_SUCCEEDED:
+																								{
+																									/* Get the results and add them to our list of jobs */
+																									json_t *results_p = json_object_get (service_result_p, SERVICE_RESULTS_S);
 
-																						}		/* if (results_p) */
-																					else
-																						{
-																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to get SERVICE_RESULTS_S ");
-																						}
+																									if (results_p)
+																										{
+																											if (json_is_array (results_p))
+																												{
+																													json_array_foreach (results_p, j, job_json_p)
+																														{
+																															RemoteServiceJob *job_p = CreateRemoteServiceJobFromResultsJSON (remote_service_s, remote_uri_s, remote_id, job_json_p, service_p, name_s, description_s, status);
 
-																				}		/* case OS_SUCCEEDED: */
-																				break;
+																															if (job_p)
+																																{
+																																	if (AddRemoteServiceJob (job_p, service_p, remote_uri_s, remote_service_s, remote_id_p, service_data_p, save_job_fn))
+																																		{
+																																			++ num_successful_runs;
+																																		}
+																																}		/* if (job_p) */
+																															else
+																																{
+																																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to create RemoteServiceJob ");
+																																}
+
+																														}		/* json_array_foreach (results_p, j, job_json_p) */
+
+																												}		/* if (json_is_array (results_p)) */
+
+																										}		/* if (results_p) */
+																									else
+																										{
+																											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "Failed to get SERVICE_RESULTS_S ");
+																										}
+
+																								}		/* case OS_SUCCEEDED: */
+																								break;
 
 
-																			case OS_ERROR:
-																			case OS_FAILED:
-																			case OS_FAILED_TO_START:
-																				PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_result_p, "RemoteServiceJob failed to run: \"%s\"", GetOperationStatusAsString (status));
-																				break;
+																							case OS_ERROR:
+																							case OS_FAILED:
+																							case OS_FAILED_TO_START:
+																								PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_result_p, "RemoteServiceJob failed to run: \"%s\"", GetOperationStatusAsString (status));
+																								break;
 
-																			default:
-																				break;
-																		}		/* switch (status) */
+																							default:
+																								break;
+																						}		/* switch (status) */
+
+																				}		/* if (uuid_parse (remote_id_s, remote_id) == 0) */
+																			else
+																				{
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_results_p, "remote uuid is invalid \"%s\"", remote_id_s);
+																				}
+
+																		}		/* if (remote_id_s) */
+																	else
+																		{
+																			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_results_p, "Failed to get \"%s\"", JOB_UUID_S);
+																		}
 
 																}		/* if (GetStatusFromJSON (service_results_p, &status)) */
 															else

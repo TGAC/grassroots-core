@@ -37,7 +37,6 @@ static bool AddValidJSON (json_t *parent_p, const char * const key_s, json_t *ch
 
 static bool AddStatusToServiceJobJSON (ServiceJob *job_p, json_t *value_p);
 
-static bool GetOperationStatusFromServiceJobJSON (const json_t *value_p, OperationStatus *status_p);
 
 static bool AddLinkedServicesToServiceJobJSON (ServiceJob *job_p, json_t *value_p);
 
@@ -807,7 +806,7 @@ static bool AddLinkedServicesToServiceJobJSON (ServiceJob *job_p, json_t *value_
 }
 
 
-static bool GetOperationStatusFromServiceJobJSON (const json_t *value_p, OperationStatus *status_p)
+bool GetOperationStatusFromServiceJobJSON (const json_t *value_p, OperationStatus *status_p)
 {
 	bool success_flag = false;
 
@@ -1055,7 +1054,20 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 						{
 							if (job_p -> sj_service_p != service_p)
 								{
-									FreeService (service_p);
+									if (RemoveServiceJobFromService (job_p -> sj_service_p, job_p))
+										{
+											FreeService (service_p);
+										}
+									else
+										{
+											char uuid_s [UUID_STRING_BUFFER_SIZE];
+											const char *name_s = GetServiceName (service_p);
+
+											ConvertUUIDToString (job_p -> sj_id, uuid_s);
+
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to remove job \"%s\" from service \"%s""", uuid_s, name_s);
+										}
+
 									service_p = job_p -> sj_service_p;
 									add_job_flag = true;
 								}
@@ -1765,6 +1777,12 @@ bool CalculateServiceJobResult (ServiceJob *job_p)
 void SetServiceJobUpdateFunction (ServiceJob *job_p, bool (*update_fn) (ServiceJob *job_p))
 {
 	job_p -> sj_update_fn = update_fn;
+}
+
+
+void SetServiceJobCalculateResultFunction (ServiceJob *job_p, bool (*calculate_fn) (ServiceJob *job_p))
+{
+	job_p -> sj_calculate_result_fn = calculate_fn;
 }
 
 
