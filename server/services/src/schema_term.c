@@ -24,7 +24,8 @@
 #include "memory_allocations.h"
 #include "string_utils.h"
 #include "schema_keys.h"
-
+#include "streams.h"
+#include "json_util.h"
 
 
 static bool AddTermToJSON (json_t *root_p, const char *root_key_s, const char *type_s, const char *key_s, const char *value_s);
@@ -177,6 +178,52 @@ json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p)
 	return NULL;
 }
 
+
+SchemaTerm *GetSchemaTermFromJSON (const json_t *term_json_p)
+{
+	const char *url_s = GetJSONString (term_json_p, SCHEMA_TERM_URL_S);
+
+	if (url_s)
+		{
+			const char *name_s = GetJSONString (term_json_p, SCHEMA_TERM_NAME_S);
+
+			if (name_s)
+				{
+					const char *description_s = GetJSONString (term_json_p, SCHEMA_TERM_DESCRIPTION_S);
+
+					if (description_s)
+						{
+							SchemaTerm *term_p = AllocateSchemaTerm (url_s, name_s, description_s);
+
+							if (term_p)
+								{
+									return term_p;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetSchemaTermFromJSON failed for url \"%s\", name \"%s\", description \"%s\"", url_s, name_s, description_s);
+								}
+
+						}		/* if (description_s) */
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, term_json_p, "GetSchemaTermFromJSON failed to get \"%s\"", SCHEMA_TERM_DESCRIPTION_S);
+						}
+
+				}		/* if (name_s) */
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, term_json_p, "GetSchemaTermFromJSON failed to get \"%s\"", SCHEMA_TERM_NAME_S);
+				}
+
+		}		/* if (url_s) */
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, term_json_p, "GetSchemaTermFromJSON failed to get \"%s\"", SCHEMA_TERM_URL_S);
+		}
+
+	return NULL;
+}
 
 
 static bool AddTermToJSON (json_t *root_p, const char *root_key_s, const char *type_s, const char *key_s, const char *value_s)

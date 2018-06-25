@@ -124,6 +124,14 @@ GRASSROOTS_SERVICE_API bool AddSchemaTermToServiceMetadataInput (ServiceMetadata
 GRASSROOTS_SERVICE_API bool AddSchemaTermToServiceMetadataOutput (ServiceMetadata *metadata_p, SchemaTerm *term_p);
 
 
+/**
+ * Get a ServiceMetadata object from a JSON fragment.
+ *
+ * @param service_metadata_json_p The JSON fragment for a Service to get the ServiceMetadata from.
+ * @return The new ServiceMetadata or <code>NULL</code> upon error.
+ * @memberof ServiceMetadata
+ */
+GRASSROOTS_SERVICE_API ServiceMetadata *GetServiceMetadataFromJSON (const json_t *service_json_p);
 
 
 #ifdef __cplusplus

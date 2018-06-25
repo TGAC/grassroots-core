@@ -29,6 +29,7 @@
 #include "user_details.h"
 #include "request_tools.h"
 #include "schema_version.h"
+#include "service_metadata.h"
 
 
 #include "jansson.h"
@@ -90,7 +91,7 @@ typedef struct Client
 	 * @param params_p The ParameterSet for the given Service.
 	 * @return 0 upon success, non-zero on error.
 	 */
-	int (*cl_add_service_fn) (ClientData *client_data_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p);
+	int (*cl_add_service_fn) (ClientData *client_data_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p, ServiceMetadata *metadata_p);
 
 	/**
 	 * @brief Launch the Client.
@@ -199,7 +200,7 @@ GRASSROOTS_CLIENT_API void InitialiseClient (Client * const client_p,
 	const char *(*get_client_description_fn) (ClientData *client_data_p),
 	json_t *(*run_fn) (ClientData *client_data_p),
 	json_t *(*display_results_fn) (ClientData *client_data_p, json_t *response_p),
-	int (*add_service_fn) (ClientData *client_data_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p),
+	int (*add_service_fn) (ClientData *client_data_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p, ServiceMetadata *metadata_p),
 	bool (*free_client_fn) (Client *client_p),
 	ClientData *data_p,
 	Connection *connection_p);
@@ -243,7 +244,7 @@ GRASSROOTS_CLIENT_API json_t *DisplayResultsInClient (Client *client_p, json_t *
  * @memberof Client
  * @see cl_add_service_fn
  */
-GRASSROOTS_CLIENT_API	int AddServiceToClient (Client *client_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p);
+GRASSROOTS_CLIENT_API	int AddServiceToClient (Client *client_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p, ServiceMetadata *metadata_p);
 
 
 /**

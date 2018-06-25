@@ -141,6 +141,17 @@ GRASSROOTS_SERVICE_API void FreeSchemaTermNode (ListItem *node_p);
  */
 GRASSROOTS_SERVICE_API json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p);
 
+
+/**
+ * Get the JSON fragment for a given SchemaTerm.
+ *
+ * @param term_p The JSON fragment for a given SchemaTerm.
+ * @return The new SchemaTerm or <code>NULL</code> upon error.
+ * @memberof SchemaTerm
+ */
+GRASSROOTS_SERVICE_API SchemaTerm *GetSchemaTermFromJSON (const json_t *term_json_p);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -655,6 +655,17 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 	PREFIX const char *WEB_SERVICE_URL_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
 
 
+/**
+ * Expand a context ontology term to its fully qualified version. For instance
+ * "so:name"  will become "http://schema.org/name" since "so:" is a shortcut
+ * for "http://schmema.org"
+ *
+ * @param term_s The term to expand.
+ * @return The newly-allocate full qualified term url or <code>NULL</code>
+ * upon error. This will need to be freed with FreeCopiedString() to avoid a memory leak
+ */
+GRASSROOTS_UTIL_API char *GetExpandedContextTerm (const char *term_s);
+
 #ifdef __cplusplus
 }
 #endif
