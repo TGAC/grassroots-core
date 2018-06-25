@@ -46,6 +46,10 @@ typedef struct SystemAsyncTask
 	/** The underlying AsyncTask. */
 	AsyncTask *std_async_task_p;
 
+	/**
+	 * The MEM_FLAG determining whether the AsyncTask pointed to by std_async_task_p
+	 * will be deleted when this SystemAsyncTask is freed.
+	 */
 	MEM_FLAG std_async_task_mem;
 
 	/**

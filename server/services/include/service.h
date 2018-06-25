@@ -441,6 +441,7 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
  * @param synchronous The synchronicity for how this Service runs.
  * @param data_p The ServiceData for this Service.
  * @param get_metadata_fn The callback function that the Service will call to create its ServiceMetadata.
+ * @return <code>true</code> if the Service was set up successfully, <code>false</code> otherwise.
  * @memberof Service
  */
 GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
@@ -633,7 +634,7 @@ GRASSROOTS_SERVICE_API void SetServiceReleaseFunction (Service *service_p, void 
  * there isn't a memory leak when the Service is freed.
  *
  * @param data_p
- * @memberof ServiceData.
+ * @memberof ServiceData
  */
 GRASSROOTS_SERVICE_LOCAL void ReleaseServiceData (ServiceData *data_p);
 

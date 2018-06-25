@@ -30,7 +30,10 @@
 #include "jansson.h"
 
 /**
- *
+ * A datatype for specifying ontological terms
+ * as a way to describe the data that each of the
+ * Services consumes and produces. They are also used
+ * to categorise each of the Services.
  */
 typedef struct SchemaTerm
 {
@@ -54,6 +57,9 @@ typedef struct SchemaTerm
 } SchemaTerm;
 
 
+/**
+ * A datatype for storing SchemaTerms in a LinkedList.
+ */
 typedef struct SchemaTermNode
 {
 	/**

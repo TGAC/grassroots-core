@@ -235,7 +235,15 @@ GRASSROOTS_TASK_API	AsyncTaskNode *AllocateAsyncTaskNode (AsyncTask *task_p, MEM
 GRASSROOTS_TASK_API	void FreeAsyncTaskNode (ListItem *node_p);
 
 
-
+/**
+ * Set the EventConsumer for a given AsyncTask.
+ *
+ * @param task_p The AsyncTask to adjust.
+ * @param consumer_p The EventConsumer to add to the given AsyncTask.
+ * @param mem The MEM_FLAG specifying how the EvenetConsumer will be treated when the AsyncTask
+ * is freed.
+ * @memberof AsyncTask
+ */
 GRASSROOTS_TASK_API void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer *consumer_p, MEM_FLAG mem);
 
 

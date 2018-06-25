@@ -46,11 +46,25 @@ typedef struct AsyncTasksManager
 	 */
 	struct AsyncTasksManagerEventConsumer *atm_consumer_p;
 
+
+	/**
+	 * This is the callback function that be called when this AsyncTaskManager's
+	 * tasks have finished and any required deallocation routine is needed.
+	 *
+	 * @param data_p The data to pass to the cleanup function. This will be atm_cleanup_data_p
+	 * @return <code>true</code> if the atm_cleanup_fn ran successfully, <code>false</code> otherwise.
+	 */
 	bool (*atm_cleanup_fn) (void *data_p);
 
+	/**
+	 * The data to be passed to atm_cleanup_fn when this AsyncTaskManager's
+	 * tasks have finished and any required deallocation routine is needed.
+	 */
 	void *atm_cleanup_data_p;
 
-
+	/**
+	 * This shows whether the AsyncTasksManager has any AsyncTasks currently running.
+	 */
 	bool atm_in_use_flag;
 } AsyncTasksManager;
 
@@ -81,13 +95,20 @@ extern "C"
 
 
 /**
+
+/**
  * Allocate an AsyncTasksManager with the given name.
  *
  * @param name_s The name to give to the AsyncTasksManager. This value
  * will be deep-copied.
+ * @param cleanup_fn The callback function that the AsyncTasksManager will call when all of its
+ * AsyncTasks have finished. This is optional and can be <code>NULL</code> if not needed.
+ * @param cleanup_data_p The data to pass to the cleanup function when all of its
+ * AsyncTasks have finished. This is optional and can be <code>NULL</code> if not needed.
  * @return The new AsyncTasksManager or <code>NULL</code> upon error.
  * @memberof AsyncTasksManager
  */
+
 GRASSROOTS_TASK_API AsyncTasksManager *AllocateAsyncTasksManager (const char * const name_s, bool (*cleanup_fn) (void *data_p), void *cleanup_data_p);
 
 
@@ -158,6 +179,9 @@ GRASSROOTS_TASK_API void FreeAsyncTasksManagerEventConsumer (AsyncTasksManagerEv
  *
  * @param manager_p The AsyncTasksManager which will be prepared prior to
  * running its tasks.
+ * @param initial_counter_value The value to be added to the size of the list of AsyncTasks that this AsyncTasksManager
+ * has. This is if you have custom behaviour in the Service. See PreRunJobs() in the Blast or Polymarker Service for
+ * examples of this.
  * @memberof AsyncTasksManager
  */
 GRASSROOTS_TASK_API void PrepareAsyncTasksManager (AsyncTasksManager *manager_p, const int32 initial_counter_value);
@@ -188,9 +212,24 @@ GRASSROOTS_TASK_API bool StartAsyncTaskManagerWorkers (AsyncTasksManager *manage
 GRASSROOTS_TASK_API bool RunAsyncTasksManagerTasks (AsyncTasksManager *manager_p);
 
 
+/**
+ * Check whether an AsyncTasksManager has any AsyncTasks currently running,
+ *
+ * @param manager_p The AsyncTasksManager to check.
+ * @return <code>true</code> if any AsyncTasks are currently running,
+ * <code>false</code> otherwise.
+ * @memberof AsyncTasksManager
+ */
 GRASSROOTS_TASK_API bool IsAsyncTaskManagerRunning (const AsyncTasksManager *manager_p);
 
 
+
+/**
+ * Notify the AsyncTasksManager that one of its AsyncTasks has finished.
+ *
+ * @param manager_p The AsyncTasksManager to amend.
+ * @memberof AsyncTasksManager
+ */
 GRASSROOTS_TASK_API void IncrementAsyncTaskManagerCount (AsyncTasksManager *manager_p);
 
 
