@@ -96,7 +96,7 @@ IRODS_UTIL_LOCAL bool SetQuerySelectClauses (genQueryInp_t *in_query_p, int num_
  * @param num_columns The number of columns to set the WHERE for.
  * @param columns_p Pointer to an array of column ids.
  * @param clauses_ss Pointer to an array of strings for the WHERE clause values.
- * @param opss_ss Pointer to an array of strings specifying the WHERE clause operators.
+ * @param ops_ss Pointer to an array of strings specifying the WHERE clause operators.
  * @return <code>true</code> if the clauses were set successfully, <code>false</code> otherwise.
  */
 IRODS_UTIL_LOCAL bool SetQueryWhereClauses (genQueryInp_t *in_query_p, int num_columns, const int *columns_p, const char **clauses_ss, const char **ops_ss);

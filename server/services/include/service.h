@@ -343,9 +343,17 @@ typedef struct Service
 	 */
 	ServiceMetadata *(*se_get_metadata_fn) (struct Service *service_p);
 
+	/**
+	 * If the Service's synchronicity is set to SY_ASYNCHRONOUS_ATTACHED,
+	 * this is used as mutex to control access to this Service when needed.
+	 */
 	SyncData *se_sync_data_p;
 
-
+	/**
+	 * A custom callback function to use to close the service if needed.
+	 *
+	 * @param service_p This Service.
+	 */
 	void (*se_release_service_fn) (struct Service *service_p);
 
 } Service;
@@ -630,7 +638,7 @@ GRASSROOTS_SERVICE_API void SetServiceReleaseFunction (Service *service_p, void 
 GRASSROOTS_SERVICE_LOCAL void ReleaseServiceData (ServiceData *data_p);
 
 /**
- * @brief Allocate a ServiceNode pointing to the given Service.
+ * Allocate a ServiceNode pointing to the given Service.
  *
  * @param service_p The Service to store on the ServiceNode.
  * @return A newly-allocated ServiceNode or <code>NULL</code> upon error.
@@ -730,7 +738,13 @@ GRASSROOTS_SERVICE_API  bool IsServiceLive (Service *service_p);
 GRASSROOTS_SERVICE_API json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag);
 
 
-
+/**
+ * Get the URL of an icon image to use for a given Service.
+ *
+ * @param service_p The Service to get the icon for.
+ * @return The URL of the image to use for the Service.
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API const char *GetServiceIcon (Service *service_p);
 
 
@@ -989,8 +1003,10 @@ GRASSROOTS_SERVICE_API void SetMetadataForService (Service *service_p, SchemaTer
 /**
  * Add a ServiceJob to a Service.
  *
- * @param job_set_p The Service to add the ServiceJob to.
+ * @param service_p The Service to add the ServiceJob to.
  * @param job_p The ServiceJob to add.
+ * @param require_lock_flag Set this to <code>true</code> if the Service needs to be thread-safe, <code>false</code>
+ * otherwise.
  * @return <code>true</code> if the ServiceJob was added to the Service successfully,
  * <code>false</code> otherwise.
  * @memberof Service
@@ -1001,7 +1017,7 @@ GRASSROOTS_SERVICE_API bool AddServiceJobToService (Service *service_p, ServiceJ
 /**
  * Remove a ServiceJob from a Service.
  *
- * @param job_set_p The Service to remove the ServiceJob from.
+ * @param service_p The Service to remove the ServiceJob from.
  * @param job_p The ServiceJob to remove.
  * @return <code>true</code> if the ServiceJob was removed to the ServiceJob successfully,
  * <code>false</code> if could not as the ServiceJob is not a member of the Service
@@ -1022,13 +1038,38 @@ GRASSROOTS_SERVICE_API bool RemoveServiceJobFromService (Service *service_p, Ser
 GRASSROOTS_SERVICE_API int32 GetNumberOfLiveJobs (Service *service_p);
 
 
-
+/**
+ * Is a given Service lockable with a mutex for use in a multi-threaded
+ * situation.
+ *
+ * @param service_p The Service to check.
+ * @return <code>true</code> if the Service is lockable, <code>false</code> otherwise.
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API bool IsServiceLockable (const Service *service_p);
 
 
+/**
+ * Lock a given Service with a mutex for use in a multi-threaded
+ * situation.
+ *
+ * @param service_p The Service to check.
+ * @return <code>true</code> if the Service was locked successfully,
+ * <code>false</code> otherwise.
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API bool LockService (Service *service_p);
 
 
+/**
+ * Release the lock for a given Service in a multi-threaded
+ * situation.
+ *
+ * @param service_p The Service to check.
+ * @return <code>true</code> if the Service was unlocked successfully,
+ * <code>false</code> otherwise.
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API bool UnlockService (Service *service_p);
 
 

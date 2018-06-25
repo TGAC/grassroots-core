@@ -236,6 +236,7 @@ GRASSROOTS_SERVICE_API void FreeBaseServiceJob (ServiceJob *job_p);
  * this ServiceJob. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then ClearServiceJob will be used before
  * deallocating the memory ServiceJob structure.
+ * @param job_type_s The identifier to use for the given ServiceJob.
  * @return The newly-allocated ServiceJob or <code>NULL</code> upon error.
  * @see FreeServiceJob
  * @see InitServiceJob
@@ -267,6 +268,8 @@ GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p
  * this ServiceJob. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then ClearServiceJob will be used before
  * deallocating the memory ServiceJob structure.
+ * @param require_lock_flag Set this to <code>true</code> if the Service is running in a multi-threaded
+ * environment.
  * @return The newly-allocated ServiceJob or <code>NULL</code> upon error.
  * @see AllocateServiceJob
  * @memberof ServiceJob
@@ -296,6 +299,7 @@ GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToService (struct Servi
  * behaviour. If this is <code>NULL</code>, then ClearServiceJob will be used before
  * deallocating the memory ServiceJob structure.
  * @param id_p Pointer to the the uuid to use as the id for this ServiceJob.
+ * @param job_type_s The identifier to use for the given ServiceJob class.
  * @return <code>true</code> if the ServiceJob was initialised successfully, <code>false</code> otherwise
  * @memberof ServiceJob
  */
@@ -652,11 +656,12 @@ GRASSROOTS_SERVICE_API char *SerialiseServiceJobToJSON (ServiceJob * const job_p
  * @param name_s The name of the ServiceJob.
  * @param description_s The description of the ServiceJob. This can be <code>NULL</code>.
  * @param status The OperationStatus to set for the ServiceJob.
+ * @param job_type_s The identifier to use for the given ServiceJob class.
  * @return The newly-allocated ServiceJob or <code>NULL</code> upon error.
  * @memberof ServiceJob
  * @see InitServiceJobFromResultsJSON
  */
-GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *type_s);
+GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *job_type_s);
 
 
 
@@ -669,11 +674,12 @@ GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromResultsJSON (const json_t
  * @param name_s The name to give to the ServiceJob. This can be <code>NULL</code>.
  * @param description_s The description to give to the ServiceJob. This can be <code>NULL</code>.
  * @param status The OperationStatus to set for the ServiceJob.
+ * @param job_type_s The identifier to use for the given ServiceJob class.
  * @return <code>true</code> if the ServiceJob was initialised successfully,
  * <code>false</code> otherwise.
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *type_s);
+GRASSROOTS_SERVICE_API bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status, const char *job_type_s);
 
 
 /**

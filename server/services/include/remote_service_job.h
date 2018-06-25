@@ -110,15 +110,18 @@ GRASSROOTS_SERVICE_API void FreeRemoteServiceJob (ServiceJob *job_p);
  * Create a RemoteServiceJob from the JSON fragment returned from the ExternalServer
  * that ran the job.
  *
- * @param results_p The JSON fragment returned by the ExternalServer.
- * @param service_p The Service on the local Server.
- * @param name_s The name to give the RemoteServiceJob.
- * @param description_s An optional description to give the RemoteServiceJob. This can be <code>NULL</code>.
- * @param status The OperationStatus of the RemoteServiceJob.
+ * @param remote_service_s The name of the Service on the ExternalServer that will run the RemoteServiceJob.
+ * @param remote_uri_s  The URI for the ExternalServer that is running the RemoteServiceJob.
+ * @param remote_job_id The UUID of the RemoteServiceJob on this local Server.
+ * @param results_p The results of the RemoreServiceJob. This can be <code>NULL</code>.
+ * @param service_p The local Service will connect to the ExternalServer that will run this RemoteServiceJob.
+ * @param job_name_s The name of the RemoteServiceJob.
+ * @param job_description_s An optional description to give the RemoteServiceJob. This can be <code>NULL</code>.
+ * @param status The OperationStatus to set the RemoteServiceJob's status to.
  * @return The newly-created RemoteServiceJob or <code>NULL</code> upon error.
  * @memberof RemoteServiceJob
  */
-GRASSROOTS_SERVICE_API RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_service_s, const char *remote_uri_s, const uuid_t remote_id, const json_t *results_p, struct Service *service_p, const char *name_s, const char *description_s, OperationStatus status);
+GRASSROOTS_SERVICE_API RemoteServiceJob *CreateRemoteServiceJobFromResultsJSON (const char *remote_service_s, const char *remote_uri_s, const uuid_t remote_job_id, const json_t *results_p, struct Service *service_p, const char *job_name_s, const char *job_description_s, OperationStatus status);
 
 
 /**

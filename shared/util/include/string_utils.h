@@ -61,13 +61,23 @@
  * or its entirety, whichever is smaller. If this is zero or less then all of src_p is copied.
  * @param trim Whether to trim left and right trailing whitespace or not.
  * @return A newly allocated copy of the source string or NULL if there was an error. If
- * the string was successfully created, its deallocation must be done with FreeCopiedString
+ * the string was successfully created, its deallocation must be done with FreeCopiedString()
  * when you are finished with it.
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API char *CopyToNewString (const char * const src_p, const size_t length_to_copy, bool trim);
 
 
+/**
+ * Copy a string to a newly created string. This calls CopyToNewString() with length_to_copy set to
+ * the length of the source string and trim set to <code>false</code>.
+ *
+ * @param src_s he string to copy.
+ * @return A newly allocated copy of the source string or NULL if there was an error. If
+ * the string was successfully created, its deallocation must be done with FreeCopiedString()
+ * when you are finished with it.
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API char *EasyCopyToNewString (const char * const src_s);
 
 

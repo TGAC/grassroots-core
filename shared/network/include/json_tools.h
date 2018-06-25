@@ -343,7 +343,7 @@ GRASSROOTS_NETWORK_API const json_t *GetProviderFromServiceJSON (const json_t *s
  * {
  * ...
  *   "operation": {
- *     "operation": <operation string>
+ *     "operation": \<operation string\>
  *   }
  * }
  *

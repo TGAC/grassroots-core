@@ -87,7 +87,7 @@ typedef struct SearchTerm
 	 * @private
 	 *
 	 * The comparison operator used to compare the key and value of this SearchTerm
-	 * such as "=", "<", <i>etc.</i>
+	 * such as "=", "\<", \<i\>etc.\</i\>
 	 */
 	const char *st_op_s;
 

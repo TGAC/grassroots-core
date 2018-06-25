@@ -126,7 +126,7 @@ GRASSROOTS_SERVICE_API SchemaTermNode *AllocateSchemaTermNode (SchemaTerm *term_
  *
  * The associated SchemaTerm stored on the given SchemaTermNode will also be freed.
  *
- * @param term_p The SchemaTermNode to free.
+ * @param node_p The SchemaTermNode to free.
  * @memberof SchemaTermNode
  */
 GRASSROOTS_SERVICE_API void FreeSchemaTermNode (ListItem *node_p);
@@ -145,7 +145,7 @@ GRASSROOTS_SERVICE_API json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p);
 /**
  * Get the JSON fragment for a given SchemaTerm.
  *
- * @param term_p The JSON fragment for a given SchemaTerm.
+ * @param term_json_p The JSON fragment for a given SchemaTerm.
  * @return The new SchemaTerm or <code>NULL</code> upon error.
  * @memberof SchemaTerm
  */

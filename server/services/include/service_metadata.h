@@ -50,8 +50,16 @@ typedef struct ServiceMetadata
 	 */
 	SchemaTerm *sm_application_subcategory_p;
 
+	/**
+	 * A LinkedList of SchemaTermNodes defining the types of input
+	 * that the Service can take.
+	 */
 	LinkedList *sm_input_types_p;
 
+	/**
+	 * A LinkedList of SchemaTermNodes defining the types of output
+	 * that the Service can generate.
+	 */
 	LinkedList *sm_output_types_p;
 
 
@@ -117,17 +125,32 @@ GRASSROOTS_SERVICE_API void SetServiceMetadataValues (ServiceMetadata *metadata_
 GRASSROOTS_SERVICE_API bool AddServiceMetadataToJSON (const ServiceMetadata *metadata_p, json_t *service_json_p);
 
 
-
+/**
+ * Add a SchemaTerm to the list of input types stored in this ServiceMetadata.
+ *
+ * @param metadata_p The ServiceMetadata to add the input term to.
+ * @param term_p The SchemaTerm to add
+ * @return <code>true</code> if the ServiceMetadata input list was updated successfully, <code>false</code> if it was not.
+ * @return ServiceMetadata
+ */
 GRASSROOTS_SERVICE_API bool AddSchemaTermToServiceMetadataInput (ServiceMetadata *metadata_p, SchemaTerm *term_p);
 
 
+/**
+ * Add a SchemaTerm to the list of output types stored in this ServiceMetadata.
+ *
+ * @param metadata_p The ServiceMetadata to add the output term to.
+ * @param term_p The SchemaTerm to add
+ * @return <code>true</code> if the ServiceMetadata output list was updated successfully, <code>false</code> if it was not.
+ * @return ServiceMetadata
+ */
 GRASSROOTS_SERVICE_API bool AddSchemaTermToServiceMetadataOutput (ServiceMetadata *metadata_p, SchemaTerm *term_p);
 
 
 /**
  * Get a ServiceMetadata object from a JSON fragment.
  *
- * @param service_metadata_json_p The JSON fragment for a Service to get the ServiceMetadata from.
+ * @param service_json_p The JSON fragment for a Service to get the ServiceMetadata from.
  * @return The new ServiceMetadata or <code>NULL</code> upon error.
  * @memberof ServiceMetadata
  */

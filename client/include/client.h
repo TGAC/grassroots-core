@@ -390,7 +390,7 @@ GRASSROOTS_CLIENT_API void GetNamedServicesInClient (Client *client_p, const cha
  * @return 0 upon success, non-zero on error.
  * @see AddServiceToClient
  */
-GRASSROOTS_CLIENT_LOCAL int AddServiceDetailsToClient (Client *client_p, json_t *service_json_pp);
+GRASSROOTS_CLIENT_LOCAL int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p);
 
 
 #ifdef __cplusplus

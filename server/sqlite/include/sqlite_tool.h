@@ -58,7 +58,7 @@ SQLITE_PREFIX const char *SQLITE_OP_EQUALS_S SQLITE_VAL("=");
 
 
 
-/*
+/**
  * A SQLiteTool is a datatype that allows access to the data stored within
  * a SQLite instance.
  *
@@ -69,10 +69,13 @@ typedef struct SQLiteTool
 	/**
 	 * @private
 	 *
-	 * This is the current mongo client.
+	 * This is the current sqlite3 client.
 	 */
 	sqlite3 *sqlt_database_p;
 
+	/**
+	 * The name of the table that this SQLiteTool is currently accessing.
+	 */
 	const char *sqlt_table_s;
 } SQLiteTool;
 
@@ -89,8 +92,10 @@ extern "C"
  *
  * @param tool_p The SQLite to update.
  * @param db_s The database to use.
- * @param collection_s The collection to use.
- * @return <code>true</code> if the SQLite was updated successfully,
+ * @param table_s The table to use.
+ * @param flags The flags to use when opening the underlying sqlite database
+ * see sqlite3_open_v2()
+ * @return <code>true</code> if the SQLite was updated successfully.
  * <code>false</code> otherwise.
  * @memberof SQLiteTool
  */
@@ -101,6 +106,10 @@ GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db
  * This allocates a SQLiteTool that connects to the SQLite instance specified in the
  * grassroots.config file
  *
+ * @param db_s The database to use.
+ * @param table_s The table to use.
+ * @param flags The flags to use when opening the underlying sqlite database
+ * see sqlite3_open_v2()
  * @return A SQLiteTool or <code>NULL</code> upon error.
  * @memberof SQLiteTool
  * @see InitSQLite
@@ -108,13 +117,21 @@ GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db
 GRASSROOTS_SQLITE_API SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s);
 
 
-
+/**
+ * Close the database connection for a given a SQLiteTool.
+ *
+ * @param tool_p The SQLiteTool to close.
+ * @return <code>true</code> if the tool was closed successfully,
+ * <code>false</code> otherwise.
+ * @memberof SQLiteTool
+ */
 GRASSROOTS_SQLITE_API bool CloseSQLiteTool (SQLiteTool *tool_p);
 
 
 
 /**
  * Delete a SQLiteTool and release the connection that it held
+ * This calls CloseSqlTool()  and then releases the memory.
  *
  * @param tool_p The SQLiteTool to free.
  * @memberof SQLiteTool
@@ -126,7 +143,9 @@ GRASSROOTS_SQLITE_API void FreeSQLiteTool (SQLiteTool *tool_p);
  * Insert data from a given JSON fragment using a given SQLite.
  *
  * @param tool_p The SQLite to use.
- * @param json_p The JSON fragment to insert.
+ * @param values_p The JSON fragment to insert.
+ * @param primary_key_id_s The key used to get the values from values_p that the matching
+ * documents will be updated with.
  * @return A pointer to a newly-created BSON id or <code>NULL</code>
  * upon error. This value will need to be freed using FreeMemory() to
  * avoid a memory leak.
@@ -144,7 +163,7 @@ GRASSROOTS_SQLITE_API const char *InsertOrUpdatSQLiteData (SQLiteTool *tool_p, j
  * will be removed. If this is <code>false</code> then all matching documents will be removed.
  * @return <code>true</code> if any matching SQLite documents were removed successfully,
  * <code>false</code> otherwise.
- * @memberof SQLiteSQLiteTool
+ * @memberof SQLiteTool
  */
 GRASSROOTS_SQLITE_API bool RemoveSQLiteRows (SQLiteTool *tool_p, const json_t *selector_json_p, const bool remove_first_match_only_flag);
 
@@ -153,11 +172,13 @@ GRASSROOTS_SQLITE_API bool RemoveSQLiteRows (SQLiteTool *tool_p, const json_t *s
  * Find matching documents for a given query.
  *
  * @param tool_p The SQLite that will search the collection.
- * @param query_json_p The statement used to choose which documents to store.
+ * @param where_clauses_p The LinkedList of SqlClauseNodes specifying the query to run.
  * @param fields_ss If specified, then just the keys listed in this array along with their
  * associated values will be stored. This array must have <code>NULL</code> as its final
  * element. If this is <code>NULL</code>, then all of the keys and values in the matching
  * documents will be stored.
+ * @param error_ss If an error occurs, this will point to a newly-allocated string describing the error.
+ * This needs to be freed using FreeSQLiteToolErrorString().
  * @return <code>true</code> if any matching SQLite documents were found successfully,
  * <code>false</code> otherwise.
  * @memberof SQLiteTool
@@ -219,11 +240,10 @@ GRASSROOTS_SQLITE_API json_t *GetAllExistingSQLiteResultsAsJSON (SQLiteTool *too
 
 
 /**
- * Check whether a collection contains any documents with a given key-value pair.
+ * Check whether a database_s contains any documents with a given key-value pair.
  *
  * @param tool_p The SQLite to check with.
  * @param database_s The database to check.
- * @param collection_s The collection to check.
  * @param key_s The key to search for.
  * @param value_s The value to search for.
  * @return The number of matching documents in the given collection or -1 upon error.
@@ -238,7 +258,6 @@ GRASSROOTS_SQLITE_API int32 IsKeyValuePairInDatabase (SQLiteTool *tool_p, const 
  * @param tool_p The SQLite to update with.
  * @param values_p The JSON values to add to the documents.
  * @param database_s The database to check.
- * @param collection_s The collection to check.
  * @param primary_key_id_s The key used to get the values from values_p that the matching
  * documents will be updated with.
  * @param mapped_id_s The key to use for the query to get the documents with. If this is
@@ -266,6 +285,13 @@ GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, 
 GRASSROOTS_SQLITE_API const char *EasyInsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char *const primary_key_id_s);
 
 
+/**
+ * Free an error string that was generated from a given SQLiteTool.
+ *
+ * @param tool_p The given SQLiteTool.
+ * @param error_s The error string to free.
+ * @memberof SQLiteTool
+ */
 GRASSROOTS_SQLITE_API void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *error_s);
 
 
