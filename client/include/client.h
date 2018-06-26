@@ -240,6 +240,7 @@ GRASSROOTS_CLIENT_API json_t *DisplayResultsInClient (Client *client_p, json_t *
  * @param service_icon_uri_s An optional URI for an image for the Service. This can be <code>NULL</code>.
  * @param provider_p The JSON fragment with the details of the provider of the Service.
  * @param params_p The ParameterSet for the Service.
+ * @param metadata_p The ServiceMetadata for the Service.
  * @return 0 upon success, non-zero on error.
  * @memberof Client
  * @see cl_add_service_fn

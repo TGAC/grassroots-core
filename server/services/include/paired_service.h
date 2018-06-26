@@ -168,15 +168,49 @@ GRASSROOTS_SERVICE_API void FreePairedServiceNode (ListItem *node_p);
  * @param paired_service_uri_s The URI of the ExternalServer to send the request to.
  * @param providers_p The details of ExternalServers for any paired or external Services.
  * @return The JSON fragment of the results of the PairedService or <code>NULL</code> upon error.
+ * @memberof PairedService
  */
 GRASSROOTS_SERVICE_API json_t *MakeRemotePairedServiceCall (const char * const service_name_s, ParameterSet *params_p, const char * const paired_service_uri_s, ProvidersStateTable *providers_p);
 
 
 
-
+/**
+ * Run all of the PairedServices for a given Service.
+ *
+ * These will be added as RemoteServiceJobs to the ServiceJobSet of
+ * this Service by calling AddRemoteResultsToServiceJobs().
+ *
+ * @param service_p The Service to run the PairedServices for.
+ * @param param_set_p The ParameterSet to send to the PairedService.
+ * @param providers_p The details of ExternalServers for any paired or external Services.
+ * @param save_job_fn If you need any extra processing of the resulting RemoteServiceJobs
+ * this function can be used. It will be called passing each RemoteServiceJob in turn along
+ * with the ServiceData for this Service. if the processing was successful it will return <code>
+ * true</code>, with <code>false</code> upon failure.
+ * @return The number of PairedServices that were ran successfully.
+ * @memberof PairedService
+ */
 GRASSROOTS_SERVICE_API int32 RunPairedServices (struct Service *service_p, ParameterSet *param_set_p, ProvidersStateTable *providers_p, bool (*save_job_fn) (struct RemoteServiceJob *job_p, const struct ServiceData *service_data_p));
 
 
+/**
+ * Add the results of running PairedServices as  RemoteServiceJobs to the ServiceJobSet of
+ * a given Service.
+ *
+ * @param server_response_p The response from the remote Grassroots Server that was called to run
+ * the PairedServices.
+ * @param service_p The Service that will have the RemoteServiceJobs added to it.
+ * @param remote_service_s The name of the remote Service that was called.
+ * @param remote_uri_s The URL of the remote Grassroots Server that was called to run
+ * the PairedServices.
+ * @param service_data_p The ServiceData for the given Service.
+ * @param save_job_fn If you need any extra processing of the resulting RemoteServiceJobs
+ * this function can be used. It will be called passing each RemoteServiceJob in turn along
+ * with the ServiceData for this Service. if the processing was successful it will return <code>
+ * true</code>, with <code>false</code> upon failure.
+ * @return The number of PairedServices that were ran successfully.
+ * @memberof PairedService
+ */
 GRASSROOTS_SERVICE_API int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, struct Service *service_p, const char * const remote_service_s, const char * const remote_uri_s, const struct ServiceData *service_data_p, bool (*save_job_fn) (struct RemoteServiceJob *job_p, const struct ServiceData *service_data_p));
 
 
