@@ -1,0 +1,38 @@
+The HTCondor drmaa library has 3 places where it calls strcpy() on overlapping 
+buffers which leads to undefined behaviour; it may work some of the time or on
+some platforms, but I certainly had intermittent errors where a single character
+would go missing from the middle of a string. 
+
+Running with valgrind comfirmed this issue:
+
+==6048== Memcheck, a memory error detector
+==6048== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==6048== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==6048== Command: bin/httpd -X
+==6048== Parent PID: 6047
+==6048== 
+==6048== Thread 4:
+==6048== Source and destination overlap in strcpy(0x2917c100, 0x2917c101)
+==6048==    at 0x4C30B96: strcpy (vg_replace_strmem.c:510)
+==6048==    by 0xD8C07DB: strcpy (string3.h:110)
+==6048==    by 0xD8C07DB: write_job_attr (auxDrmaa.c:812)
+==6048==    by 0xD8C0BF7: create_submit_file (auxDrmaa.c:573)
+==6048==    by 0xD8BE161: drmaa_run_job (libDrmaa.c:663)
+
+
+So I've written a patch file, auxDrmaa.patch, to fix these issues. To use it copy 
+auxDrmaa.patch to the drmaa/src directory containing auxDrmaa.c and then apply the 
+patch by running: 
+
+  patch < auxDrmaa.patch
+
+and then rebuild the library: 
+
+  make
+
+For any help, please contact me at simon.tyrrell@earlham.ac.uk
+
+cheers
+
+Simon
+

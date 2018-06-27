@@ -1,0 +1,82 @@
+--- auxDrmaa.c	2018-06-27 19:54:38.135759054 +0100
++++ auxDrmaa-new.c	2018-06-27 19:54:35.535767332 +0100
+@@ -797,33 +797,71 @@
+ 	} else if (strcmp(ja->name, DRMAA_JOB_NAME) == 0) {
+ 		num_bw = fprintf(fs, "%-*s= \"%s\"\n", SUBMIT_FILE_COL_SIZE, "+JobName", ja->val.value);
+ 	} else if (strcmp(ja->name, DRMAA_INPUT_PATH) == 0) {
++		char *path;
++
+ 		sub_ph = substitute_placeholders(ja->val.value, index);
++
+ 		// take string behind colon, which is mandatory in the argument
+-		strcpy(sub_ph, strstr(sub_ph, ":") + sizeof(char));
+-		num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Input", sub_ph);
++
++    // strcpy on overlapping buffers has undefined behvaiour
++		// strcpy(sub_ph, strstr(sub_ph, ":") + sizeof(char));
++		path = strstr (sub_ph, ":");
++		if (path) {
++			// scroll past the ':'
++			++ path;
++		} else {
++			// no ':' so just use the buffer
++			path = sub_ph;
++		}
++		
++		num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Input", path);
+ 
+ 		if (strchr(transfer_files, 'i'))
+-			num_bw = fprintf(fs, "transfer_input_files=%s\n", sub_ph);
++			num_bw = fprintf(fs, "transfer_input_files=%s\n", path);
+ 
+ 		free(sub_ph);
+ 	} else if (strcmp(ja->name, DRMAA_OUTPUT_PATH) == 0) {
++		char *path;
+ 		sub_ph = substitute_placeholders(ja->val.value, index);
++
+ 		// take string behind colon, which is mandatory in the argument
+-		strcpy(sub_ph, strstr(sub_ph, ":") + sizeof(char));
+-		num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Output", sub_ph);
++		// strcpy(sub_ph, strstr(sub_ph, ":") + sizeof(char));
++		
++		path = strstr (sub_ph, ":");
++		if (path) {
++			// scroll past the ':'
++			++ path;
++		} else {
++			// no ':' so just use the buffer
++			path = sub_ph;
++		}
++
++
++		num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Output", path);
+ 		// set error path to the same value in case of join_files
+ 		// there is no explicit solution in Condor               
+ 		if (joinFiles) {
+-			num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Error", sub_ph);
++			num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Error", path);
+ 		}
+ 		free(sub_ph);
+ 	}
+ 	// consider users error atrribute only when join_files is not present
+ 	else if (strcmp(ja->name, DRMAA_ERROR_PATH) == 0 && !joinFiles) {
++		char *path;
++
+ 		sub_ph = substitute_placeholders(ja->val.value, index);
+ 		// take string behind colon, which is mandatory in the argument
+-		strcpy(sub_ph, strstr(sub_ph, ":") + sizeof(char));
+-		num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Error", sub_ph);
++
++		path = strstr (sub_ph, ":");
++		if (path) {
++			// scroll past the ':'
++			++ path;
++		} else {
++			// no ':' so just use the buffer
++			path = sub_ph;
++		}
++
++		num_bw = fprintf(fs, "%-*s= %s\n", SUBMIT_FILE_COL_SIZE, "Error", path);
+ 		free(sub_ph);
+ 	}
+ 

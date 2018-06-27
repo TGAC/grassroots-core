@@ -47,8 +47,12 @@
 
 #endif
 
-/** The job type for RemoteServiceJobs. */
-REMOTE_SERVICE_JOB_PREFIX const char *RSJ_TYPE_S REMOTE_SERVICE_JOB_VAL ("remote_service_job");
+/**
+ * The job type for RemoteServiceJobs.
+ *
+ * @memberof RemoteServiceJob
+ */
+REMOTE_SERVICE_JOB_PREFIX const char * const RSJ_TYPE_S REMOTE_SERVICE_JOB_VAL ("remote_service_job");
 
 
 /**

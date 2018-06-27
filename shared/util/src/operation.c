@@ -67,7 +67,7 @@ Operation GetOperationFromJSON (const json_t *ops_p)
 
 			if (op == OP_NONE)
 				{
-					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, op_p, "Failed to get valid operation value");
+					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, ops_p, "Failed to get valid operation value");
 				}
 		}
 	else
