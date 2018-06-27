@@ -86,6 +86,10 @@ extern "C"
  * @param job_p The ServiceJob that will run this SystemAsyncTask.
  * @param name_s The name to give to the underlying AsyncTask. The
  * SystemAsyncTask will make a deep copy of this value.
+ * @param manager_p The AsyncTasksManager for this AsyncTask.
+ * @param add_flag If this is <code>true</code> then this SystemAsyncTask will
+ * be added to the AsyncTasksManager specified by manager_p. If this is <code>
+ * false</code>, then this SystemAsyncTask is not added to the given AsyncTasksManager.
  * @param command_s The command line that this SystemAsyncTask will run.
  * The SystemAsyncTask will make a deep copy of this value.
  * @param on_success_callback_fn If the SystemAsyncTask runs successfully,

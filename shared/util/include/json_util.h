@@ -575,9 +575,45 @@ GRASSROOTS_UTIL_API bool CopyJSONKeyIntegerValuePair (const json_t *src_p, json_
 GRASSROOTS_UTIL_API bool DeepCopyValidJSON (const json_t *src_p, json_t **dest_pp);
 
 
-
-
-
+/**
+ * Add a "@context" section to a JSON fragment to define a class.
+ *
+ * For example
+ *
+ *   AddOntologyContextTerm (dest_context_p, "so", "http://schema.org", false)
+ *
+ * would result in a "@context" object in the gicen JSON fragment of
+ *
+ *  "@context": {
+ *     ....
+ *     "so:": "http://schema.org/"
+ *   }
+ *
+ * and
+ *
+ *   AddOntologyContextTerm (dest_context_p, "season", "http://purl.obolibrary.org/obo/PECO_0007027", true)
+ *
+ * would result in a "@context" object in the gicen JSON fragment of
+ *
+ *  "@context": {
+ *     ....
+ *     "season": {
+ *        "@context": "http://purl.obolibrary.org/obo/PECO_0007027",
+ *        "@type": "@id"
+ *      }
+ *   }
+ *
+ *
+ * @param root_p The JSON fragment to add the ontology term to.
+ * @param key_s The key that the ontology term will have in the given JSON fragment.
+ * @param term_s The term to add.
+ * @param add_id_flag If this is <code>true</code> then the term will be treated as a
+ * specific class instance and will have "@type": "@id" added to the JSON fragment
+ * for the term.
+ * @return <code>true</code> upon success, <code>false</code> upon failure.
+ *
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term_s, const bool add_id_flag);
 
 #ifdef __cplusplus

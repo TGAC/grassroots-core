@@ -58,6 +58,7 @@ struct LinkedService;
 #endif
 
 
+/** The default type id for ServiceJobs. */
 SERVICE_JOB_PREFIX const char *SJ_DEFAULT_TYPE_S SERVICE_JOB_VAL ("default_service_job");
 
 
@@ -353,17 +354,47 @@ GRASSROOTS_SERVICE_API struct Service *GetServiceFromServiceJob (ServiceJob *job
  * @param job_p The ServiceJob to look for.
  * @return The ServiceJobNode that points to the requested ServiceJob or <code>
  * NULL</code> if it could not be found.
+ * @memberof ServiceJobSet
  */
 GRASSROOTS_SERVICE_API ServiceJobNode *FindServiceJobNodeInServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p);
 
 
+/**
+ * Find the ServiceJobNode for a ServiceJob with a given uuid within a ServiceJobSet.
+ *
+ * @param job_set_p The ServiceJobSet to search.
+ * @param job_id The uuid of the ServiceJob to find.
+ * @return The ServiceJobNode that points to the requested ServiceJob or <code>
+ * NULL</code> if it could not be found.
+ * @memberof ServiceJobSet
+ */
 GRASSROOTS_SERVICE_API ServiceJobNode *FindServiceJobNodeByUUIDInServiceJobSet (const ServiceJobSet *job_set_p, const uuid_t job_id);
 
 
+/**
+ * Remove a ServiceJob with a given uuid from a ServiceJobSet.
+ *
+ * The ServiceJob is not deleted, it is just removed from the ServiceJobSet.
+ *
+ * @param job_set_p The ServiceJobSet to remove the given ServiceJob from.
+ * @param job_id The uuid of the ServiceJob to remove.
+ * @return <code>true</code> if the ServiceJob was removed successfully, <code>false</code> otherwise.
+ * @memberof ServiceJobSet
+ * @see RemoveServiceJobFromServiceJobSet()
+ */
 GRASSROOTS_SERVICE_API bool RemoveServiceJobByUUIDFromServiceJobSet (ServiceJobSet *job_set_p, uuid_t job_id);
 
 
-
+/**
+ * Remove a ServiceJob from a ServiceJobSet.
+ *
+ * The ServiceJob is not deleted, it is just removed from the ServiceJobSet.
+ *
+ * @param job_set_p The ServiceJobSet to remove the given ServiceJob from.
+ * @param job_p The ServiceJob to remove.
+ * @return <code>true</code> if the ServiceJob was removed successfully, <code>false</code> otherwise.
+ * @memberof ServiceJobSet
+ */
 GRASSROOTS_SERVICE_API bool RemoveServiceJobFromServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p);
 
 

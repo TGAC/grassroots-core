@@ -48,7 +48,7 @@ typedef struct SQLClauseNode
 	/** The base ListItem */
 	ListItem sqlcn_node;
 
-	/* The SQLClause */
+	/** The SQLClause */
 	SQLClause *sqlcn_clause_p;
 
 } SQLClauseNode;

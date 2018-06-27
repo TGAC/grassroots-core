@@ -71,7 +71,7 @@ typedef enum Operation {
 	 */
 	OP_GET_RESOURCE,
 
-
+	/** Get the current status of a Server. */
 	OP_SERVER_STATUS,
 
 	/** The number of available Operations. */
@@ -155,8 +155,14 @@ GRASSROOTS_UTIL_API OperationStatus GetOperationStatusFromString (const char *st
 
 
 
-
-GRASSROOTS_UTIL_API Operation GetOperationFromJSON (json_t *ops_p);
+/**
+ * Get the Operation from a JSON fragment with a key of either OPERATION_S or OPERATION_ID_S.
+ *
+ * @param ops_p The JSON fragment to get the Operation from.
+ * @return The Operation or <code>OP_NONE</code> if it could not be retrieved successfully.
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API Operation GetOperationFromJSON (const json_t *ops_p);
 
 #ifdef __cplusplus
 }
