@@ -297,7 +297,18 @@ void ClearDrmaaTool (DrmaaTool *tool_p)
 
 	if (tool_p -> dt_output_filename_s)
 		{
-			if (CalculateFileInformation (tool_p -> dt_output_filename_s, &fi))
+			const char *filename_s = tool_p -> dt_output_filename_s;
+
+			/*
+			 * Drmaa can require the filename to have a ":" prefix,
+			 * so if this value has, let's scroll past it.
+			 */
+			if (*filename_s == ':')
+				{
+					++ filename_s;
+				}
+
+			if (CalculateFileInformation (filename_s, &fi))
 				{
 					/* If the stdout/stderr file is empty, then delete it */
 					if (fi.fi_size == 0)

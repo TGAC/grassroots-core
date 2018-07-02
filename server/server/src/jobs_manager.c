@@ -111,7 +111,7 @@ bool FreeJobsManager (JobsManager *manager_p)
 }
 
 
-bool AddServiceJobToJobsManager (JobsManager *manager_p, uuid_t job_key, ServiceJob  *job_p)
+bool AddServiceJobToJobsManager (JobsManager *manager_p, uuid_t job_key, ServiceJob *job_p)
 {
 	return (manager_p -> jm_add_job_fn (manager_p, job_key, job_p));
 }

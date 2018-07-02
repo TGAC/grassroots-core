@@ -95,8 +95,6 @@ extern "C"
 
 
 /**
-
-/**
  * Allocate an AsyncTasksManager with the given name.
  *
  * @param name_s The name to give to the AsyncTasksManager. This value
