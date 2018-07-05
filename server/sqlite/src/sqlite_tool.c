@@ -268,6 +268,8 @@ json_t *GetAllSQLiteResultsAsJSON (SQLiteTool *tool_p)
 
 const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const database_s, const char * const primary_key_id_s, const char * const mapped_id_s, const char * const object_key_s)
 {
+
+
 	return NULL;
 }
 
