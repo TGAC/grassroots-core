@@ -193,7 +193,7 @@
 
 /**
  * @defgroup http_handler_group The HTTP Handler Module
- * @brief The Handler resources that are accesible over
+ * @brief The Handler resources that are accessible over
  * HTTP(S) connections.
  */
 
@@ -201,7 +201,7 @@
 /**
  * @defgroup irods_handler_group The iRODS Handler Module
  * @brief The Handler for accessing objects and directories
- * stored on an iRODS system.s
+ * stored on an iRODS system.
  */
 
 
@@ -215,6 +215,15 @@
  * a user. This can be a Graphical User Interface (GUI) or
  * via a command line for example. By default, a Qt-based
  * GUI is used.
+ */
+
+/* OPTIONAL LIBRARIES */
+
+/**
+ * @defgroup geocoder_library The Geocoding Module
+ * @brief The library for determining GPS data
+ * for location objects. It can get GPS coordinates from address
+ * details such as town, county, country, *etc.* and vice versa.
  */
 
 #ifndef SHARED_SRC_UTIL_INCLUDE_DOXYGEN_GROUPS_H_
