@@ -25,7 +25,7 @@
 
 
 /*
- * Doxygen dosen't currently have a way to specify the order that
+ * Doxygen doesn't currently have a way to specify the order that
  * modules appear on the modules page, they default to appearing in
  * the order in which they were scanned. So to get the ordering that
  * we want, specify them all here in the chosen order.
@@ -135,7 +135,8 @@
  * This Module performs BLAST searches on both nucleotide and protein
  * databases. It currently offers the functionality given by blastn, blastp
  * and blastx. The BLAST jobs can be run locally or also on a computing
- * cluster using DRMAA.
+ * cluster using DRMAA. General information can be found in the @ref blast_services_guide
+ * documentation.
  */
 
 /**
@@ -146,6 +147,8 @@
 /**
  * @defgroup irods_search_service The iRODS Services Module
  * @brief A Service that can perform queries against the iRODS metadata attributes for iRODS collections and data objects.
+ * General information can be found in the @ref irods_search_service_guide
+ * documentation.
  */
 
 /**
@@ -154,6 +157,8 @@
  *
  * This project is for storing sample data and metadata along with their phenotype and genotype data. As well as allowing
  * text-based searches and results, a web-based map view allows user-friendly access to the information.
+ * General information can be found in the @ref pathogenomics_service_guide
+ * documentation.
  */
 
 
@@ -163,6 +168,8 @@
  *
  * This Module offers some of the functionality available within
  * the <a href="http://www.htslib.org/">SamTools</a> libraries.
+ * General information can be found in the @ref samtools_service_guide
+ * documentation.
  */
 
 /**
@@ -183,18 +190,24 @@
  * @defgroup dropbox_handler_group The Dropbox Handler Module
  * @brief The Handler for accessing files and directories
  * stored on Dropbox accounts.
+ * General information can be found in the @ref dropbox_handler_guide
+ * documentation.
  */
 
 /**
  * @defgroup file_handler_group The File Handler Module
  * @brief The Handler for accessing files and directories
  * stored on the locally-mounted filesystems.
+ * General information can be found in the @ref file_handler_guide
+ * documentation.
  */
 
 /**
  * @defgroup http_handler_group The HTTP Handler Module
  * @brief The Handler resources that are accessible over
  * HTTP(S) connections.
+ * General information can be found in the @ref http_handler_guide
+ * documentation.
  */
 
 
@@ -202,6 +215,8 @@
  * @defgroup irods_handler_group The iRODS Handler Module
  * @brief The Handler for accessing objects and directories
  * stored on an iRODS system.
+ * General information can be found in the @ref irods_handler_guide
+ * documentation.
  */
 
 
