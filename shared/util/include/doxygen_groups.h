@@ -224,6 +224,7 @@
  * @brief The library for determining GPS data
  * for location objects. It can get GPS coordinates from address
  * details such as town, county, country, *etc.* and vice versa.
+ * @ref geocoder_docs for more info.
  */
 
 #ifndef SHARED_SRC_UTIL_INCLUDE_DOXYGEN_GROUPS_H_
