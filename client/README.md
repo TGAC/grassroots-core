@@ -1,4 +1,4 @@
-# grassroots-api Clients
+# grassroots-api Clients {#clients_guide#}
 The Grassroots API
 
 * Blast web services

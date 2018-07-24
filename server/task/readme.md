@@ -1,4 +1,4 @@
-# Grassroots Task Library
+# Grassroots Task Library {#task_library_guide}
 
 This library provides an API for running and interacting with asynchronous tasks within the Grassroots Infrastructure. 
 Typically it uses threads so an understanding of the various issues with these is very useful.

@@ -1,4 +1,4 @@
-﻿# MongoDB library {#mongo_library}
+﻿# MongoDB library {#mongodb_library_guide}
 
 The MongoDB library allows the Grassroots Server to use the functionality provided by [MongoDB](https://www.mongodb.com/). The library uses the [C language driver](https://github.com/mongodb/mongo-c-driver).
 
