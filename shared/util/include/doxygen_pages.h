@@ -84,31 +84,67 @@
  * @brief The schema used by Grassroots when transmitting information between Grassroots Servers and/or Clients. 
  */
 
+
 /**
  * @page searches_guide
  * @brief A description of how Grassroots searches can be submitted.
  */
+
+/* Optional Libraries */
 
 /**
  * @page geocoder_guide
  * @brief How the Grassroots Infrastructure can be used to produce geographic or elevation data.
  */
 
+/* Services */
+
 /**
  * @page blast_services_guide
- * The Grassroots Services for running various types of <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi">BLAST</a> searches.
+ * @brief The Grassroots Services for running various types of <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi">BLAST</a> searches.
  */
 
 
 /**
  * @page samtools_service_guide
- * The Grassroots %Service for running various programs within the <a href="http://www.htslib.org/">Samtools</a> suite.
+ * @brief The Grassroots %Service for running various programs within the <a href="http://www.htslib.org/">Samtools</a> suite.
  */
 
 /**
  * @page irods_search_service_guide
- * The Grassroots %Service for searching data stored in an <a href="https://irods.org/">iRODS</a> instance.
+ * @brief The Grassroots %Service for searching data stored in an <a href="https://irods.org/">iRODS</a> instance.
  */
+
+/* Handlers */
+
+
+/**
+ * @page handlers_guide
+ * @brief An overview of Grassroots Handlers which abstract out the process of accessing data from the medium
+ * on which it is stored.
+ */
+
+
+/**
+ * @page dropbox_handler_guide
+ * @brief The Grassroots Handler for accessing files on a Dropbox drive.
+ */
+
+/**
+ * @page file_handler_guide
+ * @brief The Grassroots Handler for accessing files on locally-mounted filesystems.
+ */
+
+/**
+ * @page http_handler_guide
+ * @brief The Grassroots Handler for accessing data available as http(s) locations.
+ */
+
+/**
+ * @page irods_handler_guide
+ * @brief The Grassroots Handler for accessing objects stored in an <a href="https://irods.org/">iRODS</a> instance.
+ */
+
 
 
 #endif /* CORE_SHARED_UTIL_INCLUDE_DOXYGEN_PAGES_H_ */

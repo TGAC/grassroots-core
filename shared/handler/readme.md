@@ -1,16 +1,16 @@
 ﻿# Handlers {#handlers_guide}
 
-Data that a user wishes to access can be potentially be stored on a variety of different systems *e.g.* local filesystems, http(s) locations, cloud-based storage systems such as Dropbox, Google Drive, *etc.* 
+Data that a user wishes to access can be potentially be stored on a variety of different systems *e.g.* local filesystems, http(s) locations, cloud-based storage systems, *etc.* 
 Regardless of the storage mechanism, the actual operations that may be needed are the same *e.g.* read from a file, write to a file, create a file, *etc.* 
 So the Grassroots system abstracts out these actions to an API, the **Handlers** API and has separate components for each of the storage mechanisms.  
 This allows developers to code to the *Handlers* API for doing file access and not need to worry where the underlying files are actually stored.
 
 The currently available Handlers are:
 
- * Any mounted filesystem
- * iRODS
- * Dropbox (partial support)
- * HTTP(S) locations 
+ * [File Handler](@ref file_handler_guide) for any mounted filesystem.
+ * [iRODS Handler](@ref irods_handler_guide) for data stored within an [iRODS](https://irods.org/) instance.
+ * [Dropbox Handler](@ref dropbox_handler_guide) for data stored on a [Dropbox](https://www.dropbox.com/) drive. (partial support)
+ * [HTTP Handler](@ref http_handler_guide) for data available at HTTP(S) locations.
 
 ## Usage
 
@@ -135,7 +135,7 @@ char *ReadFileChunk (const char * const filename_s)
 	 * Allocate the Resource.
 	 * We know that it's a file so we use the protocol for a file,
 	 * PROTOCOL_FILE_S, and we do not need a title for the Resource
-	 * so we send it NULL.
+	 * so we set it to NULL.
 	 */
 	Resource res_p = AllocateResource (PROTOCOL_FILE_S, filename_s, NULL);
 
