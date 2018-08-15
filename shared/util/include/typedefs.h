@@ -92,6 +92,10 @@
 
 	/** The C I/O length field for sizet datatypes. */
 	#define SIZET_FMT_IDENT "lu"
+
+
+	/** The C I/O length field for uint64 datatypes. */
+	#define INT64_FMT_IDENT "PRId64"
 #endif
 
 /** The C I/O format specifier for uint32 datatypes. */
@@ -112,6 +116,8 @@
 /** The C I/O format specifier for sizet datatypes. */
 #define SIZET_FMT "%" SIZET_FMT_IDENT
 
+/** The C I/O format specifier for int64 datatypes. */
+#define INT64_FMT "%" INT64_FMT_IDENT
 
 
 

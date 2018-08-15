@@ -72,27 +72,33 @@ SchemaVersion *GetSchemaVersionFromJSON (const json_t * const json_p)
 			const char *dot_s = strchr (version_s, '.');
 
 			/* move past the dot */
-			if (dot_s && (++ dot_s != '\0'))
+			if (dot_s)
 				{
-					int major;
+					++ dot_s;
 
-					if (GetValidInteger (&version_s, &major))
+					if (*dot_s != '\0')
 						{
-							int minor;
+							int major;
 
-							if (GetValidInteger (&dot_s, &minor))
+							if (GetValidInteger (&version_s, &major))
 								{
-									sv_p = AllocateSchemaVersion (major, minor);
+									int minor;
+
+									if (GetValidInteger (&dot_s, &minor))
+										{
+											sv_p = AllocateSchemaVersion (major, minor);
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get %s from \"%s\"", VERSION_MINOR_S, version_s);
+										}
 								}
 							else
 								{
 									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get %s from \"%s\"", VERSION_MINOR_S, version_s);
 								}
 						}
-					else
-						{
-							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get %s from \"%s\"", VERSION_MINOR_S, version_s);
-						}
+
 				}
 
 		}		/* if (version_s) */

@@ -31,9 +31,12 @@
 #include "json_util.h"
 #include "search_options.h"
 #include "sql_clause.h"
-
+#include "math_utils.h"
+#include "string_utils.h"
 
 static int ConvertSQLiteRowToJSON (void *data_p, int num_columns, char **values_ss, char **column_names_ss);
+
+static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const json_t *values_p, const char * table_s, ByteBuffer *buffer_p);
 
 
 #ifdef _DEBUG
@@ -266,11 +269,229 @@ json_t *GetAllSQLiteResultsAsJSON (SQLiteTool *tool_p)
 }
 
 
-const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const database_s, const char * const primary_key_id_s, const char * const mapped_id_s, const char * const object_key_s)
+const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const table_s, const char * const primary_key_s)
 {
+	/*
+	 * Since we are using SQLite 3.24.0 or greater we have the ability
+	 * to do an upsert (https://www.sqlite.org/lang_UPSERT.html) which
+	 * takes care of doing the "insert or update" operation.
+	 */
+	char *error_s = NULL;
+	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+	if (buffer_p)
+		{
+			if (json_is_array (values_p))
+				{
+					const size_t size = json_array_size (values_p);
+					size_t i = 0;
+
+					for (i = 0; i < size; ++ i)
+						{
+							if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, values_p, buffer_p)))
+								{
+									error_s = "Failed to update values";
+									i = size;		/* force exit from loop */
+								}
+						}
+
+				}		/* if (json_is_array (values_p)) */
+			else if (json_is_object (values_p))
+				{
+					if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, values_p, buffer_p)))
+						{
+							error_s = "Failed to update values";
+						}
+
+				}		/* else if (json_is_object (values_p)) */
+			else
+				{
+					error_s = "values are not a JSON object or array";
+				}
+
+			FreeByteBuffer (buffer_p);
+		}		/* if (buffer_p) */
+
+	return error_s;
+}
 
 
-	return NULL;
+static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const json_t *values_p, const char * table_s, ByteBuffer *buffer_p)
+{
+	bool success_flag = false;
+	const char *key_s;
+	json_t *value_p;
+
+	ByteBuffer *keys_buffer_p = AllocateByteBuffer (1024);
+
+	if (keys_buffer_p)
+		{
+			ByteBuffer *values_buffer_p = AllocateByteBuffer (1024);
+
+			if (values_buffer_p)
+				{
+					ByteBuffer *conflict_values_buffer_p = AllocateByteBuffer (1024);
+
+					if (conflict_values_buffer_p)
+						{
+							size_t index = 0;
+
+							json_object_foreach (values_p, key_s, value_p)
+								{
+									/*
+									 * For each key-value pair, set the success flag to false
+									 * initially.
+									 */
+									success_flag = false;
+
+									/*
+									 * If we're not on the first key-value pair, then we
+									 * need to add the commas.
+									 */
+									if (index != 0)
+										{
+											if (AppendStringToByteBuffer (keys_buffer_p, ","))
+												{
+													if (AppendStringToByteBuffer (values_buffer_p, ","))
+														{
+															if (AppendStringToByteBuffer (conflict_values_buffer_p, ",\n"))
+																{
+																	success_flag = true;
+																}
+
+														} /* if (AppendStringToByteBuffer (values_buffer_p, ",")) */
+
+												}		/* if (AppendStringToByteBuffer (keys_buffer_p, ",")) */
+										}
+									else
+										{
+											success_flag = true;
+										}
+
+
+									if (success_flag)
+										{
+											success_flag = false;
+
+											if (AppendStringToByteBuffer (keys_buffer_p, key_s))
+												{
+													if (AppendStringsToByteBuffer (conflict_values_buffer_p, "    ", key_s, "=excluded.", key_s, NULL))
+														{
+															char *value_s = NULL;
+															bool alloc_flag = false;
+
+															if (json_is_string (value_p))
+																{
+																	value_s = (char *) json_string_value (value_p);
+																}
+															else if (json_is_integer (value_p))
+																{
+																	int i = json_integer_value (value_p);
+																	value_s = ConvertIntegerToString (i);
+
+																	if (value_s)
+																		{
+																			alloc_flag = true;
+																		}
+																}
+															else if (json_is_real (value_p))
+																{
+																	double d = json_real_value (value_p);
+																	value_s = ConvertNumberToString (d);
+
+																	if (value_s)
+																		{
+																			alloc_flag = true;
+																		}
+																}
+
+															if (value_s)
+																{
+																	if (AppendStringsToByteBuffer (values_buffer_p, "'", value_s, "'", NULL))
+																		{
+																			success_flag = true;
+																		}
+
+																	if (alloc_flag)
+																		{
+																			FreeCopiedString (value_s);
+																		}
+
+																}		/* if (value_s) */
+
+														}		/* if (AppendStringsToByteBuffer (conflict_values_buffer_p, "    ", key_s, "=excluded.", key_s, NULL)) */
+
+												}		/* if (AppendStringToByteBuffer (keys_buffer_p, key_s)) */
+
+										}		/* if (success_flag) */
+
+
+									if (success_flag)
+										{
+											++ index;
+										}
+									else
+										{
+											FreeByteBuffer (keys_buffer_p);
+											FreeByteBuffer (values_buffer_p);
+											FreeByteBuffer (conflict_values_buffer_p);
+
+											return false;
+										}
+
+								}		/* json_object_foreach (values_p, key_s, value_p) */
+
+							/*
+							 * We have now filled the keys and values in, so now we can
+							 * create the sql statements as per https://www.sqlite.org/lang_UPSERT.html
+							 * such as
+							 *
+							 * CREATE TABLE phonebook(name TEXT PRIMARY KEY, phonenumber TEXT);
+							 * INSERT INTO phonebook(name,phonenumber) VALUES('Alice','704-555-1212')
+							 * ON CONFLICT(name) DO UPDATE SET phonenumber=excluded.phonenumber;
+							 */
+							success_flag = false;
+
+							if (AppendStringsToByteBuffer (buffer_p, "INSERT INTO ", table_s, "(", NULL))
+								{
+									const char *data_s = GetByteBufferData (keys_buffer_p);
+
+									if (AppendStringsToByteBuffer (buffer_p, data_s, ") ", NULL))
+										{
+											data_s = GetByteBufferData (values_buffer_p);
+
+											if (AppendStringsToByteBuffer (buffer_p, "VALUES(", data_s, ")\n" , NULL))
+												{
+													data_s = GetByteBufferData (conflict_values_buffer_p);
+
+													if (AppendStringsToByteBuffer (buffer_p, "  ON CONFLICT (", primary_key_s, ") DO UPDATE SET\n", data_s, ";", NULL))
+														{
+															/*
+															 * We now have our full sql statement
+															 */
+															success_flag = true;
+
+															#if SQLITE_TOOL_DEBUG >= STM_LEVEL_FINE
+															PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "For table \"%s\" and primary key \"%s\", UPSERT statement is \"%s\"", table_s, primary_key_s, GetByteBufferData (buffer_p));
+															#endif
+														}		/* if (AppendStringsToByteBuffer (buffer_p, "  ON CONFLICT (", primary_key_s, ") DO UPDATE SET\n" , NULL)) */
+
+												}		/* if (AppendStringsToByteBuffer (buffer_p, "VALUES(", values_data_s, ") ON CONFLICT(" , NULL)) */
+
+										}		/* if (AppendStringsToByteBuffer (buffer_p, keys_data_s, ") ", NULL)) */
+
+								}		/* if (AppendStringsToByteBuffer (buffer_p, "INSERT INTO ", table_s, "(", NULL)) */
+
+							FreeByteBuffer (conflict_values_buffer_p);
+						}		/* if (conflict_values_buffer_p) */
+
+					FreeByteBuffer (values_buffer_p);
+				}		/* if (values_buffer_p) */
+
+			FreeByteBuffer (keys_buffer_p);
+		}		/* if (keys_buffer_p) */
+
+	return success_flag;
 }
 
 
