@@ -151,7 +151,7 @@ GRASSROOTS_SQLITE_API void FreeSQLiteTool (SQLiteTool *tool_p);
  * avoid a memory leak.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API const char *InsertOrUpdatSQLiteData (SQLiteTool *tool_p, json_t *values_p,  const char *const primary_key_id_s);
+GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p,  const char *const primary_key_id_s);
 
 
 /**
@@ -262,7 +262,7 @@ GRASSROOTS_SQLITE_API int32 IsKeyValuePairInDatabase (SQLiteTool *tool_p, const 
  * @return An error string or <code>NULL</code> if the updates were successful.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const table_s, const char * const primary_key_s);
+GRASSROOTS_SQLITE_API char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const table_s, const char * const primary_key_s);
 
 
 /**
@@ -273,6 +273,17 @@ GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, 
  * @memberof SQLiteTool
  */
 GRASSROOTS_SQLITE_API void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *error_s);
+
+
+/**
+ * Create a table for the given SQLiteTool.
+ *
+ * @param tool_p The given SQLiteTool.
+ * @param table_s The name of the table to create.
+ * @param columns_p A LinkedList of SQLiteColumnNodes describing the table's columns.
+ * @memberof SQLiteTool
+ */
+GRASSROOTS_SQLITE_API char *CreateSQLiteTable (SQLiteTool *tool_p, char *table_s, LinkedList *columns_p);
 
 
 

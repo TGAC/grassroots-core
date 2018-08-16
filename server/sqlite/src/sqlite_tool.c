@@ -33,10 +33,13 @@
 #include "sql_clause.h"
 #include "math_utils.h"
 #include "string_utils.h"
+#include "key_value_pair.h"
+#include "sqlite_column.h"
+
 
 static int ConvertSQLiteRowToJSON (void *data_p, int num_columns, char **values_ss, char **column_names_ss);
 
-static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const json_t *values_p, const char * table_s, ByteBuffer *buffer_p);
+static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p,  ByteBuffer *buffer_p);
 
 
 #ifdef _DEBUG
@@ -63,7 +66,7 @@ SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s
 					return tool_p;
 				}		/* if (SetSQLiteDatabase (tool_p, db_s, flags, table_s)) */
 
-			FreeMemory (tool_p);
+			FreeSQLiteTool (tool_p);
 		}		/* if (tool_p) */
 
 	return NULL;
@@ -73,12 +76,10 @@ SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s
 bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db_s, int flags, const char *table_s)
 {
 	bool success_flag = false;
-	sqlite3 *db_p = NULL;
-	int res = sqlite3_open_v2 (db_s, &db_p, flags, NULL);
+	int res = sqlite3_open_v2 (db_s, & (tool_p -> sqlt_database_p), flags, NULL);
 
 	if (res == SQLITE_OK)
 		{
-			tool_p -> sqlt_database_p = db_p;
 			tool_p -> sqlt_table_s = table_s;
 
 			success_flag = true;
@@ -269,7 +270,7 @@ json_t *GetAllSQLiteResultsAsJSON (SQLiteTool *tool_p)
 }
 
 
-const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const table_s, const char * const primary_key_s)
+char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const table_s, const char * const primary_key_s)
 {
 	/*
 	 * Since we are using SQLite 3.24.0 or greater we have the ability
@@ -290,7 +291,7 @@ const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, cons
 						{
 							if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, values_p, buffer_p)))
 								{
-									error_s = "Failed to update values";
+									error_s = EasyCopyToNewString ("Failed to update values");
 									i = size;		/* force exit from loop */
 								}
 						}
@@ -300,13 +301,13 @@ const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, cons
 				{
 					if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, values_p, buffer_p)))
 						{
-							error_s = "Failed to update values";
+							error_s = EasyCopyToNewString ("Failed to update values");
 						}
 
 				}		/* else if (json_is_object (values_p)) */
 			else
 				{
-					error_s = "values are not a JSON object or array";
+					error_s = EasyCopyToNewString ("values are not a JSON object or array");
 				}
 
 			FreeByteBuffer (buffer_p);
@@ -316,7 +317,85 @@ const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, cons
 }
 
 
-static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const json_t *values_p, const char * table_s, ByteBuffer *buffer_p)
+char *CreateSQLiteTable (SQLiteTool *tool_p, char *table_s, LinkedList *columns_p)
+{
+	char *error_s = NULL;
+	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+	if (buffer_p)
+		{
+			if (AppendStringsToByteBuffer (buffer_p, "CREATE TABLE ", table_s, "(", NULL))
+				{
+					bool success_flag = true;
+					const SQLiteColumnNode * const last_node_p = (const SQLiteColumnNode * const) (columns_p -> ll_tail_p);
+					SQLiteColumnNode *node_p = (SQLiteColumnNode *) (columns_p -> ll_head_p);
+
+					while (node_p)
+						{
+							SQLiteColumn *column_p = node_p -> sqlcn_column_p;
+							char *column_s = GetSQLiteColumnAsString (column_p);
+
+							if (column_s)
+								{
+									const char *sep_s;
+
+									if (node_p != last_node_p)
+										{
+											sep_s = ",";
+										}
+									else
+										{
+											sep_s = ");";
+										}
+
+									success_flag = AppendStringsToByteBuffer (buffer_p, column_s, sep_s, NULL);
+								}
+							else
+								{
+									success_flag = false;
+								}
+
+							if (success_flag)
+								{
+									node_p = (SQLiteColumnNode *) (node_p -> sqlcn_node.ln_next_p);
+								}
+							else
+								{
+									node_p = NULL;
+								}
+
+						}		/* while (node_p) */
+
+					if (success_flag)
+						{
+							int res;
+							sqlite3_stmt *stmt_p;
+							const char *sql_s = buffer_p -> bb_data_p;
+
+							sqlite3_prepare_v2 (tool_p -> sqlt_database_p, sql_s, -1, &stmt_p, NULL);
+
+							res = sqlite3_step (stmt_p);
+
+							if (res != SQLITE_DONE)
+								{
+									const char *error_message_s = sqlite3_errmsg (tool_p -> sqlt_database_p);
+
+									error_s = EasyCopyToNewString (error_message_s);
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with with error \%s\"", sql_s, error_message_s);
+								}
+						}
+
+				}		/* if (AppendStringsToByteBuffer (buffer_p, "CREATE TABLE ", table_s, "(")) */
+
+
+			FreeByteBuffer (buffer_p);
+		}		/* if (buffer_p) */
+
+	return error_s;
+}
+
+
+static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p, ByteBuffer *buffer_p)
 {
 	bool success_flag = false;
 	const char *key_s;

@@ -28,11 +28,12 @@ INCLUDES := \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/io \
 	-I$(DIR_SQLITE_INC) \
 	-I$(DIR_UUID_INC) \
-	-I$(DIR_JANSSON_INC)
+	-I$(DIR_JANSSON_INC) \
 	
 SRCS 	= \
 	sqlite_tool.c \
-	sql_clause.c
+	sql_clause.c \
+	sqlite_column.c
 	
 
 BASE_LDFLAGS = -ldl \
@@ -46,5 +47,9 @@ CPPFLAGS += -DGRASSROOTS_SQLITE_LIBRARY_EXPORTS
 LDFLAGS += $(BASE_LDFLAGS)
 
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
+
+
+test_app: all
+	gcc $(DIR_SRC)/sqlite_tool_test.c -o $(BUILD)/sqlite_tool_test $(INCLUDES) $(BASE_LDFLAGS) -L$(BUILD) -lgrassroots_sqlite -DUNIX=1 -L$(DIR_PCRE_LIB) -lpcre -lpthread
 
 
