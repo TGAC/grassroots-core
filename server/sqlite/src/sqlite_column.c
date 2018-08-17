@@ -33,7 +33,7 @@ static bool AddSQLiteColumnCheckConstraintToByteBuffer (ByteBuffer *buffer_p, co
 
 
 
-SQLiteColumn *AllocateSQLiteColumn (char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, char *check_s)
+SQLiteColumn *AllocateSQLiteColumn (const char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, const char *check_s)
 {
 	char *copied_name_s = EasyCopyToNewString (name_s);
 
@@ -93,7 +93,7 @@ void FreeSQLiteColumn (SQLiteColumn *column_p)
 }
 
 
-SQLiteColumnNode *AllocateSQLiteColumnNode (char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, char *check_s)
+SQLiteColumnNode *AllocateSQLiteColumnNode (const char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, const char *check_s)
 {
 	SQLiteColumn *column_p = AllocateSQLiteColumn (name_s, datatype, primary_key_flag, unique_flag, can_be_null_flag, check_s);
 

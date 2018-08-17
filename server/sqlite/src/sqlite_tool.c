@@ -317,7 +317,7 @@ char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char
 }
 
 
-char *CreateSQLiteTable (SQLiteTool *tool_p, char *table_s, LinkedList *columns_p)
+char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *columns_p)
 {
 	char *error_s = NULL;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);

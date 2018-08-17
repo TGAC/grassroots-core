@@ -151,7 +151,7 @@ GRASSROOTS_SQLITE_API void FreeSQLiteTool (SQLiteTool *tool_p);
  * avoid a memory leak.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p,  const char *const primary_key_id_s);
+GRASSROOTS_SQLITE_API char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const table_s, const char * const primary_key_s);
 
 
 /**
@@ -283,7 +283,7 @@ GRASSROOTS_SQLITE_API void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *
  * @param columns_p A LinkedList of SQLiteColumnNodes describing the table's columns.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API char *CreateSQLiteTable (SQLiteTool *tool_p, char *table_s, LinkedList *columns_p);
+GRASSROOTS_SQLITE_API char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *columns_p);
 
 
 

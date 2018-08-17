@@ -92,11 +92,11 @@ extern "C"
 #endif
 
 
-GRASSROOTS_SQLITE_API	SQLiteColumn *AllocateSQLiteColumn (char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, char *check_s);
+GRASSROOTS_SQLITE_API	SQLiteColumn *AllocateSQLiteColumn (const char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, const char *check_s);
 
 GRASSROOTS_SQLITE_API	void FreeSQLiteColumn (SQLiteColumn *column_p);
 
-GRASSROOTS_SQLITE_API	SQLiteColumnNode *AllocateSQLiteColumnNode (char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, char *check_s);
+GRASSROOTS_SQLITE_API	SQLiteColumnNode *AllocateSQLiteColumnNode (const char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, const char *check_s);
 
 GRASSROOTS_SQLITE_API	void FreeSQLiteColumnNode (ListItem *node_p);
 
