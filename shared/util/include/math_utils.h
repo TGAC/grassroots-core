@@ -117,12 +117,11 @@ GRASSROOTS_UTIL_API int SortDoubles (const void *v1_p, const void *v2_p);
 
 
 /**
- * @brief Get the string representation of a number.
+ * @brief Get the string representation of a double precision number.
  *
  * Convert the number into a string.
  *
  * @param d The number to convert.
- * @param num_dps The number of decimal places for the number when converting.
  * @return A newly-allocates string representation of the number or
  * <code>NULL</code> upon error. This string needs to be freed using <code>
  * FreeCopiedString</code> to avoid a memory leak.
@@ -130,7 +129,61 @@ GRASSROOTS_UTIL_API int SortDoubles (const void *v1_p, const void *v2_p);
  *
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API char *ConvertNumberToString (double d, int8 num_dps);
+GRASSROOTS_UTIL_API char *ConvertNumberToString (const double d);
+
+
+
+/**
+ * Get an integer as a string, e.g.
+ *
+ *  1 would be converted to "1"
+ *
+ * @param value The value to convert to a string.
+ * @return The c-style string or <code>NULL</code> upon error.
+ * This needs to be freed using FreeCopiedString().
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API char *ConvertIntegerToString (const int32 value);
+
+
+/**
+ * Get an unsigned integer as a string, e.g.
+ *
+ *  1 would be converted to "1"
+ *
+ * @param value The value to convert to a string.
+ * @return The c-style string or <code>NULL</code> upon error.
+ * This needs to be freed using FreeCopiedString().
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API char *ConvertUnsignedIntegerToString (const uint32 value);
+
+
+
+/**
+ * Get an int64 as a string, e.g.
+ *
+ *  1 would be converted to "1"
+ *
+ * @param value The value to convert to a string.
+ * @return The c-style string or <code>NULL</code> upon error.
+ * This needs to be freed using FreeCopiedString().
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API char *ConvertLongToString (const int64 value);
+
+
+/**
+ * Get an double as a string, e.g.
+ *
+ *  1.03 would be converted to "1.03"
+ *
+ * @param value The value to convert to a string.
+ * @return The c-style string or <code>NULL</code> upon error.
+ * This needs to be freed using FreeCopiedString().
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API char *ConvertDoubleToString (const double64 value);
 
 
 #ifdef __cplusplus

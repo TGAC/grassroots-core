@@ -2653,18 +2653,18 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
-				value_s = ConvertNumberToString ((double) (value_p -> st_long_value), 0);
+				value_s = ConvertIntegerToString (value_p -> st_long_value);
 				*alloc_flag_p = true;
 				break;
 
 			case PT_UNSIGNED_INT:
-				value_s = ConvertNumberToString ((double) (value_p -> st_ulong_value), 0);
+				value_s = ConvertUnsignedIntegerToString (value_p -> st_ulong_value);
 				*alloc_flag_p = true;
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				value_s = ConvertNumberToString (value_p -> st_data_value, 0);
+				value_s = ConvertNumberToString (value_p -> st_data_value);
 				*alloc_flag_p = true;
 				break;
 			

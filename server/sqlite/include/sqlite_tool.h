@@ -151,7 +151,7 @@ GRASSROOTS_SQLITE_API void FreeSQLiteTool (SQLiteTool *tool_p);
  * avoid a memory leak.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API const char *InsertOrUpdatSQLiteData (SQLiteTool *tool_p, json_t *values_p,  const char *const primary_key_id_s);
+GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p,  const char *const primary_key_id_s);
 
 
 /**
@@ -257,32 +257,12 @@ GRASSROOTS_SQLITE_API int32 IsKeyValuePairInDatabase (SQLiteTool *tool_p, const 
  *
  * @param tool_p The SQLite to update with.
  * @param values_p The JSON values to add to the documents.
- * @param database_s The database to check.
- * @param primary_key_id_s The key used to get the values from values_p that the matching
- * documents will be updated with.
- * @param mapped_id_s The key to use for the query to get the documents with. If this is
- * <code>NULL</code> then the primary_key_id_s will be used instead.
- * @param object_key_s The key used to insert values_p into the matching documents.
+ * @param table_s The table to add the data to.
+ * @param primary_key_s The primary key for this data.
  * @return An error string or <code>NULL</code> if the updates were successful.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API const char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const database_s, const char * const primary_key_id_s, const char * const mapped_id_s, const char * const object_key_s);
-
-
-/**
- * Insert of update data in a set of matching documents.
- *
- * This calls InsertOrUpdateSQLiteData() with <code>NULL</code> entries
- * for the database, collection, mapped_id_s and object_key_s values.
- *
- * @param tool_p The SQLite to update with.
- * @param values_p The JSON values to add to the documents.
- * @param primary_key_id_s The key used to get the values from values_p that the matching
- * documents will be updated with.
- * @return An error string or <code>NULL</code> if the updates were successful.
- * @memberof SQLiteTool
- */
-GRASSROOTS_SQLITE_API const char *EasyInsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char *const primary_key_id_s);
+GRASSROOTS_SQLITE_API char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char * const table_s, const char * const primary_key_s);
 
 
 /**
@@ -293,6 +273,17 @@ GRASSROOTS_SQLITE_API const char *EasyInsertOrUpdateSQLiteData (SQLiteTool *tool
  * @memberof SQLiteTool
  */
 GRASSROOTS_SQLITE_API void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *error_s);
+
+
+/**
+ * Create a table for the given SQLiteTool.
+ *
+ * @param tool_p The given SQLiteTool.
+ * @param table_s The name of the table to create.
+ * @param columns_p A LinkedList of SQLiteColumnNodes describing the table's columns.
+ * @memberof SQLiteTool
+ */
+GRASSROOTS_SQLITE_API char *CreateSQLiteTable (SQLiteTool *tool_p, char *table_s, LinkedList *columns_p);
 
 
 

@@ -104,103 +104,6 @@ int CompareFloats (const float f1, const float f2)
 }
 
 
-char *ConvertNumberToString (double d, int8 num_dps)
-{
-	char *value_s = NULL;
-	size_t l = 1;	/* init size for terminating null */
-	bool minus_flag = false;
-	int num_digits = 0;
-	
-	if (CompareDoubles (d, 0.0) < 0)
-		{
-			d = -d;
-			++ l;
-			minus_flag = true;
-		}
-	
-	
-	if (CompareDoubles (d, 0.0) != 0)
-		{
-			num_digits = (int) log10 (d);
-			l += (size_t) num_digits;
-		}
-
-	++ l;
-	
-	if (minus_flag)
-		{
-			d = -d;
-		}
-	
-	
-	if (num_dps > 0)
-		{
-			l += num_dps;
-		}
-	
-	value_s = (char *) AllocMemory (l);
-	
-	if (value_s)
-		{
-			char *value_p = value_s;
-			char *format_s = NULL;   
-			int i = 0;
-
-			num_digits = 7;		/* "%.%xlf\0" */
-
-			if (num_dps > 0)
-				{
-					i = log10 (num_dps);
-					num_digits += (i + 3);
-				}
-				
-			format_s = (char *) AllocMemory (num_digits);
-	
-			if (format_s)
-				{
-					char *temp_p = format_s;
-					
-					*temp_p = '%';
-					++ temp_p;
-					
-					if (i > 0)
-						{
-							sprintf (temp_p, ".%dlf", i);
-						}
-					else
-						{
-							sprintf (temp_p, "d");
-						}
-					
-					if (minus_flag)
-						{
-							*value_p = '-';
-							++ value_p;
-						}
-
-					if (i > 0)
-						{
-							sprintf (value_p, format_s, d);
-						}
-					else
-						{
-							sprintf (value_p, format_s, (int) d);
-						}
-
-					FreeMemory (format_s);
-				}
-			else
-				{
-					FreeCopiedString (value_s);
-					value_s = NULL;
-				}
-		}
-
-	
-	return value_s;
-}
-
-
 bool GetValidRealNumber (const char **str_pp, double *answer_p, const char * const alternative_decimal_points_s)
 {
 	return GetNumber (str_pp, answer_p, true, alternative_decimal_points_s);
@@ -360,4 +263,60 @@ int SortDoubles (const void *v1_p, const void *v2_p)
 }
 
 
+
+char *ConvertNumberToString (const double64 value)
+{
+	int num_chars = snprintf (NULL, 0, DOUBLE64_FMT, value);
+	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
+
+	if (value_s)
+		{
+			snprintf (value_s, num_chars, DOUBLE64_FMT, value);
+		}
+
+	return value_s;
+}
+
+
+char *ConvertIntegerToString (const int32 value)
+{
+	int num_chars = snprintf (NULL, 0, INT32_FMT, value);
+	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
+
+	if (value_s)
+		{
+			snprintf (value_s, num_chars, INT32_FMT, value);
+		}
+
+	return value_s;
+}
+
+
+char *ConvertUnsignedIntegerToString (const uint32 value)
+{
+	int num_chars = snprintf (NULL, 0, UINT32_FMT, value);
+	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
+
+	if (value_s)
+		{
+			snprintf (value_s, num_chars, UINT32_FMT, value);
+		}
+
+	return value_s;
+}
+
+
+
+char *ConvertLongToString (const int64 value)
+{
+	int num_chars = snprintf (NULL, 0, INT64_FMT, value);
+	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
+
+	if (value_s)
+		{
+			snprintf (value_s, num_chars, INT64_FMT, value);
+		}
+
+	return value_s;
+}
 

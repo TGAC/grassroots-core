@@ -54,6 +54,12 @@ typedef struct SQLClauseNode
 } SQLClauseNode;
 
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 /**
  * Allocate a SQLClause.
  *
@@ -121,6 +127,11 @@ GRASSROOTS_SQLITE_API bool AddSQLClauseToByteBuffer (const SQLClause *clause_p, 
  * @memberof SQLClause
  */
 GRASSROOTS_SQLITE_API bool AddSQLClausesToByteBuffer (LinkedList *clauses_p, ByteBuffer *buffer_p);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* CORE_SERVER_SQLITE_INCLUDE_SQL_CLAUSE_H_ */
