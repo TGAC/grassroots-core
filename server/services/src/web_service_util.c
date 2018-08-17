@@ -544,7 +544,7 @@ static bool AppendParameterValue (ByteBuffer *buffer_p, const Parameter *param_p
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				value_s = ConvertNumberToString (value_p -> st_data_value);
+				value_s = ConvertDoubleToString (value_p -> st_data_value);
 				alloc_value = AT_STANDARD;
 				break;
 

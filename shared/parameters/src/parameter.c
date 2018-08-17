@@ -2664,7 +2664,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				value_s = ConvertNumberToString (value_p -> st_data_value);
+				value_s = ConvertDoubleToString (value_p -> st_data_value);
 				*alloc_flag_p = true;
 				break;
 			

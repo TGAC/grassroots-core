@@ -476,7 +476,7 @@ static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const cha
 															else if (json_is_real (value_p))
 																{
 																	double d = json_real_value (value_p);
-																	value_s = ConvertNumberToString (d);
+																	value_s = ConvertDoubleToString (d);
 
 																	if (value_s)
 																		{

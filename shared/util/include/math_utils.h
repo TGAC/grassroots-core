@@ -117,23 +117,6 @@ GRASSROOTS_UTIL_API int SortDoubles (const void *v1_p, const void *v2_p);
 
 
 /**
- * @brief Get the string representation of a double precision number.
- *
- * Convert the number into a string.
- *
- * @param d The number to convert.
- * @return A newly-allocates string representation of the number or
- * <code>NULL</code> upon error. This string needs to be freed using <code>
- * FreeCopiedString</code> to avoid a memory leak.
- * @see FreeCopiedString
- *
- * @ingroup utility_group
- */
-GRASSROOTS_UTIL_API char *ConvertNumberToString (const double d);
-
-
-
-/**
  * Get an integer as a string, e.g.
  *
  *  1 would be converted to "1"

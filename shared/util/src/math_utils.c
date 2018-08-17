@@ -264,7 +264,7 @@ int SortDoubles (const void *v1_p, const void *v2_p)
 
 
 
-char *ConvertNumberToString (const double64 value)
+char *ConvertDoubleToString (const double64 value)
 {
 	int num_chars = snprintf (NULL, 0, DOUBLE64_FMT, value);
 	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
