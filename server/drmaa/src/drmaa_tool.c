@@ -24,6 +24,8 @@
 #include "byte_buffer.h"
 #include "filesystem_utils.h"
 #include "grassroots_config.h"
+#include "math_utils.h"
+
 
 #if HTCONDOR_DRMAA_ENABLED
 	#include "htcondor_env_patch.h"
