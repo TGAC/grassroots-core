@@ -39,7 +39,7 @@ static LinkedList *GetTableColumns (void);
 
 static bool AddColumn (LinkedList *columns_p, const char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, const char *check_s);
 
-static bool AddData (json_t *values_array_p, const int32 id, const char *surname_s, const char *forename_s, const double64 height, const char *description_s);
+static bool AddData (json_t *values_array_p, const char *surname_s, const char *forename_s, const double64 height, const char *description_s);
 
 static json_t *GetDataToInsert (void);
 
@@ -47,7 +47,7 @@ static json_t *GetDataToInsert (void);
 int main (int argc, char *argv [])
 {
 	const char *table_s = "test_table";
-	SQLiteTool *tool_p = AllocateSQLiteTool ("test_db", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, table_s);
+	SQLiteTool *tool_p = AllocateSQLiteTool ("sqlite_test.db", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, table_s);
 
 	if (tool_p)
 		{
@@ -63,7 +63,7 @@ int main (int argc, char *argv [])
 
 					puts ("Got Table Columns");
 
-					error_s = CreateSQLiteTable (tool_p, table_s, columns_p);
+					error_s = CreateSQLiteTable (tool_p, table_s, columns_p, true);
 
 					FreeLinkedList (columns_p);
 
@@ -181,13 +181,11 @@ static json_t *GetDataToInsert (void)
 
 	if (values_p)
 		{
-			int32 i = 0;
-
-			if (AddData (values_p, i, "Fish", "Billy", 1.80, NULL))
+			if (AddData (values_p, "Fish", "Billy", 1.80, NULL))
 				{
-					if (AddData (values_p, ++ i, "Donkey", "Wonky", 2.80, "Oh to be a horse"))
+					if (AddData (values_p, "Donkey", "Wonky", 2.80, "Oh to be a horse"))
 						{
-							if (AddData (values_p, ++ i, "Bag", "Bean", 0.70, "Woof!"))
+							if (AddData (values_p, "Bag", "Bean", 0.70, "Woof!"))
 								{
 									return values_p;
 								}
@@ -201,31 +199,26 @@ static json_t *GetDataToInsert (void)
 }
 
 
-static bool AddData (json_t *values_array_p, const int32 id, const char *surname_s, const char *forename_s, const double64 height, const char *description_s)
+static bool AddData (json_t *values_array_p, const char *surname_s, const char *forename_s, const double64 height, const char *description_s)
 {
 	json_t *entry_p = json_object ();
 
 	if (entry_p)
 		{
-			if (json_object_set_new (entry_p, S_ID_COLUMN_S, json_integer (id)) == 0)
+			if (json_object_set_new (entry_p, S_SURNAME_COLUMN_S, json_string (surname_s)) == 0)
 				{
-					if (json_object_set_new (entry_p, S_SURNAME_COLUMN_S, json_string (surname_s)) == 0)
+					if (json_object_set_new (entry_p, S_FORENAME_COLUMN_S, json_string (forename_s)) == 0)
 						{
-							if (json_object_set_new (entry_p, S_FORENAME_COLUMN_S, json_string (forename_s)) == 0)
+							if (json_object_set_new (entry_p, S_HEIGHT_COLUMN_S, json_real (height)) == 0)
 								{
-									if (json_object_set_new (entry_p, S_HEIGHT_COLUMN_S, json_real (height)) == 0)
+									if ((description_s == NULL) || (json_object_set_new (entry_p, S_DESCRIPTION_COLUMN_S, json_string (description_s)) == 0))
 										{
-											if ((description_s == NULL) || (json_object_set_new (entry_p, S_DESCRIPTION_COLUMN_S, json_string (description_s)) == 0))
+											if (json_array_append_new (values_array_p, entry_p) == 0)
 												{
-													if (json_array_append_new (values_array_p, entry_p) == 0)
-														{
-															return true;
-														}
+													return true;
 												}
-
 										}
 								}
-
 						}
 				}
 

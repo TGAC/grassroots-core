@@ -281,10 +281,16 @@ GRASSROOTS_SQLITE_API void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *
  * @param tool_p The given SQLiteTool.
  * @param table_s The name of the table to create.
  * @param columns_p A LinkedList of SQLiteColumnNodes describing the table's columns.
+ * @param delete_if_exists_flag If this is <code>true</code>, then any existing table
+ * with the given name will get deleted and then recreated. If this is <code>false</code>
+ * then the function will fail and return an error if table already exists.
+ * @return An error string or <code>NULL</code> if the table creation was successful.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *columns_p);
+GRASSROOTS_SQLITE_API char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *columns_p, const bool delete_if_exists_flag);
 
+
+GRASSROOTS_SQLITE_API char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s);
 
 
 #ifdef __cplusplus

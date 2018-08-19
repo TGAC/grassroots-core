@@ -289,7 +289,9 @@ char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char
 
 					for (i = 0; i < size; ++ i)
 						{
-							if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, values_p, buffer_p)))
+							json_t *value_p = json_array_get (values_p, i);
+
+							if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, value_p, buffer_p)))
 								{
 									error_s = EasyCopyToNewString ("Failed to update values");
 									i = size;		/* force exit from loop */
@@ -310,6 +312,14 @@ char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char
 					error_s = EasyCopyToNewString ("values are not a JSON object or array");
 				}
 
+
+			if (!error_s)
+				{
+					const char *sql_s = GetByteBufferData (buffer_p);
+
+					error_s = RunSQLiteToolStatement (tool_p, sql_s);
+				}
+
 			FreeByteBuffer (buffer_p);
 		}		/* if (buffer_p) */
 
@@ -317,79 +327,94 @@ char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char
 }
 
 
-char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *columns_p)
+char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *columns_p, const bool delete_if_exists_flag)
 {
 	char *error_s = NULL;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
 
 	if (buffer_p)
 		{
-			if (AppendStringsToByteBuffer (buffer_p, "CREATE TABLE ", table_s, "(", NULL))
+			bool success_flag = true;
+
+			if (delete_if_exists_flag)
 				{
-					bool success_flag = true;
-					const SQLiteColumnNode * const last_node_p = (const SQLiteColumnNode * const) (columns_p -> ll_tail_p);
-					SQLiteColumnNode *node_p = (SQLiteColumnNode *) (columns_p -> ll_head_p);
+					success_flag = AppendStringsToByteBuffer (buffer_p, "DROP TABLE IF EXISTS ", table_s, ";", NULL);
+				}
 
-					while (node_p)
+			if (success_flag)
+				{
+					if (AppendStringsToByteBuffer (buffer_p, "CREATE TABLE ", table_s, "(", NULL))
 						{
-							SQLiteColumn *column_p = node_p -> sqlcn_column_p;
-							char *column_s = GetSQLiteColumnAsString (column_p);
+							const SQLiteColumnNode * const last_node_p = (const SQLiteColumnNode * const) (columns_p -> ll_tail_p);
+							SQLiteColumnNode *node_p = (SQLiteColumnNode *) (columns_p -> ll_head_p);
 
-							if (column_s)
+							while (node_p)
 								{
-									const char *sep_s;
+									SQLiteColumn *column_p = node_p -> sqlcn_column_p;
+									char *column_s = GetSQLiteColumnAsString (column_p);
 
-									if (node_p != last_node_p)
+									if (column_s)
 										{
-											sep_s = ",";
+											const char *sep_s;
+
+											if (node_p != last_node_p)
+												{
+													sep_s = ",";
+												}
+											else
+												{
+													sep_s = ");";
+												}
+
+											success_flag = AppendStringsToByteBuffer (buffer_p, column_s, sep_s, NULL);
 										}
 									else
 										{
-											sep_s = ");";
+											success_flag = false;
 										}
 
-									success_flag = AppendStringsToByteBuffer (buffer_p, column_s, sep_s, NULL);
-								}
-							else
-								{
-									success_flag = false;
-								}
+									if (success_flag)
+										{
+											node_p = (SQLiteColumnNode *) (node_p -> sqlcn_node.ln_next_p);
+										}
+									else
+										{
+											node_p = NULL;
+										}
+
+								}		/* while (node_p) */
 
 							if (success_flag)
 								{
-									node_p = (SQLiteColumnNode *) (node_p -> sqlcn_node.ln_next_p);
-								}
-							else
-								{
-									node_p = NULL;
+									const char *sql_s = GetByteBufferData (buffer_p);
+
+									error_s = RunSQLiteToolStatement (tool_p, sql_s);
 								}
 
-						}		/* while (node_p) */
+						}		/* if (AppendStringsToByteBuffer (buffer_p, "CREATE TABLE ", table_s, "(")) */
 
-					if (success_flag)
-						{
-							int res;
-							sqlite3_stmt *stmt_p;
-							const char *sql_s = buffer_p -> bb_data_p;
-
-							sqlite3_prepare_v2 (tool_p -> sqlt_database_p, sql_s, -1, &stmt_p, NULL);
-
-							res = sqlite3_step (stmt_p);
-
-							if (res != SQLITE_DONE)
-								{
-									const char *error_message_s = sqlite3_errmsg (tool_p -> sqlt_database_p);
-
-									error_s = EasyCopyToNewString (error_message_s);
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with with error \%s\"", sql_s, error_message_s);
-								}
-						}
-
-				}		/* if (AppendStringsToByteBuffer (buffer_p, "CREATE TABLE ", table_s, "(")) */
+				}		/* if (success_flag) */
 
 
 			FreeByteBuffer (buffer_p);
 		}		/* if (buffer_p) */
+
+	return error_s;
+}
+
+
+char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
+{
+	char *error_s = NULL;
+	char *sql_error_s = NULL;
+	int res = sqlite3_exec (tool_p -> sqlt_database_p, sql_s, NULL, NULL, &sql_error_s);
+
+	if (res != SQLITE_OK)
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SQLite exec failed for \"%s\": error \"%s\"", sql_s, sql_error_s);
+			error_s = EasyCopyToNewString (sql_error_s);
+			sqlite3_free (sql_error_s);
+		}
 
 	return error_s;
 }
@@ -433,7 +458,7 @@ static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const cha
 												{
 													if (AppendStringToByteBuffer (values_buffer_p, ","))
 														{
-															if (AppendStringToByteBuffer (conflict_values_buffer_p, ",\n"))
+															if (AppendStringToByteBuffer (conflict_values_buffer_p, ","))
 																{
 																	success_flag = true;
 																}
@@ -539,7 +564,7 @@ static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const cha
 										{
 											data_s = GetByteBufferData (values_buffer_p);
 
-											if (AppendStringsToByteBuffer (buffer_p, "VALUES(", data_s, ")\n" , NULL))
+											if (AppendStringsToByteBuffer (buffer_p, "VALUES(", data_s, ")" , NULL))
 												{
 													data_s = GetByteBufferData (conflict_values_buffer_p);
 
