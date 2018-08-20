@@ -49,13 +49,15 @@
 
 
 
-/** The identifier used to uniquely specify a MongoDB document.
+/**
  *
- * @memberof MongoTool
+ * @memberof SQLiteTool
  */
 SQLITE_PREFIX const char *SQLITE_OP_EQUALS_S SQLITE_VAL("=");
 
+SQLITE_PREFIX const char *SQLITE_SET_CLAUSE_S SQLITE_VAL("set");
 
+SQLITE_PREFIX const char *SQLITE_WHERE_CLAUSE_S SQLITE_VAL("where");
 
 
 /**

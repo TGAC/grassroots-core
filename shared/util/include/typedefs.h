@@ -95,7 +95,7 @@
 
 
 	/** The C I/O length field for uint64 datatypes. */
-	#define INT64_FMT_IDENT "PRId64"
+	#define INT64_FMT_IDENT "ld"
 #endif
 
 /** The C I/O format specifier for uint32 datatypes. */

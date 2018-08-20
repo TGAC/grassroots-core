@@ -24,6 +24,7 @@
 
 #include "sqlite_tool.h"
 #include "sqlite_column.h"
+#include "string_utils.h"
 
 
 static const char * const S_ID_COLUMN_S = "id";
@@ -39,9 +40,12 @@ static LinkedList *GetTableColumns (void);
 
 static bool AddColumn (LinkedList *columns_p, const char *name_s, uint32 datatype, bool primary_key_flag, bool unique_flag, bool can_be_null_flag, const char *check_s);
 
-static bool AddData (json_t *values_array_p, const char *surname_s, const char *forename_s, const double64 height, const char *description_s);
+
+static bool AddData (json_t *values_array_p, const int32 *id_p, const char *surname_s, const char *forename_s, const double64 *height_p, const char *description_s, json_t *where_values_p);
 
 static json_t *GetDataToInsert (void);
+
+static json_t *GetDataToUpdate (void);
 
 
 int main (int argc, char *argv [])
@@ -70,6 +74,7 @@ int main (int argc, char *argv [])
 					if (error_s)
 						{
 							printf ("error: \"%s\"\n", error_s);
+							FreeCopiedString (error_s);
 						}
 					else
 						{
@@ -77,8 +82,36 @@ int main (int argc, char *argv [])
 
 							if (values_p)
 								{
-									InsertOrUpdateSQLiteData (tool_p, values_p, table_s, S_ID_COLUMN_S);
+									error_s = InsertOrUpdateSQLiteData (tool_p, values_p, table_s, S_ID_COLUMN_S);
+
 									json_decref (values_p);
+
+									if (error_s)
+										{
+											printf ("InsertOrUpdateSQLiteData error: \"%s\"\n", error_s);
+											FreeCopiedString (error_s);
+										}
+									else
+										{
+											values_p = GetDataToUpdate ();
+
+											if (values_p)
+												{
+													error_s = InsertOrUpdateSQLiteData (tool_p, values_p, table_s, S_ID_COLUMN_S);
+
+													json_decref (values_p);
+
+													if (error_s)
+														{
+															printf ("InsertOrUpdateSQLiteData error: \"%s\"\n", error_s);
+															FreeCopiedString (error_s);
+														}
+												}
+											else
+												{
+													puts ("failed to get data to update");
+												}
+										}
 								}
 							else
 								{
@@ -114,9 +147,9 @@ static LinkedList *GetTableColumns (void)
 		{
 			if (AddColumn (columns_p, S_ID_COLUMN_S, SQLITE_INTEGER, true, false, false, NULL))
 				{
-					if (AddColumn (columns_p, S_SURNAME_COLUMN_S, SQLITE_TEXT, false, false, false, NULL))
+					if (AddColumn (columns_p, S_SURNAME_COLUMN_S, SQLITE_TEXT, false, false, true, NULL))
 						{
-							if (AddColumn (columns_p, S_FORENAME_COLUMN_S, SQLITE_TEXT, false, false, false, NULL))
+							if (AddColumn (columns_p, S_FORENAME_COLUMN_S, SQLITE_TEXT, false, false, true, NULL))
 								{
 									if (AddColumn (columns_p, S_HEIGHT_COLUMN_S, SQLITE_FLOAT, false, false, false, NULL))
 										{
@@ -181,11 +214,17 @@ static json_t *GetDataToInsert (void)
 
 	if (values_p)
 		{
-			if (AddData (values_p, "Fish", "Billy", 1.80, NULL))
+			double64 height = 1.80;
+
+			if (AddData (values_p, NULL, "Fish", "Billy", &height, NULL, NULL))
 				{
-					if (AddData (values_p, "Donkey", "Wonky", 2.80, "Oh to be a horse"))
+					height = 2.860;
+
+					if (AddData (values_p, NULL, "Donkey", "Wonky", &height, "Oh to be a horse", NULL))
 						{
-							if (AddData (values_p, "Bag", "Bean", 0.70, "Woof!"))
+							height = 1.230;
+
+							if (AddData (values_p, NULL, "Bag", "Bean", &height, "Woof!", NULL))
 								{
 									return values_p;
 								}
@@ -199,34 +238,91 @@ static json_t *GetDataToInsert (void)
 }
 
 
-static bool AddData (json_t *values_array_p, const char *surname_s, const char *forename_s, const double64 height, const char *description_s)
+
+
+static bool AddData (json_t *values_array_p, const int32 *id_p, const char *surname_s, const char *forename_s, const double64 *height_p, const char *description_s, json_t *where_values_p)
 {
 	json_t *entry_p = json_object ();
 
 	if (entry_p)
 		{
-			if (json_object_set_new (entry_p, S_SURNAME_COLUMN_S, json_string (surname_s)) == 0)
+			json_t *set_p = json_object ();
+
+			if (set_p)
 				{
-					if (json_object_set_new (entry_p, S_FORENAME_COLUMN_S, json_string (forename_s)) == 0)
+					if (json_object_set_new (entry_p, SQLITE_SET_CLAUSE_S, set_p) == 0)
 						{
-							if (json_object_set_new (entry_p, S_HEIGHT_COLUMN_S, json_real (height)) == 0)
+							if ((id_p == NULL) || (json_object_set_new (set_p, S_ID_COLUMN_S, json_integer (*id_p)) == 0))
 								{
-									if ((description_s == NULL) || (json_object_set_new (entry_p, S_DESCRIPTION_COLUMN_S, json_string (description_s)) == 0))
+									if ((surname_s == NULL) || (json_object_set_new (set_p, S_SURNAME_COLUMN_S, json_string (surname_s)) == 0))
 										{
-											if (json_array_append_new (values_array_p, entry_p) == 0)
+											if ((forename_s == NULL) || (json_object_set_new (set_p, S_FORENAME_COLUMN_S, json_string (forename_s)) == 0))
 												{
-													return true;
+													if ((height_p == NULL) || (json_object_set_new (set_p, S_HEIGHT_COLUMN_S, json_real (*height_p)) == 0))
+														{
+															if ((description_s == NULL) || (json_object_set_new (set_p, S_DESCRIPTION_COLUMN_S, json_string (description_s)) == 0))
+																{
+																	if (json_array_append_new (values_array_p, entry_p) == 0)
+																		{
+																			if ((where_values_p == NULL) || (json_object_set_new (entry_p, SQLITE_WHERE_CLAUSE_S, where_values_p) == 0))
+																				{
+																					return true;
+																				}
+																		}
+																}
+														}
 												}
 										}
 								}
+
+							json_decref (entry_p);
+						}
+					else
+						{
+							json_decref (set_p);
 						}
 				}
-
-			json_decref (entry_p);
-		}		/* if (entry_p) */
+		}
 
 	return false;
 }
 
 
+
+static json_t *GetDataToUpdate (void)
+{
+	json_t *values_p = json_array ();
+
+	if (values_p)
+		{
+			int32 id = 3;
+			double64 height = 0.890;
+
+			if (AddData (values_p, &id, "Bag", "Bean", &height, "Woofedy Woof!", NULL))
+				{
+					json_t *where_clauses_p = json_object ();
+
+					if (where_clauses_p)
+						{
+							if (json_object_set_new (where_clauses_p, S_SURNAME_COLUMN_S, json_string ("Donkey")) == 0)
+								{
+									if (AddData (values_p, NULL, "Badger", NULL, NULL, NULL, where_clauses_p))
+										{
+											return values_p;
+										}
+								}
+							else
+								{
+									json_decref (where_clauses_p);
+								}
+						}
+
+				}
+
+			json_decref (values_p);
+		}
+
+	return NULL;
+
+}
 

@@ -280,12 +280,16 @@ char *ConvertDoubleToString (const double64 value)
 
 char *ConvertIntegerToString (const int32 value)
 {
-	int num_chars = snprintf (NULL, 0, INT32_FMT, value);
-	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
+	int num_chars = snprintf (NULL, 0, "" INT32_FMT, value);
+	char *value_s = NULL;
+
+	++ num_chars;
+
+	value_s = (char *) AllocMemory (num_chars * sizeof (char));
 
 	if (value_s)
 		{
-			snprintf (value_s, num_chars, INT32_FMT, value);
+			num_chars = snprintf (value_s, num_chars, "" INT32_FMT, value);
 		}
 
 	return value_s;
@@ -294,12 +298,16 @@ char *ConvertIntegerToString (const int32 value)
 
 char *ConvertUnsignedIntegerToString (const uint32 value)
 {
-	int num_chars = snprintf (NULL, 0, UINT32_FMT, value);
-	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
+	int num_chars = snprintf (NULL, 0, "" UINT32_FMT, value);
+	char *value_s = NULL;
+
+	++ num_chars;
+
+	value_s = (char *) AllocMemory (num_chars * sizeof (char));
 
 	if (value_s)
 		{
-			snprintf (value_s, num_chars, UINT32_FMT, value);
+			num_chars = snprintf (value_s, num_chars, "" UINT32_FMT, value);
 		}
 
 	return value_s;
@@ -310,11 +318,15 @@ char *ConvertUnsignedIntegerToString (const uint32 value)
 char *ConvertLongToString (const int64 value)
 {
 	int num_chars = snprintf (NULL, 0, INT64_FMT, value);
-	char *value_s = (char *) AllocMemory ((num_chars + 1) * sizeof (char));
+	char *value_s = NULL;
+
+	++ num_chars;
+
+	value_s = (char *) AllocMemory (num_chars * sizeof (char));
 
 	if (value_s)
 		{
-			snprintf (value_s, num_chars, INT64_FMT, value);
+			num_chars = snprintf (value_s, num_chars, INT64_FMT, value);
 		}
 
 	return value_s;

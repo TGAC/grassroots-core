@@ -41,6 +41,8 @@ static int ConvertSQLiteRowToJSON (void *data_p, int num_columns, char **values_
 
 static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p,  ByteBuffer *buffer_p);
 
+static bool DoInsert (json_t *value_p, const char * const table_s, const char * const primary_key_s, ByteBuffer *buffer_p);
+
 
 #ifdef _DEBUG
 	#define SQLITE_TOOL_DEBUG	(STM_LEVEL_FINER)
@@ -56,9 +58,6 @@ SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s
 
 	if (tool_p)
 		{
-			sqlite3 *db_p = NULL;
-			int res;
-
 			memset (tool_p, 0, sizeof (SQLiteTool));
 
 			if (SetSQLiteDatabase (tool_p, db_s, flags, table_s))
@@ -291,7 +290,7 @@ char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char
 						{
 							json_t *value_p = json_array_get (values_p, i);
 
-							if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, value_p, buffer_p)))
+							if (!DoInsert (value_p, table_s, primary_key_s, buffer_p))
 								{
 									error_s = EasyCopyToNewString ("Failed to update values");
 									i = size;		/* force exit from loop */
@@ -301,23 +300,35 @@ char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char
 				}		/* if (json_is_array (values_p)) */
 			else if (json_is_object (values_p))
 				{
-					if (! (AddValuesToByteBufferForUpsert (primary_key_s, table_s, values_p, buffer_p)))
+					if (!DoInsert (values_p, table_s, primary_key_s, buffer_p))
 						{
 							error_s = EasyCopyToNewString ("Failed to update values");
 						}
 
-				}		/* else if (json_is_object (values_p)) */
+				}		/* else if (json_is_object (set_p)) */
 			else
 				{
-					error_s = EasyCopyToNewString ("values are not a JSON object or array");
+					error_s = EasyCopyToNewString ("set_p is not a JSON object or array");
 				}
-
 
 			if (!error_s)
 				{
 					const char *sql_s = GetByteBufferData (buffer_p);
 
 					error_s = RunSQLiteToolStatement (tool_p, sql_s);
+
+					if (error_s)
+						{
+							int extended_code = sqlite3_extended_errcode (tool_p -> sqlt_database_p);
+
+							/*
+							 * If we are doing an update, then
+							 */
+							if (extended_code == SQLITE_CONSTRAINT_NOTNULL)
+								{
+
+								}
+						}
 				}
 
 			FreeByteBuffer (buffer_p);
@@ -411,7 +422,7 @@ char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
 
 	if (res != SQLITE_OK)
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SQLite exec failed for \"%s\": error \"%s\"", sql_s, sql_error_s);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SQLite exec returned %d for \"%s\": error \"%s\"", res, sql_s, sql_error_s);
 			error_s = EasyCopyToNewString (sql_error_s);
 			sqlite3_free (sql_error_s);
 		}
@@ -594,6 +605,42 @@ static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const cha
 
 			FreeByteBuffer (keys_buffer_p);
 		}		/* if (keys_buffer_p) */
+
+	return success_flag;
+}
+
+
+static bool DoInsert (json_t *value_p, const char * const table_s, const char * const primary_key_s, ByteBuffer *buffer_p)
+{
+	bool success_flag = false;
+	json_t *set_p = json_object_get (value_p, SQLITE_SET_CLAUSE_S);
+
+	if (set_p)
+		{
+			json_t *where_p = json_object_get (value_p, SQLITE_WHERE_CLAUSE_S);
+
+			if (where_p)
+				{
+					/*
+					 * Since we have a where clause, this is an update.
+					 */
+					if (AddValuesToByteBufferForUpdate (primary_key_s, table_s, set_p, where_p, buffer_p))
+						{
+							success_flag = true;
+						}
+				}
+			else
+				{
+					/*
+					 * This could still be an update on the primary key or
+					 * an insert, so cater for both with an upsert.
+					 */
+					if (AddValuesToByteBufferForUpsert (primary_key_s, table_s, set_p, buffer_p))
+						{
+							success_flag = true;
+						}
+				}
+		}
 
 	return success_flag;
 }
