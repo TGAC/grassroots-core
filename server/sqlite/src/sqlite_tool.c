@@ -39,7 +39,10 @@
 
 static int ConvertSQLiteRowToJSON (void *data_p, int num_columns, char **values_ss, char **column_names_ss);
 
-static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p,  ByteBuffer *buffer_p);
+static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p, ByteBuffer *buffer_p);
+
+static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const char * table_s, const json_t *values_p, LinkedList *where_clauses_p, ByteBuffer *buffer_p);
+
 
 static bool DoInsert (json_t *value_p, const char * const table_s, const char * const primary_key_s, ByteBuffer *buffer_p);
 
@@ -429,6 +432,24 @@ char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
 
 	return error_s;
 }
+
+
+
+static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const char * table_s, const json_t *values_p, LinkedList *where_clauses_p, ByteBuffer *buffer_p)
+{
+	bool success_flag = false;
+	ByteBuffer *update_buffer_p = AllocateByteBuffer (1024);
+
+	if (update_buffer_p)
+		{
+
+
+			FreeByteBuffer (update_buffer_p);
+		}		/* if (update_buffer_p) */
+
+	return success_flag;
+}
+
 
 
 static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p, ByteBuffer *buffer_p)
