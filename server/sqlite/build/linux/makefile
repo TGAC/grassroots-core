@@ -33,6 +33,7 @@ INCLUDES := \
 SRCS 	= \
 	sqlite_tool.c \
 	sql_clause.c \
+	sql_clause_list.c \
 	sqlite_column.c
 	
 

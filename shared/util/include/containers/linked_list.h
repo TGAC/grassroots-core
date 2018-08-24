@@ -256,6 +256,16 @@ GRASSROOTS_UTIL_API LinkedList *SplitList (LinkedList * const list_p, const uint
 GRASSROOTS_UTIL_API void ClearLinkedList (LinkedList * const list_p);
 
 
+/**
+ * Initialise a ListItem.
+ *
+ * @param list_p The ListItem to initialise.
+ * @memberof LinkedList
+ */
+GRASSROOTS_UTIL_API void InitListItem (ListItem * const item_p);
+
+
+
 #ifdef __cplusplus
 }
 #endif

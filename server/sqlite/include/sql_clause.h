@@ -54,10 +54,12 @@ typedef struct SQLClauseNode
 } SQLClauseNode;
 
 
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
 
 
 /**

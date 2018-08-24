@@ -678,3 +678,11 @@ LinkedList *SplitList (LinkedList * const list_p, const uint32 split_list_length
 
 	return NULL;
 }
+
+
+void InitListItem (ListItem * const item_p)
+{
+	item_p -> ln_next_p = NULL;
+	item_p -> ln_prev_p = NULL;
+}
+
