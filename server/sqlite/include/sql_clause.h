@@ -48,6 +48,11 @@ typedef struct SQLClauseNode
 	/** The base ListItem */
 	ListItem sqlcn_node;
 
+	/**
+	 * The op for this string such as AND, OR, NOT, etc.
+	 */
+	const char *sqlcn_op_s;
+
 	/** The SQLClause */
 	SQLClause *sqlcn_clause_p;
 
@@ -87,12 +92,13 @@ GRASSROOTS_SQLITE_API void FreeSQLClause (SQLClause *clause_p);
  * Allocate a SQLClauseNode containing a fully initialised SQLClause.
  *
  * @param key_s The key for the underlying SQLClause.
- * @param op_s The key for the underlying SQLClause.
- * @param value_s The key for the underlying SQLClause.
+ * @param comp_s The comparison for the underlying SQLClause.
+ * @param value_s The value for the underlying SQLClause.
+ * @param op_s The value for how the underling SQLClause will be used with other SQLClauses.
  * @return the newly-allocated SQLClauseNode or <code>NULL</code> upon error.
  * @memberof SQLClauseNode
  */
-GRASSROOTS_SQLITE_API SQLClauseNode *AllocateSQLClauseNode (const char *key_s, const char *op_s, const char *value_s);
+GRASSROOTS_SQLITE_API SQLClauseNode *AllocateSQLClauseNode (const char *key_s, const char *comp_s, const char *value_s, const char *op_s);
 
 
 /**

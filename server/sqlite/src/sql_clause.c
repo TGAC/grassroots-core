@@ -12,7 +12,6 @@
 
 SQLClause *AllocateSQLClause (const char *key_s, const char *op_s, const char *value_s)
 {
-	bool success_flag = true;
 	char *copied_key_s = NULL;
 
 	if (CloneValidString (key_s, &copied_key_s))
@@ -83,22 +82,30 @@ void FreeSQLClause (SQLClause *clause_p)
 }
 
 
-SQLClauseNode *AllocateSQLClauseNode (const char *key_s, const char *op_s, const char *value_s)
+SQLClauseNode *AllocateSQLClauseNode (const char *key_s, const char *comp_s, const char *value_s, const char *op_s)
 {
 	SQLClauseNode *node_p = (SQLClauseNode *) AllocMemory (sizeof (SQLClauseNode));
 
 	if (node_p)
 		{
-			SQLClause *clause_p = AllocateSQLClause (key_s, op_s, value_s);
+			SQLClause *clause_p = AllocateSQLClause (key_s, comp_s, value_s);
 
 			if (clause_p)
 				{
-					node_p -> sqlcn_clause_p = clause_p;
+					char *copied_op_s = EasyCopyToNewString (op_s);
 
-					node_p -> sqlcn_node.ln_prev_p = NULL;
-					node_p -> sqlcn_node.ln_next_p = NULL;
+					if (copied_op_s)
+						{
+							node_p -> sqlcn_op_s = op_s;
+							node_p -> sqlcn_clause_p = clause_p;
 
-					return node_p;
+							node_p -> sqlcn_node.ln_prev_p = NULL;
+							node_p -> sqlcn_node.ln_next_p = NULL;
+
+							return node_p;
+						}
+
+					FreeSQLClause (clause_p);
 				}
 
 			FreeMemory (node_p);

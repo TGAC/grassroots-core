@@ -25,89 +25,36 @@
 #include "byte_buffer.h"
 #include "string_utils.h"
 #include "sql_clause.h"
+#include "streams.h"
 
 
-SQLClauseList *AllocateSQLClauseList (const char *op_s)
+
+SQLClauseList *AllocateSQLClauseList (void)
 {
-	char *copied_op_s = EasyCopyToNewString (op_s);
+	SQLClauseList *clause_list_p = (SQLClauseList *) AllocMemory (sizeof (SQLClauseList));
 
-	if (copied_op_s)
+	if (clause_list_p)
 		{
-			SQLClauseList *clause_list_p = (SQLClauseList *) AllocMemory (sizeof (SQLClauseList));
+			InitLinkedList (& (clause_list_p -> sqlcl_list));
+		}		/* if (clause_list_p) */
 
-			if (clause_list_p)
-				{
-					InitLinkedList (& (clause_list_p -> sqlcl_list));
-
-					clause_list_p -> sqlcl_operator_s = copied_op_s;
-
-					return clause_list_p;
-				}		/* if (clause_list_p) */
-
-			FreeCopiedString (copied_op_s);
-		}		/* if (copied_op_s) */
-
-	return NULL;
+	return clause_list_p;
 }
 
 
 void FreeSQLClauseList (SQLClauseList *clause_list_p)
 {
 	FreeLinkedList (& (clause_list_p -> sqlcl_list));
-	FreeCopiedString (clause_list_p -> sqlcl_operator_s);
 
 	FreeMemory (clause_list_p);
 }
 
 
-SQLClauseListNode *AllocateSQLClauseListNode (SQLClauseList *clause_list_p)
-{
-	SQLClauseListNode *node_p = (SQLClauseListNode *) AllocMemory (sizeof (SQLClauseListNode));
 
-	if (node_p)
-		{
-			InitListItem (& (node_p -> sqlcln_node));
-
-			node_p -> sqlcln_list_p = clause_list_p;
-		}
-
-	return node_p;
-}
-
-SQLClauseListNode *AllocateSQLClauseListNodeByParts (const char *op_s)
-{
-	SQLClauseList *clause_list_p = AllocateSQLClauseList (op_s);
-
-	if (clause_list_p)
-		{
-			SQLClauseListNode *node_p = AllocateSQLClauseListNode (clause_list_p);
-
-			if (node_p)
-				{
-					return node_p;
-				}
-
-			FreeSQLClauseList (clause_list_p);
-		}
-
-	return NULL;
-}
-
-
-void FreeSQLClauseListNode (ListItem *node_p)
-{
-	SQLClauseListNode *clause_list_node_p = (SQLClauseListNode *) node_p;
-
-	FreeSQLClauseList (clause_list_node_p -> sqlcln_list_p);
-	FreeMemory (node_p);
-}
-
-
-
-bool AddSQLClauseToSQLClauseListByParts (SQLClauseList *list_p, const char *key_s, const char *op_s, const char *value_s)
+bool AddSQLClauseToSQLClauseListByParts (SQLClauseList *list_p, const char *key_s, const char *comp_s, const char *value_s, const char *op_s)
 {
 	bool success_flag = false;
-	SQLClauseNode *node_p = AllocateSQLClauseNode (key_s, op_s, value_s);
+	SQLClauseNode *node_p = AllocateSQLClauseNode (key_s, op_s, value_s, comp_s);
 
 	if (node_p)
 		{
@@ -116,22 +63,6 @@ bool AddSQLClauseToSQLClauseListByParts (SQLClauseList *list_p, const char *key_
 		}
 
 	return success_flag;
-}
-
-
-char *GetAllSQLClausesAsString (SQLClauseList *list_p)
-{
-	char *sql_s = NULL;
-	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
-
-	if (buffer_p)
-		{
-			SQLClauseNode *node_p = (SQLClauseNode *) (list_p -> sqlcl_list.ll_head_p);
-			char *sub_sql_s = GetSQLClausesAsString (node_p);
-
-		}		/* if (buffer_p) */
-
-	return sql_s;
 }
 
 
@@ -153,17 +84,29 @@ char *GetSQLClausesAsString (SQLClauseList *list_p)
 						{
 							if (node_p != first_node_p)
 								{
-									success_flag = AppendStringsToByteBuffer (buffer_p, " ", list_p -> sqlcl_operator_s, " ", NULL);
+									if (node_p -> sqlcn_op_s)
+										{
+											success_flag = AppendStringsToByteBuffer (buffer_p, " ", node_p -> sqlcn_op_s, " ", NULL);
+										}
+									else
+										{
+											SQLClause *clause_p = node_p -> sqlcn_clause_p;
+
+											success_flag = false;
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SQLClause %s %s %s has no clause operator and is not the first item in the list", clause_p -> sqlc_key_s, clause_p -> sqlc_op_s, clause_p -> sqlc_value_s);
+										}
 								}
 
 							if (success_flag)
 								{
-									success_flag = AddSQLClauseToByteBuffer (node_p -> sqlcn_clause_p, buffer_p);
-								}
-
-							if (success_flag)
-								{
-									node_p = (SQLClauseNode *) node_p -> sqlcn_node.ln_next_p;
+									if (AddSQLClauseToByteBuffer (node_p -> sqlcn_clause_p, buffer_p))
+										{
+											node_p = (SQLClauseNode *) node_p -> sqlcn_node.ln_next_p;
+										}
+									else
+										{
+											success_flag = false;
+										}
 								}
 
 						}		/* while (node_p && success_flag) */

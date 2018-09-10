@@ -41,7 +41,9 @@ static int ConvertSQLiteRowToJSON (void *data_p, int num_columns, char **values_
 
 static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p, ByteBuffer *buffer_p);
 
-static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const char * table_s, const json_t *values_p, LinkedList *where_clauses_p, ByteBuffer *buffer_p);
+static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const char * table_s, const json_t *set_p, const json_t *where_p, ByteBuffer *buffer_p);
+
+static bool AddJSONObjectToByteBuffer (ByteBuffer *buffer_p, json_t *value_p);
 
 
 static bool DoInsert (json_t *value_p, const char * const table_s, const char * const primary_key_s, ByteBuffer *buffer_p);
@@ -435,14 +437,122 @@ char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
 
 
 
-static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const char * table_s, const json_t *values_p, LinkedList *where_clauses_p, ByteBuffer *buffer_p)
+static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const char * table_s, const json_t *set_p, const json_t *where_p, ByteBuffer *buffer_p)
 {
 	bool success_flag = false;
 	ByteBuffer *update_buffer_p = AllocateByteBuffer (1024);
 
 	if (update_buffer_p)
 		{
+			if (AppendStringsToByteBuffer (update_buffer_p, "UPDATE ", table_s, " SET ", NULL))
+				{
+					size_t i = json_object_size (set_p);
 
+					if (i > 0)
+						{
+							void *iterator_p = json_object_iter (set_p);
+
+							-- i;
+
+							while (iterator_p)
+								{
+									const char *key_s = json_object_iter_key (iterator_p);
+									json_t *value_p = json_object_iter_value (iterator_p);
+
+									success_flag = false;
+
+									if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL))
+										{
+											if (AddJSONObjectToByteBuffer (buffer_p, value_p))
+												{
+													if (i != 0)
+														{
+															if (AppendStringToByteBuffer (buffer_p, ", "))
+																{
+																	success_flag = true;
+																}
+														}		/* if (i != 0) */
+													else
+														{
+															success_flag = true;
+														}
+
+												}		/* if (AddJSONObjectToByteBuffer (buffer_p, value_p)) */
+
+										}		/* if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL)) */
+
+									if (success_flag && iterator_p)
+										{
+											iterator_p = json_object_iter_next (set_p, iterator_p);
+											++ i;
+										}
+
+								}		/* while (iterator_p) */
+
+						}		/* if (i >= 0) */
+
+					/*
+					 * Have we added all of the SET values ok?
+					 */
+					if (success_flag)
+						{
+							/*
+							 * Now add the WHERE values
+							 */
+							i = json_object_size (where_p) - 1;
+
+							if (i > 0)
+								{
+									void *iterator_p = json_object_iter (where_p);
+
+									-- i;
+
+									while (iterator_p)
+										{
+											const char *key_s = json_object_iter_key (iterator_p);
+											json_t *value_p = json_object_iter_value (iterator_p);
+
+
+											if (*key_s == '$')
+												{
+
+												}
+
+											success_flag = false;
+
+											if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL))
+												{
+													if (AddJSONObjectToByteBuffer (buffer_p, value_p))
+														{
+															if (i != 0)
+																{
+																	if (AppendStringToByteBuffer (buffer_p, ", "))
+																		{
+																			success_flag = true;
+																		}
+																}		/* if (i != 0) */
+															else
+																{
+																	success_flag = true;
+																}
+
+														}		/* if (AddJSONObjectToByteBuffer (buffer_p, value_p)) */
+
+												}		/* if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL)) */
+
+											if (success_flag && iterator_p)
+												{
+													iterator_p = json_object_iter_next (set_p, iterator_p);
+													++ i;
+												}
+
+										}		/* while (iterator_p) */
+
+								}		/* if (i >= 0) */
+
+						}		/* if (success_flag) */
+
+				}		/* if (AppendStringsToByteBuffer (update_buffer_p, "UPDATE ", table_s, NULL)) */
 
 			FreeByteBuffer (update_buffer_p);
 		}		/* if (update_buffer_p) */
@@ -451,12 +561,59 @@ static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const cha
 }
 
 
+static bool AddJSONObjectToByteBuffer (ByteBuffer *buffer_p, json_t *value_p)
+{
+	char *value_s = NULL;
+	bool success_flag = false;
+	bool alloc_flag = false;
 
-static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *values_p, ByteBuffer *buffer_p)
+	if (json_is_string (value_p))
+		{
+			value_s = (char *) json_string_value (value_p);
+		}
+	else if (json_is_integer (value_p))
+		{
+			int i = json_integer_value (value_p);
+			value_s = ConvertIntegerToString (i);
+
+			if (value_s)
+				{
+					alloc_flag = true;
+				}
+		}
+	else if (json_is_real (value_p))
+		{
+			double d = json_real_value (value_p);
+			value_s = ConvertDoubleToString (d);
+
+			if (value_s)
+				{
+					alloc_flag = true;
+				}
+		}
+
+	if (value_s)
+		{
+			if (AppendStringsToByteBuffer (buffer_p, "'", value_s, "'", NULL))
+				{
+					success_flag = true;
+				}
+
+			if (alloc_flag)
+				{
+					FreeCopiedString (value_s);
+				}
+
+		}		/* if (value_s) */
+
+
+	return success_flag;
+}
+
+
+static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const char * table_s, const json_t *set_values_p, ByteBuffer *buffer_p)
 {
 	bool success_flag = false;
-	const char *key_s;
-	json_t *value_p;
 
 	ByteBuffer *keys_buffer_p = AllocateByteBuffer (1024);
 
@@ -471,8 +628,10 @@ static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const cha
 					if (conflict_values_buffer_p)
 						{
 							size_t index = 0;
+							const char *key_s;
+							json_t *value_p;
 
-							json_object_foreach (values_p, key_s, value_p)
+							json_object_foreach (set_values_p, key_s, value_p)
 								{
 									/*
 									 * For each key-value pair, set the success flag to false
@@ -513,48 +672,10 @@ static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const cha
 												{
 													if (AppendStringsToByteBuffer (conflict_values_buffer_p, "    ", key_s, "=excluded.", key_s, NULL))
 														{
-															char *value_s = NULL;
-															bool alloc_flag = false;
-
-															if (json_is_string (value_p))
+															if (AddJSONObjectToByteBuffer (values_buffer_p, value_p))
 																{
-																	value_s = (char *) json_string_value (value_p);
+																	success_flag = true;
 																}
-															else if (json_is_integer (value_p))
-																{
-																	int i = json_integer_value (value_p);
-																	value_s = ConvertIntegerToString (i);
-
-																	if (value_s)
-																		{
-																			alloc_flag = true;
-																		}
-																}
-															else if (json_is_real (value_p))
-																{
-																	double d = json_real_value (value_p);
-																	value_s = ConvertDoubleToString (d);
-
-																	if (value_s)
-																		{
-																			alloc_flag = true;
-																		}
-																}
-
-															if (value_s)
-																{
-																	if (AppendStringsToByteBuffer (values_buffer_p, "'", value_s, "'", NULL))
-																		{
-																			success_flag = true;
-																		}
-
-																	if (alloc_flag)
-																		{
-																			FreeCopiedString (value_s);
-																		}
-
-																}		/* if (value_s) */
-
 														}		/* if (AppendStringsToByteBuffer (conflict_values_buffer_p, "    ", key_s, "=excluded.", key_s, NULL)) */
 
 												}		/* if (AppendStringToByteBuffer (keys_buffer_p, key_s)) */
@@ -608,7 +729,7 @@ static bool AddValuesToByteBufferForUpsert (const char *primary_key_s, const cha
 															success_flag = true;
 
 															#if SQLITE_TOOL_DEBUG >= STM_LEVEL_FINE
-															PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "For table \"%s\" and primary key \"%s\", UPSERT statement is \"%s\"", table_s, primary_key_s, GetByteBufferData (buffer_p));
+															PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, set_values_p, "For table \"%s\" and primary key \"%s\", UPSERT statement is \"%s\"", table_s, primary_key_s, GetByteBufferData (buffer_p));
 															#endif
 														}		/* if (AppendStringsToByteBuffer (buffer_p, "  ON CONFLICT (", primary_key_s, ") DO UPDATE SET\n" , NULL)) */
 

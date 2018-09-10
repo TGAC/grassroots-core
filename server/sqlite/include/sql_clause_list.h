@@ -29,25 +29,10 @@
 
 typedef struct SQLClauseList
 {
-	/** The sublist of SQLClauseNodes for this SQLClauseList and its operator. */
+	/** The sublist of SQLClauseNodes for this SQLClauseList */
 	LinkedList sqlcl_list;
 
-	/** This SQLClauseList's operator. */
-	char *sqlcl_operator_s;
-
 } SQLClauseList;
-
-
-typedef struct SQLClauseListNode
-{
-	/** The base ListItem. */
-	ListItem sqlcln_node;
-
-	/** The SQLClauseList. */
-	SQLClauseList *sqlcln_list_p;
-
-} SQLClauseListNode;
-
 
 
 #ifdef __cplusplus
@@ -59,11 +44,10 @@ extern "C"
 /**
  * Allocate a SQLClauseList.
  *
- * @param op_s The operator for all of the clauses on this list.
  * @return the newly-allocated SQLClauseList or <code>NULL</code> upon error.
  * @memberof SQLClauseList
  */
-GRASSROOTS_SQLITE_API SQLClauseList *AllocateSQLClauseList (const char *op_s);
+GRASSROOTS_SQLITE_API SQLClauseList *AllocateSQLClauseList (void);
 
 
 /**
@@ -78,31 +62,12 @@ GRASSROOTS_SQLITE_API void FreeSQLClauseList (SQLClauseList *clause_list_p);
 /**
  * Add a SQLClauseNode to a SQLClauseList.
  *
- * @param op_s The operator for all of the clauses on this list.
+ * @param op_s The operator the new SQLClause
  * @return the newly-allocated SQLClauseList or <code>NULL</code> upon error.
  * @memberof SQLClauseList
  */
-GRASSROOTS_SQLITE_API bool AddSQLClauseToSQLClauseListByParts (SQLClauseList *list_p, const char *key_s, const char *op_s, const char *value_s);
+GRASSROOTS_SQLITE_API bool AddSQLClauseToSQLClauseListByParts (SQLClauseList *list_p, const char *key_s, const char *comp_s, const char *value_s, const char *op_s);
 
-
-/**
- * Allocate a SQLClauseListNode.
- *
- * @param clause_list_p The SQLClauseList that will be contained by the SQLClauseListNode.
- * @return the newly-allocated SQLClauseListNode or <code>NULL</code> upon error.
- * @memberof SQLClauseListNode
- */
-SQLClauseListNode *AllocateSQLClauseListNode (SQLClauseList *clause_list_p);
-
-
-/**
- * Allocate a SQLClauseListNode.
- *
- * @param op_s The operator for all of the clauses on the list that will be contained by the SQLClauseListNode.
- * @return the newly-allocated SQLClauseListNode or <code>NULL</code> upon error.
- * @memberof SQLClauseListNode
- */
-GRASSROOTS_SQLITE_API SQLClauseListNode *AllocateSQLClauseListNodeByParts (const char *op_s);
 
 
 /**
@@ -113,6 +78,16 @@ GRASSROOTS_SQLITE_API SQLClauseListNode *AllocateSQLClauseListNodeByParts (const
  * @memberof SQLClauseListNode
  */
 GRASSROOTS_SQLITE_API void FreeSQLClauseListNode (ListItem *node_p);
+
+
+/**
+ * Get the string for all SQLClauses on a SQLClauseList.
+ *
+ * @param list_p The SQLClauseList of SQLClauses.
+ * @return the newly-allocated string containing the SQLClauses as a statement or <code>NULL</code> upon error.
+ * @memberof SQLClauseList
+ */
+GRASSROOTS_SQLITE_API char *GetAllSQLClausesAsString (SQLClauseList *list_p);
 
 
 #ifdef __cplusplus
