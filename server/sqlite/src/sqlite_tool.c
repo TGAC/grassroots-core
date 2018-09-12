@@ -231,7 +231,7 @@ void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *error_s)
 
 
 
-json_t *GetCurrentValuesAsJSON (SQLiteTool *tool_p, const char **fields_ss, const size_t num_fields)
+json_t *GetCurrentValuesFromSQLiteToolAsJSON (SQLiteTool *tool_p, const char **fields_ss, const size_t num_fields)
 {
 	json_t *results_p = json_object ();
 

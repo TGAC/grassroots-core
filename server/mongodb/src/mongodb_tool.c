@@ -1,18 +1,18 @@
 /*
-** Copyright 2014-2016 The Earlham Institute
-** 
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-** 
-**     http://www.apache.org/licenses/LICENSE-2.0
-** 
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ ** Copyright 2014-2016 The Earlham Institute
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ **     http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
 /*
  * mongodb_tool.c
  *
@@ -94,9 +94,9 @@ static bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p,
 
 
 #ifdef _DEBUG
-	#define MONGODB_TOOL_DEBUG	(STM_LEVEL_FINER)
+#define MONGODB_TOOL_DEBUG	(STM_LEVEL_FINER)
 #else
-	#define MONGODB_TOOL_DEBUG	(STM_LEVEL_NONE)
+#define MONGODB_TOOL_DEBUG	(STM_LEVEL_NONE)
 #endif
 
 
@@ -152,21 +152,34 @@ void FreeMongoTool (MongoTool *tool_p)
 
 bool SetMongoToolCollection (MongoTool *tool_p, const char *db_s, const char *collection_s)
 {
-	bool success_flag = false;
-	mongoc_collection_t *collection_p =  mongoc_client_get_collection (tool_p -> mt_client_p, db_s, collection_s);
+	mongoc_database_t *database_p = mongoc_client_get_database (tool_p -> mt_client_p, db_s);
 
-	if (collection_p)
+	if (database_p)
 		{
-			if (tool_p -> mt_collection_p)
+			mongoc_collection_t *collection_p =  mongoc_client_get_collection (tool_p -> mt_client_p, db_s, collection_s);
+
+			if (collection_p)
 				{
-					mongoc_collection_destroy (tool_p -> mt_collection_p);
+					if (tool_p -> mt_database_p)
+						{
+							mongoc_database_destroy (tool_p -> mt_database_p);
+						}
+
+					if (tool_p -> mt_collection_p)
+						{
+							mongoc_collection_destroy (tool_p -> mt_collection_p);
+						}
+
+					tool_p -> mt_database_p = database_p;
+					tool_p -> mt_collection_p = collection_p;
+
+					return true;
 				}
 
-			tool_p -> mt_collection_p = collection_p;
-			success_flag = true;
+			mongoc_database_destroy (database_p);
 		}
 
-	return success_flag;
+	return false;
 }
 
 
@@ -206,10 +219,10 @@ json_t *ConvertBSONToJSON (const bson_t *bson_p)
 
 			if (json_p)
 				{
-					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "raw bson data:\n", value_s);
 					PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, json_p, "bson to json data:");
-					#endif
+#endif
 				}
 			else
 				{
@@ -334,10 +347,10 @@ bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p, const 
 								{
 									bson_error_t error;
 
-									#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 									PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, query_p, "UpdateMongoDocument query_p");
 									PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, update_statement_p, "UpdateMongoDocument update_statement_p");
-									#endif
+#endif
 
 
 									if (mongoc_collection_update (tool_p -> mt_collection_p, MONGOC_UPDATE_NONE, query_p, update_statement_p, NULL, &error))
@@ -391,10 +404,10 @@ static bool AddSimpleTypeToQuery (bson_t *query_p, const char *key_s, const json
 {
 	bool success_flag = false;
 	const int json_datatype = json_typeof (value_p);
-	
+
 	switch (json_datatype)
-		{
-			/*
+	{
+		/*
 				JSON_OBJECT
 				JSON_ARRAY
 				JSON_STRING
@@ -403,38 +416,38 @@ static bool AddSimpleTypeToQuery (bson_t *query_p, const char *key_s, const json
 				JSON_TRUE
 				JSON_FALSE
 				JSON_NULL
-			 */
-			case JSON_STRING:
-				success_flag = BSON_APPEND_UTF8 (query_p, key_s, json_string_value (value_p));
-				break;
+		 */
+		case JSON_STRING:
+			success_flag = BSON_APPEND_UTF8 (query_p, key_s, json_string_value (value_p));
+			break;
 
-			case JSON_INTEGER:
-				#if JSON_INTEGER_IS_LONG_LONG
-					success_flag = BSON_APPEND_INT64 (query_p, key_s, json_integer_value (value_p));
-				#else
-					success_flag = BSON_APPEND_INT32 (query_p, key_s, json_integer_value (value_p));
-				#endif
-				break;
+		case JSON_INTEGER:
+#if JSON_INTEGER_IS_LONG_LONG
+			success_flag = BSON_APPEND_INT64 (query_p, key_s, json_integer_value (value_p));
+#else
+			success_flag = BSON_APPEND_INT32 (query_p, key_s, json_integer_value (value_p));
+#endif
+			break;
 
-			case JSON_REAL:
-				success_flag = BSON_APPEND_DOUBLE (query_p, key_s, json_real_value (value_p));
-				break;
+		case JSON_REAL:
+			success_flag = BSON_APPEND_DOUBLE (query_p, key_s, json_real_value (value_p));
+			break;
 
-			case JSON_TRUE:
-				success_flag = BSON_APPEND_BOOL (query_p, key_s, true);
-				break;
+		case JSON_TRUE:
+			success_flag = BSON_APPEND_BOOL (query_p, key_s, true);
+			break;
 
-			case JSON_FALSE:
-				success_flag = BSON_APPEND_BOOL (query_p, key_s, false);
-				break;
+		case JSON_FALSE:
+			success_flag = BSON_APPEND_BOOL (query_p, key_s, false);
+			break;
 
-			case JSON_OBJECT:
-			case JSON_ARRAY:
-			case JSON_NULL:
-				PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "json object type %d is not yet supported", json_datatype);
-				break;
+		case JSON_OBJECT:
+		case JSON_ARRAY:
+		case JSON_NULL:
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "json object type %d is not yet supported", json_datatype);
+			break;
 
-		}
+	}
 
 	return success_flag;
 }
@@ -516,8 +529,8 @@ bool AddToQuery (bson_t *query_p, const char *key_s, const json_t *json_clause_p
 	bool success_flag = false;
 
 	switch (json_typeof (json_clause_p))
-		{
-			/*
+	{
+		/*
 				JSON_OBJECT
 				JSON_ARRAY
 				JSON_STRING
@@ -526,171 +539,171 @@ bool AddToQuery (bson_t *query_p, const char *key_s, const json_t *json_clause_p
 				JSON_TRUE
 				JSON_FALSE
 				JSON_NULL
-			 */
-			case JSON_STRING:
-				success_flag = BSON_APPEND_UTF8 (query_p, key_s, json_string_value (json_clause_p));
-				break;
+		 */
+		case JSON_STRING:
+			success_flag = BSON_APPEND_UTF8 (query_p, key_s, json_string_value (json_clause_p));
+			break;
 
-			case JSON_INTEGER:
-				#if JSON_INTEGER_IS_LONG_LONG
-					success_flag = BSON_APPEND_INT64 (query_p, key_s, json_integer_value (json_clause_p));
-				#else
-					success_flag = BSON_APPEND_INT32 (query_p, key_s, json_integer_value (json_clause_p));
-				#endif
-				break;
+		case JSON_INTEGER:
+#if JSON_INTEGER_IS_LONG_LONG
+			success_flag = BSON_APPEND_INT64 (query_p, key_s, json_integer_value (json_clause_p));
+#else
+			success_flag = BSON_APPEND_INT32 (query_p, key_s, json_integer_value (json_clause_p));
+#endif
+			break;
 
-			case JSON_REAL:
-				success_flag = BSON_APPEND_DOUBLE (query_p, key_s, json_real_value (json_clause_p));
-				break;
+		case JSON_REAL:
+			success_flag = BSON_APPEND_DOUBLE (query_p, key_s, json_real_value (json_clause_p));
+			break;
 
-			case JSON_TRUE:
-				success_flag = BSON_APPEND_BOOL (query_p, key_s, true);
-				break;
+		case JSON_TRUE:
+			success_flag = BSON_APPEND_BOOL (query_p, key_s, true);
+			break;
 
-			case JSON_FALSE:
-				success_flag = BSON_APPEND_BOOL (query_p, key_s, false);
-				break;
+		case JSON_FALSE:
+			success_flag = BSON_APPEND_BOOL (query_p, key_s, false);
+			break;
 
-			case JSON_ARRAY:
-				{
-					bson_t *in_p = bson_new ();
+		case JSON_ARRAY:
+			{
+				bson_t *in_p = bson_new ();
 
-					if (in_p)
-						{
-							if (bson_append_array_begin (query_p, key_s, -1, in_p))
-								{
-									const size_t size = json_array_size (json_clause_p);
-									size_t i;
-									uint32 buffer_length = ((uint32) (ceil (log10 ((double) size)))) + 2;
+				if (in_p)
+					{
+						if (bson_append_array_begin (query_p, key_s, -1, in_p))
+							{
+								const size_t size = json_array_size (json_clause_p);
+								size_t i;
+								uint32 buffer_length = ((uint32) (ceil (log10 ((double) size)))) + 2;
 
-									char *buffer_s = (char *) AllocMemory (buffer_length * sizeof (char));
+								char *buffer_s = (char *) AllocMemory (buffer_length * sizeof (char));
 
-									if (buffer_s)
-										{
-											for (i = 0; i < size; ++ i)
-												{
-													const char *index_p;
+								if (buffer_s)
+									{
+										for (i = 0; i < size; ++ i)
+											{
+												const char *index_p;
 
-													if (bson_uint32_to_string (i, &index_p, buffer_s, buffer_length) > 0)
-														{
-															json_t *element_p = json_array_get (json_clause_p, i);
-															AddSimpleTypeToQuery (in_p, index_p, json_clause_p);
+												if (bson_uint32_to_string (i, &index_p, buffer_s, buffer_length) > 0)
+													{
+														json_t *element_p = json_array_get (json_clause_p, i);
+														AddSimpleTypeToQuery (in_p, index_p, json_clause_p);
 
-														}
-												}
+													}
+											}
 
-											FreeMemory (buffer_s);
-										}		/* if (buffer_s) */
+										FreeMemory (buffer_s);
+									}		/* if (buffer_s) */
 
 									if (!bson_append_array_end (query_p, in_p))
 										{
 
 										}
 
-								}		/* if (bson_append_array_begin (query_p, key_s, -1, in_p)) */
+							}		/* if (bson_append_array_begin (query_p, key_s, -1, in_p)) */
 
-						}		/* if (in_p) */
+					}		/* if (in_p) */
 
-				}
-				break;
+			}
+			break;
 
-			case JSON_OBJECT:
-				{
-					/*
-					 * key:  one of "=", "<", "<=", ">", ">=", "in", "range", "not", "like"
-					 * value: can be single value or array. For a "range" key, it will be an array
-					 * of 2 elements that are the inclusive lower and upper bounds.
-					 */
-					json_t *operator_p = json_object_get (json_clause_p, MONGO_CLAUSE_OPERATOR_S);
-					json_t *value_p = json_object_get (json_clause_p, MONGO_CLAUSE_VALUE_S);
+		case JSON_OBJECT:
+			{
+				/*
+				 * key:  one of "=", "<", "<=", ">", ">=", "in", "range", "not", "like"
+				 * value: can be single value or array. For a "range" key, it will be an array
+				 * of 2 elements that are the inclusive lower and upper bounds.
+				 */
+				json_t *operator_p = json_object_get (json_clause_p, MONGO_CLAUSE_OPERATOR_S);
+				json_t *value_p = json_object_get (json_clause_p, MONGO_CLAUSE_VALUE_S);
 
-					if (operator_p && value_p)
-						{
-							if (json_is_string (operator_p))
-								{
-									const char *op_s = json_string_value (operator_p);
+				if (operator_p && value_p)
+					{
+						if (json_is_string (operator_p))
+							{
+								const char *op_s = json_string_value (operator_p);
 
-									if (strcmp (op_s, SO_RANGE_S) == 0)
-										{
-											if (json_is_array (value_p))
-												{
-													if (json_array_size (value_p) == 2)
-														{
-															json_t *range_value_p = json_array_get (value_p, 0);
+								if (strcmp (op_s, SO_RANGE_S) == 0)
+									{
+										if (json_is_array (value_p))
+											{
+												if (json_array_size (value_p) == 2)
+													{
+														json_t *range_value_p = json_array_get (value_p, 0);
 
-															if (AddChild (query_p, key_s, "$gte", range_value_p, json_clause_p))
-																{
-																	range_value_p = json_array_get (value_p, 1);
+														if (AddChild (query_p, key_s, "$gte", range_value_p, json_clause_p))
+															{
+																range_value_p = json_array_get (value_p, 1);
 
-																	if (AddChild (query_p, key_s, "$lte", range_value_p, json_clause_p))
-																		{
-																			success_flag = true;
-																		}
+																if (AddChild (query_p, key_s, "$lte", range_value_p, json_clause_p))
+																	{
+																		success_flag = true;
+																	}
 
-																}
-														}
-												}
-										}
-									else
-										{
-											const char *token_s = NULL;
+															}
+													}
+											}
+									}
+								else
+									{
+										const char *token_s = NULL;
 
-											if (strcmp (op_s, SO_EQUALS_S) == 0)
-												{
-													token_s = "$eq";
-												}
-											else if (strcmp (op_s, SO_LESS_THAN_S) == 0)
-												{
-													token_s = "$lt";
-												}
-											else if (strcmp (op_s, SO_LESS_THAN_OR_EQUALS_S) == 0)
-												{
-													token_s = "$lte";
-												}
-											else if (strcmp (op_s, SO_GREATER_THAN_S) == 0)
-												{
-													token_s = "$gt";
-												}
-											else if (strcmp (op_s, SO_GREATER_THAN_OR_EQUALS_S) == 0)
-												{
-													token_s = "$gte";
-												}
-											else if (strcmp (op_s, SO_NOT_EQUALS_S) == 0)
-												{
-													token_s = "$ne";
-												}
-											else if (strcmp (op_s, SO_LIKE_S) == 0)
-												{
-													token_s = "$regex";
-												}
-											else
-												{
-													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Unknown operation %s", op_s);
-												}
+										if (strcmp (op_s, SO_EQUALS_S) == 0)
+											{
+												token_s = "$eq";
+											}
+										else if (strcmp (op_s, SO_LESS_THAN_S) == 0)
+											{
+												token_s = "$lt";
+											}
+										else if (strcmp (op_s, SO_LESS_THAN_OR_EQUALS_S) == 0)
+											{
+												token_s = "$lte";
+											}
+										else if (strcmp (op_s, SO_GREATER_THAN_S) == 0)
+											{
+												token_s = "$gt";
+											}
+										else if (strcmp (op_s, SO_GREATER_THAN_OR_EQUALS_S) == 0)
+											{
+												token_s = "$gte";
+											}
+										else if (strcmp (op_s, SO_NOT_EQUALS_S) == 0)
+											{
+												token_s = "$ne";
+											}
+										else if (strcmp (op_s, SO_LIKE_S) == 0)
+											{
+												token_s = "$regex";
+											}
+										else
+											{
+												PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Unknown operation %s", op_s);
+											}
 
-											if (token_s)
-												{
-													success_flag = AddChild (query_p, key_s, token_s, value_p, json_clause_p);
-												}
-										}
-								}
-						}
+										if (token_s)
+											{
+												success_flag = AddChild (query_p, key_s, token_s, value_p, json_clause_p);
+											}
+									}
+							}
+					}
 
-				}
-				break;
+			}
+			break;
 
-			case JSON_NULL:
-				success_flag = true;
-				break;
+		case JSON_NULL:
+			success_flag = true;
+			break;
 
-			default:
-				break;
-		}		/* switch (json_typeof (json_p)) */
+		default:
+			break;
+	}		/* switch (json_typeof (json_p)) */
 
 
-	#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINER
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINER
 	PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, query_p, "bson search query");
-	#endif
+#endif
 
 	return success_flag;
 }
@@ -716,9 +729,9 @@ bson_t *GenerateQuery (const json_t *json_p)
 		{
 			query_p = bson_new ();
 
-			#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 			PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, json_p, "json search query");
-			#endif
+#endif
 
 
 			if (query_p)
@@ -727,13 +740,13 @@ bson_t *GenerateQuery (const json_t *json_p)
 					json_t *value_p;
 
 					json_object_foreach (json_p, key_s, value_p)
-						{
-							AddToQuery (query_p, key_s, value_p);
-						}		/* json_object_foreach (json_p, key_p, value_p) */
+					{
+						AddToQuery (query_p, key_s, value_p);
+					}		/* json_object_foreach (json_p, key_p, value_p) */
 
-					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, query_p, "final bson search query");
-					#endif
+#endif
 
 				}		/* if (query_p) */
 
@@ -752,9 +765,9 @@ bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_js
 
 	if (query_p)
 		{
-			#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINER
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINER
 			PrintBSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "query: ");
-			#endif
+#endif
 
 			success_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss);
 			bson_destroy (query_p);
@@ -890,9 +903,9 @@ bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p,
 				}		/* if (fields_ss) */
 
 
-			#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 			PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, query_p, "mongo query");
-			#endif
+#endif
 
 
 			cursor_p = mongoc_collection_find_with_opts (tool_p -> mt_collection_p, query_p, fields_p, NULL);
@@ -961,9 +974,9 @@ int32 GetAllMongoResultsForKeyValuePair (MongoTool *tool_p, json_t **docs_pp, co
 		{
 			if (BSON_APPEND_UTF8 (query_p, key_s, value_s))
 				{
-					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, query_p, "InsertOrUpdateMongoData query: ");
-					#endif
+#endif
 
 					num_results = 0;
 
@@ -1043,26 +1056,26 @@ json_t *ConvertBSONValueToJSON (const bson_value_t *value_p)
 	json_t *result_p = NULL;
 
 	switch (value_p -> value_type)
-		{
-			case BSON_TYPE_DOUBLE:
-				result_p = json_real (value_p -> value.v_double);
-				break;
+	{
+		case BSON_TYPE_DOUBLE:
+			result_p = json_real (value_p -> value.v_double);
+			break;
 
-			case BSON_TYPE_UTF8:
-				result_p = json_string (value_p -> value.v_utf8.str);
-				break;
+		case BSON_TYPE_UTF8:
+			result_p = json_string (value_p -> value.v_utf8.str);
+			break;
 
-			case BSON_TYPE_BOOL:
-				result_p = (value_p -> value.v_bool) ? json_true () : json_false ();
-				break;
+		case BSON_TYPE_BOOL:
+			result_p = (value_p -> value.v_bool) ? json_true () : json_false ();
+			break;
 
-			case BSON_TYPE_INT32:
-				result_p = json_integer (value_p -> value.v_int32);
-				break;
+		case BSON_TYPE_INT32:
+			result_p = json_integer (value_p -> value.v_int32);
+			break;
 
-			case BSON_TYPE_INT64:
-				result_p = json_integer (value_p -> value.v_int64);
-				break;
+		case BSON_TYPE_INT64:
+			result_p = json_integer (value_p -> value.v_int64);
+			break;
 
 			/*
 			BSON_TYPE_DOCUMENT   = 0x03,
@@ -1081,10 +1094,10 @@ json_t *ConvertBSONValueToJSON (const bson_value_t *value_p)
 			BSON_TYPE_TIMESTAMP  = 0x11,
 			BSON_TYPE_MAXKEY     = 0x7F,
 			BSON_TYPE_MINKEY     = 0xFF,
-			*/
-		 default:
-			 break;
-	 }
+			 */
+		default:
+			break;
+	}
 
 	return result_p;
 }
@@ -1328,9 +1341,9 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 								{
 									const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL);
 
-									#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 									PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "FindMatchingMongoDocumentsByBSON returned %s", exists_flag ? "true" : "false");
-									#endif
+#endif
 
 
 									if (exists_flag)
@@ -1430,3 +1443,75 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 	return error_s;
 }
+
+
+bool CreateIndexForMongoCollection (MongoTool *tool_p, char **fields_ss)
+{
+	bool success_flag = true;
+	char **field_ss = fields_ss;
+	bson_t keys;
+
+	bson_init (&keys);
+
+	/* get the list of fields */
+	while (success_flag && *field_ss)
+		{
+			success_flag = BSON_APPEND_INT32 (&keys, *field_ss, 1);
+			++ field_ss;
+		}
+
+	if (success_flag)
+		{
+			char *index_s = mongoc_collection_keys_to_index_string (&keys);
+
+			if (index_s)
+				{
+					const char *collection_name_s = mongoc_collection_get_name (tool_p -> mt_collection_p);
+
+					bson_t *command_p = BCON_NEW ("createIndexes",
+						BCON_UTF8 (collection_name_s),
+						"indexes",
+						"[",
+						"{",
+						"key",
+						BCON_DOCUMENT (&keys),
+						"name",
+						BCON_UTF8 (index_s),
+						"}",
+						"]");
+
+					if (command_p)
+						{
+              bson_t reply;
+              bson_error_t error;
+
+              success_flag = mongoc_database_write_command_with_opts (tool_p -> mt_database_p, command_p, NULL /* opts */, &reply, &error);
+
+							#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+								{
+									char *reply_s = bson_as_json (&reply, NULL);
+
+									if (reply_s)
+										{
+											PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "%s", reply_s);
+											bson_free (reply_s);
+										}
+								}
+							#endif
+
+              if (!success_flag)
+              	{
+									PrintErrors (STM_LEVEL_FINE, __FILE__, __LINE__, "Error creating MongoDB index for %s: %s", collection_name_s, error.message);
+              	}
+
+							bson_destroy (command_p);
+						}		/* if (command_p) */
+
+					bson_free (index_s);
+				}		/* if (index_s) */
+
+		}		/* if (success_flag) */
+
+	return success_flag;
+}
+
