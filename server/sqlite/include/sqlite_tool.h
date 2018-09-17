@@ -227,7 +227,7 @@ GRASSROOTS_SQLITE_API int32 GetAllSQLiteResultsForKeyValuePair (SQLiteTool *tool
  * @return A newly-allocated json_object with the key-value pair results or <code>NULL</code> upon error.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API json_t *GetCurrentValuesAsJSON (SQLiteTool *tool_p, const char **fields_ss, const size_t num_fields);
+GRASSROOTS_SQLITE_API json_t *GetCurrentValuesFromSQLiteToolAsJSON (SQLiteTool *tool_p, const char **fields_ss, const size_t num_fields);
 
 
 /**

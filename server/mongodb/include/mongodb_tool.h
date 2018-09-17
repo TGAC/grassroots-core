@@ -147,6 +147,14 @@ typedef struct MongoTool
 	 */
 	mongoc_collection_t *mt_collection_p;
 
+
+	/**
+	 * @private
+	 *
+	 * This is the current mongo database_s.
+	 */
+	mongoc_database_t *mt_database_p;
+
 	/**
 	 * @private
 	 *
@@ -496,7 +504,21 @@ GRASSROOTS_MONGODB_API const char *InsertOrUpdateMongoData (MongoTool *tool_p, j
  * @return An error string or <code>NULL</code> if the updates were successful.
  * @memberof MongoTool
  */
-const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char *const primary_key_id_s);
+GRASSROOTS_MONGODB_API const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char *const primary_key_id_s);
+
+
+
+/**
+ * Create an index for the current collection of a MongoTool.
+ *
+ * @param tool_p The MongoTool whose collection will have the new index.
+ * @param fields_ss An array of field names to use to generate the unique or compound index.
+ * The final element in this array must be <code>NULL</code>.
+ * @return <code>true</code> if the values were added successfully,
+ * <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool CreateIndexForMongoCollection (MongoTool *tool_p, char **fields_ss);
 
 
 #ifdef __cplusplus
