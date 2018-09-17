@@ -292,8 +292,9 @@ GRASSROOTS_SQLITE_API void FreeSQLiteToolErrorString (SQLiteTool *tool_p, char *
 GRASSROOTS_SQLITE_API char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *columns_p, const bool delete_if_exists_flag);
 
 
-GRASSROOTS_SQLITE_API char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s);
+GRASSROOTS_SQLITE_API char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s, int (*callback_fn) (void *data_p, int num_columns, char **columns_aa_text_ss, char **column_names_ss), void *data_p);
 
+GRASSROOTS_SQLITE_API char *EasyRunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s);
 
 #ifdef __cplusplus
 }

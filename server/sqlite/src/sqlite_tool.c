@@ -320,7 +320,7 @@ char *InsertOrUpdateSQLiteData (SQLiteTool *tool_p, json_t *values_p, const char
 				{
 					const char *sql_s = GetByteBufferData (buffer_p);
 
-					error_s = RunSQLiteToolStatement (tool_p, sql_s);
+					error_s = EasyRunSQLiteToolStatement (tool_p, sql_s);
 
 					if (error_s)
 						{
@@ -404,7 +404,7 @@ char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *co
 								{
 									const char *sql_s = GetByteBufferData (buffer_p);
 
-									error_s = RunSQLiteToolStatement (tool_p, sql_s);
+									error_s = EasyRunSQLiteToolStatement (tool_p, sql_s);
 								}
 
 						}		/* if (AppendStringsToByteBuffer (buffer_p, "CREATE TABLE ", table_s, "(")) */
@@ -419,11 +419,11 @@ char *CreateSQLiteTable (SQLiteTool *tool_p, const char *table_s, LinkedList *co
 }
 
 
-char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
+char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s, int (*callback_fn) (void *data_p, int num_columns, char **columns_aa_text_ss, char **column_names_ss), void *data_p)
 {
 	char *error_s = NULL;
 	char *sql_error_s = NULL;
-	int res = sqlite3_exec (tool_p -> sqlt_database_p, sql_s, NULL, NULL, &sql_error_s);
+	int res = sqlite3_exec (tool_p -> sqlt_database_p, sql_s, callback_fn, data_p, &sql_error_s);
 
 	if (res != SQLITE_OK)
 		{
@@ -433,6 +433,13 @@ char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
 		}
 
 	return error_s;
+}
+
+
+
+char *EasyRunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
+{
+	return RunSQLiteToolStatement (tool_p, sql_s, NULL, NULL);
 }
 
 
