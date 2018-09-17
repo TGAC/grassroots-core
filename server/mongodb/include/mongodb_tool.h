@@ -151,7 +151,7 @@ typedef struct MongoTool
 	/**
 	 * @private
 	 *
-	 * This is the current mongo database_s.
+	 * This is the current mongo database.
 	 */
 	mongoc_database_t *mt_database_p;
 
@@ -488,7 +488,7 @@ GRASSROOTS_MONGODB_API json_t *ConvertBSONValueToJSON (const bson_value_t *value
  * @return An error string or <code>NULL</code> if the updates were successful.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char * const database_s, const char * const collection_s, const char * const primary_key_id_s, const char * const mapped_id_s, const char * const object_key_s);
+GRASSROOTS_MONGODB_API const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char * const database_s, const char * const collection_s, const char **primary_keys_ss, const size_t num_keys, const char * const mapped_id_s, const char * const object_key_s);
 
 
 /**
@@ -519,6 +519,9 @@ GRASSROOTS_MONGODB_API const char *EasyInsertOrUpdateMongoData (MongoTool *tool_
  * @memberof MongoTool
  */
 GRASSROOTS_MONGODB_API bool CreateIndexForMongoCollection (MongoTool *tool_p, char **fields_ss);
+
+
+
 
 
 #ifdef __cplusplus

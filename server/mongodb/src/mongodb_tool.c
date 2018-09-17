@@ -44,6 +44,9 @@ static bool AddSearchOptions (bson_t *query_p, const json_t *options_p);
 static int CompareStrings (const void *v0_p, const void *v1_p);
 
 
+static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const json_t *data_p);
+
+
 
 /**
  * Create a new BSON fragment from a given JSON one.
@@ -1308,138 +1311,148 @@ bool AddBSONDocumentToJSONArray (const bson_t *document_p, void *data_p)
 }
 
 
-const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p,  const char *const primary_key_id_s)
+const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char *primary_key_id_s)
 {
-	return InsertOrUpdateMongoData (tool_p, values_p, NULL, NULL, primary_key_id_s, NULL, NULL);
+	const char ** const keys_ss = &primary_key_id_s;
+
+	return InsertOrUpdateMongoData (tool_p, values_p, NULL, NULL, keys_ss, 1, NULL, NULL);
 }
 
 
-const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char * const database_s, const char * const collection_s, const char * const primary_key_id_s, const char * const mapped_id_s, const char * const object_key_s)
+
+const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const char * const database_s, const char * const collection_s, const char **primary_keys_ss, const size_t num_keys, const char * const mapped_id_s, const char * const object_key_s)
 {
 	const char *error_s = NULL;
-	const char *primary_key_value_s = GetJSONString (values_p, primary_key_id_s);
 
-	if (primary_key_value_s)
+	if (database_s && collection_s)
 		{
-			if (database_s && collection_s)
+			if (!SetMongoToolCollection (tool_p, database_s, collection_s))
 				{
-					if (!SetMongoToolCollection (tool_p, database_s, collection_s))
-						{
-							error_s = "Failed to set database and collection name";
-						}
+					error_s = "Failed to set database and collection name";
 				}
+		}
 
-			if (!error_s)
+	if (!error_s)
+		{
+			bson_t *query_p = MakeQuery (primary_keys_ss, num_keys, values_p);
+
+			if (query_p)
 				{
-					bson_t *query_p = bson_new ();
+					const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL);
 
-					if (query_p)
+					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+					PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "FindMatchingMongoDocumentsByBSON returned %s", exists_flag ? "true" : "false");
+					#endif
+
+
+					if (exists_flag)
 						{
-							const char * const insert_key_s = mapped_id_s ? mapped_id_s : primary_key_id_s;
-
-							if (BSON_APPEND_UTF8 (query_p, insert_key_s, primary_key_value_s))
+							if (object_key_s)
 								{
-									const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL);
+									json_t *doc_p = json_object ();
 
-#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
-									PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "FindMatchingMongoDocumentsByBSON returned %s", exists_flag ? "true" : "false");
-#endif
-
-
-									if (exists_flag)
+									if (doc_p)
 										{
-
-											if (object_key_s)
+											if (json_object_set (doc_p, object_key_s, values_p) == 0)
 												{
-													json_t *doc_p = json_object ();
-
-													if (doc_p)
-														{
-															if (json_object_set (doc_p, object_key_s, values_p) == 0)
-																{
-																	if (!UpdateMongoDocumentByBSON (tool_p, query_p, doc_p))
-																		{
-																			error_s = "Failed to create update document";
-																		}
-																}
-															else
-																{
-																	error_s = "Failed to update sub-document";
-																}
-
-															WipeJSON (doc_p);
-														}
-													else
-														{
-															error_s = "Failed to create sub-document for updating";
-														}
-												}
-											else
-												{
-													if (!UpdateMongoDocumentByBSON (tool_p, query_p, values_p))
+													if (!UpdateMongoDocumentByBSON (tool_p, query_p, doc_p))
 														{
 															error_s = "Failed to create update document";
 														}
 												}
+											else
+												{
+													error_s = "Failed to update sub-document";
+												}
 
-										}		/* if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL)) */
+											WipeJSON (doc_p);
+										}
 									else
 										{
-											json_error_t err;
-											bson_oid_t *oid_p = NULL;
+											error_s = "Failed to create sub-document for updating";
+										}
+								}
+							else
+								{
+									if (!UpdateMongoDocumentByBSON (tool_p, query_p, values_p))
+										{
+											error_s = "Failed to create update document";
+										}
+								}
 
-											if (object_key_s)
+						}		/* if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL)) */
+					else
+						{
+							json_error_t err;
+							bson_oid_t *oid_p = NULL;
+
+							if (object_key_s)
+								{
+									json_t *doc_p = json_object ();
+
+									/* remove the primary_key_id_s field */
+									const char **key_ss = primary_keys_ss;
+									size_t i = 0;
+									bool success_flag = true;
+
+									for (i = 0; i < num_keys; ++ i, ++ key_ss)
+										{
+											json_t *value_p = json_object_get (values_p, *key_ss);
+
+											if (value_p)
 												{
-													json_t *doc_p = json_object ();
-
-													/* remove the primary_key_id_s field */
-													json_object_del (values_p, primary_key_id_s);
-
-													doc_p = json_pack_ex (&err, 0, "{s:s,s:o}", insert_key_s, primary_key_value_s, object_key_s, values_p);
-
-													if (doc_p)
+													if (json_object_set (doc_p, *key_ss, value_p))
 														{
-															oid_p = InsertJSONIntoMongoCollection (tool_p, doc_p);
-
-															if (doc_p)
-																{
-																	WipeJSON (doc_p);
-																}
+															json_object_del (values_p, *key_ss);
 														}
 													else
 														{
-															error_s = "Failed to create sub-document to insert";
+															success_flag = false;
+															i = num_keys;
 														}
-												}
-											else
-												{
-													oid_p = InsertJSONIntoMongoCollection (tool_p, values_p);
-												}
-
-
-											if (oid_p)
-												{
-													FreeMemory (oid_p);
-												}
-											else
-												{
-													error_s = "Failed to insert data";
 												}
 
 										}
 
-								}		/* if (BSON_APPEND_UTF8 (query_p, insert_key_s, primary_key_value_s)) */
+									if (success_flag)
+										{
+											if (json_object_set (doc_p, object_key_s, values_p) == 0)
+												{
+													oid_p = InsertJSONIntoMongoCollection (tool_p, doc_p);
 
-							bson_destroy (query_p);
-						}		/* if (query_p) */
+													if (doc_p)
+														{
+															WipeJSON (doc_p);
+														}
+												}
+											else
+												{
+													error_s = "Failed to create sub-document to insert";
+												}
 
-				}		/* if (SetMongoToolCollection (tool_p, database_s,collection_s)) */
+										}
+								}
+							else
+								{
+									oid_p = InsertJSONIntoMongoCollection (tool_p, values_p);
+								}
 
-		}		/* if (primary_key_value_s) */
-	else
-		{
-			error_s = "Failed to get primary key from input json";
-		}
+
+							if (oid_p)
+								{
+									FreeMemory (oid_p);
+								}
+							else
+								{
+									error_s = "Failed to insert data";
+								}
+
+						}
+
+					bson_destroy (query_p);
+				}		/* if (query_p) */
+
+		}		/* if (SetMongoToolCollection (tool_p, database_s,collection_s)) */
 
 	return error_s;
 }
@@ -1513,5 +1526,79 @@ bool CreateIndexForMongoCollection (MongoTool *tool_p, char **fields_ss)
 		}		/* if (success_flag) */
 
 	return success_flag;
+}
+
+
+
+static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const json_t *data_p)
+{
+	bson_t *query_p = bson_new ();
+
+	if (query_p)
+		{
+			bool success_flag = true;
+			size_t i = 0;
+
+			while (success_flag  && (i < num_keys))
+				{
+					json_t *value_p = json_object_get (data_p, *keys_ss);
+
+					if (value_p)
+						{
+							switch (value_p -> type)
+								{
+									case JSON_STRING:
+										if (!BSON_APPEND_UTF8 (query_p, *keys_ss, json_string_value (value_p)))
+											{
+												success_flag = false;
+											}
+										break;
+
+									case JSON_INTEGER:
+										if (!BSON_APPEND_INT64 (query_p, *keys_ss, json_integer_value (value_p)))
+											{
+												success_flag = false;
+											}
+										break;
+
+									case JSON_REAL:
+										if (!BSON_APPEND_DOUBLE (query_p, *keys_ss, json_real_value (value_p)))
+											{
+												success_flag = false;
+											}
+										break;
+
+									case JSON_TRUE:
+									case JSON_FALSE:
+										if (!BSON_APPEND_BOOL (query_p, *keys_ss, json_boolean_value (value_p)))
+											{
+												success_flag = false;
+											}
+										break;
+
+									default:
+										success_flag = false;
+										break;
+								}
+
+						}		/* if (value_p) */
+
+					if (success_flag)
+						{
+							++ keys_ss;
+							++ i;
+						}
+
+				}		/* while (success_flag  && (i < num_keys)) */
+
+			if (success_flag)
+				{
+					return query_p;
+				}
+
+			bson_destroy (query_p);
+		}		/* if (query_p) */
+
+	return NULL;
 }
 
