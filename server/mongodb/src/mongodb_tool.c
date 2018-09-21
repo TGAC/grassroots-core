@@ -1440,6 +1440,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 							if (oid_p)
 								{
+
 									FreeMemory (oid_p);
 								}
 							else
