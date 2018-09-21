@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -131,6 +131,13 @@ bool RemoveSQLiteRows (SQLiteTool *tool_p, const json_t *selector_json_p, const 
 	return success_flag;
 }
 
+
+json_t *FindMatchingSQLiteDocumentsByJSON (SQLiteTool *tool_p, json_t *where_clauses_p, const char **fields_ss, char **error_ss)
+{
+	json_t *res_p = NULL;
+
+	return res_p;
+}
 
 
 json_t *FindMatchingSQLiteDocuments (SQLiteTool *tool_p, LinkedList *where_clauses_p, const char **fields_ss, char **error_ss)
@@ -789,6 +796,101 @@ static bool DoInsert (json_t *value_p, const char * const table_s, const char * 
 							success_flag = true;
 						}
 				}
+		}
+
+	return success_flag;
+}
+
+
+bool InsertSQLiteRow (SQLiteTool *tool_p, const json_t *data_p, char **error_ss)
+{
+	bool success_flag = false;
+	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+	if (buffer_p)
+		{
+			ByteBuffer *columns_buffer_p = AllocateByteBuffer (1024);
+
+			if (columns_buffer_p)
+				{
+					ByteBuffer *values_buffer_p = AllocateByteBuffer (1024);
+
+					if (values_buffer_p)
+						{
+							void *iter_p = json_object_iter (data_p);
+							const size_t size = json_object_size (data_p);
+							size_t i = 1;
+
+							success_flag = true;
+
+							while (iter_p && success_flag)
+								{
+									const char *key_s = json_object_iter_key (iter_p);
+									json_t *value_p = json_object_iter_value (iter_p);
+
+									if (AppendStringToByteBuffer (columns_buffer_p, key_s))
+										{
+											if (AddJSONObjectToByteBuffer (values_buffer_p, value_p))
+												{
+													if (i != size)
+														{
+															success_flag = ((AppendStringToByteBuffer (columns_buffer_p, ", ")) && (AppendStringToByteBuffer (values_buffer_p, ", ")));
+														}
+												}
+											else
+												{
+													success_flag = false;
+												}
+										}
+									else
+										{
+											success_flag = false;
+										}
+
+									if (success_flag)
+										{
+											iter_p = json_object_iter_next (data_p, iter_p);
+											++ i;
+										}
+									else
+										{
+
+										}
+
+								}		/* while (iter_p && success_flag) */
+
+							if (success_flag)
+								{
+									const char *columns_s = GetByteBufferData (columns_buffer_p);
+									const char *values_s = GetByteBufferData (values_buffer_p);
+
+									if (AppendStringsToByteBuffer (buffer_p, "INSERT INTO ", tool_p -> sqlt_table_s, " (", columns_s, ") VALUES (", values_s, ");", NULL))
+										{
+											const char *sql_s = GetByteBufferData (buffer_p);
+
+											*error_ss = EasyRunSQLiteToolStatement (tool_p, sql_s);
+
+											if (*error_ss)
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run sql statement \"%s\", error: \"%s\"", sql_s, *error_ss);
+												}
+										}
+								}
+							else
+								{
+
+								}
+							FreeByteBuffer (values_buffer_p);
+						}		/* if (values_buffer_p) */
+
+					FreeByteBuffer (columns_buffer_p);
+				}		/* if (columns_buffer_p) */
+
+			FreeByteBuffer (buffer_p);
+		}		/* if (buffer_p) */
+	else
+		{
+
 		}
 
 	return success_flag;

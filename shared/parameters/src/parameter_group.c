@@ -29,6 +29,7 @@
 #include "string_utils.h"
 #include "json_util.h"
 #include "service.h"
+#include "math_utils.h"
 
 
 static const char S_REPEATABLE_GROUP_DELIMITER_PREFIX_S [] = "[";
@@ -425,6 +426,8 @@ char *GetRepeatableParameterGroupName (ParameterGroup * const group_p)
 				{
 					++ (group_p -> pg_current_repeatable_group_index);
 				}
+
+			FreeCopiedString (index_s);
 		}
 
 	return value_s;

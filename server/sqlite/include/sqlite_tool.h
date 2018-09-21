@@ -296,6 +296,10 @@ GRASSROOTS_SQLITE_API char *RunSQLiteToolStatement (SQLiteTool *tool_p, const ch
 
 GRASSROOTS_SQLITE_API char *EasyRunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s);
 
+
+GRASSROOTS_SQLITE_API bool InsertSQLiteRow (SQLiteTool *tool_p, const json_t *data_p, char **error_ss);
+
+
 #ifdef __cplusplus
 }
 #endif
