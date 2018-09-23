@@ -190,7 +190,7 @@ extern "C"
 
 
 /**
- * Set the database an collection that a MongoTool will use.
+ * Set the database and collection that a MongoTool will use.
  *
  * @param tool_p The MongoTool to update.
  * @param db_s The database to use.
@@ -199,7 +199,19 @@ extern "C"
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool SetMongoToolCollection (MongoTool *tool_p, const char *db_s, const char *collection_s);
+GRASSROOTS_MONGODB_API bool SetMongoToolDatabaseAndCollection (MongoTool *tool_p, const char *db_s, const char *collection_s);
+
+
+/**
+ * Set the collection that a MongoTool will use.
+ *
+ * @param tool_p The MongoTool to update.
+ * @param collection_s The collection to use.
+ * @return <code>true</code> if the MongoTool was updated successfully,
+ * <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s);
 
 
 /**
@@ -541,6 +553,12 @@ GRASSROOTS_MONGODB_API bool RunMongoCommand (MongoTool *tool_p, bson_t *command_
  * @return The BSON fragment or <code>NULL</code> upon error.
  */
 GRASSROOTS_MONGODB_API bson_t *ConvertJSONToBSON (const json_t *json_p);
+
+
+GRASSROOTS_MONGODB_API char *GetBSONOidAsString (const bson_oid_t *id_p);
+
+
+GRASSROOTS_MONGODB_API bson_oid_t *GetBSONOidFromString (const char *id_s);
 
 
 #ifdef __cplusplus

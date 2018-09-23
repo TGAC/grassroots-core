@@ -154,7 +154,7 @@ void FreeMongoTool (MongoTool *tool_p)
 }
 
 
-bool SetMongoToolCollection (MongoTool *tool_p, const char *db_s, const char *collection_s)
+bool SetMongoToolDatabaseAndCollection (MongoTool *tool_p, const char *db_s, const char *collection_s)
 {
 	mongoc_database_t *database_p = mongoc_client_get_database (tool_p -> mt_client_p, db_s);
 
@@ -181,6 +181,35 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *db_s, const char *co
 				}
 
 			mongoc_database_destroy (database_p);
+		}
+
+	return false;
+}
+
+
+bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
+{
+	bool success_flag = false;
+
+	if (tool_p -> mt_database_p)
+		{
+			const char *database_s = mongoc_database_get_name (tool_p -> mt_database_p);
+
+			if (database_s)
+				{
+					mongoc_collection_t *collection_p =  mongoc_client_get_collection (tool_p -> mt_client_p, database_s, collection_s);
+
+					if (collection_p)
+						{
+							if (tool_p -> mt_collection_p)
+								{
+									mongoc_collection_destroy (tool_p -> mt_collection_p);
+								}
+
+							tool_p -> mt_collection_p = collection_p;
+							success_flag = true;
+						}
+				}
 		}
 
 	return false;
@@ -1208,7 +1237,7 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 {
 	int32 res =-1;
 
-	if (SetMongoToolCollection (tool_p, database_s, collection_s))
+	if (SetMongoToolDatabaseAndCollection (tool_p, database_s, collection_s))
 		{
 			json_error_t error;
 			json_t *json_p = json_pack_ex (&error, 0, "{s:s}", key_s, value_s);
@@ -1410,7 +1439,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 	if (database_s && collection_s)
 		{
-			if (!SetMongoToolCollection (tool_p, database_s, collection_s))
+			if (!SetMongoToolDatabaseAndCollection (tool_p, database_s, collection_s))
 				{
 					error_s = "Failed to set database and collection name";
 				}
@@ -1687,3 +1716,41 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 	return NULL;
 }
 
+
+char *GetBSONOidAsString (const bson_oid_t *id_p)
+{
+	char *id_s = NULL;
+
+	if (id_p)
+		{
+			id_s = (char *) AllocMemory (25 * sizeof (char));
+
+			if (id_s)
+				{
+					bson_oid_to_string (id_p, id_s);
+				}
+		}
+
+	return id_s;
+}
+
+
+bson_oid_t *GetBSONOidFromString (const char *id_s)
+{
+	bson_oid_t *id_p = NULL;
+
+	if (id_s)
+		{
+			if (bson_oid_is_valid (id_s, strlen (id_s)))
+				{
+					id_p = (bson_oid_t *) AllocMemory (sizeof (bson_oid_t));
+
+					if (id_p)
+						{
+							bson_oid_init_from_string (id_p, id_s);
+						}
+				}
+		}
+
+	return id_p;
+}

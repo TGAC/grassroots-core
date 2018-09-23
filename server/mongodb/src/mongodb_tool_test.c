@@ -61,7 +61,7 @@ int main (int argc, char *argv [])
 
 	  			if (tool_p)
 	  				{
-	  					if (SetMongoToolCollection (tool_p, argv [1], argv [2]))
+	  					if (SetMongoToolDatabaseAndCollection (tool_p, argv [1], argv [2]))
 	  						{
 	  							bson_t *bson_doc_p = NULL;
 	  							json_t *values_p = GetDataToInsert ();
