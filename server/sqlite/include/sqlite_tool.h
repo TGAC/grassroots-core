@@ -78,7 +78,7 @@ typedef struct SQLiteTool
 	/**
 	 * The name of the table that this SQLiteTool is currently accessing.
 	 */
-	const char *sqlt_table_s;
+	char *sqlt_table_s;
 } SQLiteTool;
 
 
@@ -94,14 +94,26 @@ extern "C"
  *
  * @param tool_p The SQLite to update.
  * @param db_s The database to use.
- * @param table_s The table to use.
  * @param flags The flags to use when opening the underlying sqlite database
  * see sqlite3_open_v2()
  * @return <code>true</code> if the SQLite was updated successfully.
  * <code>false</code> otherwise.
  * @memberof SQLiteTool
  */
-GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db_s, int flags, const char *table_s);
+GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db_s, int flags);
+
+
+/**
+ * Set the tablethat a SQLite will use.
+ *
+ * @param tool_p The SQLite to update.
+ * @param table_s The table to use.
+ * @return <code>true</code> if the SQLite was updated successfully.
+ * <code>false</code> otherwise.
+ * @memberof SQLiteTool
+ */
+GRASSROOTS_SQLITE_API bool SetSQLiteToolTable (SQLiteTool *tool_p, const char *table_s);
+
 
 
 /**
@@ -109,14 +121,13 @@ GRASSROOTS_SQLITE_API bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db
  * grassroots.config file
  *
  * @param db_s The database to use.
- * @param table_s The table to use.
  * @param flags The flags to use when opening the underlying sqlite database
  * see sqlite3_open_v2()
  * @return A SQLiteTool or <code>NULL</code> upon error.
  * @memberof SQLiteTool
  * @see InitSQLite
  */
-GRASSROOTS_SQLITE_API SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s);
+GRASSROOTS_SQLITE_API SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags);
 
 
 /**

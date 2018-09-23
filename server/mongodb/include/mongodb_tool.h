@@ -140,6 +140,8 @@ typedef struct MongoTool
 	mongoc_client_t *mt_client_p;
 
 
+	bool mt_owns_client_flag;
+
 	/**
 	 * @private
 	 *
@@ -208,7 +210,7 @@ GRASSROOTS_MONGODB_API bool SetMongoToolCollection (MongoTool *tool_p, const cha
  * @memberof MongoTool
  * @see InitMongoDB
  */
-GRASSROOTS_MONGODB_API MongoTool *AllocateMongoTool (void);
+GRASSROOTS_MONGODB_API MongoTool *AllocateMongoTool (mongoc_client_t *client_p);
 
 
 /**
@@ -522,6 +524,23 @@ GRASSROOTS_MONGODB_API bool CreateIndexForMongoCollection (MongoTool *tool_p, ch
 
 
 
+GRASSROOTS_MONGODB_API bool InsertMongoData (MongoTool *tool_p, json_t *values_p, bson_t **reply_pp);
+
+
+GRASSROOTS_MONGODB_API bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp);
+
+
+GRASSROOTS_MONGODB_API bool RunMongoCommand (MongoTool *tool_p, bson_t *command_p, bson_t **reply_pp);
+
+
+
+/**
+ * Create a new BSON fragment from a given JSON one.
+ *
+ * @param json_p The JSON fragment to convert to BSON.
+ * @return The BSON fragment or <code>NULL</code> upon error.
+ */
+GRASSROOTS_MONGODB_API bson_t *ConvertJSONToBSON (const json_t *json_p);
 
 
 #ifdef __cplusplus

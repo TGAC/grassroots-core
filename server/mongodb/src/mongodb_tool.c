@@ -48,13 +48,6 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 
 
 
-/**
- * Create a new BSON fragment from a given JSON one.
- *
- * @param json_p The JSON fragment to convert to BSON.
- * @return The BSON fragment or <code>NULL</code> upon error.
- */
-static bson_t *ConvertJSONToBSON (const json_t *json_p);
 
 
 /**
@@ -104,17 +97,25 @@ static bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p,
 
 
 
-MongoTool *AllocateMongoTool (void)
+MongoTool *AllocateMongoTool (mongoc_client_t *client_p)
 {
 	MongoTool *tool_p = (MongoTool *) AllocMemory (sizeof (MongoTool));
 
 	if (tool_p)
 		{
-			mongoc_client_t *client_p = GetMongoClientFromMongoClientManager ();
+			bool owns_flag = false;
+
+			if (!client_p)
+				{
+					client_p = GetMongoClientFromMongoClientManager ();
+					owns_flag = true;
+				}
 
 			if (client_p)
 				{
 					tool_p -> mt_client_p = client_p;
+					tool_p -> mt_owns_client_flag = owns_flag;
+					tool_p -> mt_database_p = NULL;
 					tool_p -> mt_collection_p = NULL;
 					tool_p -> mt_cursor_p = NULL;
 
@@ -144,7 +145,7 @@ void FreeMongoTool (MongoTool *tool_p)
 			mongoc_cursor_destroy (tool_p -> mt_cursor_p);
 		}
 
-	if (tool_p -> mt_client_p)
+	if ((tool_p -> mt_owns_client_flag) && (tool_p -> mt_client_p))
 		{
 			ReleaseMongoClientFromMongoClientManager (tool_p -> mt_client_p);
 		}
@@ -1317,6 +1318,89 @@ const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, co
 
 	return InsertOrUpdateMongoData (tool_p, values_p, NULL, NULL, keys_ss, 1, NULL, NULL);
 }
+
+
+bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp)
+{
+	bool success_flag = false;
+	bson_t *opts_p = NULL;
+	bson_t reply;
+	bson_error_t error;
+
+	*reply_pp = NULL;
+
+	success_flag = mongoc_collection_insert_one (tool_p -> mt_collection_p, doc_p, opts_p, &reply, &error);
+
+	if (success_flag)
+		{
+			bson_t *reply_p = bson_copy (&reply);
+
+			if (reply_p)
+				{
+					*reply_pp = reply_p;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to copy reply");
+				}
+
+		}		/* if (success_flag) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to insert, error \"%s\"", error.message);
+		}
+
+	return success_flag;
+}
+
+
+bool InsertMongoData (MongoTool *tool_p, json_t *values_p, bson_t **reply_pp)
+{
+	bool success_flag = false;
+	bson_t *doc_p = ConvertJSONToBSON (values_p);
+
+	if (doc_p)
+		{
+			success_flag = InsertMongoDataAsBSON (tool_p, doc_p, reply_pp);
+
+			bson_destroy (doc_p);
+		}		/* if (doc_p_ */
+
+	return success_flag;
+}
+
+
+bool RunMongoCommand (MongoTool *tool_p, bson_t *command_p, bson_t **reply_pp)
+{
+	bool success_flag = false;
+	bson_t *opts_p = NULL;
+	bson_t reply;
+	bson_error_t error;
+
+	success_flag = mongoc_collection_command_simple (tool_p -> mt_collection_p, command_p, NULL, &reply, &error);
+
+	if (success_flag)
+		{
+			bson_t *reply_p = bson_copy (&reply);
+
+			if (reply_p)
+				{
+					*reply_pp = reply_p;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to copy reply");
+				}
+
+		}		/* if (success_flag) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "command failed, error \"%s\"", error.message);
+		}
+
+	return success_flag;
+}
+
 
 
 

@@ -57,7 +57,7 @@ static bool DoInsert (json_t *value_p, const char * const table_s, const char * 
 
 
 
-SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s)
+SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags)
 {
 	SQLiteTool *tool_p = (SQLiteTool *) AllocMemory (sizeof (SQLiteTool));
 
@@ -65,10 +65,10 @@ SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s
 		{
 			memset (tool_p, 0, sizeof (SQLiteTool));
 
-			if (SetSQLiteDatabase (tool_p, db_s, flags, table_s))
+			if (SetSQLiteDatabase (tool_p, db_s, flags))
 				{
 					return tool_p;
-				}		/* if (SetSQLiteDatabase (tool_p, db_s, flags, table_s)) */
+				}		/* if (SetSQLiteDatabase (tool_p, db_s, flags)) */
 
 			FreeSQLiteTool (tool_p);
 		}		/* if (tool_p) */
@@ -77,15 +77,46 @@ SQLiteTool *AllocateSQLiteTool (const char *db_s, int flags, const char *table_s
 }
 
 
-bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db_s, int flags, const char *table_s)
+
+bool SetSQLiteToolTable (SQLiteTool *tool_p, const char *table_s)
+{
+	bool success_flag = false;
+
+	if (table_s)
+		{
+			char *copied_table_s = EasyCopyToNewString (table_s);
+
+			if (copied_table_s)
+				{
+					if (tool_p -> sqlt_table_s)
+						{
+							FreeCopiedString (tool_p -> sqlt_table_s);
+						}
+
+					tool_p -> sqlt_table_s = copied_table_s;
+					success_flag = true;
+				}
+		}
+	else
+		{
+			if (tool_p -> sqlt_table_s)
+				{
+					FreeCopiedString (tool_p -> sqlt_table_s);
+					tool_p -> sqlt_table_s = NULL;
+				}
+		}
+
+	return success_flag;
+}
+
+
+bool SetSQLiteDatabase (SQLiteTool *tool_p, const char *db_s, int flags)
 {
 	bool success_flag = false;
 	int res = sqlite3_open_v2 (db_s, & (tool_p -> sqlt_database_p), flags, NULL);
 
 	if (res == SQLITE_OK)
 		{
-			tool_p -> sqlt_table_s = table_s;
-
 			success_flag = true;
 		}		/* if (res == SQLITE_OK) */
 

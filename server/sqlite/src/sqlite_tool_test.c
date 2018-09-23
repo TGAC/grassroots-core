@@ -53,78 +53,86 @@ int main (int argc, char *argv [])
 	if (argc > 1)
 		{
 			const char *table_s = "test_table";
-			SQLiteTool *tool_p = AllocateSQLiteTool (argv [1], SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, table_s);
+			SQLiteTool *tool_p = AllocateSQLiteTool (argv [1], SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
 
 			if (tool_p)
 				{
-					LinkedList *columns_p = NULL;
-
-					puts ("Allocated SQLiteTool");
-
-					columns_p = GetTableColumns ();
-
-					if (columns_p)
+					if (SetSQLiteToolTable (tool_p, table_s))
 						{
-							char *error_s = NULL;
+							LinkedList *columns_p = NULL;
 
-							puts ("Got Table Columns");
+							puts ("Allocated SQLiteTool");
 
-							error_s = CreateSQLiteTable (tool_p, table_s, columns_p, true);
+							columns_p = GetTableColumns ();
 
-							FreeLinkedList (columns_p);
-
-							if (error_s)
+							if (columns_p)
 								{
-									printf ("error: \"%s\"\n", error_s);
-									FreeCopiedString (error_s);
-								}
-							else
-								{
-									json_t *values_p = GetDataToInsert ();
+									char *error_s = NULL;
 
-									if (values_p)
+									puts ("Got Table Columns");
+
+									error_s = CreateSQLiteTable (tool_p, table_s, columns_p, true);
+
+									FreeLinkedList (columns_p);
+
+									if (error_s)
 										{
-											error_s = InsertOrUpdateSQLiteData (tool_p, values_p, table_s, S_ID_COLUMN_S);
-
-											json_decref (values_p);
-
-											if (error_s)
-												{
-													printf ("InsertOrUpdateSQLiteData error: \"%s\"\n", error_s);
-													FreeCopiedString (error_s);
-												}
-											else
-												{
-													values_p = GetDataToUpdate ();
-
-													if (values_p)
-														{
-															error_s = InsertOrUpdateSQLiteData (tool_p, values_p, table_s, S_ID_COLUMN_S);
-
-															json_decref (values_p);
-
-															if (error_s)
-																{
-																	printf ("InsertOrUpdateSQLiteData error: \"%s\"\n", error_s);
-																	FreeCopiedString (error_s);
-																}
-														}
-													else
-														{
-															puts ("failed to get data to update");
-														}
-												}
+											printf ("error: \"%s\"\n", error_s);
+											FreeCopiedString (error_s);
 										}
 									else
 										{
-											puts ("failed to get data to insert");
+											json_t *values_p = GetDataToInsert ();
+
+											if (values_p)
+												{
+													error_s = InsertOrUpdateSQLiteData (tool_p, values_p, table_s, S_ID_COLUMN_S);
+
+													json_decref (values_p);
+
+													if (error_s)
+														{
+															printf ("InsertOrUpdateSQLiteData error: \"%s\"\n", error_s);
+															FreeCopiedString (error_s);
+														}
+													else
+														{
+															values_p = GetDataToUpdate ();
+
+															if (values_p)
+																{
+																	error_s = InsertOrUpdateSQLiteData (tool_p, values_p, table_s, S_ID_COLUMN_S);
+
+																	json_decref (values_p);
+
+																	if (error_s)
+																		{
+																			printf ("InsertOrUpdateSQLiteData error: \"%s\"\n", error_s);
+																			FreeCopiedString (error_s);
+																		}
+																}
+															else
+																{
+																	puts ("failed to get data to update");
+																}
+														}
+												}
+											else
+												{
+													puts ("failed to get data to insert");
+												}
 										}
+
+								}		/* if (columns_p) */
+							else
+								{
+									puts ("Failed to get Table Columns");
 								}
 
-						}		/* if (columns_p) */
+						}		/* if (SetSqliteToolTable (tool_p, table_s)) */
 					else
 						{
-							puts ("Failed to get Table Columns");
+							printf ("Failed to set SQLiteTool table to %s", table_s);
 						}
 
 					FreeSQLiteTool (tool_p);

@@ -215,7 +215,7 @@ ServiceMetadata *GetServiceMetadataFromJSON (const json_t *service_json_p)
 				{
 					bool success_flag = true;
 					SchemaTerm *subcategory_p = NULL;
-					const json_t *subcategory_json_p = GetJSONString (service_json_p, SERVICE_METADATA_APPLICATION_SUBCATEGORY_S);
+					const json_t *subcategory_json_p = json_object_get (service_json_p, SERVICE_METADATA_APPLICATION_SUBCATEGORY_S);
 
 					if (subcategory_json_p)
 						{
