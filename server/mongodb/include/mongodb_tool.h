@@ -124,6 +124,9 @@ MONGODB_PREFIX const char *MONGO_CLAUSE_OPERATOR_S MONGODB_VAL("operator");
 MONGODB_PREFIX const char *MONGO_CLAUSE_VALUE_S MONGODB_VAL("value");
 
 
+MONGODB_PREFIX const uint32 MONGO_OID_STRING_BUFFER_SIZE MONGODB_VAL(25);
+
+
 /**
  * A MongoTool is a datatype that allows access to the data stored within
  * a MongoDB instance.
@@ -536,7 +539,7 @@ GRASSROOTS_MONGODB_API bool CreateIndexForMongoCollection (MongoTool *tool_p, ch
 
 
 
-GRASSROOTS_MONGODB_API bool InsertMongoData (MongoTool *tool_p, json_t *values_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool InsertMongoData (MongoTool *tool_p, const json_t *values_p, bson_t **reply_pp);
 
 
 GRASSROOTS_MONGODB_API bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp);
@@ -559,6 +562,18 @@ GRASSROOTS_MONGODB_API char *GetBSONOidAsString (const bson_oid_t *id_p);
 
 
 GRASSROOTS_MONGODB_API bson_oid_t *GetBSONOidFromString (const char *id_s);
+
+
+GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const bool insert_flag);
+
+
+GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, bson_t *doc_p, bson_t **reply_pp);
+
+
+GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp);
+
+
+GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, json_t *values_p, bson_t **reply_pp);
 
 
 #ifdef __cplusplus

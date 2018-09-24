@@ -32,9 +32,11 @@ static const char * const S_HEIGHT_COLUMN_S = "height";
 static const char * const S_DESCRIPTION_COLUMN_S = "description";
 
 
-static bson_t *GetBSONDataToInsert (void);
+static bson_t *GetBSONDataToInsert (bson_oid_t *id_p);
 
 static json_t *GetDataToInsert (void);
+
+static bson_t *GetBSONDataToUpdate (bson_oid_t *id_p);
 
 static bson_t *GetBSONCommandToRun (const char *collection_s);
 
@@ -65,6 +67,16 @@ int main (int argc, char *argv [])
 	  						{
 	  							bson_t *bson_doc_p = NULL;
 	  							json_t *values_p = GetDataToInsert ();
+	  							bson_oid_t id;
+
+	  							bson_t *update_p = BCON_NEW ("$set", "{", "x", BCON_UTF8 ("bar"), "}");
+	  							if (update_p)
+	  								{
+	  									PrintBSON (update_p, "Initial update: ");
+
+	  									bson_destroy (update_p);
+	  								}
+
 
 	  							if (values_p)
 	  								{
@@ -94,12 +106,11 @@ int main (int argc, char *argv [])
 	  									json_decref (values_p);
 	  								}		/* if (values_p) */
 
-	  							bson_doc_p = GetBSONDataToInsert ();
-	  							if (bson_doc_p)
+	  							if ((bson_doc_p = GetBSONDataToInsert (&id)) != NULL)
 	  								{
 											bson_t *reply_p = NULL;
 
-											PrintBSON (bson_doc_p, "BSON before: ");
+											PrintBSON (bson_doc_p, "BSON before insert: ");
 
 											if (InsertMongoDataAsBSON (tool_p, bson_doc_p, &reply_p))
 												{
@@ -113,12 +124,30 @@ int main (int argc, char *argv [])
 												}
 
 											PrintBSON (bson_doc_p, "BSON after: ");
+	  								}		/* if ((bson_doc_p = GetBSONDataToInsert (&id)) != NULL) */
+
+
+	  							if ((bson_doc_p = GetBSONDataToUpdate (&id)) != NULL)
+										{
+	  									bson_t *reply_p = NULL;
+	  									PrintBSON (bson_doc_p, "BSON before update : ");
+	  									if (UpdateMongoDataAsBSONForGivenId (tool_p, &id, bson_doc_p, &reply_p))
+	  										{
+	  											PrintBSON (reply_p, "Reply: ");
+
+	  											bson_destroy (reply_p);
+	  										}
+	  									else
+	  										{
+	  											PrintBSON (reply_p, "Failed to update: ");
+	  										}
+	  									PrintBSON (bson_doc_p, "BSON after update : ");
 
 	  									bson_destroy (bson_doc_p);
-	  								}		/* if (doc_p) */
+										}		/* if ((bson_doc_p = GetBSONDataToUpdate (&id)) != NULL) */
 
-	  							bson_doc_p = GetBSONCommandToRun (argv [1]);
-	  							if (bson_doc_p)
+
+	  							if ((bson_doc_p = GetBSONCommandToRun (argv [2])) != NULL)
 	  								{
 											bson_t *reply_p = NULL;
 
@@ -139,7 +168,7 @@ int main (int argc, char *argv [])
 	  									bson_destroy (bson_doc_p);
 	  								}
 
-	  						}		/* if (SetMongoToolCollection (tool_p, argv [1], argv [2])) */
+	  						}		/* if ((bson_doc_p = GetBSONCommandToRun (argv [2])) != NULL) */
 
 
 	  					FreeMongoTool (tool_p);
@@ -248,7 +277,7 @@ static bson_t *GetBSONCommandToRun (const char *collection_s)
 }
 
 
-static bson_t *GetBSONDataToInsert (void)
+static bson_t *GetBSONDataToInsert (bson_oid_t *id_p)
 {
 	bson_t *doc_p = bson_new ();
 
@@ -256,14 +285,30 @@ static bson_t *GetBSONDataToInsert (void)
 		{
 			if (BSON_APPEND_UTF8 (doc_p, "hello", "world"))
 				{
-					bson_oid_t oid;
+					bson_oid_init (id_p, NULL);
 
-					bson_oid_init (&oid, NULL);
-
-					//if (BSON_APPEND_OID (doc_p, "_id", &oid))
-					//	{
+					if (BSON_APPEND_OID (doc_p, "_id", id_p))
+						{
 							return doc_p;
-					//	}
+						}
+				}
+
+			bson_destroy (doc_p);
+		}
+
+	return NULL;
+}
+
+
+static bson_t *GetBSONDataToUpdate (bson_oid_t *id_p)
+{
+	bson_t *doc_p = bson_new ();
+
+	if (doc_p)
+		{
+			if (BSON_APPEND_UTF8 (doc_p, "hello", "you"))
+				{
+					return doc_p;
 				}
 
 			bson_destroy (doc_p);

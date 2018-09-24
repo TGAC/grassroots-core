@@ -187,6 +187,34 @@ bool SetMongoToolDatabaseAndCollection (MongoTool *tool_p, const char *db_s, con
 }
 
 
+
+bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const bool insert_flag)
+{
+	bool success_flag = false;
+
+	if (SetMongoToolCollection (mongo_p, collection_s))
+		{
+			if (insert_flag)
+				{
+					bson_t *reply_p = NULL;
+
+					if (InsertMongoData (mongo_p, data_to_save_p, &reply_p))
+						{
+							success_flag = true;
+						}
+
+				}		/* if (insert_flag) */
+			else
+				{
+					/* it's an update */
+				}
+
+		}
+
+	return success_flag;
+}
+
+
 bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 {
 	bool success_flag = false;
@@ -386,7 +414,7 @@ bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p, const 
 #endif
 
 
-									if (mongoc_collection_update (tool_p -> mt_collection_p, MONGOC_UPDATE_NONE, query_p, update_statement_p, NULL, &error))
+									if (mongoc_collection_update_one (tool_p -> mt_collection_p, query_p, update_statement_p, NULL, NULL, &error))
 										{
 											success_flag = true;
 										}		/* if (mongoc_collection_update (tool_p -> mt_collection_p, MONGOC_UPDATE_NONE, query_p, update_statement_p, NULL, &error)) */
@@ -831,7 +859,7 @@ void LogAllBSON (const bson_t *bson_p, const int level, const char * const file_
 void PrintBSONToLog (const int level, const char * const filename_s, const int line_number, const bson_t *bson_p, const char * const prefix_s)
 {
 	size_t len;
-	char *dump_s = bson_as_json (bson_p, &len);
+	char *dump_s = bson_as_canonical_extended_json (bson_p, &len);
 
 	if (dump_s)
 		{
@@ -1383,7 +1411,8 @@ bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp)
 }
 
 
-bool InsertMongoData (MongoTool *tool_p, json_t *values_p, bson_t **reply_pp)
+
+bool InsertMongoData (MongoTool *tool_p, const json_t *values_p, bson_t **reply_pp)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (values_p);
@@ -1397,6 +1426,106 @@ bool InsertMongoData (MongoTool *tool_p, json_t *values_p, bson_t **reply_pp)
 
 	return success_flag;
 }
+
+
+bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp)
+{
+	bool success_flag = false;
+	char buffer_s [MONGO_OID_STRING_BUFFER_SIZE];
+	bson_t *selector_p = NULL;
+
+	bson_oid_to_string (id_p, buffer_s);
+
+	selector_p = BCON_NEW ("_id", "{", "$eq", BCON_OID (id_p), "}");
+
+	if (selector_p)
+		{
+			success_flag = UpdateMongoDataAsBSON (tool_p, selector_p, update_p, reply_pp);
+
+			bson_destroy (selector_p);
+		}		/* if (selector_p) */
+
+	return success_flag;
+}
+
+
+bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, json_t *values_p, bson_t **reply_pp)
+{
+	bool success_flag = false;
+	bson_t *doc_p = ConvertJSONToBSON (values_p);
+
+	if (doc_p)
+		{
+			success_flag = UpdateMongoDataAsBSON (tool_p, selector_p, doc_p, reply_pp);
+
+			bson_destroy (doc_p);
+		}		/* if (doc_p_ */
+
+	return success_flag;
+}
+
+
+
+bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, bson_t *doc_p, bson_t **reply_pp)
+{
+	bool success_flag = false;
+	bson_t *opts_p = NULL;
+	bson_t reply;
+	bson_error_t error;
+  bson_t *update_p = NULL;
+
+	*reply_pp = NULL;
+
+	update_p = bson_new ();
+
+  if (update_p)
+  	{
+  		if (BSON_APPEND_DOCUMENT (update_p, "$set", doc_p))
+  			{
+					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+  					{
+							PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, update_p, "UpdateMongoDataAsBSON update_p: ");
+							PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, selector_p, "UpdateMongoDataAsBSON selector_p: ");
+  					}
+					#endif
+
+
+  				success_flag = mongoc_collection_update_one (tool_p -> mt_collection_p, selector_p, update_p, opts_p, &reply, &error);
+
+  				if (success_flag)
+  					{
+  						bson_t *reply_p = bson_copy (&reply);
+
+  						if (reply_p)
+  							{
+  								*reply_pp = reply_p;
+  							}
+  						else
+  							{
+  								PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to copy reply");
+  							}
+
+  					}		/* if (success_flag) */
+  				else
+  					{
+  						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update db, error \"%s\"", error.message);
+  					}
+  			}
+  	  else
+  	  	{
+  	  		PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append doc to update statement");
+  	  	}
+
+  	}		/* if (update_p) */
+  else
+  	{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create update statement");
+  	}
+
+
+	return success_flag;
+}
+
 
 
 bool RunMongoCommand (MongoTool *tool_p, bson_t *command_p, bson_t **reply_pp)
@@ -1723,7 +1852,7 @@ char *GetBSONOidAsString (const bson_oid_t *id_p)
 
 	if (id_p)
 		{
-			id_s = (char *) AllocMemory (25 * sizeof (char));
+			id_s = (char *) AllocMemory (MONGO_OID_STRING_BUFFER_SIZE * sizeof (char));
 
 			if (id_s)
 				{
