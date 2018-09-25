@@ -187,32 +187,32 @@ bool SetMongoToolDatabaseAndCollection (MongoTool *tool_p, const char *db_s, con
 }
 
 
-
-bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const bool insert_flag)
+bool SetMongoToolDatabase (MongoTool *tool_p, const char *db_s)
 {
 	bool success_flag = false;
+	mongoc_database_t *database_p = mongoc_client_get_database (tool_p -> mt_client_p, db_s);
 
-	if (SetMongoToolCollection (mongo_p, collection_s))
+	if (database_p)
 		{
-			if (insert_flag)
+			if (tool_p -> mt_database_p)
 				{
-					bson_t *reply_p = NULL;
-
-					if (InsertMongoData (mongo_p, data_to_save_p, &reply_p))
-						{
-							success_flag = true;
-						}
-
-				}		/* if (insert_flag) */
-			else
-				{
-					/* it's an update */
+					mongoc_database_destroy (tool_p -> mt_database_p);
 				}
 
+			if (tool_p -> mt_collection_p)
+				{
+					mongoc_collection_destroy (tool_p -> mt_collection_p);
+				}
+
+			tool_p -> mt_database_p = database_p;
+			tool_p -> mt_collection_p = NULL;
+
+			success_flag = true;
 		}
 
 	return success_flag;
 }
+
 
 
 bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
@@ -241,6 +241,33 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 		}
 
 	return false;
+}
+
+
+bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const bool insert_flag)
+{
+	bool success_flag = false;
+
+	if (SetMongoToolCollection (mongo_p, collection_s))
+		{
+			if (insert_flag)
+				{
+					bson_t *reply_p = NULL;
+
+					if (InsertMongoData (mongo_p, data_to_save_p, &reply_p))
+						{
+							success_flag = true;
+						}
+
+				}		/* if (insert_flag) */
+			else
+				{
+					/* it's an update */
+				}
+
+		}
+
+	return success_flag;
 }
 
 
@@ -819,7 +846,7 @@ bson_t *GenerateQuery (const json_t *json_p)
 }
 
 
-bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss)
+bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss, bson_t *extra_opts_p)
 {
 	bool success_flag = false;
 	bson_t *query_p = GenerateQuery (query_json_p);  // ConvertJSONToBSON (query_json_p);
@@ -830,7 +857,7 @@ bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_js
 			PrintBSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "query: ");
 #endif
 
-			success_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss);
+			success_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss, extra_opts_p);
 			bson_destroy (query_p);
 		}
 
@@ -924,7 +951,7 @@ void LogBSONOid (const bson_oid_t *bson_p, const int level, const char * const f
 }
 
 
-bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss)
+bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss, bson_t *extra_opts_p)
 {
 	bool success_flag = false;
 
@@ -1041,7 +1068,7 @@ int32 GetAllMongoResultsForKeyValuePair (MongoTool *tool_p, json_t **docs_pp, co
 
 					num_results = 0;
 
-					if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss))
+					if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss, NULL))
 						{
 							*docs_pp = GetAllExistingMongoResultsAsJSON (tool_p);
 
@@ -1272,7 +1299,7 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 
 			if (json_p)
 				{
-					if (FindMatchingMongoDocumentsByJSON (tool_p, json_p, NULL))
+					if (FindMatchingMongoDocumentsByJSON (tool_p, json_p, NULL, NULL))
 						{
 							res = HasMongoQueryResults (tool_p) ? 1 : 0;
 						}
@@ -1286,7 +1313,7 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 
 
 
-json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p)
+json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
 {
 	json_t *results_array_p = NULL;
 
@@ -1314,7 +1341,7 @@ json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p)
 
 					if (query_p)
 						{
-							if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL))
+							if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, extra_opts_p))
 								{
 									if (!IterateOverMongoResults (tool_p, AddBSONDocumentToJSONArray, results_array_p))
 										{
@@ -1580,7 +1607,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 			if (query_p)
 				{
-					const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL);
+					const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, NULL);
 
 					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "FindMatchingMongoDocumentsByBSON returned %s", exists_flag ? "true" : "false");
@@ -1883,3 +1910,17 @@ bson_oid_t *GetBSONOidFromString (const char *id_s)
 
 	return id_p;
 }
+
+
+bson_oid_t *GetNewId (void)
+{
+	bson_oid_t *id_p = AllocMemory (sizeof (bson_oid_t));
+
+	if (id_p)
+		{
+			bson_oid_init (id_p, bson_context_get_default ());
+		}
+
+	return id_p;
+}
+

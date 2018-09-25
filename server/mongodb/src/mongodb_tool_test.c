@@ -68,6 +68,8 @@ int main (int argc, char *argv [])
 	  							bson_t *bson_doc_p = NULL;
 	  							json_t *values_p = GetDataToInsert ();
 	  							bson_oid_t id;
+	  							bson_t *query_p = NULL;
+	  							json_t *results_p = NULL;
 
 	  							bson_t *update_p = BCON_NEW ("$set", "{", "x", BCON_UTF8 ("bar"), "}");
 	  							if (update_p)
@@ -166,9 +168,21 @@ int main (int argc, char *argv [])
 	  									PrintBSON (bson_doc_p, "BSON after: ");
 
 	  									bson_destroy (bson_doc_p);
+	  								}		/* if ((bson_doc_p = GetBSONCommandToRun (argv [2])) != NULL) */
+
+
+	  							results_p = GetAllMongoResultsAsJSON (tool_p, query_p);
+	  							if (results_p)
+										{
+	  									PrintJSON (results_p, "Results: ");
+	  									json_decref (results_p);
+										}
+	  							else
+	  								{
+	  									puts ("failed to get all results");
 	  								}
 
-	  						}		/* if ((bson_doc_p = GetBSONCommandToRun (argv [2])) != NULL) */
+	  						}		/* if (SetMongoToolDatabaseAndCollection (tool_p, argv [1], argv [2])) */
 
 
 	  					FreeMongoTool (tool_p);

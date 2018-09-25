@@ -206,6 +206,18 @@ GRASSROOTS_MONGODB_API bool SetMongoToolDatabaseAndCollection (MongoTool *tool_p
 
 
 /**
+ * Set the database that a MongoTool will use.
+ *
+ * @param tool_p The MongoTool to update.
+ * @param db_s The database to use.
+ * @return <code>true</code> if the MongoTool was updated successfully,
+ * <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool SetMongoToolDatabase (MongoTool *tool_p, const char *db_s);
+
+
+/**
  * Set the collection that a MongoTool will use.
  *
  * @param tool_p The MongoTool to update.
@@ -290,7 +302,7 @@ GRASSROOTS_MONGODB_API bool RemoveMongoDocuments (MongoTool *tool_p, const json_
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss);
+GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss, bson_t *extra_opts_p);
 
 
 /**
@@ -306,7 +318,7 @@ GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p,
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss);
+GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss, bson_t *extra_opts_p);
 
 
 /**
@@ -344,7 +356,7 @@ GRASSROOTS_MONGODB_API bool HasMongoQueryResults (MongoTool *tool_p);
  * @return A json_t array with all of the results from the search or <code>NULL</code> upon error.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p);
+GRASSROOTS_MONGODB_API json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p);
 
 
 /**
@@ -575,6 +587,9 @@ GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, 
 
 GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, json_t *values_p, bson_t **reply_pp);
 
+
+
+GRASSROOTS_MONGODB_API bson_oid_t *GetNewId (void);
 
 #ifdef __cplusplus
 }
