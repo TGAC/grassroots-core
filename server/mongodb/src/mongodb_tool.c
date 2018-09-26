@@ -33,6 +33,9 @@
 #include "mongo_client_manager.h"
 
 
+static const char * const S_OID_S = "$oid";
+
+
 static bool AddSimpleTypeToQuery (bson_t *query_p, const char *key_s, const json_t *value_p);
 
 
@@ -240,7 +243,7 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 				}
 		}
 
-	return false;
+	return success_flag;
 }
 
 
@@ -1870,6 +1873,66 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 		}		/* if (query_p) */
 
 	return NULL;
+}
+
+
+
+bool GetIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
+{
+	bool success_flag = false;
+	const json_t *id_val_p = json_object_get (data_p, MONGO_ID_S);
+
+	if (id_val_p)
+		{
+			const char *oid_s = GetJSONString (id_val_p, S_OID_S);
+
+			if (oid_s)
+				{
+					bson_oid_init_from_string (id_p, oid_s);
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
+
+bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p)
+{
+	char *id_s = GetBSONOidAsString (id_p);
+
+	if (id_s)
+		{
+			json_t *id_json_p = json_object ();
+
+			if (id_json_p)
+				{
+					json_t *val_p = json_string (id_s);
+
+					if (val_p)
+						{
+							if (json_object_set_new (id_json_p, S_OID_S, val_p) == 0)
+								{
+									if (json_object_set_new (data_p, MONGO_ID_S, id_json_p) == 0)
+										{
+											return true;
+										}
+								}
+							else
+								{
+									json_decref (val_p);
+								}
+
+						}		/* if (val_p) */
+
+					json_decref (id_json_p);
+				}		/* if (id_json_p) */
+
+			FreeMemory (id_s);
+		}		/* if (id_s) */
+
+	return false;
 }
 
 
