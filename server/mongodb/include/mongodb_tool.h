@@ -591,9 +591,15 @@ GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector
 
 GRASSROOTS_MONGODB_API bson_oid_t *GetNewId (void);
 
-GRASSROOTS_MONGODB_API bool GetIdFromJSON (const json_t *data_p, bson_oid_t *id_p);
+GRASSROOTS_MONGODB_API bool GetCompoundIdFromJSON (const json_t *data_p, bson_oid_t *id_p);
 
-GRASSROOTS_MONGODB_API bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p);
+GRASSROOTS_MONGODB_API bool AddCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p);
+
+
+GRASSROOTS_MONGODB_API bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s);
+
+
+GRASSROOTS_MONGODB_API bool AdIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s);
 
 
 #ifdef __cplusplus

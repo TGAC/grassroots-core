@@ -31,6 +31,8 @@
 #include "json_util.h"
 #include "search_options.h"
 #include "mongo_client_manager.h"
+#include "string_utils.h"
+
 
 
 static const char * const S_OID_S = "$oid";
@@ -1877,7 +1879,7 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 
 
 
-bool GetIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
+bool GetCompoundIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
 {
 	bool success_flag = false;
 	const json_t *id_val_p = json_object_get (data_p, MONGO_ID_S);
@@ -1898,8 +1900,43 @@ bool GetIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
 
 
 
-bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p)
+bool AdIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
 {
+	bool success_flag = false;
+	char *id_s = GetBSONOidAsString (id_p);
+
+	if (id_s)
+		{
+			json_t *val_p = json_string (id_s);
+
+			if (val_p)
+				{
+					if (json_object_set_new (data_p, key_s, val_p) == 0)
+						{
+							success_flag = true;
+						}
+					else
+						{
+							json_decref (val_p);
+						}
+				}
+
+			FreeCopiedString (id_s);
+		}
+
+	return success_flag;
+}
+
+
+bool AddCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p)
+{
+	return AddNamedCompoundIdToJSON (data_p, id_p, MONGO_ID_S);
+}
+
+
+bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
+{
+	bool success_flag = false;
 	char *id_s = GetBSONOidAsString (id_p);
 
 	if (id_s)
@@ -1914,9 +1951,9 @@ bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p)
 						{
 							if (json_object_set_new (id_json_p, S_OID_S, val_p) == 0)
 								{
-									if (json_object_set_new (data_p, MONGO_ID_S, id_json_p) == 0)
+									if (json_object_set_new (data_p, key_s, id_json_p) == 0)
 										{
-											return true;
+											success_flag = true;
 										}
 								}
 							else
@@ -1926,14 +1963,19 @@ bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p)
 
 						}		/* if (val_p) */
 
-					json_decref (id_json_p);
+					if (!success_flag)
+						{
+							json_decref (id_json_p);
+						}
+
 				}		/* if (id_json_p) */
 
 			FreeMemory (id_s);
 		}		/* if (id_s) */
 
-	return false;
+	return success_flag;
 }
+
 
 
 char *GetBSONOidAsString (const bson_oid_t *id_p)
