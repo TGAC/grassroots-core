@@ -602,6 +602,9 @@ GRASSROOTS_MONGODB_API bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t
 GRASSROOTS_MONGODB_API bool AdIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s);
 
 
+GRASSROOTS_MONGODB_API bool AddQueryTerm (bson_t *query_p, const char *key_s, const char *value_s, bool regex_flag);
+
+
 #ifdef __cplusplus
 }
 #endif

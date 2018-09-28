@@ -2029,3 +2029,23 @@ bson_oid_t *GetNewId (void)
 	return id_p;
 }
 
+
+
+bool AddQueryTerm (bson_t *query_p, const char *key_s, const char *value_s, bool regex_flag)
+{
+	bool success_flag = true;
+
+	if (!IsStringEmpty (value_s))
+		{
+			if (regex_flag)
+				{
+					success_flag = BSON_APPEND_REGEX (query_p, key_s, value_s, "i");
+				}
+			else
+				{
+					success_flag = BSON_APPEND_UTF8 (query_p, key_s, value_s);
+				}
+		}
+
+	return success_flag;
+}
