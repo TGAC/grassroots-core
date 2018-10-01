@@ -104,6 +104,12 @@ typedef enum ParameterType
 	 */
 	PT_FASTA,
 
+
+	/**
+	 * A struct tm representing a time and date.
+	 */
+	PT_TIME,
+
 	/** The number of possible ParameterType values. */
 	PT_NUM_TYPES
 } ParameterType;

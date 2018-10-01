@@ -60,17 +60,41 @@ void AddIntervalToTime (struct tm *time_p, const int days)
 }
 
 
-char *GetTimeAsString (const struct tm * const time_p)
+char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag)
 {
-	const size_t buffer_size = 11;
-	char *buffer_s = (char *) AllocMemory (buffer_size * sizeof (char));
+	char *buffer_s = NULL;
+	int res = -1;
+	size_t buffer_size;
+	const size_t DATE_BUFFER_SIZE = 11;
+	const size_t TIME_BUFFER_SIZE = 18;
+
+	if (include_time_flag)
+		{
+			buffer_size = TIME_BUFFER_SIZE;
+		}
+	else
+		{
+			buffer_size = DATE_BUFFER_SIZE;
+		}
+
+	buffer_s = (char *) AllocMemory (buffer_size * sizeof (char));
 
 	if (buffer_s)
 		{
-			if (sprintf (buffer_s, "%4d-%02d-%02d", 1900 + (time_p -> tm_year), 1 + (time_p -> tm_mon), time_p -> tm_mday) > 0)
+			res = sprintf (buffer_s, "%4d-%02d-%02d", 1900 + (time_p -> tm_year), 1 + (time_p -> tm_mon), time_p -> tm_mday);
+
+			if (res > 0)
 				{
-					* (buffer_s + (buffer_size - 1)) = '\0';
-					return buffer_s;
+					if (include_time_flag)
+						{
+							res = sprintf (buffer_s + DATE_BUFFER_SIZE, "T%2d%2d%2d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
+						}
+
+					if (res > 0)
+						{
+							* (buffer_s + (buffer_size - 1)) = '\0';
+							return buffer_s;
+						}
 				}
 
 			FreeMemory (buffer_s);
@@ -218,6 +242,61 @@ bool GetCurrentTime (struct tm *tm_p)
 
 	return success_flag;
 }
+
+
+
+
+struct tm *AllocateTime (void)
+{
+	struct tm *time_p = AllocMemory (sizeof (struct tm));
+
+	if (time_p)
+		{
+			memset (time_p, 0, sizeof (struct tm));
+		}
+
+	return time_p;
+}
+
+
+void FreeTime (struct tm *time_p)
+{
+	FreeMemory (time_p);
+}
+
+
+
+void CopyTime (const struct tm *src_p, struct tm *dest_p)
+{
+	memcpy (dest_p, src_p, sizeof (struct tm));
+}
+
+
+bool SetTimeFromString (struct tm * const time_p, const char *time_s)
+{
+	bool success_flag = false;
+
+	return success_flag;
+}
+
+
+struct tm *GetTimeFromString (const char *time_s)
+{
+	struct tm *time_p = AllocateTime ();
+
+	if (time_p)
+		{
+			if (SetTimeFromString (time_p, time_s))
+				{
+					return time_p;
+				}		/* if (SetTimeFromString (time_p, time_s)) */
+
+			FreeTime (time_p);
+		}		/* if (time_p) */
+
+	return NULL;
+}
+
 
 
 

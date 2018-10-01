@@ -28,6 +28,7 @@
 #include "schema_version.h"
 #include "json_tools.h"
 #include "json_util.h"
+#include "time_util.h"
 
 
 #ifdef _DEBUG
@@ -55,7 +56,8 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 	"params:large_string",
 	"params:json",
 	"params:tabular",
-	"params:fasta"
+	"params:fasta",
+	"params:time"
 };
 
 
@@ -134,6 +136,9 @@ static bool SetParameterValueFromResource (Parameter * const param_p, const Reso
 static bool SetParameterValueFromJSON (Parameter * const param_p, const json_t * const src_p, const bool current_flag);
 
 
+static bool SetParameterValueFromTime (Parameter * const param_p, const struct tm * const src_p, const bool current_flag);
+
+
 static bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b);
 
 
@@ -156,6 +161,9 @@ static bool SetSharedTypeResourceValue (SharedType *value_p, const Resource * co
 
 
 static bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const src_p);
+
+
+static bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p);
 
 
 static const json_t *GetParameterFromConfig (const json_t *service_config_p, const char * const param_name_s);
@@ -671,6 +679,10 @@ bool SetParameterValueFromSharedType (Parameter * const param_p, const SharedTyp
 				success_flag = SetParameterValueFromJSON (param_p, src_p -> st_json_p, current_value_flag);
 				break;
 
+			case PT_TIME:
+				success_flag = SetParameterValueFromTime (param_p, src_p -> st_time_p, current_value_flag);
+				break;
+
 			default:
 				break;
 		}
@@ -752,6 +764,14 @@ bool SetParameterValue (Parameter * const param_p, const void *value_p, const bo
 				}
 				break;
 
+			case PT_TIME:
+				{
+					const struct tm * const src_p = (const struct tm *) value_p;
+					success_flag = SetParameterValueFromTime (param_p, src_p, current_value_flag);
+				}
+				break;
+
+
 			default:
 				break;
 		}
@@ -813,8 +833,7 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 																				{
 																					if (AddParameterBoundsToJSON (param_p, root_p, sv_p))
 																						{
-																									success_flag = true;
-
+																							success_flag = true;
 																						}		/* if (AddParameterBoundsToJSON (param_p, root_p)) */
 																					else
 																						{
@@ -1549,6 +1568,22 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 					}
 				break;
 
+
+			case PT_TIME:
+				if (val_p -> st_time_p)
+					{
+						char *time_s = GetTimeAsString (val_p -> st_time_p, true);
+
+						if (time_s)
+							{
+								value_p = json_string (time_s);
+								FreeCopiedString (time_s);
+							}		/* if (time_s) */
+
+					}		/* if (val_p -> st_time_p) */
+				break;
+
+
 			default:
 				break;
 		}		/* switch (pt) */
@@ -1758,6 +1793,24 @@ static bool GetValueFromJSON (const json_t * const root_p, const char *key_s, co
 										}
 								}
 						}
+						break;
+
+					case PT_TIME:
+						if (json_is_string (json_value_p))
+							{
+								const char * const time_s = json_string_value (json_value_p);
+
+								if (value_p -> st_time_p)
+									{
+										success_flag = SetTimeFromString (value_p -> st_time_p, time_s);
+									}
+								else
+									{
+										value_p -> st_time_p = GetTimeFromString (time_s);
+										success_flag = (value_p -> st_time_p != NULL);
+									}
+							}
+
 						break;
 
 					default:
@@ -2480,6 +2533,13 @@ void ClearSharedType (SharedType *st_p, const ParameterType pt)
 					}
 				break;
 
+			case PT_TIME:
+				if (st_p -> st_time_p)
+					{
+						FreeTime (st_p -> st_time_p);
+					}
+				break;
+
 			default:
 				break;
 		}
@@ -3077,6 +3137,23 @@ static bool SetParameterValueFromJSON (Parameter * const param_p, const json_t *
 
 
 
+static bool SetParameterValueFromTime (Parameter * const param_p, const struct tm * const src_p, const bool current_flag)
+{
+	bool success_flag = false;
+
+	if (current_flag)
+		{
+			success_flag = SetSharedTypeTimeValue (& (param_p -> pa_current_value), src_p);
+		}
+	else
+		{
+			success_flag = SetSharedTypeTimeValue (& (param_p -> pa_default), src_p);
+		}
+
+	return success_flag;
+}
+
+
 
 static bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b)
 {
@@ -3268,6 +3345,42 @@ static bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const sr
 	return success_flag;
 }
 
+
+static bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p)
+{
+	bool success_flag = false;
+
+	if (src_p)
+		{
+			if (! (value_p -> st_time_p))
+				{
+					if (! (value_p -> st_time_p = AllocateTime ()))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate time variable");
+						}
+				}
+
+			if (value_p -> st_time_p)
+				{
+					CopyTime (src_p, value_p -> st_time_p);
+					success_flag = true;
+				}
+
+		}
+	else
+		{
+			/* If we have a previous value, delete it */
+			if (value_p -> st_time_p)
+				{
+					FreeTime (value_p -> st_time_p);
+					value_p -> st_time_p = NULL;
+				}
+
+			success_flag = true;
+		}
+
+	return success_flag;
+}
 
 
 static bool SetRemoteParameterDetailsFromJSON (Parameter *param_p, const json_t * json_p)
