@@ -24,6 +24,10 @@
 #include "memory_allocations.h"
 
 
+const size_t S_DATE_BUFFER_SIZE = 11;
+const size_t S_TIME_BUFFER_SIZE = 18;
+
+
 static bool ConvertNumber (const char * const buffer_s, size_t from, size_t to, int *result_p);
 
 static bool ConvertStringToTime (const char * const time_s, time_t *time_p, bool (*conv_fn) (const char * const time_s, struct tm *time_p, int *offset_p));
@@ -60,21 +64,85 @@ void AddIntervalToTime (struct tm *time_p, const int days)
 }
 
 
+bool SetTimeFromString (struct tm * const time_p, const char *time_s)
+{
+	bool success_flag = false;
+	const size_t l = strlen (time_s);
+
+	/*
+	 * String is of the format YYYY-MM-DD or YYYY-MM-DDThhmmss
+	 */
+
+	if (l >= S_DATE_BUFFER_SIZE - 1)
+		{
+			int year;
+
+			if (ConvertNumber (time_s, 0, 3, &year))
+				{
+					int month;
+
+					if (ConvertNumber (time_s, 5, 6, &month))
+						{
+							int day;
+
+							if (ConvertNumber (time_s, 8, 9, &day))
+								{
+									int hour = 0;
+									int min = 0;
+									int sec = 0;
+
+									if (l == S_TIME_BUFFER_SIZE - 1)
+										{
+											if (ConvertNumber (time_s, 11, 12, &hour))
+												{
+													if (ConvertNumber (time_s, 13, 14, &min))
+														{
+															if (ConvertNumber (time_s, 15, 	6, &sec))
+																{
+																	success_flag = true;
+																}
+														}
+												}
+										}
+									else
+										{
+											success_flag = true;
+										}
+
+									if (success_flag)
+										{
+											time_p -> tm_year = year - 1900;
+											time_p -> tm_mon = month - 1;
+											time_p -> tm_mday = day;
+
+											time_p -> tm_hour = hour;
+											time_p -> tm_min = min;
+											time_p -> tm_sec = sec;
+										}
+
+								}		/* if (ConvertNumber (time_s, 6, 7, &day)) */
+
+						}		/* if (ConvertNumber (time_s, 4, 5, &month)) */
+
+				}		/* if (ConvertNumber (time_s, 0, 3, &year)) */
+		}
+
+	return success_flag;
+}
+
 char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag)
 {
 	char *buffer_s = NULL;
 	int res = -1;
 	size_t buffer_size;
-	const size_t DATE_BUFFER_SIZE = 11;
-	const size_t TIME_BUFFER_SIZE = 18;
 
 	if (include_time_flag)
 		{
-			buffer_size = TIME_BUFFER_SIZE;
+			buffer_size = S_TIME_BUFFER_SIZE;
 		}
 	else
 		{
-			buffer_size = DATE_BUFFER_SIZE;
+			buffer_size = S_DATE_BUFFER_SIZE;
 		}
 
 	buffer_s = (char *) AllocMemory (buffer_size * sizeof (char));
@@ -87,7 +155,7 @@ char *GetTimeAsString (const struct tm * const time_p, const bool include_time_f
 				{
 					if (include_time_flag)
 						{
-							res = sprintf (buffer_s + DATE_BUFFER_SIZE, "T%2d%2d%2d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
+							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE, "T%2d%2d%2d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
 						}
 
 					if (res > 0)
@@ -245,6 +313,13 @@ bool GetCurrentTime (struct tm *tm_p)
 
 
 
+void SetDateValuesForTime (struct tm *time_p, const int year, const int month, const int day)
+{
+	time_p -> tm_year = year - 1900;
+	time_p -> tm_mon = month + 1;
+	time_p -> tm_mday = day;
+}
+
 
 struct tm *AllocateTime (void)
 {
@@ -272,14 +347,6 @@ void CopyTime (const struct tm *src_p, struct tm *dest_p)
 }
 
 
-bool SetTimeFromString (struct tm * const time_p, const char *time_s)
-{
-	bool success_flag = false;
-
-	return success_flag;
-}
-
-
 struct tm *GetTimeFromString (const char *time_s)
 {
 	struct tm *time_p = AllocateTime ();
@@ -304,7 +371,7 @@ struct tm *GetTimeFromString (const char *time_s)
 
 static bool ConvertNumber (const char * const buffer_s, size_t from, size_t to, int *result_p)
 {
-	bool success_flag = false;
+	bool success_flag = true;
 	const char *digit_p = buffer_s + from;
 	size_t i;
 	int res = 0;

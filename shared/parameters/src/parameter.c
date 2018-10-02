@@ -1194,6 +1194,10 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("json")) == 0);
 						break;
 
+					case PT_TIME:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("string")) == 0);
+						break;
+
 					default:
 						break;
 				}		/* switch (param_p -> pa_type) */
