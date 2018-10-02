@@ -57,7 +57,7 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 	"params:json",
 	"params:tabular",
 	"params:fasta",
-	"params:time"
+	"xsd:date"
 };
 
 
