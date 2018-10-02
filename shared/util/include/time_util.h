@@ -97,13 +97,23 @@ GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
 
 
 /**
- * Get a time as a string in the form YYYY-MM-DD
+ * Get a time as a string in the ISO 8601 format
  *
  * @param time_p The time to get as a c-style string
+ * @param include_time_flag If this is <code>true</code> then both the date and time
+ * will be included in the string in ISO 8601 format. If this is <code>false</code>,
+ * then just the date part of the string will be returned.
  * @return The time as a c-style string or <code>NULL</code> upon error.
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p);
+GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag);
+
+
+
+GRASSROOTS_UTIL_API bool SetTimeFromString (struct tm * const time_p, const char *time_s);
+
+
+GRASSROOTS_UTIL_API struct tm *GetTimeFromString (const char *time_s);
 
 
 /**
@@ -114,6 +124,16 @@ GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p);
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API void AddIntervalToTime (struct tm *time_p, const int days);
+
+
+
+GRASSROOTS_UTIL_API struct tm *AllocateTime (void);
+
+
+GRASSROOTS_UTIL_API void FreeTime (struct tm *time_p);
+
+
+GRASSROOTS_UTIL_API void CopyTime (const struct tm *src_p, struct tm *dest_p);
 
 #ifdef __cplusplus
 }

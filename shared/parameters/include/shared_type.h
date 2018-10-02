@@ -35,6 +35,7 @@
 
 #include "parameter_type.h"
 
+#include "time.h"
 
 
 /**
@@ -72,6 +73,11 @@ typedef union SharedType
 
 	/** A JSON fragment */
 	json_t *st_json_p;
+
+
+	/** A time and date */
+	struct tm *st_time_p;
+
 } SharedType;
 
 
