@@ -2030,6 +2030,11 @@ bson_oid_t *GetNewId (void)
 }
 
 
+void FreeBSONOid (bson_oid_t *id_p)
+{
+	FreeMemory (id_p);
+}
+
 
 bool AddQueryTerm (bson_t *query_p, const char *key_s, const char *value_s, bool regex_flag)
 {
