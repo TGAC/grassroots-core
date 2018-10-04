@@ -1900,7 +1900,7 @@ bool GetCompoundIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
 
 
 
-bool AdIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
+bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
 {
 	bool success_flag = false;
 	char *id_s = GetBSONOidAsString (id_p);

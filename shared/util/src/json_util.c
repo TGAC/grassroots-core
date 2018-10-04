@@ -33,6 +33,9 @@
 
 static void PrintJSONRefCountsWithIndent (const json_t * const value_p, const uint32 log_level, const char * key_s, ByteBuffer *buffer_p, const char * const filename_s, const int line_number);
 
+static bool SetJSONValue (const json_t *json_p, const char * const key_s, json_t *value_p);
+
+
 
 JsonNode *AllocateJsonNode (json_t *json_p)
 {
@@ -155,6 +158,12 @@ const char *GetJSONString (const json_t *json_p, const char * const key_s)
 }
 
 
+bool SetJSONString (const json_t *json_p, const char * const key_s, const char * const value_s)
+{
+	return SetJSONValue (json_p, key_s, json_string (value_s));
+}
+
+
 char *GetCopiedJSONString (const json_t *json_p, const char * const key_s)
 {
 	char *dest_s = NULL;
@@ -224,6 +233,13 @@ bool GetJSONInteger (const json_t *json_p, const char * const key_s, int *value_
 }
 
 
+bool SetJSONInteger (const json_t *json_p, const char * const key_s, const int value)
+{
+	return SetJSONValue (json_p, key_s, json_integer (value));
+}
+
+
+
 bool GetJSONLong (const json_t *json_p, const char * const key_s, long *value_p)
 {
 	bool success_flag = false;
@@ -241,7 +257,6 @@ bool GetJSONLong (const json_t *json_p, const char * const key_s, long *value_p)
 }
 
 
-
 bool GetJSONReal (const json_t *json_p, const char * const key_s, double *value_p)
 {
 	bool success_flag = false;
@@ -254,6 +269,14 @@ bool GetJSONReal (const json_t *json_p, const char * const key_s, double *value_
 
 	return success_flag;
 }
+
+
+
+bool SetJSONReal (const json_t *json_p, const char * const key_s, const double value)
+{
+	return SetJSONValue (json_p, key_s, json_real (value));
+}
+
 
 
 bool GetJSONBoolean (const json_t *json_p, const char * const key_s, bool *value_p)
@@ -269,6 +292,11 @@ bool GetJSONBoolean (const json_t *json_p, const char * const key_s, bool *value
 	return success_flag;
 }
 
+
+bool SetJSONBoolean (const json_t *json_p, const char * const key_s, const bool value)
+{
+	return SetJSONValue (json_p, key_s, json_boolean (value));
+}
 
 
 bool SetJSONHTML (json_t * UNUSED_PARAM (json_p), const char * UNUSED_PARAM (key_s), const char * UNUSED_PARAM (html_s))
@@ -1300,5 +1328,17 @@ bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term
 
 
 
+static bool SetJSONValue (const json_t *json_p, const char * const key_s, json_t *value_p)
+{
+	if (value_p)
+		{
+			if (json_object_set_new (json_p, key_s, value_p) == 0)
+				{
+					return true;
+				}
 
+			json_decref (value_p);
+		}		/* if (value_p) */
 
+	return false;
+}
