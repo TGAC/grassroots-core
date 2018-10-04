@@ -256,6 +256,29 @@ typedef struct ParameterNode
 
 
 
+
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#ifdef ALLOCATE_PARAMETER_TAGS
+	#define PARAMETER_PREFIX GRASSROOTS_PARAMS_API
+	#define PARAMETER_VAL(x)	= x
+#else
+	#define PARAMETER_PREFIX extern
+	#define PARAMETER_VAL(x)
+#endif
+
+#endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
+PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADINGS_S PARAMETER_VAL("Column Headings");
+
+PARAMETER_PREFIX const char * const PA_TABLE_ROW_HEADINGS_S PARAMETER_VAL("Row Headings");
+
+PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_DELIMITER_S PARAMETER_VAL(",");
+
+PARAMETER_PREFIX const char * const PA_TABLE_ROW_DELIMITER_S PARAMETER_VAL("\n");
+
 #ifdef __cplusplus
 	extern "C" {
 #endif

@@ -17,8 +17,9 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "memory_allocations.h"
+#define ALLOCATE_PARAMETER_TAGS (1)
 #include "parameter.h"
+#include "memory_allocations.h"
 #include "parameter_group.h"
 #include "math_utils.h"
 #include "string_utils.h"
