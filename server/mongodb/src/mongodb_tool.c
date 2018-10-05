@@ -1879,10 +1879,16 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 
 
 
-bool GetCompoundIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
+bool GetMongoIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
+{
+	return GetNamedIdFromJSON (data_p, MONGO_ID_S, id_p);
+}
+
+
+bool GetNamedIdFromJSON (const json_t *data_p, const char * const key_s, bson_oid_t *id_p)
 {
 	bool success_flag = false;
-	const json_t *id_val_p = json_object_get (data_p, MONGO_ID_S);
+	const json_t *id_val_p = json_object_get (data_p, key_s);
 
 	if (id_val_p)
 		{
@@ -1897,6 +1903,7 @@ bool GetCompoundIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
 
 	return success_flag;
 }
+
 
 
 

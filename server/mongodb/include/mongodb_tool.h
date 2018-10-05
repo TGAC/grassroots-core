@@ -595,7 +595,11 @@ GRASSROOTS_MONGODB_API bson_oid_t *GetNewId (void);
 GRASSROOTS_MONGODB_API void FreeBSONOid (bson_oid_t *id_p);
 
 
-GRASSROOTS_MONGODB_API bool GetCompoundIdFromJSON (const json_t *data_p, bson_oid_t *id_p);
+GRASSROOTS_MONGODB_API bool GetMongoIdFromJSON (const json_t *data_p, bson_oid_t *id_p);
+
+
+GRASSROOTS_MONGODB_API bool GetNamedIdFromJSON (const json_t *data_p, const char * const key_s, bson_oid_t *id_p);
+
 
 GRASSROOTS_MONGODB_API bool AddCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p);
 
