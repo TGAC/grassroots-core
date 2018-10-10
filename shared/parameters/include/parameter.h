@@ -414,8 +414,6 @@ GRASSROOTS_PARAMS_API const char *CheckForNotNull (const Parameter * const param
 GRASSROOTS_PARAMS_API bool SetParameterValue (Parameter * const parameter_p, const void *value_p, const bool current_value_flag);
 
 
-
-
 /**
  * Set the current value of a Parameter from a SharedType.
  *

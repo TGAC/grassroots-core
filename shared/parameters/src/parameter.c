@@ -503,6 +503,11 @@ void FreeParameterBounds (ParameterBounds *bounds_p, const ParameterType pt)
 }
 
 
+bool SetParameterDefaultValue (Parameter *param_p, const SharedType *def_p)
+{
+	return SetParameterValueFromSharedType (param_p, def_p, false);
+}
+
 
 
 LinkedList *GetMultiOptions (Parameter *param_p)
