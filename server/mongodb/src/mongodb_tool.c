@@ -2024,7 +2024,7 @@ bson_oid_t *GetBSONOidFromString (const char *id_s)
 }
 
 
-bson_oid_t *GetNewId (void)
+bson_oid_t *GetNewBSONOid (void)
 {
 	bson_oid_t *id_p = AllocMemory (sizeof (bson_oid_t));
 
@@ -2037,10 +2037,24 @@ bson_oid_t *GetNewId (void)
 }
 
 
+bson_oid_t *GetNewUnitialisedBSONOid (void)
+{
+	bson_oid_t *id_p = AllocMemory (sizeof (bson_oid_t));
+
+	if (id_p)
+		{
+			memset (id_p, 0, sizeof (bson_oid_t));
+		}
+
+	return id_p;
+}
+
+
 void FreeBSONOid (bson_oid_t *id_p)
 {
 	FreeMemory (id_p);
 }
+
 
 bool AddQueryTerm (bson_t *query_p, const char *key_s, const char *value_s, bool regex_flag)
 {

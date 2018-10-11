@@ -589,7 +589,10 @@ GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector
 
 
 
-GRASSROOTS_MONGODB_API bson_oid_t *GetNewId (void);
+GRASSROOTS_MONGODB_API bson_oid_t *GetNewBSONOid (void);
+
+
+GRASSROOTS_MONGODB_API bson_oid_t *GetNewUnitialisedBSONOid (void);
 
 
 GRASSROOTS_MONGODB_API void FreeBSONOid (bson_oid_t *id_p);
