@@ -1163,22 +1163,22 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 			switch (param_type)
 				{
 					case PT_BOOLEAN:
-						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("boolean")) == 0);
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_BOOLEAN_S)) == 0);
 						break;
 
 					case PT_CHAR:
-						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("character")) == 0);
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
 						break;
 
 					case PT_SIGNED_INT:
 					case PT_NEGATIVE_INT:
 					case PT_UNSIGNED_INT:
-						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("integer")) == 0);
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_INTEGER_S)) == 0);
 						break;
 
 					case PT_SIGNED_REAL:
 					case PT_UNSIGNED_REAL:
-						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("number")) == 0);
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_NUMBER_S)) == 0);
 						break;
 
 					case PT_STRING:
@@ -1189,11 +1189,11 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 					case PT_DIRECTORY:
 					case PT_KEYWORD:
 					case PT_FASTA:
-						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("string")) == 0);
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
 						break;
 
 					case PT_FILE_TO_READ:
-						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("string")) == 0);
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
 						break;
 
 					case PT_JSON:
@@ -1201,7 +1201,7 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 						break;
 
 					case PT_TIME:
-						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("string")) == 0);
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
 						break;
 
 					default:

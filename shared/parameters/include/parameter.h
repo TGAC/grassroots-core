@@ -286,6 +286,16 @@ PARAMETER_PREFIX const char * const PA_TABLE_DEFAULT_ROW_DELIMITER_S PARAMETER_V
 PARAMETER_PREFIX const char * const PA_DOUBLE_PRECISION_S PARAMETER_VAL("precision");
 
 
+PARAMETER_PREFIX const char * const PA_TYPE_STRING_S PARAMETER_VAL("string");
+
+PARAMETER_PREFIX const char * const PA_TYPE_BOOLEAN_S PARAMETER_VAL("boolean");
+
+PARAMETER_PREFIX const char * const PA_TYPE_INTEGER_S PARAMETER_VAL("integer");
+
+PARAMETER_PREFIX const char * const PA_TYPE_NUMBER_S PARAMETER_VAL("number");
+
+PARAMETER_PREFIX const char * const PA_TYPE_CHARACTER_S PARAMETER_VAL("character");
+
 
 #ifdef __cplusplus
 	extern "C" {
@@ -581,7 +591,6 @@ GRASSROOTS_PARAMS_API SharedTypeNode *AllocateSharedTypeNode (SharedType value);
  * @memberof SharedTypeNode
  */
 GRASSROOTS_PARAMS_API void FreeSharedTypeNode (ListItem *node_p);
-
 
 /**
  * Create a RemoteParameterDetails and add it to the given Parameter.
