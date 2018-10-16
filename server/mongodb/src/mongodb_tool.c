@@ -972,7 +972,14 @@ bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p,
 			 */
 			if (fields_ss)
 				{
-					fields_p = bson_new ();
+					if (extra_opts_p)
+						{
+							fields_p = bson_new ();
+						}
+					else
+						{
+							fields_p = bson_copy (extra_opts_p);
+						}
 
 					if (fields_p)
 						{
@@ -1001,7 +1008,7 @@ bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p,
 #endif
 
 
-			cursor_p = mongoc_collection_find_with_opts (tool_p -> mt_collection_p, query_p, fields_p, NULL);
+			cursor_p = mongoc_collection_find_with_opts (tool_p -> mt_collection_p, query_p, extra_opts_p, NULL);
 
 			if (cursor_p)
 				{
