@@ -136,6 +136,9 @@ GRASSROOTS_UTIL_API void FreeTime (struct tm *time_p);
 GRASSROOTS_UTIL_API void CopyTime (const struct tm *src_p, struct tm *dest_p);
 
 
+GRASSROOTS_UTIL_API struct tm *DuplicateTime (const struct tm *src_p);
+
+
 GRASSROOTS_UTIL_API void SetDateValuesForTime (struct tm *time_p, const int year, const int month, const int day);
 
 

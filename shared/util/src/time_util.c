@@ -340,6 +340,18 @@ void FreeTime (struct tm *time_p)
 }
 
 
+struct tm *DuplicateTime (const struct tm *src_p)
+{
+	struct tm *dest_p = AllocateTime ();
+
+	if (dest_p)
+		{
+			CopyTime (src_p, dest_p);
+		}
+
+	return dest_p;
+}
+
 
 void CopyTime (const struct tm *src_p, struct tm *dest_p)
 {
