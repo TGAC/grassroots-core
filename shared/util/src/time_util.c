@@ -327,10 +327,16 @@ struct tm *AllocateTime (void)
 
 	if (time_p)
 		{
-			memset (time_p, 0, sizeof (struct tm));
+			ClearTime (time_p);
 		}
 
 	return time_p;
+}
+
+
+void ClearTime (struct tm *time_p)
+{
+	memset (time_p, 0, sizeof (struct tm));
 }
 
 
@@ -475,3 +481,24 @@ static bool IsLeapYear (const int year)
 
 	return result;
 }
+
+
+bool IsValidDate (struct tm *time_p)
+{
+	bool valid_flag = false;
+
+	if (time_p)
+		{
+			struct tm t;
+
+			memset (t, 0, sizeof (struct tm));
+
+			if (memcmp (time_p, &t, sizeof (struct tm)) != 0)
+				{
+					valid_flag = true;
+				}
+		}
+
+	return valid_flag;
+}
+

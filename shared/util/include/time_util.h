@@ -141,6 +141,11 @@ GRASSROOTS_UTIL_API struct tm *DuplicateTime (const struct tm *src_p);
 
 GRASSROOTS_UTIL_API void SetDateValuesForTime (struct tm *time_p, const int year, const int month, const int day);
 
+GRASSROOTS_UTIL_API void ClearTime (struct tm *time_p);
+
+
+GRASSROOTS_UTIL_API bool IsValidDate (struct tm *time_p);
+
 
 #ifdef __cplusplus
 }
