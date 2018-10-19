@@ -491,7 +491,7 @@ bool IsValidDate (struct tm *time_p)
 		{
 			struct tm t;
 
-			memset (t, 0, sizeof (struct tm));
+			ClearTime (&t);
 
 			if (memcmp (time_p, &t, sizeof (struct tm)) != 0)
 				{
