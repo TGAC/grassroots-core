@@ -2057,6 +2057,18 @@ bson_oid_t *GetNewUnitialisedBSONOid (void)
 }
 
 
+bson_oid_t *CopyBSONOid (const bson_oid_t *src_p)
+{
+	bson_oid_t *id_p = AllocMemory (sizeof (bson_oid_t));
+
+	if (id_p)
+		{
+			bson_oid_copy (src_p, id_p);
+		}
+
+	return id_p;
+}
+
 void FreeBSONOid (bson_oid_t *id_p)
 {
 	FreeMemory (id_p);
