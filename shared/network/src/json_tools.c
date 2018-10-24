@@ -320,27 +320,67 @@ json_t *GetKeywordServicesRequest (const UserDetails *user_p, const char * const
 }
 
 
-json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_name_s, const SchemaVersion * const sv_p)
+json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
 {
 	json_t *res_p = NULL;
-	json_error_t error;
-	json_t *op_data_p = json_pack_ex (&error, 0, "[s]", service_name_s);
+	LinkedList *service_names_list_p = ParseStringToStringLinkedList (service_names_s, ",", false);
 
-	if (op_data_p)
+	if (service_names_list_p)
 		{
-			res_p = GetServicesRequest (user_p, OP_GET_NAMED_SERVICES, SERVICES_NAME_S, op_data_p, sv_p);
+			json_t *service_names_p = json_array ();
 
-			if (!res_p)
+			if (service_names_p)
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetServicesRequest failed for %s", service_name_s);
+					StringListNode *node_p = (StringListNode *) (service_names_list_p -> ll_head_p);
+					bool success_flag = true;
+
+					while (node_p && success_flag)
+						{
+							json_t *name_p = json_string (node_p -> sln_string_s);
+
+							if (name_p)
+								{
+									if (json_array_append_new (service_names_p, name_p) == 0)
+										{
+											node_p = (StringListNode *) (node_p -> sln_node.ln_next_p);
+										}
+									else
+										{
+											json_decref (name_p);
+											success_flag = false;
+										}
+								}
+							else
+								{
+									success_flag = false;
+								}
+
+						}		/* while (node_p && success_flag) */
+
+					if (success_flag)
+						{
+							res_p = GetServicesRequest (user_p, OP_GET_NAMED_SERVICES, SERVICES_NAME_S, service_names_p, sv_p);
+
+							if (!res_p)
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetServicesRequest failed for %s", service_names_s);
+								}
+
+						}		/* if (success_flag) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get list of services from \"%s\"", service_names_s);
+						}
+
+					json_decref (service_names_p);
+				}		/* if (service_names_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create services array for %s", service_names_s);
 				}
 
-			json_decref (op_data_p);
-		}
-	else
-		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create services array for %s", service_name_s);
-		}
+			FreeLinkedList (service_names_list_p);
+		}		/* if (service_names_list_p) */
 
 	return res_p;
 }
