@@ -31,6 +31,29 @@
 static bool AddTermToJSON (json_t *root_p, const char *root_key_s, const char *type_s, const char *key_s, const char *value_s);
 
 
+SchemaTerm *AllocateExtendedSchemaTerm (const char *url_s, const char *name_s, const char *description_s, const char *abbreviation_s)
+{
+	SchemaTerm *term_p = AllocateSchemaTerm (url_s, name_s, description_s);
+
+	if (term_p)
+		{
+			if (abbreviation_s)
+				{
+					term_p -> st_abbreviation_s = EasyCopyToNewString (abbreviation_s);
+
+					if (! (term_p -> st_abbreviation_s))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSchemaTermFromJSON failed failed to set abbreviation to \"%s\"", abbreviation_s);
+							FreeSchemaTerm (term_p);
+							term_p = NULL;
+						}
+				}
+		}
+
+	return term_p;
+}
+
+
 
 SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const char *description_s)
 {
@@ -68,6 +91,7 @@ SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const cha
 									term_p -> st_url_s = copied_url_s;
 									term_p -> st_name_s = copied_name_s;
 									term_p -> st_description_s = copied_description_s;
+									term_p -> st_abbreviation_s = NULL;
 
 									return term_p;
 								}
@@ -94,16 +118,21 @@ SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const cha
 
 void FreeSchemaTerm (SchemaTerm *term_p)
 {
-	FreeMemory (term_p -> st_url_s);
+	FreeCopiedString (term_p -> st_url_s);
 
 	if (term_p -> st_name_s)
 		{
-			FreeMemory (term_p -> st_name_s);
+			FreeCopiedString (term_p -> st_name_s);
 		}
 
 	if (term_p -> st_description_s)
 		{
-			FreeMemory (term_p -> st_description_s);
+			FreeCopiedString (term_p -> st_description_s);
+		}
+
+	if (term_p -> st_abbreviation_s)
+		{
+			FreeCopiedString (term_p -> st_abbreviation_s);
 		}
 
 	FreeMemory (term_p);
@@ -161,13 +190,16 @@ json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p)
 
 	if (root_p)
 		{
-			if (json_object_set_new (root_p, SCHEMA_TERM_URL_S, json_string (term_p -> st_url_s)) == 0)
+			if (SetJSONString (root_p, SCHEMA_TERM_URL_S, term_p -> st_url_s))
 				{
-					if (json_object_set_new (root_p, SCHEMA_TERM_NAME_S, json_string (term_p -> st_name_s)) == 0)
+					if (SetJSONString (root_p, SCHEMA_TERM_NAME_S, term_p -> st_name_s))
 						{
-							if (json_object_set_new (root_p, SCHEMA_TERM_DESCRIPTION_S, json_string (term_p -> st_description_s)) == 0)
+							if (SetJSONString (root_p, SCHEMA_TERM_DESCRIPTION_S, term_p -> st_description_s))
 								{
-									return root_p;
+									if ((IsStringEmpty (term_p -> st_abbreviation_s)) || (SetJSONString (root_p, SCHEMA_TERM_ABBREVIATION_S, term_p -> st_abbreviation_s)))
+										{
+											return root_p;
+										}
 								}
 						}
 				}
@@ -197,6 +229,18 @@ SchemaTerm *GetSchemaTermFromJSON (const json_t *term_json_p)
 
 							if (term_p)
 								{
+									const char *abbreviation_s = GetJSONString (term_json_p, SCHEMA_TERM_ABBREVIATION_S);
+
+									if (abbreviation_s)
+										{
+											term_p -> st_abbreviation_s = EasyCopyToNewString (abbreviation_s);
+
+											if (!term_p -> st_abbreviation_s)
+												{
+													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSchemaTermFromJSON failed failed to set abbreviation to \"%s\"", abbreviation_s);
+												}
+										}
+
 									return term_p;
 								}
 							else

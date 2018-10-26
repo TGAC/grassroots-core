@@ -54,6 +54,12 @@ typedef struct SchemaTerm
 	 */
 	char *st_description_s;
 
+
+	/**
+	 * An optional abbreviation of this term
+	 */
+	char *st_abbreviation_s;
+
 } SchemaTerm;
 
 
@@ -79,6 +85,19 @@ typedef struct SchemaTermNode
 extern "C"
 {
 #endif
+
+
+/**
+ * Allocate a SchemaTerm with an abbreviation.
+ *
+ * @param url_s The url for the SchemaTerm.
+ * @param name_s The name to give to the SchemaTerm.
+ * @param description_s The description to give to the SchemaTerm.
+ * @param abbreviation_s The abbreviation to give to the SchemaTerm.
+ * @return The new SchemaTerm or <code>NULL</code> upon error.
+ * @memberof SchemaTerm
+ */
+GRASSROOTS_SERVICE_API SchemaTerm *AllocateExtendedSchemaTerm (const char *url_s, const char *name_s, const char *description_s, const char *abbreviation_s);
 
 
 /**
