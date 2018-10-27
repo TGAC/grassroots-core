@@ -194,7 +194,7 @@ json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p)
 				{
 					if (SetJSONString (root_p, SCHEMA_TERM_NAME_S, term_p -> st_name_s))
 						{
-							if (SetJSONString (root_p, SCHEMA_TERM_DESCRIPTION_S, term_p -> st_description_s))
+							if ((IsStringEmpty (term_p -> st_description_s)) || (SetJSONString (root_p, SCHEMA_TERM_DESCRIPTION_S, term_p -> st_description_s)))
 								{
 									if ((IsStringEmpty (term_p -> st_abbreviation_s)) || (SetJSONString (root_p, SCHEMA_TERM_ABBREVIATION_S, term_p -> st_abbreviation_s)))
 										{
