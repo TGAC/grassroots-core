@@ -87,6 +87,9 @@ PREFIX const char *CONTEXT_URL_EXPERIMENTAL_FACTOR_ONOTOLOGY_S VAL("http://www.e
 #define CONTEXT_PREFIX_SOFTWARE_ONTOLOGY_S "swo:"
 PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/swo/");
 
+#define CONTEXT_PREFIX_CROP_ONTOLOGY_S "co:"
+PREFIX const char *CONTEXT_URL_CROP_ONOTOLOGY_S VAL("http://www.cropontology.org/terms/");
+
 
 	/**
 	 *  @nosubgrouping
