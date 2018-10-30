@@ -1035,3 +1035,25 @@ bool DoesStringContainWhitespace (const char *value_s)
 }
 
 
+bool DoesStringEndWith (const char *value_s, const char *ending_s)
+{
+	bool matching_ends_flag = false;
+	const size_t value_length = strlen (value_s);
+	const size_t ending_length = strlen (ending_s);
+
+	if (value_length >= ending_length)
+		{
+			const size_t offset = value_length - ending_length;
+
+			value_s += offset;
+
+			if (strcmp (value_s, ending_s) == 0)
+				{
+					matching_ends_flag = true;
+				}
+		}
+
+	return matching_ends_flag;
+}
+
+

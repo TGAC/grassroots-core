@@ -222,36 +222,27 @@ SchemaTerm *GetSchemaTermFromJSON (const json_t *term_json_p)
 			if (name_s)
 				{
 					const char *description_s = GetJSONString (term_json_p, SCHEMA_TERM_DESCRIPTION_S);
+					SchemaTerm *term_p = AllocateSchemaTerm (url_s, name_s, description_s);
 
-					if (description_s)
+					if (term_p)
 						{
-							SchemaTerm *term_p = AllocateSchemaTerm (url_s, name_s, description_s);
+							const char *abbreviation_s = GetJSONString (term_json_p, SCHEMA_TERM_ABBREVIATION_S);
 
-							if (term_p)
+							if (abbreviation_s)
 								{
-									const char *abbreviation_s = GetJSONString (term_json_p, SCHEMA_TERM_ABBREVIATION_S);
+									term_p -> st_abbreviation_s = EasyCopyToNewString (abbreviation_s);
 
-									if (abbreviation_s)
+									if (!term_p -> st_abbreviation_s)
 										{
-											term_p -> st_abbreviation_s = EasyCopyToNewString (abbreviation_s);
-
-											if (!term_p -> st_abbreviation_s)
-												{
-													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSchemaTermFromJSON failed failed to set abbreviation to \"%s\"", abbreviation_s);
-												}
+											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSchemaTermFromJSON failed failed to set abbreviation to \"%s\"", abbreviation_s);
 										}
-
-									return term_p;
-								}
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetSchemaTermFromJSON failed for url \"%s\", name \"%s\", description \"%s\"", url_s, name_s, description_s);
 								}
 
-						}		/* if (description_s) */
+							return term_p;
+						}
 					else
 						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, term_json_p, "GetSchemaTermFromJSON failed to get \"%s\"", SCHEMA_TERM_DESCRIPTION_S);
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetSchemaTermFromJSON failed for url \"%s\", name \"%s\", description \"%s\"", url_s, name_s, description_s);
 						}
 
 				}		/* if (name_s) */

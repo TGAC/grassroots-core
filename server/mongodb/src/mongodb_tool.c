@@ -249,13 +249,13 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 }
 
 
-bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const bool insert_flag)
+bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
 {
 	bool success_flag = false;
 
 	if (SetMongoToolCollection (mongo_p, collection_s))
 		{
-			if (insert_flag)
+			if (!selector_p)
 				{
 					bson_t *reply_p = NULL;
 
@@ -267,7 +267,13 @@ bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char
 				}		/* if (insert_flag) */
 			else
 				{
+					bson_t *reply_p = NULL;
+
 					/* it's an update */
+					if (UpdateMongoData (mongo_p, selector_p, data_to_save_p, &reply_p))
+						{
+							success_flag = true;
+						}
 				}
 
 		}

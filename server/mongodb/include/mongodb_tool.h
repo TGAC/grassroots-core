@@ -576,7 +576,7 @@ GRASSROOTS_MONGODB_API char *GetBSONOidAsString (const bson_oid_t *id_p);
 GRASSROOTS_MONGODB_API bson_oid_t *GetBSONOidFromString (const char *id_s);
 
 
-GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const bool insert_flag);
+GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
 
 
 GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, bson_t *doc_p, bson_t **reply_pp);
