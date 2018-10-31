@@ -95,7 +95,7 @@ static bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p,
 
 
 #ifdef _DEBUG
-#define MONGODB_TOOL_DEBUG	(STM_LEVEL_FINER)
+#define MONGODB_TOOL_DEBUG	(STM_LEVEL_INFO)
 #else
 #define MONGODB_TOOL_DEBUG	(STM_LEVEL_NONE)
 #endif
