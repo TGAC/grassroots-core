@@ -383,6 +383,41 @@ struct tm *GetTimeFromString (const char *time_s)
 }
 
 
+int CompareDates (const struct tm *time_0_p, const struct tm *time_1_p, const bool dates_only_flag)
+{
+	int res = (time_0_p -> tm_year) - (time_1_p -> tm_year);
+
+	if (res == 0)
+		{
+			res = (time_0_p -> tm_mon) - (time_1_p -> tm_mon);
+
+			if (res == 0)
+				{
+					res = (time_0_p -> tm_mday) - (time_1_p -> tm_mday);
+
+					if (res == 0)
+						{
+							if (!dates_only_flag)
+								{
+									res = (time_0_p -> tm_hour) - (time_1_p -> tm_hour);
+
+									if (res == 0)
+										{
+											res = (time_0_p -> tm_min) - (time_1_p -> tm_min);
+
+											if (res == 0)
+												{
+													res = (time_0_p -> tm_sec) - (time_1_p -> tm_sec);
+												}
+										}
+								}
+						}
+				}
+		}
+
+	return res;
+}
+
 
 
 /****************************************/
