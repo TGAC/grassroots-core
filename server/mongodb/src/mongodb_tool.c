@@ -252,8 +252,17 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
 {
 	bool success_flag = false;
+	bool prepare_flag = true;
 
-	if (SetMongoToolCollection (mongo_p, collection_s))
+	if (collection_s)
+		{
+			if (!SetMongoToolCollection (mongo_p, collection_s))
+				{
+					prepare_flag = false;
+				}
+		}
+
+	if (prepare_flag)
 		{
 			if (!selector_p)
 				{
@@ -894,54 +903,56 @@ void LogAllBSON (const bson_t *bson_p, const int level, const char * const file_
 }
 
 
-void PrintBSONToLog (const int level, const char * const filename_s, const int line_number, const bson_t *bson_p, const char * const prefix_s)
+int PrintBSONToLog (const uint32 level, const char *filename_s, const int line_number, const bson_t *bson_p, const char *message_s, ...)
 {
-	size_t len;
-	char *dump_s = bson_as_canonical_extended_json (bson_p, &len);
+	int result = -1;
+	va_list args;
 
-	if (dump_s)
+	va_start (args, message_s);
+
+	result = PrintLogVarArgs (level, filename_s, line_number, message_s, args);
+
+	if (bson_p)
 		{
-			if (prefix_s)
-				{
-					PrintLog (level, filename_s, line_number, "%s %s", prefix_s, dump_s);
-				}
-			else
+			size_t len;
+			char *dump_s = bson_as_json (bson_p, &len);
+
+			if (dump_s)
 				{
 					PrintLog (level, filename_s, line_number, "%s", dump_s);
+					bson_free (dump_s);
 				}
+		}
 
-			bson_free (dump_s);
-		}
-	else
-		{
-			PrintLog (STM_LEVEL_WARNING, filename_s, line_number, "Failed to convert bson to text");
-		}
+	return result;
 }
 
 
-void PrintBSONToErrors (const int level, const char * const filename_s, const int line_number, const bson_t *bson_p, const char * const prefix_s)
+int PrintBSONToErrors (const uint32 level, const char *filename_s, const int line_number, const bson_t *bson_p, const char *message_s, ...)
 {
-	size_t len;
-	char *dump_s = bson_as_json (bson_p, &len);
+	int result = -1;
+	va_list args;
 
-	if (dump_s)
+	va_start (args, message_s);
+
+	result = PrintErrorsVarArgs (level, filename_s, line_number, message_s, args);
+
+	if (bson_p)
 		{
-			if (prefix_s)
-				{
-					PrintErrors (level, filename_s, line_number, "%s %s", prefix_s, dump_s);
-				}
-			else
+			size_t len;
+			char *dump_s = bson_as_json (bson_p, &len);
+
+			if (dump_s)
 				{
 					PrintErrors (level, filename_s, line_number, "%s", dump_s);
+					bson_free (dump_s);
 				}
+		}
 
-			bson_free (dump_s);
-		}
-	else
-		{
-			PrintErrors (STM_LEVEL_WARNING, filename_s, line_number, "Failed to convert bson to text");
-		}
+	return result;
 }
+
+
 
 
 void LogBSONOid (const bson_oid_t *bson_p, const int level, const char * const filename_s, const int line, const char * const prefix_s)
@@ -1576,7 +1587,6 @@ bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, bson_t *doc_p
 bool RunMongoCommand (MongoTool *tool_p, bson_t *command_p, bson_t **reply_pp)
 {
 	bool success_flag = false;
-	bson_t *opts_p = NULL;
 	bson_t reply;
 	bson_error_t error;
 
@@ -1670,7 +1680,6 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 						}		/* if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL)) */
 					else
 						{
-							json_error_t err;
 							bson_oid_t *oid_p = NULL;
 
 							if (object_key_s)
@@ -1891,6 +1900,20 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 }
 
 
+bool GetIdFromJSONKeyValuePair (const json_t *id_val_p, bson_oid_t *id_p)
+{
+	bool success_flag = false;
+	const char *oid_s = GetJSONString (id_val_p, S_OID_S);
+
+	if (oid_s)
+		{
+			bson_oid_init_from_string (id_p, oid_s);
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
 
 bool GetMongoIdFromJSON (const json_t *data_p, bson_oid_t *id_p)
 {
@@ -1905,13 +1928,7 @@ bool GetNamedIdFromJSON (const json_t *data_p, const char * const key_s, bson_oi
 
 	if (id_val_p)
 		{
-			const char *oid_s = GetJSONString (id_val_p, S_OID_S);
-
-			if (oid_s)
-				{
-					bson_oid_init_from_string (id_p, oid_s);
-					success_flag = true;
-				}
+			success_flag = GetIdFromJSONKeyValuePair (id_val_p, id_p);
 		}
 
 	return success_flag;
@@ -1953,7 +1970,6 @@ bool AddCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p)
 	return AddNamedCompoundIdToJSON (data_p, id_p, MONGO_ID_S);
 }
 
-
 bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
 {
 	bool success_flag = false;
@@ -1972,6 +1988,49 @@ bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key
 							if (json_object_set_new (id_json_p, S_OID_S, val_p) == 0)
 								{
 									if (json_object_set_new (data_p, key_s, id_json_p) == 0)
+										{
+											success_flag = true;
+										}
+								}
+							else
+								{
+									json_decref (val_p);
+								}
+
+						}		/* if (val_p) */
+
+					if (!success_flag)
+						{
+							json_decref (id_json_p);
+						}
+
+				}		/* if (id_json_p) */
+
+			FreeMemory (id_s);
+		}		/* if (id_s) */
+
+	return success_flag;
+}
+
+
+bool AddCompoundIdToJSONArray (json_t *array_p, const bson_oid_t *id_p)
+{
+	bool success_flag = false;
+	char *id_s = GetBSONOidAsString (id_p);
+
+	if (id_s)
+		{
+			json_t *id_json_p = json_object ();
+
+			if (id_json_p)
+				{
+					json_t *val_p = json_string (id_s);
+
+					if (val_p)
+						{
+							if (json_object_set_new (id_json_p, S_OID_S, val_p) == 0)
+								{
+									if (json_array_append_new (array_p, id_json_p) == 0)
 										{
 											success_flag = true;
 										}

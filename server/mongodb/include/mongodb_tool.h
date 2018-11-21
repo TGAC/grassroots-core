@@ -422,7 +422,7 @@ GRASSROOTS_MONGODB_API bool AddBSONDocumentToJSONArray (const bson_t *document_p
  * @param bson_p The BSON fragment to print.
  * @param prefix_s An optional string to print in the stream prior to the BSON representation.
  */
-GRASSROOTS_MONGODB_API void PrintBSONToLog (const int level, const char * const filename_s, const int line_number, const bson_t *bson_p, const char * const prefix_s);
+GRASSROOTS_MONGODB_API int PrintBSONToLog (const uint32 level, const char *filename_s, const int line_number, const bson_t *bson_p, const char *message_s, ...);
 
 
 /**
@@ -434,7 +434,7 @@ GRASSROOTS_MONGODB_API void PrintBSONToLog (const int level, const char * const 
  * @param bson_p The BSON fragment to print.
  * @param prefix_s An optional string to print in the stream prior to the BSON representation.
  */
-GRASSROOTS_MONGODB_API void PrintBSONToErrors (const int level, const char * const filename_s, const int line_number, const bson_t *bson_p, const char * const prefix_s);
+GRASSROOTS_MONGODB_API int PrintBSONToErrors (const uint32 level, const char *filename_s, const int line_number, const bson_t *bson_p, const char *message_s, ...);
 
 
 /**
@@ -607,10 +607,16 @@ GRASSROOTS_MONGODB_API bool GetMongoIdFromJSON (const json_t *data_p, bson_oid_t
 GRASSROOTS_MONGODB_API bool GetNamedIdFromJSON (const json_t *data_p, const char * const key_s, bson_oid_t *id_p);
 
 
+GRASSROOTS_MONGODB_API bool GetIdFromJSONKeyValuePair (const json_t *id_val_p, bson_oid_t *id_p);
+
+
 GRASSROOTS_MONGODB_API bool AddCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p);
 
 
 GRASSROOTS_MONGODB_API bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s);
+
+
+GRASSROOTS_MONGODB_API bool AddCompoundIdToJSONArray (json_t *array_p, const bson_oid_t *id_p);
 
 
 GRASSROOTS_MONGODB_API bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s);
