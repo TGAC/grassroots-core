@@ -150,6 +150,11 @@ void FreeMongoTool (MongoTool *tool_p)
 			mongoc_cursor_destroy (tool_p -> mt_cursor_p);
 		}
 
+	if (tool_p -> mt_database_p)
+		{
+			mongoc_database_destroy (tool_p -> mt_database_p);
+		}
+
 	if ((tool_p -> mt_owns_client_flag) && (tool_p -> mt_client_p))
 		{
 			ReleaseMongoClientFromMongoClientManager (tool_p -> mt_client_p);

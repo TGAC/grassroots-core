@@ -155,7 +155,7 @@ char *GetTimeAsString (const struct tm * const time_p, const bool include_time_f
 				{
 					if (include_time_flag)
 						{
-							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE, "T%2d%2d%2d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
+							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE - 1, "T%2d%2d%2d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
 						}
 
 					if (res > 0)

@@ -82,6 +82,8 @@ void InitJobsManager (JobsManager *manager_p,
 											LinkedList *(*get_all_jobs_fn) (struct JobsManager *manager_p),
 											bool (*delete_manager_fn) (struct JobsManager *manager_p))
 {
+	manager_p -> jm_plugin_p = NULL;
+
 	manager_p -> jm_add_job_fn = add_job_fn;
 	manager_p -> jm_get_job_fn = get_job_fn;
 	manager_p -> jm_remove_job_fn = remove_job_fn;
