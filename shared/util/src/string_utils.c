@@ -1,18 +1,18 @@
 /*
-** Copyright 2014-2016 The Earlham Institute
-** 
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-** 
-**     http://www.apache.org/licenses/LICENSE-2.0
-** 
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ ** Copyright 2014-2016 The Earlham Institute
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ **     http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
 #include <ctype.h>
 #include <math.h>
 #include <stdio.h>
@@ -81,7 +81,7 @@ char *CopyToNewString (const char * const src_p, const size_t l, bool trim)
 
 					while (isspace (*start_p))
 						{
-						 ++ start_p;
+							++ start_p;
 						}
 
 					if (*start_p == '\0')
@@ -92,7 +92,7 @@ char *CopyToNewString (const char * const src_p, const size_t l, bool trim)
 
 					while ((start_p < end_p) && (isspace (*end_p)))
 						{
-						 -- end_p;
+							-- end_p;
 						}
 
 					if (start_p <= end_p)
@@ -423,7 +423,7 @@ static LinkedList *ParseStringToLinkedList (const char * const format_p, const c
 											/*
 											ptr = strtok (NULL, delimiters_p);
 											loop_flag = (ptr != NULL);
-											*/
+											 */
 										}
 									else
 										{
@@ -472,14 +472,8 @@ static ListItem *GetStringListNode (const char *value_s)
 }
 
 
-/**
- * Replace all instances of a charcter by another within a string
- *
- * @param value_s The string to be altered.
- * @param char_to_replace  The character to replace.
- * @param replacement_char The replacement character.
- */
-void ReplaceExpression (char *value_s, const char char_to_replace, const char replacement_char)
+
+void ReplaceCharacter (char *value_s, const char char_to_replace, const char replacement_char)
 {
 	char *ptr = strchr (value_s, char_to_replace);
 
@@ -489,6 +483,90 @@ void ReplaceExpression (char *value_s, const char char_to_replace, const char re
 			ptr = strchr (ptr + 1, char_to_replace);
 		}
 }
+
+
+/*
+ * Taken from
+ *
+ * https://stackoverflow.com/questions/779875/what-is-the-function-to-replace-string-in-c
+ *
+ * You must free the result if result is non-NULL.
+ */
+bool SearchAndReplaceInString (const char *src_s, char **dest_ss, const char *to_replace_s, const char *with_s)
+{
+	bool success_flag = true;
+	char *result_s = NULL; // the return string
+	int len_rep;  // length of rep (the string to remove)
+	int len_with; // length of with (the string to replace rep with)
+	int len_front; // distance between rep and end of last rep
+
+	// sanity checks and initialization
+	if (!IsStringEmpty (src_s))
+		{
+			if (!IsStringEmpty (to_replace_s))
+				{
+					size_t to_replace_length = strlen (to_replace_s);
+					size_t with_length;
+					char *tmp_p;
+					char *insert_p;    // the next insert point
+					size_t count;    // number of replacements
+
+					if (with_s)
+						{
+							with_length = strlen (with_s);
+						}
+					else
+						{
+							with_s = "";
+							with_length = 0;
+						}
+
+					// count the number of replacements needed
+					insert_p = src_s;
+					for (count = 0; (tmp_p = strstr (insert_p, to_replace_s)) != NULL; ++ count)
+						{
+							insert_p = tmp_p + to_replace_length;
+						}
+
+					if (count > 0)
+						{
+							result_s = (char *) AllocMemory (strlen (src_s) + ((with_length - to_replace_length) * count) + 1);
+
+							if (result_s)
+								{
+									tmp_p = result_s;
+
+									// first time through the loop, all the variable are set correctly
+									// from here on,
+									//    tmp points to the end of the result string
+									//    insert_p points to the next occurrence of rep in src_s
+									//    src_s points to the remainder of src_s after "end of rep"
+									while (count --)
+										{
+											insert_p = strstr (src_s, to_replace_s);
+											len_front = insert_p - src_s;
+											tmp_p = strncpy (tmp_p, src_s, len_front) + len_front;
+											tmp_p = strcpy (tmp_p, with_s) + with_length;
+											src_s += len_front + to_replace_length; // move to next "end of rep"
+										}
+									strcpy (tmp_p, src_s);
+
+									*dest_ss = result_s;
+								}
+							else
+								{
+									success_flag = false;
+								}
+
+						}		/* if (count > 0) */
+
+				}		/* if (!IsStringEmpty (to_replace_s)) */
+
+		}		/* if (!IsStringEmpty (src_s)) */
+
+	return success_flag;
+}
+
 
 
 bool GetKeyValuePair (char *line_p, char **key_pp, char **value_pp, const char comment_identifier)
@@ -634,23 +712,23 @@ void NullifyTrailingZeroes (char *numeric_string_p)
 	while (loop_flag)
 		{
 			switch (*c_p)
-				{
-					case '0':
-						*c_p = '\0';
-						-- l;
-						-- c_p;
-						break;
+			{
+				case '0':
+					*c_p = '\0';
+					-- l;
+					-- c_p;
+					break;
 
-					case '.':
-						*c_p = '\0';
-						loop_flag = false;
-						break;
+				case '.':
+					*c_p = '\0';
+					loop_flag = false;
+					break;
 
-					default:
-						loop_flag = false;
-						break;
+				default:
+					loop_flag = false;
+					break;
 
-				}		/* switch (*c_p) */
+			}		/* switch (*c_p) */
 
 		}		/* while (loop_flag) */
 }
@@ -773,34 +851,34 @@ const char *Stristr (const char *value_s, const char *substring_s)
 			const char *substring_p = substring_s;
 
 			while (*value_p && *substring_p)
-		    {
+				{
 					/* Do they match? */
 					if (tolower (*value_p) == tolower (*substring_p))
-		        {
+						{
 							if (!res_p)
-		            {
-		              res_p = value_p;
-		            }
+								{
+									res_p = value_p;
+								}
 
 							++ substring_p;
-		        }
+						}
 					else
-		        {
+						{
 							substring_p = substring_s;
 
 							if (tolower (*value_p) == tolower (*substring_p))
-				        {
+								{
 									res_p = value_p;
 									++ substring_p;
-				        }
+								}
 							else
 								{
 									res_p = NULL;
 								}
-		        }
+						}
 
 					++ value_p;
-		    }		/* while (*value_p && *substring_p) */
+				}		/* while (*value_p && *substring_p) */
 		}
 	else
 		{
@@ -1019,19 +1097,19 @@ char *GetFileContentsAsStringByFilename (const char *filename_s)
 
 bool DoesStringContainWhitespace (const char *value_s)
 {
-  while (*value_s != '\0')
-  	{
-  		if (isspace (*value_s))
-  			{
-  				return true;
-  			}
-  		else
-  			{
-  				++ value_s;
-  			}
-  	}
+	while (*value_s != '\0')
+		{
+			if (isspace (*value_s))
+				{
+					return true;
+				}
+			else
+				{
+					++ value_s;
+				}
+		}
 
-  return false;
+	return false;
 }
 
 

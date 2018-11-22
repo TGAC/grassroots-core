@@ -269,20 +269,17 @@ bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char
 
 	if (prepare_flag)
 		{
+			bson_t *reply_p = NULL;
+
 			if (!selector_p)
 				{
-					bson_t *reply_p = NULL;
-
 					if (InsertMongoData (mongo_p, data_to_save_p, &reply_p))
 						{
 							success_flag = true;
 						}
-
 				}		/* if (insert_flag) */
 			else
 				{
-					bson_t *reply_p = NULL;
-
 					/* it's an update */
 					if (UpdateMongoData (mongo_p, selector_p, data_to_save_p, &reply_p))
 						{
@@ -290,7 +287,13 @@ bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char
 						}
 				}
 
-		}
+
+			if (reply_p)
+				{
+					bson_destroy (reply_p);
+				}
+
+		}		/* if (prepare_flag) */
 
 	return success_flag;
 }
@@ -1577,6 +1580,7 @@ bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, bson_t *doc_p
   	  		PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append doc to update statement");
   	  	}
 
+  		bson_destroy (update_p);
   	}		/* if (update_p) */
   else
   	{

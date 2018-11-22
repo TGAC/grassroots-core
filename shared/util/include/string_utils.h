@@ -185,14 +185,18 @@ GRASSROOTS_UTIL_API char *ConcatenateStrings (const char * const first_s, const 
 
 
 /**
- * Replace all instances of a charcter by another within a string
+ * Replace all instances of a character by another within a string
  *
  * @param value_s The string to be altered.
  * @param char_to_replace  The character to replace.
  * @param replacement_char The replacement character.
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API void ReplaceExpression (char *value_s, const char char_to_replace, const char replacement_char);
+GRASSROOTS_UTIL_API void ReplaceCharacter (char *value_s, const char char_to_replace, const char replacement_char);
+
+
+
+GRASSROOTS_UTIL_API bool SearchAndReplaceInString (const char *src_s, char **dest_ss, const char *to_replace_s, const char *with_s);
 
 
 /**
