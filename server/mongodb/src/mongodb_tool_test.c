@@ -23,7 +23,7 @@
 #include <stdio.h>
 
 #include "mongodb_tool.h"
-
+#include "string_utils.h"
 
 static const char * const S_ID_COLUMN_S = "id";
 static const char * const S_SURNAME_COLUMN_S = "surname";
@@ -171,7 +171,7 @@ int main (int argc, char *argv [])
 	  								}		/* if ((bson_doc_p = GetBSONCommandToRun (argv [2])) != NULL) */
 
 
-	  							results_p = GetAllMongoResultsAsJSON (tool_p, query_p);
+	  							results_p = GetAllMongoResultsAsJSON (tool_p, query_p, NULL);
 	  							if (results_p)
 										{
 	  									PrintJSON (results_p, "Results: ");
@@ -293,24 +293,36 @@ static bson_t *GetBSONCommandToRun (const char *collection_s)
 
 static bson_t *GetBSONDataToInsert (bson_oid_t *id_p)
 {
+	bool success_flag = false;
 	bson_t *doc_p = bson_new ();
 
 	if (doc_p)
 		{
-			if (BSON_APPEND_UTF8 (doc_p, "hello", "world"))
-				{
-					bson_oid_init (id_p, NULL);
+			char *value_s = NULL;
 
-					if (BSON_APPEND_OID (doc_p, "_id", id_p))
+			if (SearchAndReplaceInString ("my.dotted.value", &value_s, ".", "[dot]"))
+				{
+					if (BSON_APPEND_UTF8 (doc_p, "hi", value_s))
 						{
-							return doc_p;
+							bson_oid_init (id_p, NULL);
+
+							if (BSON_APPEND_OID (doc_p, "_id", id_p))
+								{
+									success_flag = true;
+								}
 						}
+
+					FreeCopiedString (value_s);
 				}
 
-			bson_destroy (doc_p);
+			if (!success_flag)
+				{
+					bson_destroy (doc_p);
+					doc_p = NULL;
+				}
 		}
 
-	return NULL;
+	return doc_p;
 }
 
 
