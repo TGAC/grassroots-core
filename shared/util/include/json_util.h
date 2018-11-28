@@ -627,6 +627,9 @@ GRASSROOTS_UTIL_API bool DeepCopyValidJSON (const json_t *src_p, json_t **dest_p
  */
 GRASSROOTS_UTIL_API bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term_s, const bool add_id_flag);
 
+
+GRASSROOTS_UTIL_API json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move);
+
 #ifdef __cplusplus
 }
 #endif

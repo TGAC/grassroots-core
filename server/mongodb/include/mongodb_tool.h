@@ -551,10 +551,10 @@ GRASSROOTS_MONGODB_API bool CreateIndexForMongoCollection (MongoTool *tool_p, ch
 
 
 
-GRASSROOTS_MONGODB_API bool InsertMongoData (MongoTool *tool_p, const json_t *values_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool InsertMongoData (MongoTool *tool_p, const json_t *values_p, bson_t **reply_pp, bson_error_t *error_p);
 
 
-GRASSROOTS_MONGODB_API bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool InsertMongoDataAsBSON (MongoTool *tool_p, const bson_t *doc_p, bson_t **reply_pp, bson_error_t *error_p);
 
 
 GRASSROOTS_MONGODB_API bool RunMongoCommand (MongoTool *tool_p, bson_t *command_p, bson_t **reply_pp);
@@ -579,13 +579,16 @@ GRASSROOTS_MONGODB_API bson_oid_t *GetBSONOidFromString (const char *id_s);
 GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, bson_t *doc_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
+
+
+GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
 
 
 GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, json_t *values_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp);
 
 
 

@@ -111,10 +111,11 @@ int main (int argc, char *argv [])
 	  							if ((bson_doc_p = GetBSONDataToInsert (&id)) != NULL)
 	  								{
 											bson_t *reply_p = NULL;
+											bson_error_t err;
 
 											PrintBSON (bson_doc_p, "BSON before insert: ");
 
-											if (InsertMongoDataAsBSON (tool_p, bson_doc_p, &reply_p))
+											if (InsertMongoDataAsBSON (tool_p, bson_doc_p, &reply_p, &err))
 												{
 													PrintBSON (reply_p, "Reply: ");
 

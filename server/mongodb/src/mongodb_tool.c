@@ -254,7 +254,7 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 }
 
 
-bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
+bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
 {
 	bool success_flag = false;
 	bool prepare_flag = true;
@@ -270,10 +270,11 @@ bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char
 	if (prepare_flag)
 		{
 			bson_t *reply_p = NULL;
+			bson_error_t err;
 
 			if (!selector_p)
 				{
-					if (InsertMongoData (mongo_p, data_to_save_p, &reply_p))
+					if (InsertMongoDataAsBSON (mongo_p, data_to_save_p, &reply_p, &err))
 						{
 							success_flag = true;
 						}
@@ -281,7 +282,7 @@ bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char
 			else
 				{
 					/* it's an update */
-					if (UpdateMongoData (mongo_p, selector_p, data_to_save_p, &reply_p))
+					if (UpdateMongoDataAsBSON (mongo_p, selector_p, data_to_save_p, &reply_p))
 						{
 							success_flag = true;
 						}
@@ -294,6 +295,23 @@ bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char
 				}
 
 		}		/* if (prepare_flag) */
+
+	return success_flag;
+
+}
+
+
+bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
+{
+	bool success_flag = false;
+	bson_t *doc_p = ConvertJSONToBSON (data_to_save_p);
+
+	if (doc_p)
+		{
+			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, selector_p);
+
+			bson_destroy (doc_p);
+		}
 
 	return success_flag;
 }
@@ -1441,16 +1459,15 @@ const char *EasyInsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, co
 }
 
 
-bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp)
+bool InsertMongoDataAsBSON (MongoTool *tool_p, const bson_t *doc_p, bson_t **reply_pp, bson_error_t *error_p)
 {
 	bool success_flag = false;
 	bson_t *opts_p = NULL;
 	bson_t reply;
-	bson_error_t error;
 
 	*reply_pp = NULL;
 
-	success_flag = mongoc_collection_insert_one (tool_p -> mt_collection_p, doc_p, opts_p, &reply, &error);
+	success_flag = mongoc_collection_insert_one (tool_p -> mt_collection_p, doc_p, opts_p, &reply, error_p);
 
 	if (success_flag)
 		{
@@ -1468,7 +1485,7 @@ bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp)
 		}		/* if (success_flag) */
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to insert, error \"%s\"", error.message);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to insert, error domain: " UINT32_FMT " code: " UINT32_FMT " message: \"%s\"", error_p -> domain, error_p -> code, error_p -> message);
 		}
 
 	return success_flag;
@@ -1476,14 +1493,14 @@ bool InsertMongoDataAsBSON (MongoTool *tool_p, bson_t *doc_p, bson_t **reply_pp)
 
 
 
-bool InsertMongoData (MongoTool *tool_p, const json_t *values_p, bson_t **reply_pp)
+bool InsertMongoData (MongoTool *tool_p, const json_t *values_p, bson_t **reply_pp, bson_error_t *error_p)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (values_p);
 
 	if (doc_p)
 		{
-			success_flag = InsertMongoDataAsBSON (tool_p, doc_p, reply_pp);
+			success_flag = InsertMongoDataAsBSON (tool_p, doc_p, reply_pp, error_p);
 
 			bson_destroy (doc_p);
 		}		/* if (doc_p_ */
@@ -1513,7 +1530,7 @@ bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_
 }
 
 
-bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, json_t *values_p, bson_t **reply_pp)
+bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (values_p);
@@ -1530,7 +1547,7 @@ bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, json_t *values_p, b
 
 
 
-bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, bson_t *doc_p, bson_t **reply_pp)
+bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp)
 {
 	bool success_flag = false;
 	bson_t *opts_p = NULL;

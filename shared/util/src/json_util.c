@@ -1327,6 +1327,67 @@ bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term
 }
 
 
+json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move)
+{
+	bool success_flag = true;
+	json_t *dest_p = json_object ();
+
+	if (dest_p)
+		{
+			const size_t src_size = json_object_size (src_p);
+			const size_t num_to_move = src_size * percentage_to_move * 0.010;
+			size_t i = 0;
+			void *tmp_p;
+			const char *key_s;
+			json_t *value_p;
+
+			json_object_foreach_safe (src_p, tmp_p, key_s, value_p)
+				{
+					if (json_object_set (dest_p, key_s, value_p) == 0)
+						{
+							if (json_object_del (src_p, key_s) == 0)
+								{
+									++ i;
+
+									if (i == num_to_move)
+										{
+											return dest_p;
+										}
+								}		/* if (json_object_del (src_p, key_s) == 0) */
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, src_p, "Failed to delete \"%s\"", key_s);
+									json_decref (dest_p);
+									return NULL;
+								}
+						}		/* if (json_object_set (dest_p, key_s, value_p) == 0) */
+					else
+						{
+							char *dump_s = json_dumps (value_p, 0);
+
+							if (dump_s)
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, dest_p, "Failed to set \"%s\": \"%s\"", key_s, dump_s);
+									free (dump_s);
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, dest_p, "Failed to set \"%s\" to unknown value", key_s);
+								}
+
+							json_decref (dest_p);
+							return NULL;
+						}
+
+				}		/* json_object_foreach_safe (src_p, tmp_p, key_s, value_p) */
+
+			json_decref (dest_p);
+		}		/* if (dest_p) */
+
+	return NULL;
+}
+
+
 
 static bool SetJSONValue (const json_t *json_p, const char * const key_s, json_t *value_p)
 {
