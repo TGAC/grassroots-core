@@ -25,7 +25,7 @@
 
 
 const size_t S_DATE_BUFFER_SIZE = 11;
-const size_t S_TIME_BUFFER_SIZE = 18;
+const size_t S_TIME_BUFFER_SIZE = 20;
 
 
 static bool ConvertNumber (const char * const buffer_s, size_t from, size_t to, int *result_p);
@@ -95,9 +95,9 @@ bool SetTimeFromString (struct tm * const time_p, const char *time_s)
 										{
 											if (ConvertNumber (time_s, 11, 12, &hour))
 												{
-													if (ConvertNumber (time_s, 13, 14, &min))
+													if (ConvertNumber (time_s, 14, 15, &min))
 														{
-															if (ConvertNumber (time_s, 15, 	6, &sec))
+															if (ConvertNumber (time_s, 17, 18, &sec))
 																{
 																	success_flag = true;
 																}
@@ -155,7 +155,7 @@ char *GetTimeAsString (const struct tm * const time_p, const bool include_time_f
 				{
 					if (include_time_flag)
 						{
-							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE - 1, "T%2d%2d%2d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
+							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE - 1, "T%02d:%02d:%02d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
 						}
 
 					if (res > 0)
