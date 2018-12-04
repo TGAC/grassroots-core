@@ -614,7 +614,30 @@ const char *CheckForNotNull (const Parameter * const UNUSED_PARAM (parameter_p),
 
 bool CompareParameterLevels (const ParameterLevel param_level, const ParameterLevel threshold)
 {
-	return ((param_level & threshold) == threshold);
+	bool show_flag = false;
+
+	switch (param_level)
+		{
+			case PL_ALL:
+				show_flag = true;
+				break;
+
+			case PL_SIMPLE:
+				if (threshold != PL_ADVANCED)
+					{
+						show_flag = true;
+					}
+				break;
+
+			case PL_ADVANCED:
+				if (threshold != PL_SIMPLE)
+					{
+						show_flag = true;
+					}
+				break;
+		}		/* switch (param_level) */
+
+	return show_flag;
 }
 
 
