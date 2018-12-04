@@ -520,14 +520,7 @@ PREFIX const char *CONTEXT_URL_CROP_ONTOLOGY_S VAL("http://www.cropontology.org/
 	 * The JSON key for specifying that a Parameter to be available
 	 * for a client at the beginner level.
 	 */
-	PREFIX const char *PARAM_LEVEL_TEXT_BASIC_S  VAL("beginner");
-
-
-	/**
-	 * The JSON key for specifying that a Parameter to be available
-	 * for a client at the intermediate level.
-	 */
-	PREFIX const char *PARAM_LEVEL_TEXT_INTERMEDIATE_S  VAL("intermediate");
+	PREFIX const char *PARAM_LEVEL_TEXT_SIMPLE_S  VAL("simple");
 
 
 	/**

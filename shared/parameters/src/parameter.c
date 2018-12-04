@@ -1021,71 +1021,33 @@ static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, js
 static bool AddParameterLevelToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p))
 {
 	bool success_flag = false;
+	const char *level_s = NULL;
 
-	if ((param_p -> pa_level & PL_ALL) == PL_ALL)
+	switch (param_p -> pa_level)
 		{
-			if (json_object_set_new (root_p, PARAM_LEVEL_S, json_string (PARAM_LEVEL_TEXT_ALL_S)) == 0)
+			case PL_SIMPLE:
+				level_s = PARAM_LEVEL_TEXT_SIMPLE_S;
+				break;
+
+			case PL_ADVANCED:
+				level_s = PARAM_LEVEL_TEXT_ADVANCED_S;
+				break;
+
+			case PL_ALL:
+				level_s = PARAM_LEVEL_TEXT_ALL_S;
+				break;
+
+			default:
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unknown ParameterLevel %d for param %s", param_p -> pa_level, param_p -> pa_name_s);
+				break;
+		}		/* switch (param_p -> pa_level) */
+
+	if (level_s)
+		{
+			if (SetJSONString (root_p, PARAM_LEVEL_S, level_s))
 				{
 					success_flag = true;
 				}
-		}
-	else
-		{
-			ByteBuffer *buffer_p = AllocateByteBuffer (256);
-
-			if (buffer_p)
-				{
-					int append_status = 0;
-
-					if ((param_p -> pa_level & PL_BASIC) == PL_BASIC)
-						{
-							append_status = AppendStringToByteBuffer (buffer_p, PARAM_LEVEL_TEXT_BASIC_S) ? 1 : -1;
-						}
-
-					if (append_status != -1)
-						{
-							if ((param_p -> pa_level & PL_INTERMEDIATE) == PL_INTERMEDIATE)
-								{
-									if (append_status == 1)
-										{
-											append_status = AppendStringsToByteBuffer (buffer_p, "|", PARAM_LEVEL_TEXT_INTERMEDIATE_S, NULL) ? 1 : -1;
-										}
-									else
-										{
-											append_status = AppendStringToByteBuffer (buffer_p, PARAM_LEVEL_TEXT_INTERMEDIATE_S) ? 1 : -1;
-										}
-								}
-						}
-
-					if (append_status != -1)
-						{
-							if ((param_p -> pa_level & PL_ADVANCED) == PL_ADVANCED)
-								{
-									if (append_status == 1)
-										{
-											append_status = AppendStringsToByteBuffer (buffer_p, "|", PARAM_LEVEL_TEXT_ADVANCED_S, NULL) ? 1 : -1;
-										}
-									else
-										{
-											append_status = AppendStringToByteBuffer (buffer_p, PARAM_LEVEL_TEXT_ADVANCED_S) ? 1 : -1;
-										}
-								}
-						}
-
-					if (append_status == 1)
-						{
-							const char *data_s = GetByteBufferData (buffer_p);
-
-							if (json_object_set_new (root_p, PARAM_LEVEL_S, json_string (data_s)) == 0)
-								{
-									success_flag = true;
-								}
-						}
-
-					success_flag = (append_status != -1);
-
-					FreeByteBuffer (buffer_p);
-				}		/* if (buffer_p) */
 		}
 
 	#if SERVER_DEBUG >= STM_LEVEL_FINER
@@ -2087,13 +2049,23 @@ static bool InitParameterStoreFromJSON (const json_t *root_p, HashTable *store_p
 static bool GetParameterLevelFromJSON (const json_t * const json_p, ParameterLevel *level_p)
 {
 	bool success_flag = false;
-	json_t *value_p = json_object_get (json_p, PARAM_LEVEL_S);
+	const char *level_s = GetJSONString (json_p, PARAM_LEVEL_S);
 
-	if (value_p && json_is_integer (value_p))
+	if (level_s)
 		{
-			json_int_t subtype = json_integer_value (value_p);
+			if (strcmp (level_s, PARAM_LEVEL_TEXT_ALL_S) == 0)
+				{
+					*level_p = PL_ALL;
+				}
+			else if (strcmp (level_s, PARAM_LEVEL_TEXT_SIMPLE_S) == 0)
+				{
+					*level_p = PL_SIMPLE;
+				}
+			else if (strcmp (level_s, PARAM_LEVEL_TEXT_ADVANCED_S) == 0)
+				{
+					*level_p = PL_ADVANCED;
+				}
 
-			*level_p = (ParameterLevel) (subtype);
 			success_flag = true;
 		}
 

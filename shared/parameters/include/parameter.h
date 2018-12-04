@@ -51,42 +51,26 @@ struct ServiceData;
  *
  * @ingroup parameters_group
  */
-typedef uint8 ParameterLevel;
+typedef enum
+{
+	/**
+	 * The value of a ParameterLevel for Parameters that
+	 * are considered the most simple options.
+	 */
+	PL_SIMPLE,
 
-/**
- * The value of a ParameterLevel for Parameters that
- * are considered the most simple options.
- *
- * @ingroup parameters_group
- */
-#define PL_BASIC (1)
+	/**
+	 * The value of a ParameterLevel for Parameters that
+	 * are considered the options that require the most expertise.
+	 */
+	PL_ADVANCED,
 
-
-/**
- * The value of a ParameterLevel for Parameters that
- * are considered suitable for more knowledgeable users.
- *
- * @ingroup parameters_group
- */
-#define PL_INTERMEDIATE (1 << 1)
-
-
-/**
- * The value of a ParameterLevel for Parameters that
- * are considered the options that require the most expertise.
- *
- * @ingroup parameters_group
- */
-#define PL_ADVANCED (1 << 2)
-
-
-/**
- * The value of a ParameterLevel for Parameters that
- * are considered the options suitable for all levels
- *
- * @ingroup parameters_group
- */
-#define PL_ALL (PL_BASIC | PL_INTERMEDIATE | PL_ADVANCED)
+	/**
+	 * The value of a ParameterLevel for Parameters that
+	 * are considered the options suitable for all levels
+	 */
+	PL_ALL
+} ParameterLevel;
 
 
 

@@ -273,7 +273,7 @@ bool AddMatchTypeParameter (WebServiceData *data_p, ParameterSet *param_set_p)
 
 	if ((param_p = EasyCreateAndAddParameterToParameterSet(& (data_p -> wsd_base_data), param_set_p, NULL, PT_STRING, "Query matching", NULL,
 		"How the query will be interpreted by the service.",
-		def, PL_INTERMEDIATE | PL_ADVANCED)) != NULL)
+		def, PL_ADVANCED)) != NULL)
 		{
 			uint32 i;
 
