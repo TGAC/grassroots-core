@@ -126,10 +126,23 @@ GRASSROOTS_UTIL_API struct tm *GetTimeFromString (const char *time_s);
 GRASSROOTS_UTIL_API void AddIntervalToTime (struct tm *time_p, const int days);
 
 
-
+/**
+ * Allocate a struct tm variable and set all of its values to 0.
+ *
+ * This value should be freed using FreeTime() to avoid a memory leak.
+ *
+ * @return The new struct tm or <code>NULL</code> upon error.
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API struct tm *AllocateTime (void);
 
 
+/**
+ * Free a struct tm variable allocated by AllocateTime().
+ *
+ * @param The struct tm to free.
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API void FreeTime (struct tm *time_p);
 
 
@@ -147,7 +160,17 @@ GRASSROOTS_UTIL_API void ClearTime (struct tm *time_p);
 GRASSROOTS_UTIL_API bool IsValidDate (struct tm *time_p);
 
 
-
+/**
+ * Compare two dates chronologically.
+ *
+ * @param time_0_p The first time.
+ * @param time_1_p The second time.
+ * @param dates_only_flag If this is <code>true</code> then only the date, month and year of the two times will be
+ * used for comparison. If this is <code>false</code> then the hours, minutes and seconds will be used too.
+ * @return Less than zero if the first date is chronologically before the second one, greater than zero if the first date
+ * is after the second and zero if the dates are the same.
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API int CompareDates (const struct tm *time_0_p, const struct tm *time_1_p, const bool dates_only_flag);
 
 
