@@ -109,7 +109,14 @@ GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
 GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag);
 
 
-
+/**
+ * Set the time from a string in the ISO 8601 format
+ *
+ * @param time_p The time to be set from the string
+ * @param time_s The time to be set as a c-style string or <code>NULL</code> upon error.
+ * @return <code>true</code> if the time was set successfully, <code>false</code> otherwise.
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API bool SetTimeFromString (struct tm * const time_p, const char *time_s);
 
 
@@ -140,19 +147,42 @@ GRASSROOTS_UTIL_API struct tm *AllocateTime (void);
 /**
  * Free a struct tm variable allocated by AllocateTime().
  *
- * @param The struct tm to free.
+ * @param time_p The struct tm to free.
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API void FreeTime (struct tm *time_p);
 
 
+/**
+ * Copy the values from one struct tm to another.
+ *
+ * @param src_p The struct tm to copy the values from.
+ * @param dest_p The struct tm to copy the values to.
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API void CopyTime (const struct tm *src_p, struct tm *dest_p);
 
-
+/**
+ * Make a deep copy of a struct tm.
+ *
+ * @param src_p The struct tm to copy.
+ * @return The newly-allocated struct tm with the copied values or <code>NULL</code>
+ * upon error. This will need to be freed with FreeTime().
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API struct tm *DuplicateTime (const struct tm *src_p);
 
 
+/**
+ * Set the year, month and day values for a struct tm.
+ *
+ * @param year The 4 digit year value.
+ * @param month The month value ranging from 0 for January to 11 for December.
+ * @param month The day value starting from 1.
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API void SetDateValuesForTime (struct tm *time_p, const int year, const int month, const int day);
+
 
 GRASSROOTS_UTIL_API void ClearTime (struct tm *time_p);
 
