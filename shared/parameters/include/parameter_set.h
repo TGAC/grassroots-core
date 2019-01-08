@@ -32,6 +32,7 @@ L** Copyright 2014-2016 The Earlham Institute
 
 
 struct ServiceData;
+struct Service;
 
 #include "parameter_group.h"
 
@@ -237,7 +238,7 @@ GRASSROOTS_PARAMS_API json_t *GetParameterSetSelectionAsJSON (const ParameterSet
  * @memberof ParameterSet
  * @see CreateParameterFromJSON
  */
-GRASSROOTS_PARAMS_API ParameterSet *CreateParameterSetFromJSON (const json_t * const json_p, const bool concise_flag);
+GRASSROOTS_PARAMS_API ParameterSet *CreateParameterSetFromJSON (const json_t * const json_p, struct Service *service_p, const bool concise_flag);
 
 
 /**

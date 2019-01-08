@@ -41,7 +41,7 @@
 /******* FORWARD DECLARATION *******/
 struct Parameter;
 struct ServiceData;
-
+struct Service;
 
 /**
  * The ParameterLevel defines the level that a user
@@ -493,7 +493,7 @@ GRASSROOTS_PARAMS_API json_t *GetParameterAsJSON (const Parameter * const parame
  * or <code>NULL</code> upon error.
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API Parameter *CreateParameterFromJSON (const json_t * const json_p, const bool concise_flag);
+GRASSROOTS_PARAMS_API Parameter *CreateParameterFromJSON (const json_t * const json_p, struct Service *service_p, const bool concise_flag);
 
 
 

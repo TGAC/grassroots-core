@@ -350,7 +350,7 @@ bool AddParameterGroupToParameterSet (ParameterSet *param_set_p, ParameterGroup 
 
 
 
-ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, const bool concise_flag)
+ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *service_p, const bool concise_flag)
 {
 	ParameterSet *params_p =  NULL;
 
@@ -392,7 +392,7 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, const bool 
 											PrintJSONToLog (param_json_p, "param_json_p: ", PARAMETER_SET_DEBUG, __FILE__, __LINE__);
 											#endif
 
-											param_p = CreateParameterFromJSON (param_json_p, concise_flag);
+											param_p = CreateParameterFromJSON (param_json_p, service_p, concise_flag);
 											
 											if (param_p)
 												{

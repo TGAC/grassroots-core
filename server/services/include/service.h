@@ -296,6 +296,10 @@ typedef struct Service
 	 */
 	bool (*se_process_linked_services_fn) (struct Service *service_p, struct ServiceJob *job_p, LinkedService *linked_service_p);
 
+
+	bool (*se_get_parameter_type_fn) (struct Service *service_p, const char *param_name_s, ParameterType *pt_p);
+
+
 	/**
 	 * The synchronicity for how this Service runs.
 	 */

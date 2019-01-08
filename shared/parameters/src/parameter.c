@@ -2564,16 +2564,8 @@ bool IsJSONParameterConcise (const json_t * const json_p)
 }
 
 
-/*
- 
- 				if (AddCurrentValueToJSON (parameter_p, root_p))
-						{
-							if (AddParameterTagToJSON (parameter_p, root_p))
-								{
-									if (AddParameterTypeToJSON (parameter_p, root_p))
-*/
 
-Parameter *CreateParameterFromJSON (const json_t * const root_p, const bool concise_flag)
+Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *service_p, const bool concise_flag)
 {
 	Parameter *param_p = NULL;
 	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
@@ -2584,9 +2576,19 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, const bool conc
 
 	if (name_s)
 		{
-			ParameterType pt;
+			bool got_type_flag = false;
+			ParameterType pt = PT_NUM_TYPES;
 
-			if (GetParameterTypeFromJSON (root_p, &pt))
+			if (service_p)
+				{
+
+				}		/* if (service_p) */
+			else
+				{
+					got_type_flag = GetParameterTypeFromJSON (root_p, &pt);
+				}
+
+			if (got_type_flag)
 				{
 					SharedType current_value;
 

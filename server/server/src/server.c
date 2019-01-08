@@ -554,7 +554,7 @@ static int8 RunServiceFromJSON (const json_t *service_req_p, const json_t *paire
 													 * Convert the json parameter set into a ParameterSet
 													 * to run the Service with.
 													 */
-													params_p = CreateParameterSetFromJSON (service_req_p, true);
+													params_p = CreateParameterSetFromJSON (service_req_p, service_p, true);
 
 													if (params_p)
 														{
