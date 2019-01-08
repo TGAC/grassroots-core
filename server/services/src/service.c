@@ -88,6 +88,7 @@ bool InitialiseService (Service * const service_p,
 	ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
 	ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
 	ParameterSet *(*get_parameters_fn) (Service *service_p, Resource *resource_p, UserDetails *user_p),
+	bool (*get_parameter_type_fn) (struct Service *service_p, const char *param_name_s, ParameterType *pt_p),
 	void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
 	bool (*close_fn) (struct Service *service_p),
 	void (*customise_service_job_fn) (Service *service_p, ServiceJob *job_p),
@@ -106,6 +107,7 @@ bool InitialiseService (Service * const service_p,
 			service_p -> se_run_fn = run_fn;
 			service_p -> se_match_fn = match_fn;
 			service_p -> se_get_params_fn = get_parameters_fn;
+			service_p -> se_get_parameter_type_fn = get_parameter_type_fn;
 			service_p -> se_release_params_fn = release_parameters_fn;
 			service_p -> se_close_fn = close_fn;
 			service_p -> se_customise_service_job_fn = customise_service_job_fn;
@@ -884,6 +886,13 @@ ParameterSet *GetServiceParameters (Service *service_p, Resource *resource_p, Us
 {
 	return service_p -> se_get_params_fn (service_p, resource_p, user_p);
 }
+
+
+bool GetParameterTypeForNamedParameter (struct Service *service_p, const char *param_name_s, ParameterType *pt_p)
+{
+	return service_p -> se_get_parameter_type_fn (service_p, param_name_s, pt_p);
+}
+
 
 
 void ReleaseServiceParameters (Service *service_p, ParameterSet *params_p)

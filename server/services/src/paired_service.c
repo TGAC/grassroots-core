@@ -55,7 +55,7 @@ PairedService *AllocatePairedService (const uuid_t id, const char *service_name_
 		{
 			if (service_json_p)
 				{
-					ParameterSet *param_set_p = CreateParameterSetFromJSON (service_json_p, false);
+					ParameterSet *param_set_p = CreateParameterSetFromJSON (service_json_p, NULL, false);
 
 					if (param_set_p)
 						{

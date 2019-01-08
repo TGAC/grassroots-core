@@ -2581,11 +2581,26 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 			if (service_p)
 				{
+					if (GetParameterTypeForNamedParameter (service_p, name_s, &pt))
+						{
+							got_type_flag = true;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterType for %s in %s", name_s, GetServiceName (service_p));
+						}
 
 				}		/* if (service_p) */
 			else
 				{
-					got_type_flag = GetParameterTypeFromJSON (root_p, &pt);
+					if (GetParameterTypeFromJSON (root_p, &pt))
+						{
+							got_type_flag = true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Failed to get ParameterType for %s from JSON", name_s);
+						}
 				}
 
 			if (got_type_flag)
@@ -2670,7 +2685,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						}		/* if (GetValueFromJSON (root_p, PARAM_CURRENT_VALUE_S, pt, &current_value)) */
 
 				
-				}		/* if (GetParameterTypeFromJSON (root_p, &pt)) */	
+				}		/* if (got_type_flag) */
 				
 		}		/* if (name_s) */
 

@@ -103,7 +103,7 @@ bool InitWebServiceData (WebServiceData * const data_p, json_t *service_config_p
 
 							if (data_p -> wsd_buffer_p)
 								{
-									data_p -> wsd_params_p = CreateParameterSetFromJSON (op_p, false);
+									data_p -> wsd_params_p = CreateParameterSetFromJSON (op_p, NULL, false);
 
 									if (data_p -> wsd_params_p)
 										{

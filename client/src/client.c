@@ -602,7 +602,7 @@ int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p)
 
 					if (operation_p)
 						{
-							ParameterSet *params_p = CreateParameterSetFromJSON (operation_p, false);
+							ParameterSet *params_p = CreateParameterSetFromJSON (operation_p, NULL, false);
 
 							if (params_p)
 								{

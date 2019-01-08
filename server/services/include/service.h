@@ -297,6 +297,15 @@ typedef struct Service
 	bool (*se_process_linked_services_fn) (struct Service *service_p, struct ServiceJob *job_p, LinkedService *linked_service_p);
 
 
+	/**
+	 * Callback function used to get the ParameterType of a named Parameter used by the given Service.
+	 *
+	 * @param service_p This Service.
+	 * @param param_name_s The name of the Parameter to get the ParameterType of.
+	 * @param pt_p Pointer to the ParameterType where the value will be stored.
+	 * @return <code>true</code> if the ParameterType was retrieved successfully,
+	 * <code>false</code> otherwise.
+	 */
 	bool (*se_get_parameter_type_fn) (struct Service *service_p, const char *param_name_s, ParameterType *pt_p);
 
 
@@ -455,6 +464,7 @@ GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
 	struct ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
 	ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
 	ParameterSet *(*get_parameters_fn) (Service *service_p, Resource *resource_p, UserDetails *user_p),
+	bool (*get_parameter_type_fn) (struct Service *service_p, const char *param_name_s, ParameterType *pt_p),
 	void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
 	bool (*close_fn) (struct Service *service_p),
 	void (*customise_service_job_fn) (Service *service_p, struct ServiceJob *job_p),
@@ -587,6 +597,20 @@ GRASSROOTS_SERVICE_API const char *GetServiceInformationURI (Service *service_p)
  * @memberof Service
  */
 GRASSROOTS_SERVICE_API ParameterSet *GetServiceParameters (Service *service_p, Resource *resource_p,  UserDetails *user_p);
+
+
+
+/**
+ * Get the ParameterType of a named Parameter used by the given Service.
+ *
+ * @param service_p The Service to get the ParameterType from.
+ * @param param_name_s The name of the Parameter to get the ParameterType of.
+ * @param pt_p Pointer to the ParameterType where the value will be stored.
+ * @return <code>true</code> if the ParameterType was retrieved successfully,
+ * <code>false</code> otherwise.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API bool GetParameterTypeForNamedParameter (struct Service *service_p, const char *param_name_s, ParameterType *pt_p);
 
 
 /**
