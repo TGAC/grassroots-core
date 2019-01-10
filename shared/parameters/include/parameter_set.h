@@ -354,6 +354,9 @@ GRASSROOTS_PARAMS_API struct ParameterGroup *GetParameterGroupFromParameterSetBy
 GRASSROOTS_PARAMS_API bool AddParameterGroupToParameterSet (ParameterSet *param_set_p, ParameterGroup *group_p);
 
 
+GRASSROOTS_PARAMS_API uint32 GetParameterSetSize (const ParameterSet * const param_set_p);
+
+
 #ifdef __cplusplus
 }
 #endif

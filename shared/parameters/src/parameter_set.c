@@ -598,6 +598,11 @@ ParameterGroup *GetParameterGroupFromParameterSetByGroupName (const ParameterSet
 }
 
 
+uint32 GetParameterSetSize (const ParameterSet * const param_set_p)
+{
+	return param_set_p -> ps_params_p -> ll_size;
+}
+
 
 /****************************************/
 /********** STATIC FUNCTIONS ************/
