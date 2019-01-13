@@ -1102,6 +1102,8 @@ GRASSROOTS_SERVICE_API bool LockService (Service *service_p);
 GRASSROOTS_SERVICE_API bool UnlockService (Service *service_p);
 
 
+GRASSROOTS_SERVICE_API bool SortServicesListByName (LinkedList *services_list_p);
+
 #ifdef __cplusplus
 }
 #endif

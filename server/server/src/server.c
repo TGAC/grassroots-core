@@ -1353,6 +1353,8 @@ static LinkedList *GetServicesList (const char * const services_path_s, UserDeta
 					if (AddServicesListToProvidersStateTable (providers_p, services_p))
 						{
 							AddAllPairedServices (services_p, user_p, providers_p);
+
+							SortServicesListByName (services_p);
 						}
 					else
 						{

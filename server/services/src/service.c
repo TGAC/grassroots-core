@@ -76,6 +76,8 @@ static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, 
 
 static  uint32 AddLinkedServices (Service *service_p);
 
+static int CompareServicesByName (const void *v0_p, const void *v1_p);
+
 
 /*
  * FUNCTION DEFINITIONS
@@ -1712,6 +1714,28 @@ bool AddServiceResponseHeader (Service *service_p, json_t *response_p)
 }
 
 
+bool SortServicesListByName (LinkedList *services_list_p)
+{
+	bool success_flag = false;
+
+	success_flag = LinkedListSort (services_list_p, CompareServicesByName);
+
+	return success_flag;
+}
+
+
+static int CompareServicesByName (const void *v0_p, const void *v1_p)
+{
+	int res = 0;
+	const ServiceNode **node_0_pp = (const ServiceNode **) v0_p;
+	const ServiceNode **node_1_pp = (const ServiceNode **) v1_p;
+	const char *service_0_s = GetServiceName ((*node_0_pp) -> sn_service_p);
+	const char *service_1_s = GetServiceName ((*node_1_pp) -> sn_service_p);
+
+	res = strcmp (service_0_s, service_1_s);
+
+	return res;
+}
 
 
 ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i))
