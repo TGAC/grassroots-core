@@ -1732,7 +1732,7 @@ static int CompareServicesByName (const void *v0_p, const void *v1_p)
 	const char *service_0_s = GetServiceName ((*node_0_pp) -> sn_service_p);
 	const char *service_1_s = GetServiceName ((*node_1_pp) -> sn_service_p);
 
-	res = strcmp (service_0_s, service_1_s);
+	res = Stricmp (service_0_s, service_1_s);
 
 	return res;
 }

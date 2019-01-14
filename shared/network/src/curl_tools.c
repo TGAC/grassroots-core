@@ -405,12 +405,18 @@ bool SetCurlToolForJSONPost (CurlTool *tool_p)
 
 char *GetURLEscapedString (CurlTool *tool_p, const char *src_s)
 {
-	char *escaped_s = curl_easy_escape (tool_p -> ct_curl_p, src_s, 0);
+	char *escaped_s = NULL;
 
-	if (!escaped_s)
+	if (src_s)
 		{
-			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to created URL escaped version of \"%s\"\n", src_s);
+			escaped_s = curl_easy_escape (tool_p -> ct_curl_p, src_s, 0);
+
+			if (!escaped_s)
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to created URL escaped version of \"%s\"\n", src_s);
+				}
 		}
+
 
 	return escaped_s;
 }
