@@ -400,27 +400,7 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 											
 											if (param_p)
 												{
-													const char *group_s = GetJSONString (param_json_p, PARAM_GROUP_S);
 													success_flag = AddParameterToParameterSet (params_p, param_p);
-
-													if (group_s)
-														{
-															ParameterGroup *group_p = GetParameterGroupFromParameterSetByGroupName (params_p, group_s);
-
-															if (!group_p)
-																{
-																	CreateAndAddParameterGroupToParameterSet (group_s, false, NULL, params_p);
-																}
-
-															if (group_p)
-																{
-																	if (!AddParameterToParameterGroup (group_p, param_p))
-																		{
-
-																		}
-																}
-														}
-
 												}
 											else
 												{
@@ -448,42 +428,70 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 
 									if (success_flag)
 										{
-											if (param_group_p)
+											/* Get the groups */
+											json_t *groups_json_p = json_object_get (param_set_json_p, PARAM_SET_GROUPS_S);
+
+											if (groups_json_p && json_is_array (groups_json_p))
 												{
-													bool visible_flag = true;
-													ParameterNode *param_node_p = (ParameterNode *) (params_p -> ps_params_p -> ll_head_p);
+													/* assign the params to their groups and vice versa */
+													size_t num_groups = json_array_size (groups_json_p);
 
-													/* Get the number of Parameters needed */
-													for (j = 0; j < num_params; ++ j)
+													for (i = 0; i < num_groups; ++ i)
 														{
-															json_t *param_json_p = json_array_get (params_json_p, j);
-															const char *param_group_name_s = GetJSONString (param_json_p, PARAM_GROUP_S);
+															size_t num_group_params = 0;
+															size_t j = 0;
+															json_t *group_json_p = json_array_get (groups_json_p, i);
 
-															if ((param_group_name_s) && (strcmp (param_group_name_s, group_name_s) == 0))
+															const char *group_name_s = GetJSONString (group_json_p, PARAM_GROUP_NAME_S);
+															bool repeatable_flag = false;
+															ParameterGroup *param_group_p = NULL;
+
+															GetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, &repeatable_flag);
+
+															param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, repeatable_flag, NULL, params_p);
+
+
+															if (param_group_p)
 																{
-																	if (!AddParameterToParameterGroup (param_group_p, param_node_p -> pn_parameter_p))
+																	bool visible_flag = true;
+																	ParameterNode *param_node_p = (ParameterNode *) (params_p -> ps_params_p -> ll_head_p);
+
+																	/* Get the number of Parameters needed */
+																	for (j = 0; j < num_params; ++ j)
 																		{
-																			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add parameter \"%s\" to group \"%s\"",  param_node_p -> pn_parameter_p -> pa_name_s, group_name_s);
+																			json_t *param_json_p = json_array_get (params_json_p, j);
+																			const char *param_group_name_s = GetJSONString (param_json_p, PARAM_GROUP_S);
+
+																			if ((param_group_name_s) && (strcmp (param_group_name_s, group_name_s) == 0))
+																				{
+																					if (!AddParameterToParameterGroup (param_group_p, param_node_p -> pn_parameter_p))
+																						{
+																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add parameter \"%s\" to group \"%s\"",  param_node_p -> pn_parameter_p -> pa_name_s, group_name_s);
+																						}
+																				}
+
+																			param_node_p = (ParameterNode *) (param_node_p -> pn_node.ln_next_p);
+
+																		}		/* for (j = 0; j < num_params; ++ j) */
+
+
+																	if (GetJSONBoolean (group_json_p, PARAM_GROUP_VISIBLE_S, &visible_flag))
+																		{
+																			param_group_p -> pg_visible_flag = visible_flag;
 																		}
+
+																}		/* if (param_group_p) */
+															else
+																{
+																	PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create parameter group \"%s\"", group_name_s);
 																}
 
-															param_node_p = (ParameterNode *) (param_node_p -> pn_node.ln_next_p);
+														}		/* for (i = 0; i < num_groups; ++ i) */
 
-														}		/* for (j = 0; j < num_params; ++ j) */
-
-
-													if (GetJSONBoolean (group_json_p, PARAM_GROUP_VISIBLE_S, &visible_flag))
-														{
-															param_group_p -> pg_visible_flag = visible_flag;
-														}
-
-												}		/* if (param_group_p) */
-											else
-												{
-													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create parameter group \"%s\"", group_name_s);
-												}
+												}		/* if (groups_json_p && json_is_array (groups_json_p)) */
 
 										}
+
 								}		/* if (json_p && json_is_array (json_p)) */
 
 							if (!success_flag)
@@ -499,51 +507,6 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 		}		/* if (root_p) */
 	
 	return params_p;
-}
-
-
-
-static int AddExplicitParameterGroups (ParameterSet *params_p, const json_t *param_set_json_p)
-{
-	int res = 0;
-	json_t *groups_json_p = json_object_get (param_set_json_p, PARAM_SET_GROUPS_S);
-
-	if (groups_json_p && json_is_array (groups_json_p))
-		{
-			/* assign the params to their groups and vice versa */
-			size_t num_groups = json_array_size (groups_json_p);
-			size_t i;
-
-			for (i = 0; i < num_groups; ++ i)
-				{
-					size_t num_group_params = 0;
-					size_t j = 0;
-					json_t *group_json_p = json_array_get (groups_json_p, i);
-
-					const char *group_name_s = GetJSONString (group_json_p, PARAM_GROUP_NAME_S);
-					bool repeatable_flag = false;
-					ParameterGroup *param_group_p = NULL;
-
-					GetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, &repeatable_flag);
-
-					param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, repeatable_flag, NULL, params_p);
-
-					if (param_group_p)
-						{
-							ParameterNode *node_p = (ParameterNode *) (params_p -> ps_params_p -> ll_head_p);
-
-							while (node_p)
-								{
-
-									node_p = (ParameterNode *) (node_p -> pn_node.ln_next_p);
-								}
-
-							++ res;
-						}
-				}
-		}
-
-	return res;
 }
 
 

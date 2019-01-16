@@ -258,7 +258,7 @@ GRASSROOTS_PARAMS_API bool AddParameterGroupChild (ParameterGroup *parent_group_
  * @return The child ParameterGroup or <code>NULL</code> if there was an error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s,  const bool repeatable_flag, const bool add_params_flag);
+GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s, const bool repeatable_flag, const bool add_params_flag);
 
 
 /**

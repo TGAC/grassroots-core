@@ -330,7 +330,7 @@ bool CloneParameters (const ParameterGroup * const src_group_p, ParameterGroup *
 }
 
 
-ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s,  const bool repeatable_flag, const bool add_params_flag)
+ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s, const bool repeatable_flag, const bool add_params_flag)
 {
 	ParameterGroup *child_p = AllocateParameterGroup (name_s, repeatable_flag, parent_group_p -> pg_service_data_p);
 
