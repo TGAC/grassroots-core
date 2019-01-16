@@ -87,9 +87,6 @@ typedef struct ParameterGroup
 	/** The name of the ParameterGroup */
 	char *pg_name_s;
 
-	/** An internal key to denote this ParameterGroup */
-	char *pg_key_s;
-
 	/** Should this ParameterGroup initially be visible? */
 	bool pg_visible_flag;
 
@@ -204,7 +201,7 @@ GRASSROOTS_PARAMS_API void FreeParameterGroupNode (ListItem *node_p);
  * @return The new ParameterGroup or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p);
+GRASSROOTS_PARAMS_API ParameterGroup *AllocateParameterGroup (const char *name_s,  const bool repeatable_flag, struct ServiceData *service_data_p);
 
 
 /**
@@ -253,7 +250,6 @@ GRASSROOTS_PARAMS_API bool AddParameterGroupChild (ParameterGroup *parent_group_
  *
  * @param parent_group_p The ParameterGroup to create and add the child ParameterGroup to.
  * @param name_s The name of the ParameterGroup that will be displayed to the user.
- * @param key_s An optional internal key to use by the owning Service. This can be <code>NULL</code>.
  * @param repeatable_flag <code>true</code> if the parameters in this group can be repeated, analogous
  * to a row in a table, <code>false</code> if not.
  * @param add_params_flag If this is <code>true</code> then all of the Parameters in parent_group_p will be
@@ -262,7 +258,7 @@ GRASSROOTS_PARAMS_API bool AddParameterGroupChild (ParameterGroup *parent_group_
  * @return The child ParameterGroup or <code>NULL</code> if there was an error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s, const char *key_s, const bool repeatable_flag, const bool add_params_flag);
+GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s,  const bool repeatable_flag, const bool add_params_flag);
 
 
 /**
@@ -302,7 +298,6 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterGroup (ParameterGroup *parent_
  * Create a ParameterGroup and add it to a given ParameterSet.
  *
  * @param name_s The name of the ParameterGroup that will be displayed to the user.
- * @param key_s An optional internal key to use by the owning Service. This can be <code>NULL</code>.
  * @param repeatable_flag <code>true</code> if the parameters in this group can be repeated, analogous
  * to a row in a table, <code>false</code> if not.
  * @param service_data_p The ServiceData for the Service that generates this ParameterGroup.
@@ -310,7 +305,7 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterGroup (ParameterGroup *parent_
  * @return The new ParameterGroup or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
+GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const bool repeatable_flag, struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
 
 
 /**

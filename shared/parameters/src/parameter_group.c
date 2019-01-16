@@ -65,28 +65,13 @@ void FreeParameterGroupNode (ListItem *node_p)
 }
 
 
-ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, const bool repeatable_flag, ServiceData *service_data_p)
+ParameterGroup *AllocateParameterGroup (const char *name_s, const bool repeatable_flag, ServiceData *service_data_p)
 {
 	char *copied_name_s = EasyCopyToNewString (name_s);
 
 	if (copied_name_s)
 		{
-			LinkedList *children_p = NULL;
-			char *copied_key_s = NULL;
-
-			if (key_s)
-				{
-					copied_key_s = EasyCopyToNewString (key_s);
-
-					if (!copied_key_s)
-						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy key \"%s\"", key_s);
-							FreeCopiedString (copied_name_s);
-							return NULL;
-						}
-				}
-
-			children_p = AllocateLinkedList (FreeParameterGroupNode);
+			LinkedList *children_p = AllocateLinkedList (FreeParameterGroupNode);
 
 			if (children_p)
 				{
@@ -105,7 +90,6 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, c
 							if (param_group_p)
 								{
 									param_group_p -> pg_name_s = copied_name_s;
-									param_group_p -> pg_key_s = copied_key_s;
 									param_group_p -> pg_params_p = params_p;
 									param_group_p -> pg_visible_flag = true;
 
@@ -130,7 +114,6 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const char *key_s, c
 					FreeLinkedList (children_p);
 				}
 
-
 			FreeCopiedString (copied_name_s);
 		}		/* if (copied_name_s) */
 
@@ -142,11 +125,6 @@ void FreeParameterGroup (ParameterGroup *param_group_p)
 {
 	FreeCopiedString (param_group_p -> pg_name_s);
 
-	if (param_group_p -> pg_key_s)
-		{
-			FreeCopiedString (param_group_p -> pg_key_s);
-		}
-
 	FreeLinkedList (param_group_p -> pg_child_groups_p);
 
 	FreeLinkedList (param_group_p -> pg_params_p);
@@ -155,9 +133,9 @@ void FreeParameterGroup (ParameterGroup *param_group_p)
 }
 
 
-ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const char *key_s, const bool repeatable_flag, struct ServiceData *service_data_p, ParameterSet *param_set_p)
+ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const bool repeatable_flag, struct ServiceData *service_data_p, ParameterSet *param_set_p)
 {
-	ParameterGroup *group_p = AllocateParameterGroup (name_s, key_s, repeatable_flag, service_data_p);
+	ParameterGroup *group_p = AllocateParameterGroup (name_s, repeatable_flag, service_data_p);
 
 	if (group_p)
 		{
@@ -352,9 +330,9 @@ bool CloneParameters (const ParameterGroup * const src_group_p, ParameterGroup *
 }
 
 
-ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s, const char *key_s, const bool repeatable_flag, const bool add_params_flag)
+ParameterGroup *CreateAndAddParameterGroupChild (ParameterGroup *parent_group_p, const char *name_s,  const bool repeatable_flag, const bool add_params_flag)
 {
-	ParameterGroup *child_p = AllocateParameterGroup (name_s, key_s, repeatable_flag, parent_group_p -> pg_service_data_p);
+	ParameterGroup *child_p = AllocateParameterGroup (name_s, repeatable_flag, parent_group_p -> pg_service_data_p);
 
 	if (child_p)
 		{
