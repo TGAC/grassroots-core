@@ -843,11 +843,11 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 				{
 					if (AddRemoteParameterDetailsToJSON (param_p, root_p, sv_p))
 						{
-							if (full_definition_flag)
+							if (AddParameterGroupToJSON (param_p, root_p, sv_p))
 								{
-									if (AddParameterTypeToJSON (param_p -> pa_type, root_p, sv_p, full_definition_flag))
+									if (full_definition_flag)
 										{
-											if (AddParameterGroupToJSON (param_p, root_p, sv_p))
+											if (AddParameterTypeToJSON (param_p -> pa_type, root_p, sv_p, full_definition_flag))
 												{
 													if (AddParameterLevelToJSON (param_p, root_p, sv_p))
 														{
@@ -897,22 +897,21 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterLevelToJSON for \"%s\"", param_p -> pa_name_s);
 														}
 
-												}		/* if (AddParameterGroupToJSON (param_p, root_p, sv_p)) */
+												}		/* if (AddParameterTypeToJSON (param_p -> pa_type, root_p, sv_p, full_definition_flag)) */
 											else
 												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterGroupToJSON for \"%s\"", param_p -> pa_name_s);
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterTypeToJSON for \"%s\"", param_p -> pa_name_s);
 												}
 
-										}		/* if (AddParameterTypeToJSON (param_p -> pa_type, root_p, sv_p, full_definition_flag)) */
+										}		/* if (full_definition_flag) */
 									else
 										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterTypeToJSON for \"%s\"", param_p -> pa_name_s);
+											success_flag = true;
 										}
-
-								}		/* if (full_definition_flag) */
+								}		/* if (AddParameterGroupToJSON (param_p, root_p, sv_p)) */
 							else
 								{
-									success_flag = true;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterGroupToJSON for \"%s\"", param_p -> pa_name_s);
 								}
 
 						}		/* if (AddParameterRemoteDetailsToJSON (param_p, root_p)) */
