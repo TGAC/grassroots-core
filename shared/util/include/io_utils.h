@@ -76,7 +76,6 @@ GRASSROOTS_UTIL_API char *CopyFileToLocalFilesystem (const char * const filename
 GRASSROOTS_UTIL_API char *CopyFileChunkToLocalFilesystem (const char * const filename_s, size_t offset, size_t chunk_size);
 
 
-
 /**
  * Get a newly allocated char * with the given value.
  * 
@@ -86,6 +85,17 @@ GRASSROOTS_UTIL_API char *CopyFileChunkToLocalFilesystem (const char * const fil
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API char *GetIntAsString (int value);
+
+
+/**
+ * Get a newly allocated char * with the given value.
+ *
+ * @param value The value to print into the the newly allocated string.
+ * @return The string with the given value or <code>NULL</code> upon error.
+ *
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API char *GetUnsignedIntAsString (uint32 value);
 
 
 /**

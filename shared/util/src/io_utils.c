@@ -188,6 +188,34 @@ char *GetIntAsString (int value)
 }
 
 
+char *GetUnsignedIntAsString (uint32 value)
+{
+	char *buffer_s = NULL;
+	size_t i = 1;
+
+	if (value == 0)
+		{
+			++ i;
+		}
+	else
+		{
+			double d = ceil (log10 ((double) value));
+			i += (size_t) d;
+		}
+
+	buffer_s = (char *) AllocMemory (i * sizeof (char));
+
+	if (buffer_s)
+		{
+			sprintf (buffer_s, UINT32_FMT, value);
+
+			* (buffer_s + i - 1) = '\0';
+		}
+
+	return buffer_s;
+}
+
+
 void WriteToLog (const char *log_ident_s, const int log_level, const char *message_s, ...)
 {
 	va_list args;
