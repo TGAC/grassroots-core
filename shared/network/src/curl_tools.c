@@ -151,7 +151,7 @@ bool SetupCurl (CurlTool *tool_p, ByteBuffer *buffer_p)
 					if (AddCurlCallback (tool_p, buffer_p))
 						{
 							#if CURL_TOOLS_DEBUG >= STM_LEVEL_FINER
-							curl_easy_setopt (curl_p, CURLOPT_VERBOSE, 1L);
+							curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_VERBOSE, 1L);
 							#endif
 
 							return true;
