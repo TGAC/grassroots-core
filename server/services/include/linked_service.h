@@ -63,6 +63,10 @@ typedef struct LinkedService
 	 * object.
 	 */
 	LinkedList *ls_mapped_params_p;
+
+
+	bool (*ls_generate_fn) (struct Service *service_p, json_t *output_json_p);
+
 } LinkedService;
 
 
