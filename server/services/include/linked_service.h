@@ -114,7 +114,7 @@ GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *input_s
  * @return The newly-allocated LinkedService or <code>NULL</code> upon error.
  * @memberof LinkedService
  */
-GRASSROOTS_SERVICE_API LinkedService *CreateLinkedServiceFromJSON (const json_t *linked_service_json_p);
+GRASSROOTS_SERVICE_API LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *linked_service_json_p);
 
 
 

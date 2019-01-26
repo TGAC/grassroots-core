@@ -306,7 +306,7 @@ bool SetUpLinkedServices (Service *service_p)
 
 							json_array_foreach (linked_services_json_p, i, linked_service_json_p)
 								{
-									LinkedService *linked_service_p = CreateLinkedServiceFromJSON (linked_service_json_p);
+									LinkedService *linked_service_p = CreateLinkedServiceFromJSON (service_p, linked_service_json_p);
 
 									if (linked_service_p)
 										{
