@@ -41,37 +41,57 @@ static LinkedService *CreateLinkedServiceForNamedFunction (const json_t *linked_
 
 static bool CopyInputData (const char *input_service_s, char **copied_input_service_ss, const char *input_key_s, char **input_key_ss);
 
+static bool AddMappedParameterToLinkedServiceList (LinkedList *params_p, MappedParameter *mapped_param_p);
 
 
 
-LinkedService *AllocateLinkedServiceWithFunction (const char *input_service_s, const char *input_key_s, const char * const function_s)
+
+LinkedService *AllocateLinkedServiceWithFunction (const char *linked_service_s, const char *input_key_s, const char * const function_s, Service *calling_service_p)
 {
-	char *input_service_copy_s = NULL;
+	char *linked_service_copy_s = NULL;
 	char *input_key_copy_s = NULL;
 
-	if (CopyInputData (input_service_s, &input_service_copy_s, input_key_s, input_key_copy_s))
+	if (CopyInputData (linked_service_s, &linked_service_copy_s, input_key_s, &input_key_copy_s))
 		{
+			void *symbol_p = GetSymbolFromPlugin (calling_service_p -> se_plugin_p, function_s);
 
+			if (symbol_p)
+				{
+					LinkedService *linked_service_p = (LinkedService *) AllocMemory (sizeof (LinkedService));
 
-			FreeCopiedString (input_service_copy_s);
+					if (linked_service_p)
+						{
+							linked_service_p -> ls_output_service_s = linked_service_copy_s;
+							linked_service_p -> ls_mapped_params_p = NULL;
+							linked_service_p -> ls_generate_fn = (bool (*) (struct Service *service_p, ServiceJob *job_p, json_t *output_json_p)) symbol_p;
+
+							return linked_service_p;
+						}
+				}		/* if (CopyInputData (input_service_s, &linked_service_copy_s, input_key_s, input_key_copy_s)) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find symbol \"%s\" in Service \"%s\"", function_s, GetServiceName (calling_service_p));
+				}
+
+			FreeCopiedString (linked_service_copy_s);
 
 			if (input_key_copy_s)
 				{
 					FreeCopiedString (input_key_copy_s);
 				}
 
-		}		/* if (CopyInputData (input_service_s, &input_service_copy_s, input_key_s, input_key_copy_s)) */
+		}		/* if (CopyInputData (input_service_s, &linked_service_copy_s, input_key_s, input_key_copy_s)) */
 
 	return NULL;
 }
 
 
-LinkedService *AllocateLinkedServiceWithParameters (const char *input_service_s, const char *input_key_s, const json_t *mapped_params_json_p)
+LinkedService *AllocateLinkedServiceWithParameters (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p)
 {
 	char *input_service_copy_s = NULL;
 	char *input_key_copy_s = NULL;
 
-	if (CopyInputData (input_service_s, &input_service_copy_s, input_key_s, input_key_copy_s))
+	if (CopyInputData (linked_service_s, &input_service_copy_s, input_key_s, &input_key_copy_s))
 		{
 			LinkedList *list_p = AllocateLinkedList (FreeMappedParameterNode);
 
@@ -90,7 +110,7 @@ LinkedService *AllocateLinkedServiceWithParameters (const char *input_service_s,
 								{
 									if (!AddMappedParameterToLinkedServiceList (list_p, mapped_param_p))
 										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add mapped param \"%s\":\"%s\" for \"%s\"", mapped_param_p -> mp_input_param_s, mapped_param_p -> mp_output_param_s, linked_service_p -> ls_output_service_s);
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add mapped param \"%s\":\"%s\" for \"%s\"", mapped_param_p -> mp_input_param_s, mapped_param_p -> mp_output_param_s, linked_service_s);
 											i = size; 		/* force exit from loop */
 											continue_flag = false;
 										}		/* if (!AddMappedParameterToLinkedService (linked_service_p, mapped_param_p)) */
@@ -120,7 +140,7 @@ LinkedService *AllocateLinkedServiceWithParameters (const char *input_service_s,
 								}
 							else
 								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate LinkedService for \"%s\"", input_service_s);
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate LinkedService for \"%s\"", linked_service_s);
 								}
 						}
 
@@ -128,7 +148,7 @@ LinkedService *AllocateLinkedServiceWithParameters (const char *input_service_s,
 				}		/* if (list_p) */
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list of mapped params for \"%s\"", input_service_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list of mapped params for \"%s\"", linked_service_s);
 				}
 
 			FreeCopiedString (input_service_copy_s);
@@ -318,15 +338,15 @@ bool ProcessLinkedService (LinkedService *linked_service_p, ServiceJob *job_p)
 LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *linked_service_json_p)
 {
 	LinkedService *linked_service_p = NULL;
-	const char *service_s = GetJSONString (linked_service_json_p, SERVICE_NAME_S);
+	const char *linked_service_s = GetJSONString (linked_service_json_p, SERVICE_NAME_S);
 
-	if (service_s)
+	if (linked_service_s)
 		{
-			linked_service_p = CreateLinkedServiceWithParameters (linked_service_json_p, service_s);
+			linked_service_p = CreateLinkedServiceWithParameters (linked_service_json_p, linked_service_s);
 
 			if (!linked_service_p)
 				{
-					linked_service_p = CreateLinkedServiceForNamedFunction (linked_service_json_p, service_s);
+					linked_service_p = CreateLinkedServiceForNamedFunction (linked_service_json_p, linked_service_s, service_p);
 
 					if (!linked_service_p)
 						{
@@ -334,7 +354,7 @@ LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *li
 						}
 				}
 
-		}		/* if (service_s) */
+		}		/* if (linked_service_s) */
 	else
 		{
 			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to get %s", SERVICE_NAME_S);
@@ -434,7 +454,7 @@ json_t *GetLinkedServiceAsJSON (LinkedService *linked_service_p)
 
 
 
-static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_service_json_p, const char *service_s)
+static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_service_json_p, const char *linked_service_s)
 {
 	LinkedService *linked_service_p = NULL;
 	const json_t *value_p = json_object_get (linked_service_json_p, PARAM_SET_PARAMS_S);
@@ -448,7 +468,7 @@ static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_se
 
 					if (mapped_params_json_p)
 						{
-							linked_service_p = AllocateLinkedServiceWithParameters (service_s, input_root_s, mapped_params_json_p);
+							linked_service_p = AllocateLinkedServiceWithParameters (linked_service_s, input_root_s, mapped_params_json_p);
 
 							if (linked_service_p)
 								{
@@ -469,7 +489,7 @@ static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_se
 }
 
 
-static LinkedService *CreateLinkedServiceForNamedFunction (const json_t *linked_service_json_p, const char *linked_service_name_s, Service *service_p)
+static LinkedService *CreateLinkedServiceForNamedFunction (const json_t *linked_service_json_p, const char *linked_service_name_s, Service *calling_service_p)
 {
 	LinkedService *linked_service_p = NULL;
 

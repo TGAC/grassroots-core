@@ -1507,7 +1507,7 @@ static uint32 AddLinkedServices (Service *service_p)
 
 bool CreateAndAddLinkedService (Service *service_p, const json_t *service_config_p)
 {
-	LinkedService *linked_service_p = CreateLinkedServiceFromJSON (service_config_p);
+	LinkedService *linked_service_p = CreateLinkedServiceFromJSON (service_p, service_config_p);
 
 	if (linked_service_p)
 		{

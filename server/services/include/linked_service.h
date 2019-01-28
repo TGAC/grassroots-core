@@ -65,7 +65,7 @@ typedef struct LinkedService
 	LinkedList *ls_mapped_params_p;
 
 
-	bool (*ls_generate_fn) (struct Service *service_p, json_t *output_json_p);
+	bool (*ls_generate_fn) (struct Service *service_p, struct ServiceJob *job_p, json_t *output_json_p);
 
 } LinkedService;
 
@@ -114,7 +114,7 @@ GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *input_s
  * @return The newly-allocated LinkedService or <code>NULL</code> upon error.
  * @memberof LinkedService
  */
-GRASSROOTS_SERVICE_API LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *linked_service_json_p);
+GRASSROOTS_SERVICE_API LinkedService *CreateLinkedServiceFromJSON (struct Service *service_p, const json_t *linked_service_json_p);
 
 
 
