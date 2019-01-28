@@ -65,7 +65,8 @@ typedef struct LinkedService
 	LinkedList *ls_mapped_params_p;
 
 
-	bool (*ls_generate_fn) (struct Service *service_p, struct ServiceJob *job_p, json_t *output_json_p);
+//	bool (*ls_generate_fn) (struct LinkedService *linked_service_p, json_t *data_p, struct ServiceJob *job_p);
+	char *ls_generate_fn_s;
 
 } LinkedService;
 
@@ -219,6 +220,11 @@ GRASSROOTS_SERVICE_API bool ProcessLinkedService (LinkedService *linked_service_
  * @memberof LinkedService
  */
 GRASSROOTS_SERVICE_API bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_service_p, ParameterSet *output_params_p);
+
+
+
+
+GRASSROOTS_SERVICE_API bool RunCustomLinkedServiceGenerator (struct LinkedService *linked_service_p, json_t *data_p, struct ServiceJob *job_p);
 
 
 #ifdef __cplusplus

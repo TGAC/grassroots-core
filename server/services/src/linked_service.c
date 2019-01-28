@@ -35,6 +35,14 @@
 #include "service_job.h"
 //#include "resource.h"
 
+
+#ifdef _DEBUG
+	#define LINKED_SERVICE_DEBUG	(STM_LEVEL_FINEST)
+#else
+	#define LINKED_SERVICE_DEBUG	(STM_LEVEL_NONE)
+#endif
+
+
 static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_service_json_p, const char *service_name_s);
 
 static LinkedService *CreateLinkedServiceForNamedFunction (const json_t *linked_service_json_p, const char *service_name_s, Service *service_p);
@@ -53,25 +61,17 @@ LinkedService *AllocateLinkedServiceWithFunction (const char *linked_service_s, 
 
 	if (CopyInputData (linked_service_s, &linked_service_copy_s, input_key_s, &input_key_copy_s))
 		{
-			void *symbol_p = GetSymbolFromPlugin (calling_service_p -> se_plugin_p, function_s);
+			LinkedService *linked_service_p = (LinkedService *) AllocMemory (sizeof (LinkedService));
 
-			if (symbol_p)
+			if (linked_service_p)
 				{
-					LinkedService *linked_service_p = (LinkedService *) AllocMemory (sizeof (LinkedService));
+					linked_service_p -> ls_output_service_s = linked_service_copy_s;
+					linked_service_p -> ls_mapped_params_p = NULL;
+					linked_service_p -> ls_generate_fn_s = function_s;
 
-					if (linked_service_p)
-						{
-							linked_service_p -> ls_output_service_s = linked_service_copy_s;
-							linked_service_p -> ls_mapped_params_p = NULL;
-							linked_service_p -> ls_generate_fn = (bool (*) (struct Service *service_p, ServiceJob *job_p, json_t *output_json_p)) symbol_p;
-
-							return linked_service_p;
-						}
-				}		/* if (CopyInputData (input_service_s, &linked_service_copy_s, input_key_s, input_key_copy_s)) */
-			else
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find symbol \"%s\" in Service \"%s\"", function_s, GetServiceName (calling_service_p));
+					return linked_service_p;
 				}
+
 
 			FreeCopiedString (linked_service_copy_s);
 
@@ -134,7 +134,7 @@ LinkedService *AllocateLinkedServiceWithParameters (const char *linked_service_s
 								{
 									linked_service_p -> ls_output_service_s = input_service_copy_s;
 									linked_service_p -> ls_mapped_params_p = list_p;
-									linked_service_p -> ls_generate_fn = NULL;
+									linked_service_p -> ls_generate_fn_s = NULL;
 
 									return linked_service_p;
 								}
@@ -454,6 +454,33 @@ json_t *GetLinkedServiceAsJSON (LinkedService *linked_service_p)
 
 
 
+bool RunCustomLinkedServiceGenerator (struct LinkedService *linked_service_p, json_t *data_p, struct ServiceJob *job_p)
+{
+	bool success_flag = false;
+
+	if (linked_service_p -> ls_generate_fn_s)
+		{
+			Service *calling_service_p = job_p -> sj_service_p;
+			void *symbol_p = GetSymbolFromPlugin (calling_service_p -> se_plugin_p, linked_service_p -> ls_generate_fn_s);
+
+			if (symbol_p)
+				{
+					bool (*generate_fn) (struct LinkedService *linked_service_p, json_t *data_p, struct ServiceJob *job_p) = (bool (*) (struct LinkedService *linked_service_p, json_t *data_p, struct ServiceJob *job_p)) symbol_p;
+
+					success_flag = generate_fn (linked_service_p, data_p, job_p);
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find function \%s\" in service \"%s\"", linked_service_p -> ls_generate_fn_s, GetServiceName (calling_service_p));
+				}
+		}
+
+	return success_flag;
+}
+
+
+
+
 static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_service_json_p, const char *linked_service_s)
 {
 	LinkedService *linked_service_p = NULL;
@@ -491,9 +518,38 @@ static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_se
 
 static LinkedService *CreateLinkedServiceForNamedFunction (const json_t *linked_service_json_p, const char *linked_service_name_s, Service *calling_service_p)
 {
-	LinkedService *linked_service_p = NULL;
+	const char *service_s = GetJSONString (linked_service_json_p, SERVICE_NAME_S);
 
-	return linked_service_p;
+	if (service_s)
+		{
+			const char *function_s = GetJSONString (linked_service_json_p, LINKED_SERVICE_FUNCTION_S);
+
+			if (function_s)
+				{
+					LinkedService *linked_service_p = AllocateLinkedServiceWithFunction (linked_service_name_s, NULL, function_s, calling_service_p);
+
+					if (linked_service_p)
+						{
+							return linked_service_p;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to allocate Linked Service");
+						}
+
+				}		/* if (function_s) */
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to get \"%s\"", LINKED_SERVICE_FUNCTION_S);
+				}
+
+		}		/* if (service_s) */
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to get \"%s\"", SERVICE_NAME_S);
+		}
+
+	return NULL;
 }
 
 
