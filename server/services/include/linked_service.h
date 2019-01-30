@@ -65,9 +65,17 @@ typedef struct LinkedService
 	LinkedList *ls_mapped_params_p;
 
 
-//	bool (*ls_generate_fn) (struct LinkedService *linked_service_p, json_t *data_p, struct ServiceJob *job_p);
-	char *ls_generate_fn_s;
+	/**
+	 * The name of the function that will get dynamically loaded from the Service's Plugin.
+	 *
+	 * It should have a signature of the form:
+	 *
+	 * bool (*generate_fn) (struct LinkedService *linked_service_p, json_t *data_p, struct ServiceJob *job_p);
+	 */
+	const char *ls_generate_fn_s;
 
+
+	char *ls_input_key_s;
 } LinkedService;
 
 
@@ -105,7 +113,7 @@ extern "C"
  * @return The newly-allocated LinkedService or <code>NULL</code> upon error.
  * @memberof LinkedService
  */
-GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *input_service_s, const char *input_key_s);
+GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s);
 
 
 /**

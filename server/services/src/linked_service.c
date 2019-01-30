@@ -43,55 +43,18 @@
 #endif
 
 
-static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_service_json_p, const char *service_name_s);
-
-static LinkedService *CreateLinkedServiceForNamedFunction (const json_t *linked_service_json_p, const char *service_name_s, Service *service_p);
 
 static bool CopyInputData (const char *input_service_s, char **copied_input_service_ss, const char *input_key_s, char **input_key_ss);
 
 static bool AddMappedParameterToLinkedServiceList (LinkedList *params_p, MappedParameter *mapped_param_p);
 
 
-
-
-LinkedService *AllocateLinkedServiceWithFunction (const char *linked_service_s, const char *input_key_s, const char * const function_s, Service *calling_service_p)
+LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s)
 {
 	char *linked_service_copy_s = NULL;
 	char *input_key_copy_s = NULL;
 
 	if (CopyInputData (linked_service_s, &linked_service_copy_s, input_key_s, &input_key_copy_s))
-		{
-			LinkedService *linked_service_p = (LinkedService *) AllocMemory (sizeof (LinkedService));
-
-			if (linked_service_p)
-				{
-					linked_service_p -> ls_output_service_s = linked_service_copy_s;
-					linked_service_p -> ls_mapped_params_p = NULL;
-					linked_service_p -> ls_generate_fn_s = function_s;
-
-					return linked_service_p;
-				}
-
-
-			FreeCopiedString (linked_service_copy_s);
-
-			if (input_key_copy_s)
-				{
-					FreeCopiedString (input_key_copy_s);
-				}
-
-		}		/* if (CopyInputData (input_service_s, &linked_service_copy_s, input_key_s, input_key_copy_s)) */
-
-	return NULL;
-}
-
-
-LinkedService *AllocateLinkedServiceWithParameters (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p)
-{
-	char *input_service_copy_s = NULL;
-	char *input_key_copy_s = NULL;
-
-	if (CopyInputData (linked_service_s, &input_service_copy_s, input_key_s, &input_key_copy_s))
 		{
 			LinkedList *list_p = AllocateLinkedList (FreeMappedParameterNode);
 
@@ -132,9 +95,11 @@ LinkedService *AllocateLinkedServiceWithParameters (const char *linked_service_s
 
 							if (linked_service_p)
 								{
-									linked_service_p -> ls_output_service_s = input_service_copy_s;
+									linked_service_p -> ls_output_service_s = linked_service_copy_s;
+									linked_service_p -> ls_input_key_s = input_key_copy_s;
 									linked_service_p -> ls_mapped_params_p = list_p;
-									linked_service_p -> ls_generate_fn_s = NULL;
+									linked_service_p -> ls_generate_fn_s = function_s;
+
 
 									return linked_service_p;
 								}
@@ -151,7 +116,7 @@ LinkedService *AllocateLinkedServiceWithParameters (const char *linked_service_s
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list of mapped params for \"%s\"", linked_service_s);
 				}
 
-			FreeCopiedString (input_service_copy_s);
+			FreeCopiedString (linked_service_copy_s);
 
 			if (input_key_copy_s)
 				{
@@ -174,6 +139,11 @@ void FreeLinkedService (LinkedService *linked_service_p)
 	if (linked_service_p -> ls_mapped_params_p)
 		{
 			FreeLinkedList (linked_service_p -> ls_mapped_params_p);
+		}
+
+	if (linked_service_p -> ls_input_key_s)
+		{
+			FreeCopiedString (linked_service_p -> ls_input_key_s);
 		}
 
 	FreeMemory (linked_service_p);
@@ -222,7 +192,7 @@ bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_ser
 
 			if (linked_services_json_p)
 				{
-					if (json_object_set (request_p, LINKED_SERVICES_S, linked_services_json_p) != 0)
+					if (json_object_set_new (request_p, LINKED_SERVICES_S, linked_services_json_p) != 0)
 						{
 							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, request_p, "Failed to add empty linked services array for \"%s\"", LINKED_SERVICES_S);
 							json_decref (linked_services_json_p);
@@ -242,7 +212,7 @@ bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_ser
 
 					if (services_p)
 						{
-							if (json_object_set (linked_services_json_p, SERVICES_NAME_S, services_p) != 0)
+							if (json_object_set_new (linked_services_json_p, SERVICES_NAME_S, services_p) != 0)
 								{
 									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, request_p, "Failed to add empty service object for linked services array for \"%s\"", LINKED_SERVICES_S);
 									json_decref (services_p);
@@ -253,47 +223,35 @@ bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_ser
 
 			if (services_p)
 				{
-					json_t *wrapper_p = json_object ();
+					Service *service_p = GetServiceByName (linked_service_p -> ls_output_service_s);
 
-					if (wrapper_p)
+					if (service_p)
 						{
-							Service *service_p = GetServiceByName (linked_service_p -> ls_output_service_s);
+							json_t *run_service_p = GetInterestedServiceJSON (service_p, NULL, output_params_p, false);
 
-							if (service_p)
+							if (run_service_p)
 								{
-									json_t *run_service_p = GetInterestedServiceJSON (service_p, NULL, output_params_p, false);
-
-									if (run_service_p)
+									if (json_array_append_new (services_p, run_service_p) == 0)
 										{
-											if (json_array_append_new (services_p, run_service_p) == 0)
-												{
-													success_flag = true;
-												}
-											else
-												{
-													json_decref (run_service_p);
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
-												}
+											success_flag = true;
 										}
-
-									FreeService (service_p);
-								}		/* if (service_p) */
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find Service with name \"%s\"", linked_service_p -> ls_output_service_s);
+									else
+										{
+											json_decref (run_service_p);
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
+										}
 								}
 
-							if (!success_flag)
-								{
-									json_decref (wrapper_p);
-								}
-
-						}		/* if (wrapper_p) */
+							FreeService (service_p);
+						}		/* if (service_p) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find Service with name \"%s\"", linked_service_p -> ls_output_service_s);
+						}
 
 				}		/* if (services_p) */
 
 		}		/* if (linked_services_json_p) */
-
 
 	return success_flag;
 }
@@ -337,22 +295,42 @@ bool ProcessLinkedService (LinkedService *linked_service_p, ServiceJob *job_p)
 
 LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *linked_service_json_p)
 {
-	LinkedService *linked_service_p = NULL;
 	const char *linked_service_s = GetJSONString (linked_service_json_p, SERVICE_NAME_S);
 
 	if (linked_service_s)
 		{
-			linked_service_p = CreateLinkedServiceWithParameters (linked_service_json_p, linked_service_s);
+			const char *function_s = GetJSONString (linked_service_json_p, LINKED_SERVICE_FUNCTION_S);
+			const json_t *value_p = json_object_get (linked_service_json_p, PARAM_SET_PARAMS_S);
+			const char *input_root_s = NULL;
+			json_t *mapped_params_json_p = NULL;
 
-			if (!linked_service_p)
+			if (value_p)
 				{
-					linked_service_p = CreateLinkedServiceForNamedFunction (linked_service_json_p, linked_service_s, service_p);
-
-					if (!linked_service_p)
+					if (json_is_object (value_p))
 						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to create linked service for ", SERVICE_NAME_S);
+							input_root_s = GetJSONString (value_p, MAPPED_PARAMS_ROOT_S);
+							mapped_params_json_p = json_object_get (value_p, MAPPED_PARAMS_LIST_S);
+						}		/* if (json_is_object (value_p)) */
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "Fragment is not a JSON object");
 						}
-				}
+				}		/* if (value_p) */
+
+			if (mapped_params_json_p || function_s)
+				{
+					LinkedService *linked_service_p = AllocateLinkedService (linked_service_s, input_root_s, mapped_params_json_p, function_s);
+
+					if (linked_service_p)
+						{
+							return linked_service_p;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to create Linked Service for %s", linked_service_s);
+						}
+
+				}		/* if (mapped_params_json_p || function_s) */
 
 		}		/* if (linked_service_s) */
 	else
@@ -360,7 +338,7 @@ LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *li
 			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to get %s", SERVICE_NAME_S);
 		}
 
-	return linked_service_p;
+	return NULL;
 }
 
 
@@ -476,80 +454,6 @@ bool RunCustomLinkedServiceGenerator (struct LinkedService *linked_service_p, js
 		}
 
 	return success_flag;
-}
-
-
-
-
-static LinkedService *CreateLinkedServiceWithParameters (const json_t *linked_service_json_p, const char *linked_service_s)
-{
-	LinkedService *linked_service_p = NULL;
-	const json_t *value_p = json_object_get (linked_service_json_p, PARAM_SET_PARAMS_S);
-
-	if (value_p)
-		{
-			if (json_is_object (value_p))
-				{
-					const char *input_root_s = GetJSONString (value_p, MAPPED_PARAMS_ROOT_S);
-					json_t *mapped_params_json_p = json_object_get (value_p, MAPPED_PARAMS_LIST_S);
-
-					if (mapped_params_json_p)
-						{
-							linked_service_p = AllocateLinkedServiceWithParameters (linked_service_s, input_root_s, mapped_params_json_p);
-
-							if (linked_service_p)
-								{
-								}		/* if (linked_service_p) */
-
-						}		/* if (mapped_params_json_p) */
-
-
-				}		/* if (json_is_object (value_p)) */
-			else
-				{
-					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "Fragment is not a JSON object");
-				}
-
-		}		/* if (value_p) */
-
-	return linked_service_p;
-}
-
-
-static LinkedService *CreateLinkedServiceForNamedFunction (const json_t *linked_service_json_p, const char *linked_service_name_s, Service *calling_service_p)
-{
-	const char *service_s = GetJSONString (linked_service_json_p, SERVICE_NAME_S);
-
-	if (service_s)
-		{
-			const char *function_s = GetJSONString (linked_service_json_p, LINKED_SERVICE_FUNCTION_S);
-
-			if (function_s)
-				{
-					LinkedService *linked_service_p = AllocateLinkedServiceWithFunction (linked_service_name_s, NULL, function_s, calling_service_p);
-
-					if (linked_service_p)
-						{
-							return linked_service_p;
-						}
-					else
-						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to allocate Linked Service");
-						}
-
-				}		/* if (function_s) */
-			else
-				{
-					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to get \"%s\"", LINKED_SERVICE_FUNCTION_S);
-				}
-
-		}		/* if (service_s) */
-	else
-		{
-			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to get \"%s\"", SERVICE_NAME_S);
-		}
-
-	return NULL;
 }
 
 
