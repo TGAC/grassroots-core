@@ -1705,6 +1705,11 @@ static bool GetValueFromJSON (const json_t * const root_p, const char *key_s, co
 								value_p -> st_data_value = (double64) json_real_value (json_value_p);
 								success_flag = true;
 							}
+						else if (json_is_integer (json_value_p))
+							{
+								value_p -> st_data_value = (double64) json_integer_value (json_value_p);
+								success_flag = true;
+							}
 						break;
 
 					
