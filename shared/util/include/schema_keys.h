@@ -322,6 +322,7 @@ PREFIX const char *CONTEXT_URL_CROP_ONTOLOGY_S VAL("http://www.cropontology.org/
 	PREFIX const char *LINKED_SERVICES_S VAL("linked_services");
 	PREFIX const char *LINKED_SERVICE_S VAL("linked_service");
 	PREFIX const char *LINKED_SERVICE_FUNCTION_S VAL("function");
+	PREFIX const char *LINKED_SERVICE_CONFIG_S VAL("config");
 	PREFIX const char *MAPPED_PARAMS_LIST_S VAL("mappings");
 	PREFIX const char *MAPPED_PARAM_INPUT_S VAL("input");
 	PREFIX const char *MAPPED_PARAM_OUTPUT_S VAL("output");

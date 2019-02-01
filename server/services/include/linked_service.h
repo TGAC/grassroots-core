@@ -76,6 +76,8 @@ typedef struct LinkedService
 
 
 	char *ls_input_key_s;
+
+	const json_t *ls_config_p;
 } LinkedService;
 
 
@@ -113,7 +115,7 @@ extern "C"
  * @return The newly-allocated LinkedService or <code>NULL</code> upon error.
  * @memberof LinkedService
  */
-GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s);
+GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s, const json_t *config_p);
 
 
 /**

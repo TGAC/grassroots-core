@@ -49,7 +49,7 @@ static bool CopyInputData (const char *input_service_s, char **copied_input_serv
 static bool AddMappedParameterToLinkedServiceList (LinkedList *params_p, MappedParameter *mapped_param_p);
 
 
-LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s)
+LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s, const json_t *config_p)
 {
 	char *linked_service_copy_s = NULL;
 	char *input_key_copy_s = NULL;
@@ -99,7 +99,7 @@ LinkedService *AllocateLinkedService (const char *linked_service_s, const char *
 									linked_service_p -> ls_input_key_s = input_key_copy_s;
 									linked_service_p -> ls_mapped_params_p = list_p;
 									linked_service_p -> ls_generate_fn_s = function_s;
-
+									linked_service_p -> ls_config_p = config_p;
 
 									return linked_service_p;
 								}
@@ -319,7 +319,7 @@ LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *li
 
 			if (mapped_params_json_p || function_s)
 				{
-					LinkedService *linked_service_p = AllocateLinkedService (linked_service_s, input_root_s, mapped_params_json_p, function_s);
+					LinkedService *linked_service_p = AllocateLinkedService (linked_service_s, input_root_s, mapped_params_json_p, function_s, json_object_get (linked_service_json_p, LINKED_SERVICE_CONFIG_S));
 
 					if (linked_service_p)
 						{
