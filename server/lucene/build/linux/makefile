@@ -37,7 +37,8 @@ INCLUDES = \
 	-I$(DIR_UUID_INC) \
 	
 SRCS 	= \
-	system_lucene_tool.c \
+	lucene_document.c \
+	lucene_tool.c \
 	
 CPPFLAGS += -DGRASSROOTS_LUCENE_LIBRARY_EXPORTS 
 

@@ -25,6 +25,8 @@
 #include "lucene_library.h"
 #include "typedefs.h"
 #include "string_hash_table.h"
+#include "linked_list.h"
+#include "lucene_document.h"
 
 
 
@@ -89,7 +91,7 @@ GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_
 
 
 
-GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (const HashTable * const document_p, const uint32 index));
+GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index));
 
 
 #ifdef __cplusplus
