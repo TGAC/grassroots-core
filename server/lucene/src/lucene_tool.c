@@ -34,7 +34,44 @@ LuceneTool *AllocateLuceneTool (void)
 
 	if (tool_p)
 		{
+			const json_t *lucene_config_p = GetGlobalConfigValue ("lucene");
 
+			if (lucene_config_p)
+				{
+					const char *classpath_s = GetJSONString (lucene_config_p, "classpath");
+
+					if (classpath_s)
+						{
+							const char *index_s = GetJSONString (lucene_config_p, "index");
+
+							if (index_s)
+								{
+									const char *taxonomy_s = GetJSONString (lucene_config_p, "taxonomy");
+
+									if (taxonomy_s)
+										{
+											const char *search_class_s = GetJSONString (lucene_config_p, "search_class");
+
+											if (search_class_s)
+												{
+													tool_p -> lt_search_class_s = search_class_s;
+													tool_p -> lt_classpath_s = classpath_s;
+													tool_p -> lt_index_s = index_s;
+													tool_p -> lt_taxonomy_s = taxonomy_s;
+													tool_p -> lt_output_file_s = NULL;
+
+													return tool_p;
+												}		/* if (search_class_s) */
+
+										}		/* if (taxonomy_s) */
+
+								}		/* if (index_s) */
+
+						}		/* if (classpath_s) */
+
+				}		/* if (lucene_config_p) */
+
+			FreeMemory (tool_p);
 		}		/* if (tool_p) */
 
 	return NULL;
@@ -55,6 +92,14 @@ void FreeLuceneTool (LuceneTool *tool_p)
 bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p)
 {
 	bool success_flag = false;
+	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+	if (buffer_p)
+		{
+
+
+			FreeByteBuffer (buffer_p);
+		}		/* if (buffer_p) */
 
 	return success_flag;
 }

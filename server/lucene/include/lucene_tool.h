@@ -38,9 +38,13 @@
  */
 typedef struct LuceneTool
 {
-	const char *lt_search_s;
+	const char *lt_search_class_s;
 
 	const char *lt_classpath_s;
+
+	const char *lt_index_s;
+
+	const char *lt_taxonomy_s;
 
 	char *lt_output_file_s;
 
