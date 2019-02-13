@@ -75,7 +75,7 @@ extern "C"
  * @return A newly-allocated LuceneTool or <code>NULL</code> upon error.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (uuid_t *id_p);
+GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (uuid_t id);
 
 
 /**

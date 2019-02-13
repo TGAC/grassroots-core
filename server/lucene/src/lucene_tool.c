@@ -70,7 +70,7 @@ LuceneTool *AllocateLuceneTool (uuid_t id)
 															tool_p -> lt_taxonomy_s = taxonomy_s;
 															tool_p -> lt_working_directory_s = working_directory_s;
 															tool_p -> lt_output_file_s = NULL;
-															tool_p -> lt_id = id;
+															uuid_copy (tool_p -> lt_id, id);
 
 															return tool_p;
 														}
