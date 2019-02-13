@@ -22,6 +22,8 @@
 #ifndef LUCENE_TOOL_H_
 #define LUCENE_TOOL_H_
 
+#include "uuid/uuid.h"
+
 #include "lucene_library.h"
 #include "typedefs.h"
 #include "string_hash_table.h"
@@ -46,7 +48,11 @@ typedef struct LuceneTool
 
 	const char *lt_taxonomy_s;
 
+	const char *lt_working_directory_s;
+
 	char *lt_output_file_s;
+
+	uuid_t lt_id;
 
 } LuceneTool;
 
@@ -69,7 +75,7 @@ extern "C"
  * @return A newly-allocated LuceneTool or <code>NULL</code> upon error.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (void);
+GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (uuid_t *id_p);
 
 
 /**
@@ -96,6 +102,9 @@ GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_
 
 
 GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index));
+
+
+GRASSROOTS_LUCENE_API void SetLuceneToolOutput (LuceneTool *tool_p, char *output_s);
 
 
 #ifdef __cplusplus

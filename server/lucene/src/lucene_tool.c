@@ -20,6 +20,12 @@
 #include "lucene_tool.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
+#include "grassroots_config.h"
+#include "byte_buffer.h"
+#include "json_util.h"
+#include "key_value_pair.h"
+#include "string_utils.h"
+#include "filesystem_utils.h"
 
 
 static bool LoadDocument (FILE *results_f, LuceneDocument *document_p);
@@ -28,7 +34,7 @@ static bool GetTokens (char *buffer_s, char **key_ss, char **value_ss);
 
 
 
-LuceneTool *AllocateLuceneTool (void)
+LuceneTool *AllocateLuceneTool (uuid_t id)
 {
 	LuceneTool *tool_p = (LuceneTool *) AllocMemory (sizeof (LuceneTool));
 
@@ -54,13 +60,20 @@ LuceneTool *AllocateLuceneTool (void)
 
 											if (search_class_s)
 												{
-													tool_p -> lt_search_class_s = search_class_s;
-													tool_p -> lt_classpath_s = classpath_s;
-													tool_p -> lt_index_s = index_s;
-													tool_p -> lt_taxonomy_s = taxonomy_s;
-													tool_p -> lt_output_file_s = NULL;
+													const char *working_directory_s = GetJSONString (lucene_config_p, "working_directory");
 
-													return tool_p;
+													if (working_directory_s)
+														{
+															tool_p -> lt_search_class_s = search_class_s;
+															tool_p -> lt_classpath_s = classpath_s;
+															tool_p -> lt_index_s = index_s;
+															tool_p -> lt_taxonomy_s = taxonomy_s;
+															tool_p -> lt_working_directory_s = working_directory_s;
+															tool_p -> lt_output_file_s = NULL;
+															tool_p -> lt_id = id;
+
+															return tool_p;
+														}
 												}		/* if (search_class_s) */
 
 										}		/* if (taxonomy_s) */
@@ -96,7 +109,74 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 
 	if (buffer_p)
 		{
+			if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_search_class_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s, " -query ", query_s, NULL))
+				{
+					bool run_flag = true;
 
+					if (facets_p)
+						{
+							KeyValuePairNode *node_p = (KeyValuePairNode *) (facets_p -> ll_head_p);
+
+							while (run_flag && node_p)
+								{
+									node_p = (KeyValuePairNode *) (node_p -> kvpn_node.ln_next_p);
+								}
+						}
+
+					if (run_flag)
+						{
+							/*
+							 * Now add the output file
+							 */
+							char uuid_s [UUID_STRING_BUFFER_SIZE];
+							char *full_filename_stem_s = NULL;
+
+							ConvertUUIDToString (* (tool_p -> lt_id_p), uuid_s);
+
+							full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, uuid_s);
+
+							if (full_filename_stem_s)
+								{
+									char *output_s = ConcatenateStrings (full_filename_stem_s, ".out");
+
+									if (output_s)
+										{
+											SetLuceneToolOutput (tool_p, output_s);
+
+											if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
+												{
+													const char *command_s = GetByteBufferData (buffer_p);
+													int res = system (command_s);
+
+													if (res != -1)
+														{
+															int process_exit_code = WEXITSTATUS (res);
+
+															if (process_exit_code == 0)
+																{
+																	success_flag = true;
+																	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																}
+															else
+																{
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																}
+														}
+													else
+														{
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
+														}
+
+												}		/* if (output_s) */
+
+										}
+
+									FreeCopiedString (full_filename_stem_s);
+								}
+
+						}		/* if (run_flag) */
+
+				}
 
 			FreeByteBuffer (buffer_p);
 		}		/* if (buffer_p) */
@@ -104,6 +184,17 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 	return success_flag;
 }
 
+
+
+void SetLuceneToolOutput (LuceneTool *tool_p, char *output_s)
+{
+	if (tool_p -> lt_output_file_s)
+		{
+			FreeCopiedString (tool_p -> lt_output_file_s);
+		}
+
+	tool_p -> lt_output_file_s = output_s;
+}
 
 
 bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index))
