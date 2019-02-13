@@ -131,7 +131,7 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 							char uuid_s [UUID_STRING_BUFFER_SIZE];
 							char *full_filename_stem_s = NULL;
 
-							ConvertUUIDToString (* (tool_p -> lt_id_p), uuid_s);
+							ConvertUUIDToString (tool_p -> lt_id, uuid_s);
 
 							full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, uuid_s);
 
@@ -197,7 +197,7 @@ void SetLuceneToolOutput (LuceneTool *tool_p, char *output_s)
 }
 
 
-bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index))
+bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p)
 {
 	bool success_flag = false;
 
@@ -218,7 +218,7 @@ bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) 
 								{
 									if (LoadDocument (results_f, document_p))
 										{
-											if (!lucene_results_callback_fn (document_p, i))
+											if (!lucene_results_callback_fn (document_p, i, data_p))
 												{
 													loop_flag = false;
 												}
