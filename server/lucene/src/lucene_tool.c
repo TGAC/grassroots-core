@@ -28,7 +28,7 @@
 #include "filesystem_utils.h"
 
 
-static bool LoadDocument (FILE *results_f, LuceneDocument *document_p);
+static int LoadDocument (FILE *results_f, LuceneDocument *document_p);
 
 static bool GetTokens (char *buffer_s, char **key_ss, char **value_ss);
 
@@ -214,18 +214,27 @@ bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) 
 							bool loop_flag = true;
 							uint32 i = 0;
 
-							while (loop_flag)
+							success_flag = true;
+
+							while (loop_flag && success_flag)
 								{
-									if (LoadDocument (results_f, document_p))
+									int res = LoadDocument (results_f, document_p);
+
+									if (res == 1)
 										{
 											if (!lucene_results_callback_fn (document_p, i, data_p))
 												{
 													loop_flag = false;
+													success_flag = false;
 												}
 										}
-									else
+									else if (res == 0)
 										{
 											loop_flag = false;
+										}
+									else if (res == -1)
+										{
+											success_flag = false;
 										}
 
 									++ i;
@@ -247,46 +256,17 @@ bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) 
 
 
 
-static bool LoadDocument (FILE *results_f, LuceneDocument *document_p)
+static int LoadDocument (FILE *results_f, LuceneDocument *document_p)
 {
-	bool success_flag = false;
+	int res = -1;
 	char *buffer_s = NULL;
 	bool loop_flag = true;
 	bool found_flag = false;
 
-	/*
-	 * Scroll to start of document
-	 */
-	while (loop_flag)
+	if (!feof (results_f))
 		{
-			if (GetLineFromFile (results_f, &buffer_s))
-				{
-					if (!IsStringEmpty (buffer_s))
-						{
-							if (strcmp (buffer_s, "{") == 0)
-								{
-									found_flag = true;
-									loop_flag = false;
-								}		/* if (strcmp (buffer_s, "{") == 0) */
-
-						}		/* if (!IsStringEmpty (buffer_s)) */
-
-					FreeCopiedString (buffer_s);
-				}		/* if (GetLineFromFile (results_f, buffer_s)) */
-			else
-				{
-					loop_flag = false;
-				}
-
-		}		/* while (loop_flag) */
-
-
-	if (found_flag)
-		{
-			loop_flag = true;
-
 			/*
-			 * Read in the document
+			 * Scroll to start of document
 			 */
 			while (loop_flag)
 				{
@@ -294,29 +274,12 @@ static bool LoadDocument (FILE *results_f, LuceneDocument *document_p)
 						{
 							if (!IsStringEmpty (buffer_s))
 								{
-									if (strcmp (buffer_s, "}") != 0)
+									if (strcmp (buffer_s, "{") == 0)
 										{
-											char *key_s = NULL;
-											char *value_s = NULL;
-
-											if (GetTokens (buffer_s, &key_s, &value_s))
-												{
-													if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
-														{
-
-														}
-												}
-											else
-												{
-													loop_flag = false;
-												}
-
-										}		/* if (strcmp (buffer_s, "{") == 0) */
-									else
-										{
+											found_flag = true;
 											loop_flag = false;
-											success_flag = true;
-										}
+										}		/* if (strcmp (buffer_s, "{") == 0) */
+
 								}		/* if (!IsStringEmpty (buffer_s)) */
 
 							FreeCopiedString (buffer_s);
@@ -328,11 +291,70 @@ static bool LoadDocument (FILE *results_f, LuceneDocument *document_p)
 
 				}		/* while (loop_flag) */
 
-		}		/* if (found_flag) */
 
+			if (found_flag)
+				{
+					loop_flag = true;
 
-	return success_flag;
+					/*
+					 * Read in the document
+					 */
+					while (loop_flag)
+						{
+							if (GetLineFromFile (results_f, &buffer_s))
+								{
+									if (!IsStringEmpty (buffer_s))
+										{
+											if (strcmp (buffer_s, "}") != 0)
+												{
+													char *key_s = NULL;
+													char *value_s = NULL;
 
+													if (GetTokens (buffer_s, &key_s, &value_s))
+														{
+															if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
+																{
+
+																}
+														}
+													else
+														{
+															loop_flag = false;
+														}
+
+												}		/* if (strcmp (buffer_s, "{") == 0) */
+											else
+												{
+													loop_flag = false;
+													res = 1;
+												}
+										}		/* if (!IsStringEmpty (buffer_s)) */
+
+									FreeCopiedString (buffer_s);
+								}		/* if (GetLineFromFile (results_f, buffer_s)) */
+							else
+								{
+									loop_flag = false;
+								}
+
+						}		/* while (loop_flag) */
+
+				}		/* if (found_flag) */
+			else
+				{
+					if (feof (results_f))
+						{
+							res = 0;
+						}
+				}
+
+		}		/* if (!feof (results_f)) */
+	else
+		{
+			res = 0;
+		}
+
+	return res;
 }
 
 
