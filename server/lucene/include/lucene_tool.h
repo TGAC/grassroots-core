@@ -97,7 +97,7 @@ GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
  * @return <code>true</code> if the LuceneTool ran successfully, <code>false</code> otherwise.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p);
+GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s);
 
 
 

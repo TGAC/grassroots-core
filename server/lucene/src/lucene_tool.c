@@ -102,7 +102,7 @@ void FreeLuceneTool (LuceneTool *tool_p)
 }
 
 
-bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p)
+bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s)
 {
 	bool success_flag = false;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
@@ -119,9 +119,30 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 
 							while (run_flag && node_p)
 								{
+									KeyValuePair *pair_p = node_p -> kvpn_pair_p;
+
+									if (!AppendStringsToByteBuffer (buffer_p, " -facet_name ", pair_p -> kvp_key_s, " -facet_value ", pair_p -> kvp_value_s, NULL))
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add facet pair \"%s\": \"%s\" to lucene tool buffer", pair_p -> kvp_key_s, pair_p -> kvp_value_s);
+											run_flag = false;
+										}
+
 									node_p = (KeyValuePairNode *) (node_p -> kvpn_node.ln_next_p);
 								}
 						}
+
+					if (run_flag)
+						{
+							if (search_type_s)
+								{
+									if (!AppendStringsToByteBuffer (buffer_p, " -search_type ", search_type_s, NULL))
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add search_type \"%s\" to lucene tool buffer", search_type_s);
+											run_flag = false;
+										}
+								}
+						}
+
 
 					if (run_flag)
 						{
