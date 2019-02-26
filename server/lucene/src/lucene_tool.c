@@ -121,7 +121,7 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 								{
 									KeyValuePair *pair_p = node_p -> kvpn_pair_p;
 
-									if (!AppendStringsToByteBuffer (buffer_p, " -facet_name ", pair_p -> kvp_key_s, " -facet_value ", pair_p -> kvp_value_s, NULL))
+									if (!AppendStringsToByteBuffer (buffer_p, " -facet_name \"", pair_p -> kvp_key_s, "\" -facet_value \"", pair_p -> kvp_value_s, "\"", NULL))
 										{
 											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add facet pair \"%s\": \"%s\" to lucene tool buffer", pair_p -> kvp_key_s, pair_p -> kvp_value_s);
 											run_flag = false;
