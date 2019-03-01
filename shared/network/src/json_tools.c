@@ -473,7 +473,7 @@ Operation GetOperationFromTopLevelJSON (const json_t * const json_p)
 		}		/* if (server_op_p) */
 	else
 		{
-			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, json_p, "Failed to get operation");
+			PrintJSONToErrors (STM_LEVEL_FINE, __FILE__, __LINE__, json_p, "Failed to get operation");
 		}
 
 	return op;
