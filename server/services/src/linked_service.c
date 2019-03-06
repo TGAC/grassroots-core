@@ -231,14 +231,29 @@ bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_ser
 
 							if (run_service_p)
 								{
-									if (json_array_append_new (services_p, run_service_p) == 0)
+									const bool sync_flag = (service_p -> se_synchronous) == SY_SYNCHRONOUS ? true : false;
+
+									if (SetJSONBoolean (run_service_p, OPERATION_SYNCHRONOUS_S, sync_flag))
 										{
-											success_flag = true;
+											if (json_array_append_new (services_p, run_service_p) == 0)
+												{
+													success_flag = true;
+												}
+											else
+												{
+													success_flag = false;
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
+												}
 										}
 									else
 										{
+											success_flag = false;
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append \"%s\": true", OPERATION_SYNCHRONOUS_S);
+										}
+
+									if (!success_flag)
+										{
 											json_decref (run_service_p);
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, run_service_p, "Failed to append linked service");
 										}
 								}
 

@@ -78,6 +78,7 @@ typedef struct LinkedService
 	char *ls_input_key_s;
 
 	const json_t *ls_config_p;
+
 } LinkedService;
 
 
