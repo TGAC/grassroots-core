@@ -2193,6 +2193,8 @@ static bool GetParameterOptionsFromJSON (const json_t * const json_p, LinkedList
 												{
 													success_flag = false;
 												}
+
+											ClearSharedType (&def, pt);
 										}
 									else
 										{

@@ -337,6 +337,9 @@ static int LoadDocument (FILE *results_f, LuceneDocument *document_p)
 																{
 
 																}
+
+															FreeCopiedString (key_s);
+															FreeCopiedString (value_s);
 														}
 													else
 														{

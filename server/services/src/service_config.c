@@ -82,6 +82,12 @@ bool SetDefaultSchemaVersionDetails (const uint32 major, const uint32 minor)
 }
 
 
+void ClearDefaultSchemaVersionDetails (void)
+{
+	ClearSchemaVersion (&s_schema_version);
+}
+
+
 const SchemaVersion *GetSchemaVersion (void)
 {
 	return &s_schema_version;

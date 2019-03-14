@@ -73,6 +73,12 @@ GRASSROOTS_SERVICE_API bool SetDefaultSchemaVersionDetails (const uint32 major, 
 
 
 /**
+ * Clear the global SchemaVersion to free any associated resources.
+ */
+GRASSROOTS_SERVICE_API void ClearDefaultSchemaVersionDetails (void);
+
+
+/**
  * Get the current global SchemaVersion in use.
  *
  * @return The global SchemaVersion.

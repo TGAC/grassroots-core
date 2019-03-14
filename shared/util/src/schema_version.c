@@ -181,10 +181,19 @@ SchemaVersion *AllocateSchemaVersion (const int major, const int minor)
 
 void FreeSchemaVersion (SchemaVersion *sv_p)
 {
+	ClearSchemaVersion (sv_p);
+	FreeMemory (sv_p);
+}
+
+
+void ClearSchemaVersion (SchemaVersion *sv_p)
+{
 	if (sv_p -> sv_version_s)
 		{
 			FreeCopiedString (sv_p -> sv_version_s);
+			sv_p -> sv_version_s = NULL;
 		}
 
-	FreeMemory (sv_p);
+	sv_p -> sv_major = CURRENT_SCHEMA_VERSION_MAJOR;
+	sv_p -> sv_minor = CURRENT_SCHEMA_VERSION_MINOR;
 }

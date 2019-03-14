@@ -28,8 +28,6 @@ static json_t *s_config_p = NULL;
 static bool s_load_config_tried_flag = false;
 
 
-
-
 static const json_t *GetConfig (void);
 static const char *GetProviderElement (const char * const element_s);
 static void InitSchemaVersionDetails (void);
@@ -50,8 +48,10 @@ bool DestroyConfig (void)
 
 	if (s_config_p)
 		{
-			WipeJSON (s_config_p);
+			json_decref (s_config_p);
 		}
+
+	ClearDefaultSchemaVersionDetails ();
 
 	return success_flag;
 }

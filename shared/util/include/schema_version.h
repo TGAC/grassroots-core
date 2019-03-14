@@ -145,6 +145,15 @@ GRASSROOTS_UTIL_API void FreeSchemaVersion (SchemaVersion *sv_p);
 
 
 /**
+ * Clear the memory and resources for a given SchemaVersion.
+ *
+ * @param sv_p The SchemaVersion to clear.
+ * @memberof SchemaVersion
+ */
+GRASSROOTS_UTIL_API void ClearSchemaVersion (SchemaVersion *sv_p);
+
+
+/**
  * Get the JSON representation for a SchemaVersion.
  *
  * @param sv_p The SchemaVersion to get the JSON representation of.

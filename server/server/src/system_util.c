@@ -130,7 +130,6 @@ bool DestroyInformationSystem ()
 			FreeServersManager (servers_manager_p);
 		}
 
-
 	return res_flag;
 }
 
