@@ -522,7 +522,7 @@ bool SearchAndReplaceInString (const char *src_s, char **dest_ss, const char *to
 						}
 
 					// count the number of replacements needed
-					insert_p = src_s;
+					insert_p = (char *) src_s;
 					for (count = 0; (tmp_p = strstr (insert_p, to_replace_s)) != NULL; ++ count)
 						{
 							insert_p = tmp_p + to_replace_length;

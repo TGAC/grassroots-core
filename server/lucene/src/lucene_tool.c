@@ -28,10 +28,7 @@
 #include "filesystem_utils.h"
 
 
-static int LoadDocument (FILE *results_f, LuceneDocument *document_p);
-
-static bool GetTokens (char *buffer_s, char **key_ss, char **value_ss);
-
+static bool LoadDocument (json_t *result_p, LuceneDocument *document_p);
 
 
 LuceneTool *AllocateLuceneTool (uuid_t id)
@@ -224,50 +221,57 @@ bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) 
 
 	if (tool_p -> lt_output_file_s)
 		{
-			FILE *results_f = fopen (tool_p -> lt_output_file_s, "r");
+			json_error_t err;
+			json_t *results_p = json_load_file (tool_p -> lt_output_file_s, 0, &err);
 
-			if (results_f)
+			if (results_p)
 				{
 					LuceneDocument *document_p = AllocateLuceneDocument ();
 
 					if (document_p)
 						{
-							bool loop_flag = true;
-							uint32 i = 0;
+							json_t *docs_p = json_object_get (results_p, "documents");
 
-							success_flag = true;
-
-							while (loop_flag && success_flag)
+							if (docs_p)
 								{
-									int res = LoadDocument (results_f, document_p);
 
-									if (res == 1)
+									if (json_is_array (docs_p))
 										{
-											if (!lucene_results_callback_fn (document_p, i, data_p))
+											const size_t num_docs = json_array_size (docs_p);
+											size_t i = 0;
+
+											success_flag = true;
+
+											while ((i < num_docs) && success_flag)
 												{
-													loop_flag = false;
-													success_flag = false;
-												}
-										}
-									else if (res == 0)
-										{
-											loop_flag = false;
-										}
-									else if (res == -1)
-										{
-											success_flag = false;
-										}
+													const json_t *result_p = json_array_get (docs_p, i);
 
-									++ i;
-									ClearLuceneDocument (document_p);
-								}
+													if (LoadDocument (result_p, document_p))
+														{
+															if (!lucene_results_callback_fn (document_p, i, data_p))
+																{
+																	success_flag = false;
+																}
+
+														}		/* if (LoadDocument (result_p, document_p)) */
+													else
+														{
+															success_flag = false;
+														}
+
+													++ i;
+													ClearLuceneDocument (document_p);
+												}		/* while (loop_flag && success_flag) */
+
+										}		/* if (json_is_array (docs_p)) */
+
+								}		/* if (docs_p) */
 
 							FreeLuceneDocument (document_p);
-						}
+						}		/* if (document_p) */
 
-					fclose (results_f);
-				}		/* if (results_f) */
-
+					json_decref (results_p);
+				}		/* if (results_p) */
 
 		}		/* if (tool_p -> lt_output_file_s) */
 
@@ -277,144 +281,37 @@ bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) 
 
 
 
-static int LoadDocument (FILE *results_f, LuceneDocument *document_p)
-{
-	int res = -1;
-	char *buffer_s = NULL;
-	bool loop_flag = true;
-	bool found_flag = false;
-
-	if (!feof (results_f))
-		{
-			/*
-			 * Scroll to start of document
-			 */
-			while (loop_flag)
-				{
-					if (GetLineFromFile (results_f, &buffer_s))
-						{
-							if (!IsStringEmpty (buffer_s))
-								{
-									if (strcmp (buffer_s, "{") == 0)
-										{
-											found_flag = true;
-											loop_flag = false;
-										}		/* if (strcmp (buffer_s, "{") == 0) */
-
-								}		/* if (!IsStringEmpty (buffer_s)) */
-
-							FreeCopiedString (buffer_s);
-						}		/* if (GetLineFromFile (results_f, buffer_s)) */
-					else
-						{
-							loop_flag = false;
-						}
-
-				}		/* while (loop_flag) */
-
-
-			if (found_flag)
-				{
-					loop_flag = true;
-
-					/*
-					 * Read in the document
-					 */
-					while (loop_flag)
-						{
-							if (GetLineFromFile (results_f, &buffer_s))
-								{
-									if (!IsStringEmpty (buffer_s))
-										{
-											if (strcmp (buffer_s, "}") != 0)
-												{
-													char *key_s = NULL;
-													char *value_s = NULL;
-
-													if (GetTokens (buffer_s, &key_s, &value_s))
-														{
-															if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
-																{
-
-																}
-
-															FreeCopiedString (key_s);
-															FreeCopiedString (value_s);
-														}
-													else
-														{
-															loop_flag = false;
-														}
-
-												}		/* if (strcmp (buffer_s, "{") == 0) */
-											else
-												{
-													loop_flag = false;
-													res = 1;
-												}
-										}		/* if (!IsStringEmpty (buffer_s)) */
-
-									FreeCopiedString (buffer_s);
-								}		/* if (GetLineFromFile (results_f, buffer_s)) */
-							else
-								{
-									loop_flag = false;
-								}
-
-						}		/* while (loop_flag) */
-
-				}		/* if (found_flag) */
-			else
-				{
-					if (feof (results_f))
-						{
-							res = 0;
-						}
-				}
-
-		}		/* if (!feof (results_f)) */
-	else
-		{
-			res = 0;
-		}
-
-	return res;
-}
-
-
-static bool GetTokens (char *buffer_s, char **key_ss, char **value_ss)
+static bool LoadDocument (json_t *result_p, LuceneDocument *document_p)
 {
 	bool success_flag = false;
+	void *itr_p = json_object_iter (result_p);
 
-	char *equals_p = strchr (buffer_s, '=');
-
-	if (equals_p)
+	if (itr_p)
 		{
-			char *key_s = NULL;
+			success_flag = true;
 
-			*equals_p = '\0';
-
-			if ((key_s = CopyToNewString (buffer_s, 0, true)) != NULL)
+			while (itr_p && success_flag)
 				{
-					char *value_s = NULL;
+					const char *key_s = json_object_iter_key (itr_p);
+					json_t *value_p = json_object_iter_value (itr_p);
 
-					if ((value_s = CopyToNewString (equals_p  + 1, 0, true)) != NULL)
+					if (json_is_string (value_p))
 						{
-							*key_ss = key_s;
-							*value_ss = value_s;
+							const char *value_s = json_string_value (value_p);
 
-							success_flag = true;
-						}		/* if ((value_s = CopyToNewString (equals_p  + 1, 0, true)) != NULL) */
-					else
-						{
-							FreeCopiedString (key_s);
-						}
+							if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
+								{
+									success_flag = false;
+								}
 
-				}		/* if ((key_s = CopyToNewString (buffer_s, 0, true)) != NULL) */
+						}		/* if (json_is_string (value_p)) */
 
-			*equals_p = '=';
-		}
+					itr_p = json_object_iter_next (result_p, itr_p);
+				}		/* while (itr_p) */
+
+		}		/* if (itr_p) */
 
 	return success_flag;
 }
+
 
