@@ -74,6 +74,13 @@ typedef enum Operation {
 	/** Get the current status of a Server. */
 	OP_SERVER_STATUS,
 
+
+	/**
+	 * Get the information for a given Service
+	 * such as its name, description, config details, etc.
+	 */
+	OP_GET_SERVICE_INFO,
+
 	/** The number of available Operations. */
 	OP_NUM_OPERATIONS
 } Operation;

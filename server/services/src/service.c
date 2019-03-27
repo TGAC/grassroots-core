@@ -1064,15 +1064,125 @@ json_t *GetServiceRunRequest (const char * const service_name_s, const Parameter
 
 json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
 {
+	json_t *root_p = GetBaseServiceDataAsJSON (service_p, resource_p, user_p, add_id_flag);
+
+	if (root_p)
+		{
+			bool success_flag = false;
+		/* Add the operations for this service */
+			json_t *operation_p = json_object ();
+
+			#if SERVICE_DEBUG >= STM_LEVEL_FINER
+			PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - description :: ");
+			#endif
+
+			if (operation_p)
+				{
+					const SchemaVersion *sv_p = GetSchemaVersion ();
+
+					if (AddServiceParameterSetToJSON (service_p, operation_p, sv_p, true, resource_p, user_p))
+						{
+							if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, (service_p -> se_synchronous == SY_SYNCHRONOUS) ? json_true () : json_false ()) == 0)
+								{
+									bool b = true;
+
+									if (add_id_flag)
+										{
+											if (!IsUUIDSet (service_p -> se_id))
+												{
+													GenerateServiceUUID (service_p);
+												}
+
+											b = AddServiceUUIDToJSON (service_p, operation_p);
+										}
+
+									if (b)
+										{
+											const char *icon_uri_s = GetServiceIcon (service_p);
+
+											if (icon_uri_s)
+												{
+													if (json_object_set_new (operation_p, OPERATION_ICON_URI_S, json_string (icon_uri_s)) != 0)
+														{
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon uri \"%s\" for service \"%s\"", icon_uri_s, GetServiceName (service_p));
+														}
+												}
+
+											AddOperationInformationURIToJSON (service_p, operation_p);
+
+											success_flag = true;
+										}		/* if (b) */
+
+								}		/* if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, service_p -> se_synchronous_flag ? json_true () : json_false ()) == 0) */
+
+						}		/* if (AddServiceParameterSetToJSON (service_p, operation_p, true, resource_p, json_p)) */
+
+					if (success_flag)
+						{
+							if (json_object_set_new (root_p, SERVER_OPERATION_S, operation_p) == 0)
+								{
+									success_flag = true;
+								}
+						}
+					else
+						{
+							json_object_clear (root_p);
+							json_decref (root_p);
+							root_p = NULL;
+						}
+
+					if (!success_flag)
+						{
+							json_decref (operation_p);
+						}
+
+				}		/* if (operation_p) */
+
+			if (success_flag)
+				{
+					return root_p;
+				}
+
+			json_decref (root_p);
+		}		/* if (root_p) */
+		
+	return NULL;
+}
+
+
+json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
+{
+	json_t *res_p = GetBaseServiceDataAsJSON (service_p, resource_p, user_p, add_id_flag);
+
+	if (res_p)
+		{
+			if (service_p -> se_data_p -> sd_config_p)
+				{
+					if (json_object_set (res_p, SERVICE_CONFIG_S, service_p -> se_data_p -> sd_config_p) != 0)
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "Failed to add config for \"%s\"", GetServiceName (service_p));
+							json_decref (res_p);
+							res_p = NULL;
+						}
+				}
+
+		}		/* if (res_p) */
+
+	return res_p;
+}
+
+
+
+json_t *GetBaseServiceDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
+{
 	json_t *root_p = json_object ();
-	
+
 	if (root_p)
 		{
 			const char *service_name_s = GetServiceName (service_p);
 
 			if (json_object_set_new (root_p, "@type", json_string ("grassroots_service")) == 0)
 				{
-					const SchemaVersion *sv_p = GetSchemaVersion ();
 					bool success_flag = true;
 
 					/* Add the key-value pair */
@@ -1210,78 +1320,6 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 									success_flag = AddServiceMetadataToJSON (service_p -> se_metadata_p, root_p);
 								}
 
-							if (success_flag)
-								{
-									/* Add the operations for this service */
-									json_t *operation_p = json_object ();
-
-									#if SERVICE_DEBUG >= STM_LEVEL_FINER
-									PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - description :: ");
-									#endif
-
-									if (operation_p)
-										{
-											success_flag = false;
-
-											if (AddServiceParameterSetToJSON (service_p, operation_p, sv_p, true, resource_p, user_p))
-												{
-													if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, (service_p -> se_synchronous == SY_SYNCHRONOUS) ? json_true () : json_false ()) == 0)
-														{
-															bool b = true;
-
-															if (add_id_flag)
-																{
-																	if (!IsUUIDSet (service_p -> se_id))
-																		{
-																			GenerateServiceUUID (service_p);
-																		}
-
-																	b = AddServiceUUIDToJSON (service_p, operation_p);
-																}
-
-															if (b)
-																{
-																	const char *icon_uri_s = GetServiceIcon (service_p);
-
-																	if (icon_uri_s)
-																		{
-																			if (json_object_set_new (operation_p, OPERATION_ICON_URI_S, json_string (icon_uri_s)) != 0)
-																				{
-																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add icon uri \"%s\" for service \"%s\"", icon_uri_s, service_name_s);
-																				}
-																		}
-
-																	AddOperationInformationURIToJSON (service_p, operation_p);
-
-																	success_flag = true;
-																}		/* if (b) */
-
-														}		/* if (json_object_set_new (operation_p, OPERATION_SYNCHRONOUS_S, service_p -> se_synchronous_flag ? json_true () : json_false ()) == 0) */
-
-												}		/* if (AddServiceParameterSetToJSON (service_p, operation_p, true, resource_p, json_p)) */
-
-											if (success_flag)
-												{
-													if (json_object_set_new (root_p, SERVER_OPERATION_S, operation_p) == 0)
-														{
-															success_flag = true;
-														}
-												}
-											else
-												{
-													json_object_clear (root_p);
-													json_decref (root_p);
-													root_p = NULL;
-												}
-
-											if (!success_flag)
-												{
-													json_decref (operation_p);
-												}
-
-										}		/* if (operation_p) */
-
-								}
 						}
 
 				}		/* if (json_object_set_new (root_p, "@type", json_string ("grassroots_service")) == 0) */
@@ -1296,10 +1334,11 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 			#endif
 
 		}		/* if (root_p) */
-		
-		
+
+
 	return root_p;
 }
+
 
 
 const char *GetServiceIcon (Service *service_p)

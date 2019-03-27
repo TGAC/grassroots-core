@@ -79,9 +79,15 @@ static json_t *RunKeywordServices (const json_t * const req_p, UserDetails *user
 
 static json_t *GetNamedServices (const json_t * const req_p, UserDetails *user_p);
 
-static json_t *GetServiceStatus (const json_t * const req_p, UserDetails *user_p);
-
 static json_t *GetServiceResultsAsJSON (const json_t * const req_p, UserDetails *user_p);
+
+static json_t *GetNamedServiceInfo (const json_t * const req_p, UserDetails *user_p);
+
+static json_t *GetNamedServicesFunctionality (const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p));
+
+static json_t *GenerateServiceIndexingData (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p);
+
+static json_t *GenerateNamedServices (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p);
 
 static json_t *GetServiceData (const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (json_t *services_p, uuid_t service_id, const char *uuid_s));
 
@@ -90,10 +96,6 @@ static bool AddServiceDataToJSON (json_t *results_p, uuid_t job_id, const char *
 static bool AddServiceStatusToJSON (json_t *services_p, uuid_t service_id, const char *uuid_s);
 
 static bool AddServiceResultsToJSON (json_t *services_p, uuid_t service_id, const char *uuid_s);
-
-static bool AddServiceCleanUpToJSON (json_t *services_p, uuid_t service_id, const char *uuid_s);
-
-static json_t *CleanUpJobs (const json_t * const req_p, UserDetails *user_p);
 
 static json_t *GetRequestedResource (const json_t * const req_p, UserDetails *user_p);
 
@@ -104,9 +106,6 @@ static int32 AddAllPairedServices (LinkedList *internal_services_p, UserDetails 
 static json_t *GetServerStatus (const json_t * const req_p, UserDetails *user_p);
 
 static LinkedList *GetServicesList (const char * const services_path_s, UserDetails *user_p, Resource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
-
-
-
 
 
 /***************************/
@@ -312,6 +311,9 @@ json_t *ProcessServerJSONMessage (json_t *req_p, const int UNUSED_PARAM (socket_
 										res_p = GetServerStatus (req_p, user_p);
 										break;
 
+									case OP_GET_SERVICE_INFO:
+										res_p = GetNamedServiceInfo (req_p, user_p);
+										break;
 
 									default:
 										break;
@@ -1026,25 +1028,13 @@ static json_t *GetServiceResultsAsJSON (const json_t * const req_p, UserDetails 
 }
 
 
-
-static json_t *GetServiceStatus (const json_t * const req_p, UserDetails *user_p)
-{
-	return GetServiceData (req_p, user_p, AddServiceStatusToJSON);
-}
-
-
-static json_t *CleanUpJobs (const json_t * const req_p, UserDetails *user_p)
-{
-	return GetServiceData (req_p, user_p, AddServiceCleanUpToJSON);
-}
-
-
 static json_t *GetRequestedResource (const json_t * const req_p, UserDetails *user_p)
 {
 	json_t *res_p = NULL;
 
 	return res_p;
 }
+
 
 
 static json_t *GetServerStatus (const json_t * const req_p, UserDetails *user_p)
@@ -1123,70 +1113,21 @@ static json_t *GetServerStatus (const json_t * const req_p, UserDetails *user_p)
 	return res_p;
 }
 
-static bool AddServiceCleanUpToJSON (json_t *services_p, uuid_t service_id, const char *uuid_s)
-{
-	bool success_flag = false;
-	json_t *status_p = json_object ();
-
-	if (status_p)
-		{
-			if (json_object_set_new (status_p, SERVICE_UUID_S, json_string (uuid_s)) == 0)
-				{
-					JobsManager *manager_p = GetJobsManager ();
-					ServiceJob *job_p = RemoveServiceJobFromJobsManager (manager_p, service_id, true);
-
-					if (job_p)
-						{
-							Service *service_p = GetServiceFromServiceJob (job_p);
-
-							if (service_p)
-								{
-									const char *service_name_s = GetServiceName (service_p);
-									OperationStatus status = CloseServiceJob (job_p) ? OS_CLEANED_UP : OS_ERROR;
-
-									if (!IsServiceLive (service_p))
-										{
-											CloseService (service_p);
-										}
-
-									success_flag = true;
-
-									if (json_object_set_new (status_p, SERVICE_NAME_S, json_string (service_name_s)) != 0)
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service name %s to status json", service_name_s);
-											json_object_set_new (status_p, ERROR_S, json_string ("Failed to add service name to status json"));
-											success_flag = false;
-										}
-
-									if (json_object_set_new (status_p, SERVICE_STATUS_VALUE_S, json_integer (status)) != 0)
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service status for name %s to status json", service_name_s);
-											json_object_set_new (status_p, ERROR_S, json_string ("Failed to add service status to status json"));
-											success_flag = false;
-										}
-								}
-
-						}		/* if (service_p) */
-					else
-						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find %s in services table", uuid_s);
-							json_object_set_new (status_p, ERROR_S, json_string ("Failed to find uuid in services table"));
-						}
-				}
-			else
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add service uuid_s %s to status json", uuid_s);
-					json_object_set_new (status_p, ERROR_S, json_string ("Failed to add uuid to status json"));
-				}
-
-			success_flag = (json_array_append_new (services_p, status_p) == 0);
-		}		/* if (status_p) */
-
-	return success_flag;
-}
 
 
 static json_t *GetNamedServices (const json_t * const req_p, UserDetails *user_p)
+{
+	return GetNamedServicesFunctionality (req_p, user_p, GenerateNamedServices);
+}
+
+
+static json_t *GetNamedServiceInfo (const json_t * const req_p, UserDetails *user_p)
+{
+	return GetNamedServicesFunctionality (req_p, user_p, GenerateServiceIndexingData);
+}
+
+
+static json_t *GetNamedServicesFunctionality (const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p))
 {
 	json_t *res_p = NULL;
 	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
@@ -1233,24 +1174,7 @@ static json_t *GetNamedServices (const json_t * const req_p, UserDetails *user_p
 
 					if (providers_p)
 						{
-							json_t *services_json_p = NULL;
-
-							//GetUsernameAndPassword (credentials_p, &username_s, &password_s);
-							AddAllPairedServices (services_p, user_p, providers_p);
-
-							services_json_p = GetServicesListAsJSON (services_p, NULL, user_p, false, providers_p);
-
-							if (services_json_p)
-								{
-									res_p = GetInitialisedResponseOnServer (req_p, SERVICES_NAME_S, services_json_p);
-
-									if (!res_p)
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__,  "Failed to create response for the services array");
-											json_decref (services_json_p);
-										}
-
-								}		/* if (services_json_p) */
+							res_p = generate_json_fn (services_p, req_p, user_p, providers_p);
 
 							FreeProvidersStateTable (providers_p);
 						}		/* if (providers_p) */
@@ -1264,6 +1188,42 @@ static json_t *GetNamedServices (const json_t * const req_p, UserDetails *user_p
 		{
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__,  "Failed to create services list");
 		}
+
+	return res_p;
+}
+
+
+static json_t *GenerateNamedServices (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p)
+{
+	json_t *res_p = NULL;
+	json_t *services_json_p = NULL;
+
+	//GetUsernameAndPassword (credentials_p, &username_s, &password_s);
+	AddAllPairedServices (services_p, user_p, providers_p);
+
+	services_json_p = GetServicesListAsJSON (services_p, NULL, user_p, false, providers_p);
+
+	if (services_json_p)
+		{
+			res_p = GetInitialisedResponseOnServer (req_p, SERVICES_NAME_S, services_json_p);
+
+			if (!res_p)
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__,  "Failed to create response for the services array");
+					json_decref (services_json_p);
+				}
+		}
+
+	return res_p;
+}
+
+
+static json_t *GenerateServiceIndexingData (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p)
+{
+	json_t *res_p = NULL;
+
+	json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
+
 
 	return res_p;
 }

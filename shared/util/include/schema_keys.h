@@ -300,6 +300,9 @@ PREFIX const char *CONTEXT_URL_CROP_ONTOLOGY_S VAL("http://www.cropontology.org/
 	PREFIX const char *SERVICE_RESULTS_S VAL("results");
 	PREFIX const char *SERVICE_CATEGORY_S VAL("category");
 	PREFIX const char *SERVICE_JOBS_S VAL("jobs");
+	PREFIX const char *SERVICE_CONFIG_S VAL("config");
+	PREFIX const char *SERVICE_TYPE_VALUE_S VAL("Grassroots:Service");
+
 	/* End of doxygen member group */
 	/**@}*/
 
