@@ -1220,12 +1220,56 @@ static json_t *GenerateNamedServices (LinkedList *services_p, const json_t * con
 
 static json_t *GenerateServiceIndexingData (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p)
 {
-	json_t *res_p = NULL;
+	if (services_p && (services_p -> ll_size > 0))
+		{
+			json_t *services_list_json_p = json_array ();
 
-	json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
+			if (services_list_json_p)
+				{
+					bool success_flag = true;
+					ServiceNode *node_p = (ServiceNode *) (services_p -> ll_head_p);
 
+					while (node_p && success_flag)
+						{
+							Service *service_p = node_p -> sn_service_p;
+							json_t *res_p = GetServiceIndexingDataAsJSON (service_p, NULL, user_p, false);
 
-	return res_p;
+							if (res_p)
+								{
+									if (json_array_append_new (services_list_json_p, res_p) != 0)
+										{
+											json_decref (res_p);
+											success_flag = false;
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "Failed to add to services array");
+										}
+								}		/* if (res_p) */
+							else
+								{
+									success_flag = false;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetServiceIndexingDataAsJSON failed for \"%s\"", GetServiceName (service_p));
+								}
+
+							node_p = (ServiceNode *) node_p -> sn_node.ln_next_p;
+						}		/* while (node_p) */
+
+					/*
+					 * Have we added all of the services correctly?
+					 */
+					if (success_flag)
+						{
+
+						}		/* if (success_flag) */
+
+					json_decref (services_list_json_p);
+				}		/* if (services_list_json_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate JSON array for services");
+				}
+
+		}		/* if (services_p && (services_p -> ll_size > 0)) */
+
+	return NULL;
 }
 
 
