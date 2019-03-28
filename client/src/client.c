@@ -579,7 +579,6 @@ void GetNamedServicesInClient (Client *client_p, const char * const service_s, U
 				}		/* if (req_p) */
 
 		}
-
 }
 
 
