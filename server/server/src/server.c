@@ -1232,7 +1232,7 @@ static json_t *GenerateServiceIndexingData (LinkedList *services_p, const json_t
 					while (node_p && success_flag)
 						{
 							Service *service_p = node_p -> sn_service_p;
-							json_t *res_p = GetServiceIndexingDataAsJSON (service_p, NULL, user_p, false);
+							json_t *res_p = GetServiceIndexingData (service_p);
 
 							if (res_p)
 								{

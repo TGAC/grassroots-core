@@ -869,7 +869,14 @@ const char *GetServiceInformationURI (Service *service_p)
 /** Get the indexing data for the Service. */
 json_t *GetServiceIndexingData (Service *service_p)
 {
-	return service_p -> se_get_indexing_data_fn (service_p);
+	json_t *res_p = NULL;
+
+	if (service_p -> se_get_indexing_data_fn)
+		{
+			res_p = service_p -> se_get_indexing_data_fn (service_p);
+		}
+
+	return res_p;
 }
 
 
@@ -1074,7 +1081,7 @@ json_t *GetServiceRunRequest (const char * const service_name_s, const Parameter
 
 json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
 {
-	json_t *root_p = GetBaseServiceDataAsJSON (service_p, resource_p, user_p, add_id_flag);
+	json_t *root_p = GetBaseServiceDataAsJSON (service_p, user_p);
 
 	if (root_p)
 		{
@@ -1160,19 +1167,20 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 }
 
 
-json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
+json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p)
 {
-	json_t *res_p = GetBaseServiceDataAsJSON (service_p, resource_p, user_p, add_id_flag);
+	json_t *res_p = GetBaseServiceDataAsJSON (service_p, user_p);
 
 	if (res_p)
 		{
-			if (service_p -> se_data_p -> sd_config_p)
+			json_t *service_data_p = GetServiceIndexingData (service_p);
+
+			if (service_data_p)
 				{
-					if (json_object_set (res_p, SERVICE_CONFIG_S, service_p -> se_data_p -> sd_config_p) != 0)
+					if (json_object_set_new (res_p, "custom", service_data_p) != 0)
 						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "Failed to add config for \"%s\"", GetServiceName (service_p));
-							json_decref (res_p);
-							res_p = NULL;
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_data_p, "Failed to append custom indexing data for \"%s\"", GetServiceName (service_p));
+							json_decref (service_data_p);
 						}
 				}
 
@@ -1183,7 +1191,7 @@ json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resou
 
 
 
-json_t *GetBaseServiceDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
+json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p)
 {
 	json_t *root_p = json_object ();
 
