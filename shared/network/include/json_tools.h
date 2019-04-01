@@ -123,6 +123,21 @@ GRASSROOTS_NETWORK_API json_t *GetKeywordServicesRequest (const UserDetails *use
 GRASSROOTS_NETWORK_API json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_name_s, const SchemaVersion * const sv_p);
 
 
+/**
+ * Generate the JSON fragment to send to the Server for getting the indexing data of a particular Service.
+ *
+ * @param user_p The UserDetails for the credentials that will be added.
+ * @param service_name_s The name of the Service.
+ * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
+ * then you can set this value to the version that you require. If this is <code>NULL</code>, then the
+ * current version of the running Grassroots system will be used.
+ * @return The JSON fragment to send to the Server or <code>
+ * NULL</code> upon error.
+ *
+ * @ingroup network_group
+ */
+GRASSROOTS_NETWORK_API json_t *GetNamedServicesIndexingDataRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p);
+
 
 /**
  * Add the given credentials in the correct position in a JSON fragment.

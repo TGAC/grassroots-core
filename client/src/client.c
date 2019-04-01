@@ -582,6 +582,37 @@ void GetNamedServicesInClient (Client *client_p, const char * const service_s, U
 }
 
 
+void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const service_s, UserDetails *user_p)
+{
+	if (service_s)
+		{
+			json_t *req_p = GetNamedServicesIndexingDataRequest (user_p, service_s, client_p -> cl_data_p -> cd_schema_p);
+
+			if (req_p)
+				{
+					json_t *response_p = MakeRemoteJsonCall (req_p, client_p -> cl_data_p -> cd_connection_p);
+
+					if (response_p)
+						{
+							json_t *service_response_p = ShowServices (response_p, client_p, user_p, client_p -> cl_data_p -> cd_connection_p);
+
+							if (service_response_p)
+								{
+									json_decref (service_response_p);
+								}
+
+							json_decref (response_p);
+						}		/* if (response_p) */
+
+					json_decref (req_p);
+				}		/* if (req_p) */
+
+		}
+}
+
+
+
+
 int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p)
 {
 	int res = -1;

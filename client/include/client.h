@@ -383,6 +383,18 @@ GRASSROOTS_CLIENT_API json_t *ShowServices (json_t *response_p, Client *client_p
 GRASSROOTS_CLIENT_API void GetNamedServicesInClient (Client *client_p, const char * const service_s, UserDetails *user_p);
 
 
+
+/**
+ * Get a named Service in a Client from its connected Server.
+ *
+ * @param client_p The Client to get all of the Services for.
+ * @param service_s The name of the Service to get.
+ * @param user_p The current user in case of restricted user access or any of the Services.
+ * @memberof Client
+ */
+GRASSROOTS_CLIENT_API void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const service_s, UserDetails *user_p);
+
+
 /**
  * Add a single Service to a Client from its JSON definition.
  *

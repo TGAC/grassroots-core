@@ -126,7 +126,9 @@ static Service *GetWebService (json_t *operation_json_p, size_t UNUSED_PARAM (i)
 						NULL,
 						false,
 						true,
-						data_p))
+						data_p,
+						NULL,
+						NULL))
 						{
 							return web_service_p;
 						}

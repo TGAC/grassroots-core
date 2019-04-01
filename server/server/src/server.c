@@ -1257,7 +1257,7 @@ static json_t *GenerateServiceIndexingData (LinkedList *services_p, const json_t
 					 */
 					if (success_flag)
 						{
-
+							return services_list_json_p;
 						}		/* if (success_flag) */
 
 					json_decref (services_list_json_p);

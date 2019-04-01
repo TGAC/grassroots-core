@@ -41,6 +41,8 @@ static json_t *GetServicesInfoRequest (const uuid_t **ids_pp, const uint32 num_i
 
 static bool AddContexts (json_t *data_p);
 
+static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const Operation op, const char * const service_names_s, const SchemaVersion * const sv_p);
+
 
 
 void WipeJSON (json_t *json_p)
@@ -320,7 +322,22 @@ json_t *GetKeywordServicesRequest (const UserDetails *user_p, const char * const
 }
 
 
+
+json_t *GetNamedServicesIndexingDataRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
+{
+	return GetGenericNamedServicesRequest (user_p, OP_GET_SERVICE_INFO, service_names_s, sv_p);
+
+}
+
+
 json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
+{
+	return GetGenericNamedServicesRequest (user_p, OP_GET_NAMED_SERVICES, service_names_s, sv_p);
+}
+
+
+
+static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const Operation op, const char * const service_names_s, const SchemaVersion * const sv_p)
 {
 	json_t *res_p = NULL;
 	LinkedList *service_names_list_p = ParseStringToStringLinkedList (service_names_s, ",", false);
@@ -359,7 +376,7 @@ json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const s
 
 					if (success_flag)
 						{
-							res_p = GetServicesRequest (user_p, OP_GET_NAMED_SERVICES, SERVICES_NAME_S, service_names_p, sv_p);
+							res_p = GetServicesRequest (user_p, op, SERVICES_NAME_S, service_names_p, sv_p);
 
 							if (!res_p)
 								{
@@ -384,6 +401,7 @@ json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const s
 
 	return res_p;
 }
+
 
 
 json_t *GetServicesRequest (const UserDetails *user_p, const Operation op, const char * const op_key_s, json_t * const op_data_p, const SchemaVersion * const sv_p)

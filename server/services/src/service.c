@@ -97,7 +97,8 @@ bool InitialiseService (Service * const service_p,
 	bool specific_flag,
 	Synchronicity synchronous,
 	ServiceData *data_p,
-	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p))
+	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p),
+	json_t *(*get_indexing_data_fn) (struct Service *service_p))
 {
 	bool success_flag = false;
 
@@ -136,6 +137,8 @@ bool InitialiseService (Service * const service_p,
 			service_p -> se_sync_data_p = NULL;
 
 			service_p -> se_release_service_fn = NULL;
+
+			service_p -> se_get_indexing_data_fn = get_indexing_data_fn;
 
 			InitLinkedList (& (service_p -> se_paired_services));
 			SetLinkedListFreeNodeFunction (& (service_p -> se_paired_services), FreePairedServiceNode);
@@ -860,6 +863,13 @@ const char *GetServiceInformationURI (Service *service_p)
 		}
 
 	return uri_s;
+}
+
+
+/** Get the indexing data for the Service. */
+json_t *GetServiceIndexingData (Service *service_p)
+{
+	return service_p -> se_get_indexing_data_fn (service_p);
 }
 
 

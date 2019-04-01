@@ -369,6 +369,16 @@ typedef struct Service
 	 */
 	void (*se_release_service_fn) (struct Service *service_p);
 
+
+	/**
+	 * A custom callback function to get the data that can be be used to
+	 * import into an indexing app like Lucene.
+	 *
+	 * @param service_p This Service.
+	 */
+	json_t *(*se_get_indexing_data_fn) (struct Service *service_p);
+
+
 } Service;
 
 
@@ -471,7 +481,8 @@ GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
  	bool specific_flag,
 	Synchronicity synchronous,
 	ServiceData *data_p,
-	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p));
+	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p),
+	json_t *(*get_indexing_data_fn) (struct Service *service_p));
 
 
 /**
@@ -574,6 +585,16 @@ GRASSROOTS_SERVICE_API const char *GetServiceName (Service *service_p);
  */
 GRASSROOTS_SERVICE_API const char *GetServiceDescription (Service *service_p);
 
+
+/**
+ * Get a JSON document containing the data that can be parsed by an
+ * indexing app such as Lucene.
+ *
+ * @param service_p The Service to get the data for.
+ * @return The JSON document.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API json_t *GetServiceIndexingData (Service *service_p);
 
 
 /**
