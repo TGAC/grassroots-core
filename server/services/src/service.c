@@ -834,7 +834,14 @@ json_t *CreateSerialisedJSONForServiceJobFromService (struct Service *service_p,
 
 ParameterSet *IsServiceMatch (Service *service_p, Resource *resource_p, Handler *handler_p)
 {
-	return service_p -> se_match_fn (service_p, resource_p, handler_p);	
+	ParameterSet *params_p = NULL;
+
+	if (service_p -> se_match_fn)
+		{
+			params_p = service_p -> se_match_fn (service_p, resource_p, handler_p);
+		}
+
+	return params_p;
 }
 
 
