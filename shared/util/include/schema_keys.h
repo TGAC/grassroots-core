@@ -90,6 +90,10 @@ PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/sw
 #define CONTEXT_PREFIX_CROP_ONTOLOGY_S "co:"
 PREFIX const char *CONTEXT_URL_CROP_ONTOLOGY_S VAL("http://www.cropontology.org/terms/");
 
+#define CONTEXT_PREFIX_ENVIRONMENT_ONTOLOGY_S "envo:"
+PREFIX const char *CONTEXT_URL_ENVIRONMENT_ONTOLOGY_S VAL("http://purl.obolibrary.org/obo/ENVO_");
+
+
 
 	/**
 	 *  @nosubgrouping
