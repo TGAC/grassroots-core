@@ -641,9 +641,35 @@ bool CompareParameterLevels (const ParameterLevel param_level, const ParameterLe
 }
 
 
-bool AddParameterKeyValuePair (Parameter * const parameter_p, const char *key_s, const char *value_s)
+bool AddParameterKeyJSONValuePair (Parameter * const parameter_p, const char *key_s, const json_t *value_p)
 {
-	return PutInHashTable (parameter_p -> pa_store_p, key_s, value_s);
+	bool success_flag = false;
+	char *value_s = json_dumps (value_p, JSON_INDENT (2));
+
+	if (value_s)
+		{
+			success_flag = PutInHashTable (parameter_p -> pa_store_p, key_s, value_s);
+			free (value_s);
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "json_dumps failed for \"%s\"", key_s);
+		}
+
+	return success_flag;
+}
+
+
+bool AddParameterKeyStringValuePair (Parameter * const parameter_p, const char *key_s, const char *value_s)
+{
+	bool success_flag = PutInHashTable (parameter_p -> pa_store_p, key_s, value_s);
+
+	if (!success_flag)
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "PutInHashTable failed for \"%s\": \"%s\"", key_s, value_s);
+		}
+
+	return success_flag;
 }
 
 
@@ -1637,6 +1663,52 @@ bool GetGrassrootsTypeFromString (const char *param_type_s, ParameterType *param
 					*param_type_p = i;
 					return true;
 				}
+		}
+
+	return false;
+}
+
+
+
+bool AddColumnParameterHint (const char *name_s, const ParameterType param_type, json_t *array_p)
+{
+	json_t *hint_p = json_object ();
+
+	if (hint_p)
+		{
+			if (SetJSONString (hint_p, PARAM_NAME_S, name_s))
+				{
+					const char *type_s = GetGrassrootsTypeAsString (param_type);
+
+					if (type_s)
+						{
+							if (SetJSONString (hint_p, PARAM_TYPE_S, name_s))
+								{
+									if (json_array_append_new (array_p, hint_p))
+										{
+											return true;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "json_array_append_new failed");
+										}
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "SetJSONString failed for \"%s\": \"%s\"", PARAM_TYPE_S, name_s);
+								}
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetGrassrootsTypeAsString failed for \"%s\": %d", name_s, param_type);
+						}
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "SetJSONString failed for \"%s\": \"%s\"", PARAM_NAME_S, name_s);
+				}
+
+			json_decref (hint_p);
 		}
 
 	return false;

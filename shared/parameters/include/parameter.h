@@ -438,7 +438,13 @@ GRASSROOTS_PARAMS_API bool SetParameterValueFromSharedType (Parameter * const pa
  * @return <code>true</code> if the Parameter was updated successfully, <code>false</code> otherwise.
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API bool AddParameterKeyValuePair (Parameter * const parameter_p, const char *key_s, const char *value_s);
+GRASSROOTS_PARAMS_API bool AddParameterKeyStringValuePair (Parameter * const parameter_p, const char *key_s, const char *value_s);
+
+
+GRASSROOTS_PARAMS_API bool AddParameterKeyJSONValuePair (Parameter * const parameter_p, const char *key_s, const json_t *value_p);
+
+
+GRASSROOTS_PARAMS_API bool AddColumnParameterHint (const char *name_s, const ParameterType param_type, json_t *array_p);
 
 
 /**

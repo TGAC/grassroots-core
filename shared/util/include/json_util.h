@@ -630,6 +630,7 @@ GRASSROOTS_UTIL_API bool AddOntologyContextTerm (json_t *root_p, const char *key
 
 GRASSROOTS_UTIL_API json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move);
 
+
 #ifdef __cplusplus
 }
 #endif

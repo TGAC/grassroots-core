@@ -1327,6 +1327,7 @@ bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term
 }
 
 
+
 json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move)
 {
 	bool success_flag = true;
