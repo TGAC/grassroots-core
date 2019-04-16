@@ -1684,7 +1684,7 @@ bool AddColumnParameterHint (const char *name_s, const ParameterType param_type,
 						{
 							if (SetJSONString (hint_p, PARAM_TYPE_S, type_s))
 								{
-									if (json_array_append_new (array_p, hint_p))
+									if (json_array_append_new (array_p, hint_p) == 0)
 										{
 											return true;
 										}
