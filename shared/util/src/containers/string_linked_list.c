@@ -113,6 +113,18 @@ void ClearStringListNode (StringListNode *node_p)
 }
 
 
+char *DetachStringFromStringListNode (StringListNode *node_p)
+{
+	char *res_s = node_p -> sln_string_s;
+
+	node_p -> sln_string_s = NULL;
+	node_p -> sln_string_flag = MF_ALREADY_FREED;
+
+	return res_s;
+}
+
+
+
 LinkedList *CopyStringLinkedList (const LinkedList * const src_p)
 {
 	LinkedList *dest_p = AllocateStringLinkedList ();

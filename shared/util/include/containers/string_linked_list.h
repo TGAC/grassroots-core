@@ -166,6 +166,10 @@ GRASSROOTS_UTIL_API bool AddStringToStringLinkedList (LinkedList *list_p, const 
  */
 LinkedList *GetUUIDSList (const char *ids_s);
 
+
+GRASSROOTS_UTIL_API char *DetachStringFromStringListNode (StringListNode *node_p);
+
+
 #ifdef __cplusplus
 }
 #endif
