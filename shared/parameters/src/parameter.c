@@ -2382,11 +2382,11 @@ static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBo
 										{
 											if (json_is_real (min_p))
 												{
-													bounds_p -> pb_lower.st_data_value = json_integer_value (min_p);
+													bounds_p -> pb_lower.st_data_value = json_number_value (min_p);
 
 													if (json_is_real (max_p))
 														{
-															bounds_p -> pb_upper.st_data_value = json_integer_value (max_p);
+															bounds_p -> pb_upper.st_data_value = json_number_value (max_p);
 															success_flag = true;
 														}
 													else
