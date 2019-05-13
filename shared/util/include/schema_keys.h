@@ -96,6 +96,10 @@ PREFIX const char *CONTEXT_URL_ENVIRONMENT_ONTOLOGY_S VAL("http://purl.obolibrar
 #define CONTEXT_PREFIX_AGRONOMY_ONTOLOGY_S "agro:"
 PREFIX const char *CONTEXT_URL_AGRONOMY_ONTOLOGY_S VAL("http://purl.obolibrary.org/obo/AGRO_");
 
+#define CONTEXT_PREFIX_NCI_THESAUSUS_ONTOLOGY_S "ncit:"
+PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibrary.org/obo/NCIT_");
+
+
 	/**
 	 *  @nosubgrouping
 	 *
