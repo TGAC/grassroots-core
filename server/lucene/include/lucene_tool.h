@@ -50,6 +50,8 @@ typedef struct LuceneTool
 
 	const char *lt_working_directory_s;
 
+	const char *lt_facet_key_s;
+
 	char *lt_output_file_s;
 
 	uuid_t lt_id;

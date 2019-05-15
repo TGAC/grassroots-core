@@ -61,28 +61,68 @@ LuceneTool *AllocateLuceneTool (uuid_t id)
 
 													if (working_directory_s)
 														{
-															tool_p -> lt_search_class_s = search_class_s;
-															tool_p -> lt_classpath_s = classpath_s;
-															tool_p -> lt_index_s = index_s;
-															tool_p -> lt_taxonomy_s = taxonomy_s;
-															tool_p -> lt_working_directory_s = working_directory_s;
-															tool_p -> lt_output_file_s = NULL;
-															uuid_copy (tool_p -> lt_id, id);
+															const char *facet_key_s = GetJSONString (lucene_config_p, "facet_key");
 
-															return tool_p;
+															if (facet_key_s)
+																{
+																	tool_p -> lt_search_class_s = search_class_s;
+																	tool_p -> lt_classpath_s = classpath_s;
+																	tool_p -> lt_index_s = index_s;
+																	tool_p -> lt_taxonomy_s = taxonomy_s;
+																	tool_p -> lt_working_directory_s = working_directory_s;
+																	tool_p -> lt_facet_key_s = facet_key_s;
+																	tool_p -> lt_output_file_s = NULL;
+																	uuid_copy (tool_p -> lt_id, id);
+
+																	return tool_p;
+																}
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"facet_key\" in lucene config");
+																}
+
 														}
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"working_directory\" in lucene config");
+														}
+
 												}		/* if (search_class_s) */
+											else
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"search_class\" in lucene config");
+												}
 
 										}		/* if (taxonomy_s) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"taxonomy\" in lucene config");
+										}
 
 								}		/* if (index_s) */
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"index\" in lucene config");
+								}
 
 						}		/* if (classpath_s) */
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"classpath\" in lucene config");
+						}
 
 				}		/* if (lucene_config_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find \"lucene\" in global config");
+				}
 
 			FreeMemory (tool_p);
 		}		/* if (tool_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate memory for LuceneTool");
+		}
 
 	return NULL;
 }
