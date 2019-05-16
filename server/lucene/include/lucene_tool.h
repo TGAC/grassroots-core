@@ -54,6 +54,8 @@ typedef struct LuceneTool
 
 	char *lt_output_file_s;
 
+	uint32 lt_num_total_hits;
+
 	uuid_t lt_id;
 
 } LuceneTool;
@@ -103,8 +105,7 @@ GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_
 
 
 
-GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p);
-
+GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p);
 
 GRASSROOTS_LUCENE_API void SetLuceneToolOutput (LuceneTool *tool_p, char *output_s);
 

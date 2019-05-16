@@ -72,6 +72,8 @@ LuceneTool *AllocateLuceneTool (uuid_t id)
 																	tool_p -> lt_working_directory_s = working_directory_s;
 																	tool_p -> lt_facet_key_s = facet_key_s;
 																	tool_p -> lt_output_file_s = NULL;
+																	tool_p -> lt_num_total_hits = 0;
+
 																	uuid_copy (tool_p -> lt_id, id);
 
 																	return tool_p;
@@ -255,7 +257,7 @@ void SetLuceneToolOutput (LuceneTool *tool_p, char *output_s)
 }
 
 
-bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p)
+bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p)
 {
 	bool success_flag = false;
 
@@ -274,6 +276,7 @@ bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) 
 
 							if (docs_p)
 								{
+									int num_total_hits = 0;
 
 									if (json_is_array (docs_p))
 										{
@@ -304,6 +307,17 @@ bool ParseLuceneResults (LuceneTool *tool_p, bool (*lucene_results_callback_fn) 
 												}		/* while (loop_flag && success_flag) */
 
 										}		/* if (json_is_array (docs_p)) */
+
+
+
+									if (GetJSONInteger (results_p, "total_hits", &num_total_hits))
+										{
+											tool_p -> lt_num_total_hits = num_total_hits;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get total number of hits");
+										}
 
 								}		/* if (docs_p) */
 
