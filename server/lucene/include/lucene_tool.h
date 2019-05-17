@@ -56,12 +56,36 @@ typedef struct LuceneTool
 
 	uint32 lt_num_total_hits;
 
+	uint32 lt_hits_from_index;
+
+	uint32 lt_hits_to_index;
+
 	uuid_t lt_id;
 
 } LuceneTool;
 
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#ifdef ALLOCATE_LUCENE_TOOL_CONSTANTS
+	#define LUCENE_TOOL_PREFIX GRASSROOTS_LUCENE_API
+	#define LUCENE_TOOL_VAL(x)	= x
+#else
+	#define LUCENE_TOOL_PREFIX extern
+	#define LUCENE_TOOL_VAL(x)
+#endif
+
+#endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
+
+
+LUCENE_TOOL_PREFIX const char *LT_NUM_TOTAL_HITS_S LUCENE_TOOL_VAL ("total_hits");
+
+LUCENE_TOOL_PREFIX const char *LT_HITS_START_INDEX_S LUCENE_TOOL_VAL ("from");
+
+LUCENE_TOOL_PREFIX const char *LT_HITS_END_INDEX_S LUCENE_TOOL_VAL ("to");
 
 
 #ifdef __cplusplus
@@ -101,7 +125,7 @@ GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
  * @return <code>true</code> if the LuceneTool ran successfully, <code>false</code> otherwise.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s);
+GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size);
 
 
 

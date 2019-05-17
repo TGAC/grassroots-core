@@ -61,7 +61,7 @@ void FreeLuceneDocument (LuceneDocument *doc_p)
 }
 
 
-bool AddFieldToLuceneDocument (LuceneDocument *doc_p, char *key_s, char *value_s)
+bool AddFieldToLuceneDocument (LuceneDocument *doc_p, const char *key_s, const char *value_s)
 {
 	bool success_flag = true;
 	json_t *field_p = json_object_get (doc_p -> ld_store_p, key_s);

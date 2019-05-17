@@ -1,22 +1,23 @@
 /*
-* Copyright 2014-2016 The Earlham Institute
-** 
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-** 
-**     http://www.apache.org/licenses/LICENSE-2.0
-** 
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ * Copyright 2014-2016 The Earlham Institute
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ **     http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
 
 #include <stdio.h>
 #include <string.h>
 
+#define ALLOCATE_LUCENE_TOOL_CONSTANTS (1)
 #include "lucene_tool.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
@@ -26,9 +27,12 @@
 #include "key_value_pair.h"
 #include "string_utils.h"
 #include "filesystem_utils.h"
+#include "math_utils.h"
 
 
-static bool LoadDocument (json_t *result_p, LuceneDocument *document_p);
+static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p);
+
+static bool AddNumericArgument (ByteBuffer *buffer_p, const char * const key_s, const uint32 value, const uint32 default_value);
 
 
 LuceneTool *AllocateLuceneTool (uuid_t id)
@@ -73,6 +77,8 @@ LuceneTool *AllocateLuceneTool (uuid_t id)
 																	tool_p -> lt_facet_key_s = facet_key_s;
 																	tool_p -> lt_output_file_s = NULL;
 																	tool_p -> lt_num_total_hits = 0;
+																	tool_p -> lt_hits_from_index = 0;
+																	tool_p -> lt_hits_to_index = 0;
 
 																	uuid_copy (tool_p -> lt_id, id);
 
@@ -141,7 +147,7 @@ void FreeLuceneTool (LuceneTool *tool_p)
 }
 
 
-bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s)
+bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size)
 {
 	bool success_flag = false;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
@@ -170,6 +176,9 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 								}
 						}
 
+					/*
+					 * Add any facets
+					 */
 					if (run_flag)
 						{
 							if (search_type_s)
@@ -182,61 +191,72 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 								}
 						}
 
-
 					if (run_flag)
 						{
-							/*
-							 * Now add the output file
-							 */
-							char uuid_s [UUID_STRING_BUFFER_SIZE];
-							char *full_filename_stem_s = NULL;
+							const uint32 DEFAULT_PAGE_INDEX = 0;
 
-							ConvertUUIDToString (tool_p -> lt_id, uuid_s);
-
-							full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, uuid_s);
-
-							if (full_filename_stem_s)
+							if (AddNumericArgument (buffer_p, "-page", page_index, DEFAULT_PAGE_INDEX))
 								{
-									char *output_s = ConcatenateStrings (full_filename_stem_s, ".out");
+									const uint32 DEFAULT_PAGE_SIZE = 10;
 
-									if (output_s)
+									if (AddNumericArgument (buffer_p, "-page_size", page_size, DEFAULT_PAGE_SIZE))
 										{
-											SetLuceneToolOutput (tool_p, output_s);
+											/*
+											 * Now add the output file
+											 */
+											char uuid_s [UUID_STRING_BUFFER_SIZE];
+											char *full_filename_stem_s = NULL;
 
-											if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
+											ConvertUUIDToString (tool_p -> lt_id, uuid_s);
+
+											full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, uuid_s);
+
+											if (full_filename_stem_s)
 												{
-													const char *command_s = GetByteBufferData (buffer_p);
-													int res = system (command_s);
+													char *output_s = ConcatenateStrings (full_filename_stem_s, ".out");
 
-													if (res != -1)
+													if (output_s)
 														{
-															int process_exit_code = WEXITSTATUS (res);
+															SetLuceneToolOutput (tool_p, output_s);
 
-															if (process_exit_code == 0)
+															if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
 																{
-																	success_flag = true;
-																	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
-																}
-															else
-																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
-																}
-														}
-													else
-														{
-															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
-														}
+																	const char *command_s = GetByteBufferData (buffer_p);
+																	int res = system (command_s);
 
-												}		/* if (output_s) */
+																	if (res != -1)
+																		{
+																			int process_exit_code = WEXITSTATUS (res);
 
-										}
+																			if (process_exit_code == 0)
+																				{
+																					success_flag = true;
+																					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																				}
+																			else
+																				{
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																				}
+																		}
+																	else
+																		{
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
+																		}
 
-									FreeCopiedString (full_filename_stem_s);
-								}
+																}		/* if (output_s) */
+
+														}		/* if (output_s) */
+
+													FreeCopiedString (full_filename_stem_s);
+												}		/* if (full_filename_stem_s) */
+
+										}		/* if (AddNumericArgument (buffer_p, "-page_size", page_size, DEFAULT_PAGE_SIZE)) */
+
+								}		/* if (AddNumericArgument (buffer_p, "-page", page_index, DEFAULT_PAGE_INDEX)) */
 
 						}		/* if (run_flag) */
 
-				}
+				}		/* if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_search_class_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s, " -query ", query_s, NULL)) */
 
 			FreeByteBuffer (buffer_p);
 		}		/* if (buffer_p) */
@@ -276,7 +296,7 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 
 							if (docs_p)
 								{
-									int num_total_hits = 0;
+									int value;
 
 									if (json_is_array (docs_p))
 										{
@@ -310,14 +330,33 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 
 
 
-									if (GetJSONInteger (results_p, "total_hits", &num_total_hits))
+									if (GetJSONInteger (results_p, "total_hits", &value))
 										{
-											tool_p -> lt_num_total_hits = num_total_hits;
+											tool_p -> lt_num_total_hits = value;
 										}
 									else
 										{
 											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get total number of hits");
 										}
+
+									if (GetJSONInteger (results_p, "from", &value))
+										{
+											tool_p -> lt_hits_from_index = value;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get hits start index");
+										}
+
+									if (GetJSONInteger (results_p, "to", &value))
+										{
+											tool_p -> lt_hits_to_index = value;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get hits end index");
+										}
+
 
 								}		/* if (docs_p) */
 
@@ -335,7 +374,7 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 
 
 
-static bool LoadDocument (json_t *result_p, LuceneDocument *document_p)
+static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p)
 {
 	bool success_flag = false;
 	void *itr_p = json_object_iter (result_p);
@@ -368,4 +407,39 @@ static bool LoadDocument (json_t *result_p, LuceneDocument *document_p)
 	return success_flag;
 }
 
+
+
+static bool AddNumericArgument (ByteBuffer *buffer_p, const char * const key_s, const uint32 value, const uint32 default_value)
+{
+	bool success_flag = false;
+
+	if (value != default_value)
+		{
+			char *value_s = ConvertUnsignedIntegerToString (value);
+
+			if (value_s)
+				{
+					if (AppendStringsToByteBuffer (buffer_p, " ", key_s, " ", value_s, NULL))
+						{
+							success_flag = true;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append %s %s to buffer", key_s, value_s);
+						}
+
+					FreeCopiedString (value_s);
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to convert " UINT32_FMT " to string for key \"%s\"", value, key_s);
+				}
+		}
+	else
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
 
