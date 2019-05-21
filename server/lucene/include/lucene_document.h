@@ -79,7 +79,7 @@ GRASSROOTS_LUCENE_API void ClearLuceneDocument (LuceneDocument *doc_p);
  * @param doc_p The LuceneDocument to amend.
  * @memberof LuceneDocument
  */
-GRASSROOTS_LUCENE_API bool AddFieldToLuceneDocument (LuceneDocument *doc_p, char *key_s, char *value_s);
+GRASSROOTS_LUCENE_API bool AddFieldToLuceneDocument (LuceneDocument *doc_p, const char *key_s, const char *value_s);
 
 
 
