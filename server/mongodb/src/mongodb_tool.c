@@ -2166,6 +2166,26 @@ void FreeBSONOid (bson_oid_t *id_p)
 }
 
 
+bson_t *AllocateBSON (void)
+{
+	bson_t *bson_p = (bson_t *) AllocMemory (sizeof  (bson_t));
+
+	if (bson_p)
+		{
+			bson_init (bson_p);
+		}
+
+	return bson_p;
+}
+
+
+
+void FreeBSON (bson_t *bson_p)
+{
+	bson_destroy (bson_p);
+}
+
+
 bool AddQueryTerm (bson_t *query_p, const char *key_s, const char *value_s, bool regex_flag)
 {
 	bool success_flag = true;
