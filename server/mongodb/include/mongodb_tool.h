@@ -604,6 +604,12 @@ GRASSROOTS_MONGODB_API bson_oid_t *CopyBSONOid (const bson_oid_t *src_p);
 GRASSROOTS_MONGODB_API void FreeBSONOid (bson_oid_t *id_p);
 
 
+GRASSROOTS_MONGODB_API bson_t *AllocateBSON (void);
+
+
+GRASSROOTS_MONGODB_API void FreeBSON (bson_t *bson_p);
+
+
 GRASSROOTS_MONGODB_API bool GetMongoIdFromJSON (const json_t *data_p, bson_oid_t *id_p);
 
 
