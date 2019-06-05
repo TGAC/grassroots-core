@@ -292,6 +292,7 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 
 					if (document_p)
 						{
+
 							json_t *docs_p = json_object_get (results_p, "documents");
 
 							if (docs_p)
