@@ -154,7 +154,7 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 
 	if (buffer_p)
 		{
-			if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_search_class_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s, " -query ", query_s, NULL))
+			if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_search_class_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s,  NULL))
 				{
 					bool run_flag = true;
 
@@ -219,7 +219,7 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 														{
 															SetLuceneToolOutput (tool_p, output_s);
 
-															if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
+															if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -query ", query_s, " >> ", full_filename_stem_s, ".log", NULL))
 																{
 																	const char *command_s = GetByteBufferData (buffer_p);
 																	int res = system (command_s);
