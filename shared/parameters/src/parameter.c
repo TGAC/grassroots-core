@@ -96,6 +96,9 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 static bool AddCurrentValueToJSON (const ParameterType param_type, const SharedType * const value_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 
+static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
+
+
 static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBounds **bounds_pp, const ParameterType pt);
 
 
@@ -237,6 +240,8 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 													param_p -> pa_group_p = NULL;
 
 													param_p -> pa_remote_parameter_details_p = remote_params_p;
+
+													param_p -> pa_visible_flag = true;
 
 													InitSharedType (& (param_p -> pa_current_value));
 													InitSharedType (& (param_p -> pa_default));
@@ -391,6 +396,11 @@ Parameter *CloneParameter (const Parameter * const src_p)
 			CopySharedType (src_p -> pa_current_value, &current_value, src_p -> pa_type);
 
 			dest_param_p = AllocateParameter (NULL, src_p -> pa_type, src_p -> pa_multi_valued_flag, src_p -> pa_name_s, src_p -> pa_display_name_s, src_p -> pa_description_s, dest_options_p, src_p -> pa_default, &current_value, dest_bounds_p, src_p -> pa_level, src_p -> pa_check_value_fn);
+
+			if (dest_param_p)
+				{
+					dest_param_p -> pa_visible_flag = src_p -> pa_visible_flag;
+				}
 		}
 
 	return dest_param_p;
@@ -887,7 +897,15 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 																						{
 																							if (AddParameterBoundsToJSON (param_p, root_p, sv_p))
 																								{
-																									success_flag = true;
+																									if (AddParameterVisibilityToJSON (param_p, root_p, sv_p))
+																										{
+																											success_flag = true;
+																										}		/* if (AddParameterVisibilityToJSON (param_p, root_p, sv_p)) */
+																									else
+																										{
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterVisibilityToJSON for \"%s\"", param_p -> pa_name_s);
+																										}
+
 																								}		/* if (AddParameterBoundsToJSON (param_p, root_p)) */
 																							else
 																								{
@@ -1503,6 +1521,20 @@ static bool AddCurrentValueToJSON (const ParameterType param_type, const SharedT
 {
 	return AddValueToJSON (root_p, param_type, value_p, PARAM_CURRENT_VALUE_S);
 }
+
+
+static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
+{
+	bool success_flag = true;
+
+	if (! (param_p -> pa_visible_flag))
+		{
+			success_flag = SetJSONBoolean (root_p, PARAM_VISIBLE_S, false);
+		}
+
+	return success_flag;
+}
+
 
 
 static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const SharedType *val_p, const char *key_s)
@@ -2775,6 +2807,17 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 									if (param_p)
 										{
+											bool visible_flag;
+
+
+											if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &visible_flag))
+												{
+													if (!visible_flag)
+														{
+															param_p -> pa_visible_flag = visible_flag;
+														}
+												}
+
 											/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
 
 											if (SetRemoteParameterDetailsFromJSON (param_p, root_p))

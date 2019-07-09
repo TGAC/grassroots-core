@@ -71,8 +71,16 @@ bool InitInformationSystem ()
 												}
 
 											res_flag = true;
+										}		/* if (InitMongoDB ()) */
+									else
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitMongoDB failed");
 										}
 
+								}		/* if (InitConfig ()) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitConfig failed");
 								}
 
 							#ifdef DRMAA_ENABLED
@@ -89,8 +97,22 @@ bool InitInformationSystem ()
 									InitRodsEnv ();
 								}
 							#endif
+						}		/* if (c == 0) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "curl_global_init failed with code %d", c);
 						}
+
+				}		/* if (InitDefaultOutputStream ()) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitDefaultOutputStream failed");
 				}
+
+		}		/* if (InitHandlerUtil ()) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitHandlerUtil failed");
 		}
 
 	return res_flag;

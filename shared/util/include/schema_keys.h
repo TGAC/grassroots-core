@@ -477,6 +477,10 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 
 	PREFIX const char *PARAM_OPTIONS_S  VAL("enum");
 
+
+	PREFIX const char *PARAM_VISIBLE_S  VAL("visible");
+
+
 	/**
 	 * The JSON key for the name of the ParameterGroup for this Parameter.
 	 */

@@ -219,6 +219,12 @@ typedef struct Parameter
 	LinkedList *pa_remote_parameter_details_p;
 
 
+	/**
+	 * Should this Parameter be displayed to the user or is it a
+	 * hidden variable.
+	 */
+	bool pa_visible_flag;
+
 } Parameter;
 
 
