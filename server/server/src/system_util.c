@@ -41,7 +41,7 @@ static bool s_is_multi_process_system_flag = false;
 
 
 
-bool InitInformationSystem ()
+bool InitInformationSystem (void)
 {
 	bool res_flag = false;
 
@@ -119,7 +119,7 @@ bool InitInformationSystem ()
 }
 
 
-bool DestroyInformationSystem ()
+bool DestroyInformationSystem (voidp *req_p)
 {
 	bool res_flag = true;
 	JobsManager *jobs_manager_p = GetJobsManager ();
