@@ -38,10 +38,10 @@ INCLUDES = \
 SRCS 	= \
 	audit.c \
 	jobs_manager.c \
-	server.c \
 	system_util.c \
 	servers_pool.c \
-	grassroots_config.c 
+	grassroots_config.c \
+	grassroots_server.c 
 	
 CPPFLAGS += -DGRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS 
 

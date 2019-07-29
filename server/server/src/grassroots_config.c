@@ -278,34 +278,7 @@ bool IsServiceEnabled (const char *service_name_s)
 
 
 
-static const json_t *GetConfig (void)
-{
-	if (!s_config_p)
-		{
-			if (!s_load_config_tried_flag)
-				{
-					const char *root_path_s = GetServerRootDirectory ();
-					char *full_config_path_s = MakeFilename (root_path_s, "grassroots.config");
 
-					if (full_config_path_s)
-						{
-							json_error_t error;
-							s_config_p = json_load_file (full_config_path_s, 0, &error);
-
-							if (!s_config_p)
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to load config from %s", full_config_path_s);
-								}
-
-							s_load_config_tried_flag = true;
-
-							FreeCopiedString (full_config_path_s);
-						}
-				}
-		}
-
-	return s_config_p;
-}
 
 
 static const char *GetProviderElement (const char * const element_s)

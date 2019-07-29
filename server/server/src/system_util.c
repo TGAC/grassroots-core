@@ -57,19 +57,6 @@ bool InitInformationSystem (void)
 								{
 									if (InitMongoDB ())
 										{
-											JobsManager *manager_p = NULL;
-											const json_t *config_p = GetGlobalConfigValue (JOBS_MANAGER_S);
-
-											if (config_p)
-												{
-													if (json_is_string (config_p))
-														{
-															const char *manager_s = json_string_value (config_p);
-
-															manager_p = LoadJobsManager (manager_s);
-														}
-												}
-
 											res_flag = true;
 										}		/* if (InitMongoDB ()) */
 									else
@@ -119,7 +106,7 @@ bool InitInformationSystem (void)
 }
 
 
-bool DestroyInformationSystem (voidp *req_p)
+bool DestroyInformationSystem (void)
 {
 	bool res_flag = true;
 	JobsManager *jobs_manager_p = GetJobsManager ();

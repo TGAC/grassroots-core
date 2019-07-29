@@ -221,6 +221,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/** @name The Schema definitions for specifying Servers. */
 	/* Start of doxygen member group */
 	/**@{*/
+	PREFIX const char *SERVERS_MANAGER_S VAL("servers_manager");
 	PREFIX const char *SERVERS_S VAL("servers");
 	PREFIX const char *SERVER_UUID_S VAL("server_uuid");
 	PREFIX const char *SERVER_NAME_S VAL("server_name");
