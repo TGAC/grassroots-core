@@ -36,6 +36,7 @@ static JobsManager *LoadJobsManagerFromConfig (const json_t *config_p);
 
 static ServersManager *LoadServersManagerFromConfig (const json_t *config_p);
 
+static SchemaVersion *InitSchemaVersionDetails (json_t *config_p);
 
 /*
  * API DEFINITIONS
@@ -90,22 +91,33 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 									if (servers_manager_p)
 										{
-											GrassrootsServer *server_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
 
-											if (server_p)
+											SchemaVersion *sv_p = InitSchemaVersionDetails (config_p);
+
+											if (sv_p)
 												{
-													server_p -> gs_path_s = copied_path_s;
-													server_p -> gs_config_filename_s = copied_config_filename_s;
-													server_p -> gs_config_p = config_p;
+													GrassrootsServer *server_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
 
-													server_p -> gs_jobs_manager_p = jobs_manager_p;
-													server_p -> gs_job_manager_mem = jobs_manager_flag;
+													if (server_p)
+														{
+															server_p -> gs_path_s = copied_path_s;
+															server_p -> gs_config_filename_s = copied_config_filename_s;
+															server_p -> gs_config_p = config_p;
 
-													server_p -> gs_servers_manager_p = servers_manager_p;
-													server_p -> gs_servers_manager_mem = servers_manager_flag;
+															server_p -> gs_jobs_manager_p = jobs_manager_p;
+															server_p -> gs_job_manager_mem = jobs_manager_flag;
 
-													return server_p;
-												}
+															server_p -> gs_servers_manager_p = servers_manager_p;
+															server_p -> gs_servers_manager_mem = servers_manager_flag;
+
+															server_p -> gs_schema_version_p = sv_p;
+
+															return server_p;
+														}		/* if (server_p) */
+
+													FreeSchemaVersion (sv_p);
+												}		/* if (sv_p) */
+
 
 											if (servers_manager_p != external_servers_manager_p)
 												{
@@ -549,6 +561,18 @@ json_t *GetInitialisedResponseOnServer (GrassrootsServer *server_p, const json_t
 
 
 
+const SchemaVersion *GetSchemaVersion (GrassrootsServer *server_p)
+{
+	return server_p -> gs_schema_version_p;
+}
+
+
+ServersManager *GetServersManager (GrassrootsServer *server_p)
+{
+	return server_p -> gs_servers_manager_p;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
@@ -627,4 +651,28 @@ static ServersManager *LoadServersManagerFromConfig (const json_t *config_p)
 		}
 
 	return NULL;
+}
+
+
+static SchemaVersion *InitSchemaVersionDetails (json_t *config_p)
+{
+	SchemaVersion *sv_p = NULL;
+	uint32 major = CURRENT_SCHEMA_VERSION_MAJOR;
+	uint32 minor = CURRENT_SCHEMA_VERSION_MINOR;
+	const json_t *schema_p = json_object_get (config_p, SCHEMA_S);
+
+	if (schema_p)
+		{
+			GetJSONInteger (schema_p, VERSION_MAJOR_S, (int *) &major);
+			GetJSONInteger (schema_p, VERSION_MINOR_S, (int *) &minor);
+		}
+
+	sv_p = AllocateSchemaVersion (major, minor);
+
+	if (!sv_p)
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AllocateSchemaVersion failed for " UINT32_FMT " " UINT32_FMT, major, minor);
+		}
+
+	return sv_p;
 }

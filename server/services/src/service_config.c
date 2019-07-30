@@ -88,7 +88,3 @@ void ClearDefaultSchemaVersionDetails (void)
 }
 
 
-const SchemaVersion *GetSchemaVersion (void)
-{
-	return &s_schema_version;
-}

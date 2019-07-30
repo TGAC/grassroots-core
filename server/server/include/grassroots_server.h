@@ -32,7 +32,6 @@
 
 typedef struct GrassrootsServer
 {
-
 	char *gs_path_s;
 
 	char *gs_config_filename_s;
@@ -46,6 +45,8 @@ typedef struct GrassrootsServer
 	MEM_FLAG gs_servers_manager_mem;
 
 	json_t *gs_config_p;
+
+	SchemaVersion *gs_schema_version_p;
 
 } GrassrootsServer;
 
@@ -128,6 +129,22 @@ GRASSROOTS_SERVICE_MANAGER_API json_t *ProcessServerJSONMessage (GrassrootsServe
  * @ingroup server_group
  */
 GRASSROOTS_SERVICE_MANAGER_API json_t *GetInitialisedResponseOnServer (GrassrootsServer *server_p, const json_t *req_p, const char *key_s, json_t *value_p);
+
+
+
+GRASSROOTS_SERVICE_MANAGER_API const SchemaVersion *GetSchemaVersion (GrassrootsServer *server_p);
+
+
+/**
+ * Get the ServersManager for a given GrassrootsServer.
+ *
+ * @param server_p The GrassrootsServer to get the ServersManager from.
+ * @return The ServersManager.
+ * @memberof GrassrootsServer
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API ServersManager *GetServersManager (GrassrootsServer *server_p);
+
 
 
 #ifdef __cplusplus

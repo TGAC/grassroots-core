@@ -78,13 +78,6 @@ GRASSROOTS_SERVICE_API bool SetDefaultSchemaVersionDetails (const uint32 major, 
 GRASSROOTS_SERVICE_API void ClearDefaultSchemaVersionDetails (void);
 
 
-/**
- * Get the current global SchemaVersion in use.
- *
- * @return The global SchemaVersion.
- */
-GRASSROOTS_SERVICE_API const SchemaVersion *GetSchemaVersion (void);
-
 
 #ifdef __cplusplus
 }

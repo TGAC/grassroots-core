@@ -241,15 +241,6 @@ extern "C"
 
 
 /**
- * Get the current Server-wide ServersManager.
- *
- * @return The ServersManager.
- * @ingroup server_group
- */
-GRASSROOTS_SERVICE_MANAGER_API ServersManager *GetServersManager (void);
-
-
-/**
  * Get the current Server uuid.
  *
  * @return The pointer to the uuid.

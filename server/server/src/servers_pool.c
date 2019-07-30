@@ -32,17 +32,7 @@
 #endif
 
 
-
-static ServersManager *s_servers_manager_p = NULL;
-
-
 static bool AddPairedServiceFromJSON (ExternalServer *server_p, json_t *paired_service_json_p);
-
-
-ServersManager *GetServersManager (void)
-{
-	return s_servers_manager_p;
-}
 
 
 void InitServersManager (ServersManager *manager_p,
