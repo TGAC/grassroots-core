@@ -48,13 +48,13 @@ Plugin *CopyPlugin (const Plugin * const src_p)
 
 
 
-Plugin *AllocatePlugin (const char * const name_s, const char * const path_s)
+Plugin *AllocatePlugin (const char * const name_s, const char * const path_s, GrassrootsServer *server_p)
 {
 	WindowsPlugin *plugin_p = (WindowsPlugin *) AllocMemory (sizeof (WindowsPlugin));
 
 	if (plugin_p)
 		{
-			InitBasePlugin ((Plugin *) plugin_p, name_s, path_s);
+			InitBasePlugin ((Plugin *) plugin_p, name_s, path_s, server_p);
 			plugin_p -> wp_handle = NULL;
 		}
 

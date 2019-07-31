@@ -223,11 +223,11 @@ bool SetMappedFilename (const char *protocol_s, const char *user_id_s, const cha
 
 
 
-Handler *GetResourceHandler (const Resource *resource_p, const UserDetails *user_p)
+Handler *GetResourceHandler (const Resource *resource_p, GrassrootsServer *server_p, const UserDetails *user_p)
 {
 	Handler *handler_p = NULL;
 	LinkedList *matching_handlers_p = NULL;
-	const char *root_path_s = GetServerRootDirectory ();
+	const char *root_path_s = GetServerRootDirectory (server_p);
 	char *handlers_path_s = MakeFilename (root_path_s, "handlers");
 
 	if (handlers_path_s)

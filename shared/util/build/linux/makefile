@@ -53,7 +53,6 @@ SRCS 	:= \
 	linked_list_iterator.c \
 	math_utils.c \
 	operation.c \
-	plugin.c \
 	regular_expressions.c \
 	resource.c \
 	schema_keys.c \
@@ -67,8 +66,6 @@ SRCS 	:= \
 	temp_file.cpp \
 	time_util.c \
 	unix_filesystem.c \
-	unix_plugin.c \
-	unix_platform.c \
 	unix_shared_memory.c \
 	user_details.c
 	

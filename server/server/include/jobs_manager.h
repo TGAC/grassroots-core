@@ -59,6 +59,7 @@ JOBS_MANAGER_PREFIX const char *JOBS_MANAGERS_PATH_S JOBS_MANAGER_VAL("jobs_mana
 
 /* forward declaration */
 struct JobsManager;
+struct Plugin;
 
 /**
  * A typedef'd function for serialising a ServiceJob into an
@@ -96,7 +97,7 @@ typedef ServiceJob *(*ServiceJobDeserialiser) (unsigned char *input_data_p, void
 typedef struct JobsManager
 {
 	/** The plugin that thjis JobsManager was loaded from. */
-	Plugin *jm_plugin_p;
+	struct Plugin *jm_plugin_p;
 
 	/**
 	 * @brief Add a ServiceJob to the JobsManager.

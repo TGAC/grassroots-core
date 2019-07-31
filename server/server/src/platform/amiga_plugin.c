@@ -58,13 +58,13 @@ Plugin *CopyPlugin (const Plugin * const src_p)
 
 
 
-Plugin *AllocatePlugin (const char * const name_p)
+Plugin *AllocatePlugin (const char * const name_p, GrassrootsServer *server_p)
 {
 	AmigaPlugin *plugin_p = (AmigaPlugin *) AllocMemory (sizeof (AmigaPlugin));
 
 	if (plugin_p)
 		{
-			InitBasePlugin ((Plugin *) plugin_p, name_p);
+			InitBasePlugin ((Plugin *) plugin_p, name_p, server_p);
 			plugin_p -> ap_handle = NULL;
 			plugin_p -> ap_seglist_p = ZERO;
 		}

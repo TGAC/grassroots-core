@@ -54,14 +54,6 @@ GRASSROOTS_SERVICE_API bool SetServerRootDirectory (const char * const path_s);
 
 
 /**
- * Get the path to where Grassroots is installed.
- *
- * @return The path to Grassroots
- */
-GRASSROOTS_SERVICE_API const char *GetServerRootDirectory (void);
-
-
-/**
  * Set the global SchemaVersion to use
  *
  * @param major The major version of the schema to use.

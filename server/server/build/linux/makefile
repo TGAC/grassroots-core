@@ -15,7 +15,8 @@ export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
 BUILD		= debug
 
 VPATH	= \
-	$(DIR_SRC) 
+	$(DIR_SRC) \
+	$(DIR_SRC)/platform 
 	
 INCLUDES = \
 	-I$(DIR_INCLUDE) \
@@ -41,7 +42,10 @@ SRCS 	= \
 	system_util.c \
 	servers_pool.c \
 	grassroots_config.c \
-	grassroots_server.c 
+	grassroots_server.c \
+	plugin.c \
+	unix_platform.c \
+	unix_plugin.c
 	
 CPPFLAGS += -DGRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS 
 

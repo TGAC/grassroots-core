@@ -30,7 +30,7 @@
 
 
 
-bool InitBasePlugin (Plugin * const plugin_p, const char * const path_s)
+bool InitBasePlugin (Plugin * const plugin_p, const char * const path_s, GrassrootsServer *server_p)
 {
 	bool success_flag = false;
 
@@ -40,6 +40,8 @@ bool InitBasePlugin (Plugin * const plugin_p, const char * const path_s)
 
 	plugin_p -> pl_status = PS_UNSET;
 	plugin_p -> pl_open_count = 0;
+
+	plugin_p -> pl_server_p = server_p;
 
 	ClearPluginValue (plugin_p);
 

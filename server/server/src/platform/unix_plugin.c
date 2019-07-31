@@ -41,13 +41,13 @@ typedef struct UnixPlugin
 
 
 
-Plugin *AllocatePlugin (const char * const path_s)
+Plugin *AllocatePlugin (const char * const path_s, GrassrootsServer *server_p)
 {
 	UnixPlugin *plugin_p = (UnixPlugin *) AllocMemory (sizeof (UnixPlugin));
 
 	if (plugin_p)
 		{
-			InitBasePlugin ((Plugin *) plugin_p, path_s);
+			InitBasePlugin ((Plugin *) plugin_p, path_s, server_p);
 			plugin_p -> up_handle_p = NULL;
 		}
 

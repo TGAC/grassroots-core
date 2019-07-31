@@ -67,15 +67,6 @@ bool SetServerRootDirectory (const char * const path_s)
 }
 
 
-
-const char *GetServerRootDirectory (void)
-{
-	return s_root_path_s;
-}
-
-
-
-
 bool SetDefaultSchemaVersionDetails (const uint32 major, const uint32 minor)
 {
 	return SetSchemaVersionDetails (&s_schema_version, major, minor);

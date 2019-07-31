@@ -25,9 +25,11 @@
 #define PLUGIN_H
 
 #include "typedefs.h"
-#include "grassroots_util_library.h"
+#include "grassroots_service_manager_library.h"
 #include "linked_list.h"
 #include "memory_allocations.h"
+#include "grassroots_server.h"
+
 
 #ifdef __cplusplus
 	extern "C" {
@@ -172,6 +174,9 @@ typedef struct Plugin
 	 * The count of how many current tasks have this Plugin open.
 	 */
 	int32 pl_open_count;
+
+
+	GrassrootsServer *pl_server_p;
 } Plugin;
 
 
@@ -213,7 +218,7 @@ typedef struct PluginListNode
  * string or NULL upon error.
  * @memberof Plugin
  */
-GRASSROOTS_UTIL_API const char *GetPluginConfigName (const Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API const char *GetPluginConfigName (const Plugin * const plugin_p);
 
 /**
  * The following functions are platform-specific
@@ -227,7 +232,7 @@ GRASSROOTS_UTIL_API const char *GetPluginConfigName (const Plugin * const plugin
  * @memberof Plugin
  * @see FreePlugin
  */
-GRASSROOTS_UTIL_API Plugin *AllocatePlugin (const char * const path_s);
+GRASSROOTS_SERVICE_MANAGER_API Plugin *AllocatePlugin (const char * const path_s, GrassrootsServer *server_p);
 
 
 /**
@@ -237,7 +242,7 @@ GRASSROOTS_UTIL_API Plugin *AllocatePlugin (const char * const path_s);
  * @memberof Plugin
  * @see FreePlugin
  */
-GRASSROOTS_UTIL_API void FreePlugin (Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API void FreePlugin (Plugin * const plugin_p);
 
 
 /**
@@ -253,7 +258,7 @@ GRASSROOTS_UTIL_API void FreePlugin (Plugin * const plugin_p);
  * @memberof Plugin
  * @see ClosePlugin
  */
-GRASSROOTS_UTIL_API bool OpenPlugin (Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API bool OpenPlugin (Plugin * const plugin_p);
 
 
 /**
@@ -265,7 +270,7 @@ GRASSROOTS_UTIL_API bool OpenPlugin (Plugin * const plugin_p);
  * @memberof Plugin
  * @see OpenPlugin
  */
-GRASSROOTS_UTIL_API void ClosePlugin (Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API void ClosePlugin (Plugin * const plugin_p);
 
 
 /**
@@ -278,7 +283,7 @@ GRASSROOTS_UTIL_API void ClosePlugin (Plugin * const plugin_p);
  * @return A pointer to the symbol's code or <code>NULL</code> upon error.
  * @memberof Plugin
  */
-GRASSROOTS_UTIL_API void *GetSymbolFromPlugin (Plugin *plugin_p, const char * const symbol_s);
+GRASSROOTS_SERVICE_MANAGER_API void *GetSymbolFromPlugin (Plugin *plugin_p, const char * const symbol_s);
 
 
 /**
@@ -288,7 +293,7 @@ GRASSROOTS_UTIL_API void *GetSymbolFromPlugin (Plugin *plugin_p, const char * co
  * @return The new PluginListNode or <code>NULL</code> upon error.
  * @memberof PluginListNode
  */
-GRASSROOTS_UTIL_API PluginListNode *AllocatePluginListNode (Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API PluginListNode *AllocatePluginListNode (Plugin * const plugin_p);
 
 
 /**
@@ -297,7 +302,7 @@ GRASSROOTS_UTIL_API PluginListNode *AllocatePluginListNode (Plugin * const plugi
  * @param node_p The ListNode to free.
  * @memberof PluginListNode
  */
-GRASSROOTS_UTIL_API void FreePluginListNode (ListItem * const node_p);
+GRASSROOTS_SERVICE_MANAGER_API void FreePluginListNode (ListItem * const node_p);
 
 
 /**
@@ -308,7 +313,7 @@ GRASSROOTS_UTIL_API void FreePluginListNode (ListItem * const node_p);
  * <code>false</code> otherwise.
  * @memberof Plugin
  */
-GRASSROOTS_UTIL_API bool IsPluginOpen (const Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API bool IsPluginOpen (const Plugin * const plugin_p);
 
 
 /**
@@ -324,7 +329,7 @@ GRASSROOTS_UTIL_API bool IsPluginOpen (const Plugin * const plugin_p);
  * @memberof Plugin
  * @see FreeCopiedString
  */
-GRASSROOTS_UTIL_API char *DeterminePluginName (const char * const full_plugin_path_s);
+GRASSROOTS_SERVICE_MANAGER_API char *DeterminePluginName (const char * const full_plugin_path_s);
 
 
 /**
@@ -337,7 +342,7 @@ GRASSROOTS_UTIL_API char *DeterminePluginName (const char * const full_plugin_pa
  * @memberof Plugin
  * @see FreeCopiedString
  */
-GRASSROOTS_UTIL_API char *MakePluginName (const char * const name_s);
+GRASSROOTS_SERVICE_MANAGER_API char *MakePluginName (const char * const name_s);
 
 
 
@@ -347,7 +352,7 @@ GRASSROOTS_UTIL_API char *MakePluginName (const char * const name_s);
  * @param plugin_p The Plugin to alter.
  * @memberof Plugin
  */
-GRASSROOTS_UTIL_API void IncrementPluginOpenCount (Plugin *plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API void IncrementPluginOpenCount (Plugin *plugin_p);
 
 
 /**
@@ -357,7 +362,7 @@ GRASSROOTS_UTIL_API void IncrementPluginOpenCount (Plugin *plugin_p);
  * @param plugin_p The Plugin to alter.
  * @memberof Plugin
  */
-GRASSROOTS_UTIL_API void DecrementPluginOpenCount (Plugin *plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API void DecrementPluginOpenCount (Plugin *plugin_p);
 
 
 /**
@@ -366,7 +371,7 @@ GRASSROOTS_UTIL_API void DecrementPluginOpenCount (Plugin *plugin_p);
  * @param plugin_p The Plugin to clear.
  * @memberof Plugin
  */
-GRASSROOTS_UTIL_API void ClearPluginValue (Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_API void ClearPluginValue (Plugin * const plugin_p);
 
 
 /***********************************/
@@ -374,14 +379,12 @@ GRASSROOTS_UTIL_API void ClearPluginValue (Plugin * const plugin_p);
 /***********************************/
 
 
-GRASSROOTS_UTIL_LOCAL bool InitBasePlugin (Plugin * const plugin_p, const char * const path_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL bool InitBasePlugin (Plugin * const plugin_p, const char * const path_p, GrassrootsServer *server_p);
 
-GRASSROOTS_UTIL_LOCAL void ClearBasePlugin (Plugin * const plugin_p);
-
-
+GRASSROOTS_SERVICE_MANAGER_LOCAL void ClearBasePlugin (Plugin * const plugin_p);
 
 
-GRASSROOTS_UTIL_LOCAL void ClearPluginPath (Plugin * const plugin_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void ClearPluginPath (Plugin * const plugin_p);
 
 
 #ifdef __cplusplus

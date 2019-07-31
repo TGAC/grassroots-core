@@ -23,6 +23,7 @@
 #ifndef CORE_SERVER_SERVER_INCLUDE_GRASSROOTS_SERVER_H_
 #define CORE_SERVER_SERVER_INCLUDE_GRASSROOTS_SERVER_H_
 
+#include "grassroots_service_manager_library.h"
 
 #include "jansson.h"
 
