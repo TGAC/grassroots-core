@@ -246,7 +246,7 @@ void FreePairedServiceNode (ListItem *node_p)
 
 
 
-json_t *MakeRemotePairedServiceCall (const char * const service_name_s, ParameterSet *params_p, const char * const paired_service_uri_s, ProvidersStateTable *providers_p)
+json_t *MakeRemotePairedServiceCall (const char * const service_name_s, ParameterSet *params_p, const char * const paired_service_uri_s, ProvidersStateTable *providers_p, GrassrootsServer *grassroots_p)
 {
 	json_t *res_p = NULL;
 	Connection *connection_p = AllocateWebServerConnection (paired_service_uri_s);
@@ -260,7 +260,7 @@ json_t *MakeRemotePairedServiceCall (const char * const service_name_s, Paramete
 					/*
 					 * Only send the databases that the external paired service knows about
 					 */
-					const SchemaVersion *sv_p = GetSchemaVersion ();
+					const SchemaVersion *sv_p = GetSchemaVersion (grassroots_p);
 					json_t *service_req_p = GetServiceRunRequest (service_name_s, params_p, sv_p, true);
 
 					if (service_req_p)
@@ -341,7 +341,8 @@ int32 RunPairedServices (Service *service_p, ParameterSet *param_set_p, Provider
 
 							if (!IsServiceInProvidersStateTable (providers_p, paired_service_p -> ps_server_uri_s, service_name_s))
 								{
-									json_t *res_p = MakeRemotePairedServiceCall (GetServiceName (service_p), param_set_p, paired_service_p -> ps_server_uri_s, providers_p);
+									GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+									json_t *res_p = MakeRemotePairedServiceCall (GetServiceName (service_p), param_set_p, paired_service_p -> ps_server_uri_s, providers_p, grassroots_p);
 
 									if (res_p)
 										{

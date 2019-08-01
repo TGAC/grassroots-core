@@ -153,14 +153,14 @@ LinkedList *GetAllServiceJobsFromJobsManager (struct JobsManager *manager_p)
 }
 
 
-JobsManager *LoadJobsManager (const char *jobs_manager_s)
+JobsManager *LoadJobsManager (const char *jobs_manager_s, GrassrootsServer *server_p)
 {
 	char *plugin_name_s = MakePluginName (jobs_manager_s);
 	JobsManager *manager_p = NULL;
 
 	if (plugin_name_s)
 		{
-			const char *root_path_s = GetServerRootDirectory ();
+			const char *root_path_s = GetServerRootDirectory (server_p);
 			char file_sep_s [2];
 			char *full_jobs_managers_path_s = NULL;
 
@@ -171,7 +171,7 @@ JobsManager *LoadJobsManager (const char *jobs_manager_s)
 
 			if (full_jobs_managers_path_s)
 				{
-					Plugin *plugin_p = AllocatePlugin (full_jobs_managers_path_s);
+					Plugin *plugin_p = AllocatePlugin (full_jobs_managers_path_s, server_p);
 
 					if (plugin_p)
 						{

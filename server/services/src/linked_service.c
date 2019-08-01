@@ -49,7 +49,7 @@ static bool CopyInputData (const char *input_service_s, char **copied_input_serv
 static bool AddMappedParameterToLinkedServiceList (LinkedList *params_p, MappedParameter *mapped_param_p);
 
 
-LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s, const json_t *config_p)
+LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s, const json_t *config_p, GrassrootsServer *grassroots_p)
 {
 	char *linked_service_copy_s = NULL;
 	char *input_key_copy_s = NULL;
@@ -100,6 +100,7 @@ LinkedService *AllocateLinkedService (const char *linked_service_s, const char *
 									linked_service_p -> ls_mapped_params_p = list_p;
 									linked_service_p -> ls_generate_fn_s = function_s;
 									linked_service_p -> ls_config_p = config_p;
+									linked_service_p -> ls_grassroots_p = grassroots_p;
 
 									return linked_service_p;
 								}
@@ -334,7 +335,8 @@ LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *li
 
 			if (mapped_params_json_p || function_s)
 				{
-					LinkedService *linked_service_p = AllocateLinkedService (linked_service_s, input_root_s, mapped_params_json_p, function_s, json_object_get (linked_service_json_p, LINKED_SERVICE_CONFIG_S));
+					GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+					LinkedService *linked_service_p = AllocateLinkedService (linked_service_s, input_root_s, mapped_params_json_p, function_s, json_object_get (linked_service_json_p, LINKED_SERVICE_CONFIG_S), grassroots_p);
 
 					if (linked_service_p)
 						{
@@ -401,7 +403,7 @@ json_t *GetLinkedServiceAsJSON (LinkedService *linked_service_p)
 
 	if (res_p)
 		{
-			const SchemaVersion *sv_p = GetSchemaVersion ();
+			const SchemaVersion *sv_p = GetSchemaVersion (linked_service_p -> ls_grassroots_p);
 			Service *service_p = GetServiceByName (linked_service_p -> ls_output_service_s);
 
 			if (service_p)

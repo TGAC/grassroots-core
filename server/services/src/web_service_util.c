@@ -461,7 +461,8 @@ bool AddParametersToBodyWebService (WebServiceData *data_p, ParameterSet *param_
 {
 	bool success_flag = false;
 	ByteBuffer *buffer_p = data_p -> wsd_buffer_p;
-	const SchemaVersion *sv_p = GetSchemaVersion ();
+	GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (data_p -> wsd_base_data.sd_service_p);
+	const SchemaVersion *sv_p = GetSchemaVersion (grassroots_p);
 	json_t *json_p = GetParameterSetAsJSON (param_set_p, sv_p, true);
 
 	if (json_p)

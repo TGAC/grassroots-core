@@ -94,7 +94,6 @@ json_t *DisplayResultsInClient (Client *client_p, json_t *response_p)
 void FreeClient (Client *client_p)
 {
 	Plugin *plugin_p = client_p -> cl_plugin_p;
-	bool res;
 
 	if (client_p -> cl_data_p -> cd_schema_p)
 		{
@@ -102,7 +101,10 @@ void FreeClient (Client *client_p)
 			client_p -> cl_data_p -> cd_schema_p = NULL;
 		}
 
-	res = client_p -> cl_free_client_fn (client_p);
+	if (! (client_p -> cl_free_client_fn (client_p)))
+		{
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Error freeing client from plugin \"%s\"", plugin_p -> pl_name_s);
+		}
 
 	plugin_p -> pl_value.pv_client_p = NULL;
 	plugin_p -> pl_type = PN_UNKNOWN;
@@ -168,7 +170,7 @@ Client *LoadClient (const char * const clients_path_s, const char * const client
 
 			if (full_filename_s)
 				{
-					Plugin *plugin_p = AllocatePlugin (full_filename_s);
+					Plugin *plugin_p = AllocatePlugin (full_filename_s, NULL);
 
 					if (OpenPlugin (plugin_p))
 						{

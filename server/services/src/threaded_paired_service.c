@@ -28,7 +28,7 @@ void *RunRemoteServiceInThread (void *data_p)
 {
 	RemoteServiceData *remote_data_p = (RemoteServiceData *) data_p;
 
-	json_t *res_p = MakeRemotePairedServiceCall (remote_data_p -> rsd_service_name_s, remote_data_p -> rsd_params_p, remote_data_p -> rsd_paired_service_p -> ps_server_uri_s, remote_data_p -> rsd_providers_p);
+	json_t *res_p = MakeRemotePairedServiceCall (remote_data_p -> rsd_service_name_s, remote_data_p -> rsd_params_p, remote_data_p -> rsd_paired_service_p -> ps_server_uri_s, remote_data_p -> rsd_providers_p, remote_data_p -> rsd_grassroots_p);
 	return res_p;
 }
 

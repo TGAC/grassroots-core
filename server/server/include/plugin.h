@@ -306,17 +306,6 @@ GRASSROOTS_SERVICE_MANAGER_API void FreePluginListNode (ListItem * const node_p)
 
 
 /**
- * Is a given Plugin open and ready for use?
- *
- * @param plugin_p The Plugin to check.
- * @return <code>true</code> if the Plugin is open,
- * <code>false</code> otherwise.
- * @memberof Plugin
- */
-GRASSROOTS_SERVICE_MANAGER_API bool IsPluginOpen (const Plugin * const plugin_p);
-
-
-/**
  * @brief Get the platform-independent Plugin name from a platform-specific filename
  * possibly spanning multiple directories.
  *

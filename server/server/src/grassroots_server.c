@@ -25,6 +25,7 @@
 #include "memory_allocations.h"
 #include "streams.h"
 
+#include "jobs_manager.h"
 
 /*
  * STATIC DECLARATIONS
@@ -32,7 +33,8 @@
 
 static json_t *LoadConfig (const char *root_path_s, const char *config_filename_s);
 
-static JobsManager *LoadJobsManagerFromConfig (const json_t *config_p);
+
+static JobsManager *LoadJobsManagerFromConfig (GrassrootsServer *server_p);
 
 static ServersManager *LoadServersManagerFromConfig (const json_t *config_p);
 
@@ -170,6 +172,9 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 		}
 
 
+	DisconnectFromExternalServers (server_p);
+
+
 	if (server_p -> gs_servers_manager_p)
 		{
 			switch (server_p -> gs_servers_manager_mem)
@@ -188,6 +193,7 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 
 	FreeCopiedString (server_p -> gs_path_s);
 	FreeCopiedString (server_p -> gs_config_filename_s);
+
 
 	FreeMemory (server_p);
 }
@@ -409,7 +415,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *server_p, json_t *req_p, con
 
 									uuid_clear (user_uuid);
 
-									res_p = GetInitialisedResponseOnServer (req_p, SERVICE_RESULTS_S, service_results_p);
+									res_p = GetInitialisedResponseOnServer (server_p, req_p, SERVICE_RESULTS_S, service_results_p);
 
 									if (res_p)
 										{
@@ -505,6 +511,88 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *server_p, json_t *req_p, con
 
 
 
+json_t *GetGlobalServiceConfig (GrassrootsServer *grassroots_p, const char * const service_name_s, bool *alloc_flag_p)
+{
+	json_t *res_p = NULL;
+	char *conf_s = NULL;
+	char sep_s [2];
+
+	*sep_s = GetFileSeparatorChar ();
+	* (sep_s + 1) = '\0';
+
+	*alloc_flag_p = false;
+
+	conf_s = ConcatenateVarargsStrings ("config", sep_s, service_name_s, NULL);
+
+	if (conf_s)
+		{
+			const char *root_path_s = GetServerRootDirectory (grassroots_p);
+			char *full_config_path_s = MakeFilename (root_path_s, conf_s);
+
+			if (full_config_path_s)
+				{
+					if (IsPathValid (full_config_path_s))
+						{
+							res_p = LoadJSONFile (full_config_path_s);
+
+							if (res_p)
+								{
+									*alloc_flag_p = true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to load config filename for %s", full_config_path_s);
+								}
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_FINEST, __FILE__, __LINE__, "Separate config file %s does not exist", full_config_path_s);
+						}
+
+					FreeCopiedString (full_config_path_s);
+				}		/* if (full_config_path_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create full config filename for %s", conf_s);
+				}
+
+			FreeCopiedString (conf_s);
+		}		/* if (conf_s) */
+	else
+		{
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create local config filename for %s", service_name_s);
+		}
+
+	if (!res_p)
+		{
+			const json_t *config_p = GetConfig ();
+
+			if (config_p)
+				{
+					json_t *json_p = json_object_get (config_p, SERVICES_NAME_S);
+
+					if (json_p)
+						{
+							if (json_is_object (json_p))
+								{
+									res_p = json_object_get (json_p, service_name_s);
+								}		/* if (json_is_object (json_p)) */
+
+						}		/* if (json_p) */
+
+				}		/* if (config_p) */
+			else
+				{
+
+				}
+
+		}		/* if (!res_p) */
+
+
+	return res_p;
+}
+
+
 
 json_t *GetInitialisedResponseOnServer (GrassrootsServer *server_p, const json_t *req_p, const char *key_s, json_t *value_p)
 {
@@ -573,6 +661,45 @@ ServersManager *GetServersManager (GrassrootsServer *server_p)
 }
 
 
+
+void DisconnectFromExternalServers (GrassrootsServer *server_p)
+{
+
+}
+
+void ConnectToExternalServers (GrassrootsServer *server_p)
+{
+	const json_t *config_p = GetConfig ();
+
+	if (config_p)
+		{
+			json_t *servers_p = json_object_get (config_p, SERVERS_S);
+
+			if (servers_p)
+				{
+					if (json_is_object (servers_p))
+						{
+							AddExternalServerFromJSON (servers_p);
+						}		/* if (json_is_object (json_p)) */
+					else if (json_is_array (servers_p))
+						{
+							size_t index;
+							json_t *element_p;
+
+							json_array_foreach (servers_p, index, element_p)
+								{
+									AddExternalServerFromJSON (element_p);
+								}
+						}
+
+				}		/* if (servers_p) */
+
+		}		/* if (s_config_p) */
+}
+
+
+
+
 /*
  * STATIC DEFINITIONS
  */
@@ -600,13 +727,13 @@ static json_t *LoadConfig (const char *root_path_s, const char *config_filename_
 }
 
 
-static JobsManager *LoadJobsManagerFromConfig (const json_t *config_p)
+static JobsManager *LoadJobsManagerFromConfig (GrassrootsServer *server_p)
 {
-	const char *manager_s = GetJSONString (config_p, JOBS_MANAGER_S);
+	const char *manager_s = GetJSONString (server_p -> gs_config_p, JOBS_MANAGER_S);
 
 	if (manager_s)
 		{
-			JobsManager *jobs_manager_p = LoadJobsManager (manager_s);
+			JobsManager *jobs_manager_p = LoadJobsManager (manager_s, server_p);
 
 			if (jobs_manager_p)
 				{
@@ -620,7 +747,7 @@ static JobsManager *LoadJobsManagerFromConfig (const json_t *config_p)
 		}		/* if (manager_s) */
 	else
 		{
-			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, config_p, "No jobs manager key, \"%s\" in config file", JOBS_MANAGER_S);
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, server_p -> gs_config_p, "No jobs manager key, \"%s\" in config file", JOBS_MANAGER_S);
 		}
 
 	return NULL;

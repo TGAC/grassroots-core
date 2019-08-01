@@ -1129,6 +1129,7 @@ GRASSROOTS_SERVICE_API bool SortServicesListByName (LinkedList *services_list_p)
 GRASSROOTS_SERVICE_API json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p);
 
 
+GRASSROOTS_SERVICE_API GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_p);
 
 #ifdef __cplusplus
 }

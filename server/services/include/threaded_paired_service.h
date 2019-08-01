@@ -32,6 +32,7 @@
 #include "providers_state_table.h"
 #include "grassroots_service_library.h"
 #include "linked_list.h"
+#include "grasssroots_server.h"
 
 
 #ifdef __cplusplus
@@ -60,6 +61,10 @@ typedef struct RemoteServiceData
 
 	/** The details of all available ExternalServers. */
 	ProvidersStateTable *rsd_providers_p;
+
+	/** This Grassroots server. */
+	GrassrootsServer *rsd_grassroots_p;
+
 } RemoteServiceData;
 
 

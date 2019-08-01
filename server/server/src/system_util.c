@@ -109,24 +109,15 @@ bool InitInformationSystem (void)
 bool DestroyInformationSystem (void)
 {
 	bool res_flag = true;
-	JobsManager *jobs_manager_p = GetJobsManager ();
-	ServersManager *servers_manager_p = GetServersManager ();
 
 	#ifdef DRMAA_ENABLED
 	ExitDrmaaEnvironment ();
 	#endif
 
-
-	if (jobs_manager_p)
-		{
-			FreeJobsManager (jobs_manager_p);
-		}
-
 	//FreeExternalServers ();
 	ExitMongoDB ();
 	DestroyConfig ();
 
-	DisconnectFromExternalServers ();
 
 	curl_global_cleanup ();
 	
@@ -134,10 +125,6 @@ bool DestroyInformationSystem (void)
 	DestroyHandlerUtil ();
 
 
-	if (servers_manager_p)
-		{
-			FreeServersManager (servers_manager_p);
-		}
 
 	return res_flag;
 }

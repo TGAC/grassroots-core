@@ -30,6 +30,8 @@
 #include "service_config.h"
 #include "json_tools.h"
 #include "grassroots_config.h"
+#include "grassroots_server.h"
+#include "service.h"
 
 
 static bool LogData (const json_t *data_p, const char *uri_s);
@@ -44,7 +46,8 @@ bool LogServiceJob (ServiceJob *job_p)
 
 	if (uri_s)
 		{
-			const SchemaVersion *sv_p = GetSchemaVersion ();
+			GrassrootsServer *server_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+			const SchemaVersion *sv_p = GetSchemaVersion (server_p);
 			json_t *req_p = GetInitialisedMessage (sv_p);
 
 			if (req_p)
@@ -83,7 +86,8 @@ bool LogParameterSet (ParameterSet *params_p, ServiceJob *job_p)
 
 	if (uri_s)
 		{
-			const SchemaVersion *sv_p = GetSchemaVersion ();
+			GrassrootsServer *server_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+			const SchemaVersion *sv_p = GetSchemaVersion (server_p);
 			json_t *req_p = GetInitialisedMessage (sv_p);
 
 			if (req_p)

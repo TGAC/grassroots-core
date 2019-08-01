@@ -34,7 +34,7 @@
 
 #include "linked_list.h"
 #include "mapped_parameter.h"
-
+#include "grassroots_server.h"
 
 /* forward declarations */
 struct ServiceJob;
@@ -79,6 +79,8 @@ typedef struct LinkedService
 
 	const json_t *ls_config_p;
 
+	GrassrootsServer *ls_grassroots_p;
+
 } LinkedService;
 
 
@@ -116,7 +118,7 @@ extern "C"
  * @return The newly-allocated LinkedService or <code>NULL</code> upon error.
  * @memberof LinkedService
  */
-GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s, const json_t *config_p);
+GRASSROOTS_SERVICE_API LinkedService *AllocateLinkedService (const char *linked_service_s, const char *input_key_s, const json_t *mapped_params_json_p, const char * const function_s, const json_t *config_p, GrassrootsServer *grassroots_p);
 
 
 /**

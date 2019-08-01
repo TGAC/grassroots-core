@@ -48,13 +48,13 @@ Plugin *CopyPlugin (const Plugin * const src_p)
 
 
 
-Plugin *AllocatePlugin (const char * const name_s, const char * const path_s, GrassrootsServer *server_p)
+Plugin *AllocatePlugin (const char * const path_s, GrassrootsServer *server_p)
 {
 	WindowsPlugin *plugin_p = (WindowsPlugin *) AllocMemory (sizeof (WindowsPlugin));
 
 	if (plugin_p)
 		{
-			InitBasePlugin ((Plugin *) plugin_p, name_s, path_s, server_p);
+			InitBasePlugin ((Plugin *) plugin_p, path_s, server_p);
 			plugin_p -> wp_handle = NULL;
 		}
 
@@ -85,22 +85,10 @@ void FreePlugin (Plugin * const plugin_p)
 
 
 
-BOOLEAN IsPluginOpen (const Plugin * const plugin_p)
-{
-	if ((plugin_p -> pl_path_s) || (plugin_p -> pl_module_p))
-		{
-			return TRUE;
-		}
-	else
-		{
-			return FALSE;
-		}
-}
-
-BOOLEAN OpenPlugin (Plugin * const plugin_p, char * const lib_path)
+bool OpenPlugin (Plugin * const plugin_p, char * const lib_path)
 {
 	WindowsPlugin *windows_plugin_p = (WindowsPlugin *) plugin_p;
-	BOOLEAN success_flag = FALSE;
+	bool success_flag = false;
 	
 	if (lib_path)
 		{
@@ -109,12 +97,12 @@ BOOLEAN OpenPlugin (Plugin * const plugin_p, char * const lib_path)
 					ClearPluginPath (plugin_p);
 				}
 
-			plugin_p -> pl_path_s = CopyToNewString (lib_path, 0, FALSE);
+			plugin_p -> pl_path_s = EasyCopyToNewString (lib_path);
 
 			if (plugin_p -> pl_path_s)
 				{
 					plugin_p -> pl_path_mem = MF_DEEP_COPY;
-					success_flag = TRUE;
+					success_flag = true;
 				}					
 		}
 		

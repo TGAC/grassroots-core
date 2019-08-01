@@ -60,11 +60,11 @@ static bool AddOperationInformationURIToJSON (Service * const service_p, json_t 
 
 static bool AddServiceUUIDToJSON (Service * const service_p, json_t *root_p);
 
-static uint32 GetMatchingServices (const char * const services_path_s, ServiceMatcher *matcher_p, UserDetails *user_p, LinkedList *services_list_p, bool multiple_match_flag);
+static uint32 GetMatchingServices (GrassrootsServer *grassroots_p, ServiceMatcher *matcher_p, UserDetails *user_p, LinkedList *services_list_p, bool multiple_match_flag);
 
-static uint32 GetMatchingReferrableServices (const char * const services_path_s, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag);
+static uint32 GetMatchingReferrableServices (GrassrootsServer *grassroots_p, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag);
 
-static uint32 FindMatchingServices (const char * const services_path_s, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag, bool native_services_flag);
+static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag, bool native_services_flag);
 
 static const char *GetPluginNameFromJSON (const json_t * const root_p);
 
@@ -151,7 +151,8 @@ bool InitialiseService (Service * const service_p,
 
 					if (service_name_s)
 						{
-							service_p -> se_data_p -> sd_config_p = GetGlobalServiceConfig (service_name_s, & (service_p -> se_data_p -> sd_config_flag));
+							GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+							service_p -> se_data_p -> sd_config_p = GetGlobalServiceConfig (grassroots_p, service_name_s, & (service_p -> se_data_p -> sd_config_flag));
 						}
 				}
 
@@ -596,27 +597,27 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 }
 
 
-static uint32 GetMatchingReferrableServices (const char * const services_path_s, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag)
+static uint32 GetMatchingReferrableServices (GrassrootsServer *grassroots_p, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag)
 {
-	return FindMatchingServices (services_path_s, matcher_p, user_p, reference_config_p, services_list_p, multiple_match_flag, false);
+	return FindMatchingServices (grassroots_p, matcher_p, user_p, reference_config_p, services_list_p, multiple_match_flag, false);
 }
 
 
-static uint32 GetMatchingServices (const char * const services_path_s, ServiceMatcher *matcher_p, UserDetails *user_p,  LinkedList *services_list_p, bool multiple_match_flag)
+static uint32 GetMatchingServices (GrassrootsServer *grassroots_p, ServiceMatcher *matcher_p, UserDetails *user_p,  LinkedList *services_list_p, bool multiple_match_flag)
 {
-	return FindMatchingServices (services_path_s, matcher_p, user_p, NULL, services_list_p, multiple_match_flag, true);
+	return FindMatchingServices (grassroots_p, matcher_p, user_p, NULL, services_list_p, multiple_match_flag, true);
 }
 
 
-static uint32 FindMatchingServices (const char * const services_path_s, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag, bool native_services_flag)
+static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatcher *matcher_p, UserDetails *user_p, const json_t *reference_config_p, LinkedList *services_list_p, bool multiple_match_flag, bool native_services_flag)
 {
 	uint32 num_matched_services = 0;
 	const char *plugin_pattern_s = GetPluginPattern ();
 	
 	if (plugin_pattern_s)
 		{
-			const char *root_path_s = GetServerRootDirectory ();
-			char *full_services_path_s = MakeFilename (root_path_s, services_path_s);
+			const char *root_path_s = GetServerRootDirectory (grassroots_p);
+			char *full_services_path_s = MakeFilename (root_path_s, "services");
 			
 			if (full_services_path_s)
 				{
@@ -632,7 +633,7 @@ static uint32 FindMatchingServices (const char * const services_path_s, ServiceM
 									
 									while (node_p)
 										{
-											Plugin *plugin_p = AllocatePlugin (node_p -> sln_string_s);
+											Plugin *plugin_p = AllocatePlugin (node_p -> sln_string_s, grassroots_p);
 										
 											if (plugin_p)
 												{
@@ -1102,7 +1103,8 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 
 			if (operation_p)
 				{
-					const SchemaVersion *sv_p = GetSchemaVersion ();
+					GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+					const SchemaVersion *sv_p = GetSchemaVersion (grassroots_p);
 
 					if (AddServiceParameterSetToJSON (service_p, operation_p, sv_p, true, resource_p, user_p))
 						{
@@ -1237,7 +1239,8 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 																{
 																	if (json_array_append_new (providers_array_p, copied_provider_p) == 0)
 																		{
-																			ServersManager *servers_manager_p = GetServersManager ();
+																			GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+																			ServersManager *servers_manager_p = GetServersManager (grassroots_p);
 																			PairedServiceNode *node_p = (PairedServiceNode *) (service_p -> se_paired_services.ll_head_p);
 
 																			while (node_p)
@@ -1850,7 +1853,8 @@ json_t *GetInterestedServiceJSON (Service *service_p, const char *keyword_s, con
 
 	if (res_p)
 		{
-			const SchemaVersion *sv_p = GetSchemaVersion ();
+			GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+			const SchemaVersion *sv_p = GetSchemaVersion (grassroots_p);
 			json_t *params_json_p = GetParameterSetAsJSON (params_p, sv_p, full_definition_flag);
 
 			if (params_json_p)
@@ -2071,6 +2075,12 @@ int32 GetNumberOfLiveJobs (Service *service_p)
 		}		/* if (service_p -> se_jobs_p) */
 
 	return num_live_jobs;
+}
+
+
+GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_p)
+{
+	return service_p -> se_plugin_p -> pl_server_p;
 }
 
 

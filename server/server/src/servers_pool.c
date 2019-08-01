@@ -51,7 +51,7 @@ void InitServersManager (ServersManager *manager_p,
 	manager_p -> sm_get_all_servers_fn = get_all_servers_fn;
 	manager_p -> sm_free_servers_manager_fn = free_servers_manager_fn;
 
-	s_servers_manager_p = manager_p;
+//	s_servers_manager_p = manager_p;
 }
 
 

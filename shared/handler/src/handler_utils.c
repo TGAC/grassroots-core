@@ -71,7 +71,7 @@ static const char * const S_OPEN_COUNT_KEY_S = "open_count";
 static json_t *s_mapped_filenames_p = NULL;
 
 
-static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const Resource * const resource_p, const UserDetails *user_p);
+static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const Resource * const resource_p, GrassrootsServer *server_p, const UserDetails *user_p);
 
 static json_t *GetMappedObject (const char *protocol_s, const char *user_id_s, const char *filename_s, const bool create_flag);
 
@@ -227,12 +227,11 @@ Handler *GetResourceHandler (const Resource *resource_p, GrassrootsServer *serve
 {
 	Handler *handler_p = NULL;
 	LinkedList *matching_handlers_p = NULL;
-	const char *root_path_s = GetServerRootDirectory (server_p);
-	char *handlers_path_s = MakeFilename (root_path_s, "handlers");
+	char *handlers_path_s = MakeFilename (server_p -> gs_path_s, "handlers");
 
 	if (handlers_path_s)
 		{
-			matching_handlers_p = LoadMatchingHandlers (handlers_path_s, resource_p, user_p);
+			matching_handlers_p = LoadMatchingHandlers (handlers_path_s, resource_p, server_p, user_p);
 
 			if (matching_handlers_p)
 				{
@@ -260,7 +259,7 @@ Handler *GetResourceHandler (const Resource *resource_p, GrassrootsServer *serve
 }
 
 
-static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const Resource * const resource_p, const UserDetails *user_p)
+static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const Resource * const resource_p, GrassrootsServer *server_p, const UserDetails *user_p)
 {
 	LinkedList *handlers_list_p = AllocateLinkedList (FreeHandlerNode);
 
@@ -283,7 +282,7 @@ static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, con
 
 									while (node_p)
 										{
-											Plugin *plugin_p = AllocatePlugin (node_p -> sln_string_s);
+											Plugin *plugin_p = AllocatePlugin (node_p -> sln_string_s, server_p);
 											bool using_handler_flag = false;
 
 											if (plugin_p)

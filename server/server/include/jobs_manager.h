@@ -60,6 +60,8 @@ JOBS_MANAGER_PREFIX const char *JOBS_MANAGERS_PATH_S JOBS_MANAGER_VAL("jobs_mana
 /* forward declaration */
 struct JobsManager;
 struct Plugin;
+struct GrassrootsServer;
+
 
 /**
  * A typedef'd function for serialising a ServiceJob into an
@@ -288,7 +290,7 @@ GRASSROOTS_SERVICE_MANAGER_API LinkedList *GetAllServiceJobsFromJobsManager (str
  * @return The loaded JobsManager or <code>NULL</code> upon error.
  * @memberof JobsManager
  */
-GRASSROOTS_SERVICE_MANAGER_API JobsManager *LoadJobsManager (const char *jobs_manager_s);
+GRASSROOTS_SERVICE_MANAGER_API JobsManager *LoadJobsManager (const char *jobs_manager_s, struct GrassrootsServer *server_p);
 
 
 #ifdef __cplusplus

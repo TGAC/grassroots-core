@@ -103,18 +103,6 @@ void FreePlugin (Plugin * const plugin_p)
 
 
 
-BOOLEAN IsPluginOpen (const Plugin * const plugin_p)
-{
-	if ((plugin_p -> pl_name_p) || (plugin_p -> pl_module_p))
-		{
-			return TRUE;
-		}
-	else
-		{
-			return FALSE;
-		}
-}
-
 BOOLEAN OpenPlugin (Plugin * const plugin_p, char * const lib_path)
 {
 	AmigaPlugin *amiga_plugin_p = (AmigaPlugin *) plugin_p;

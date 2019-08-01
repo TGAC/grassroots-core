@@ -27,8 +27,15 @@
 
 #include "jansson.h"
 
-#include "jobs_manager.h"
+
 #include "servers_pool.h"
+#include "schema_version.h"
+
+
+/*
+ * forward declarations
+ */
+struct JobsManager;
 
 
 typedef struct GrassrootsServer
@@ -37,7 +44,7 @@ typedef struct GrassrootsServer
 
 	char *gs_config_filename_s;
 
-	JobsManager *gs_jobs_manager_p;
+	struct JobsManager *gs_jobs_manager_p;
 
 	MEM_FLAG gs_job_manager_mem;
 
@@ -66,7 +73,7 @@ extern "C"
  * @memberof GrassrootsServer
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
+GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, struct JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
 
 
 /**
@@ -78,6 +85,29 @@ GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const
  */
 GRASSROOTS_SERVICE_MANAGER_API void FreeGrassrootsServer (GrassrootsServer *server_p);
 
+
+
+
+
+GRASSROOTS_SERVICE_MANAGER_API bool SetGrassrootsServerConfig (GrassrootsServer *server_p, const char *config_filename_s);
+
+
+
+GRASSROOTS_SERVICE_MANAGER_API bool InitGrassrootsServer (GrassrootsServer *server_p);
+
+
+/**
+ * Connect to any defined separate Grassroots servers.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_LOCAL void ConnectToExternalServers (GrassrootsServer *server_p);
+
+
+/**
+ * Disconnect to any defined separate Grassroots servers.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_LOCAL void DisconnectFromExternalServers (GrassrootsServer *server_p);
 
 
 
@@ -145,6 +175,31 @@ GRASSROOTS_SERVICE_MANAGER_API const SchemaVersion *GetSchemaVersion (Grassroots
  * @ingroup server_group
  */
 GRASSROOTS_SERVICE_MANAGER_API ServersManager *GetServersManager (GrassrootsServer *server_p);
+
+
+
+
+/**
+ * Get a configuration value for a named Service.
+ *
+ * The system will initially check the "config/<service_name>" folder
+ * within the Grassroots directory e.g. "config/BlastN Service" for the
+ * Service called "BlastN Service". If this file exists it will be loaded
+ * and produce the configuration value. If it does not exist or cannot be
+ * loaded then, the system will attempt to use an object specified at
+ * "services.<service_name>" in the global configuration file instead.
+ *
+ * @param service_name_s The name of the Service to get the configuration data for.
+ * @param alloc_flag_p If the returned JSON fragment has been newly-allocated then
+ * the value that this points to will be set to <code>true</code> to indicate that
+ * the returned value will need to have json_decref called upon it to avoid a
+ * memory leak.
+ * @return The JSON fragment containing the configuration data or <code>
+ * NULL</code> if it could not be loaded.
+ * @memberof GrassrootsServer
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API json_t *GetGlobalServiceConfig (GrassrootsServer *grassroots_p, const char * const service_name_s, bool *alloc_flag_p);
 
 
 
