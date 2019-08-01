@@ -87,6 +87,9 @@ typedef enum PluginNature
 	/** The Plugin creates a JobsManager. */
 	PN_JOBS_MANAGER,
 
+	/** The Plugin creates a ServersManager. */
+	PN_SERVERS_MANAGER,
+
 	/** The number of different PluginTypes */
 	PN_NUM_TYPES
 } PluginNature;
@@ -122,6 +125,14 @@ typedef union PluginValue
 	 * to a valid JobsManager.
 	 */
 	struct JobsManager *pv_jobs_manager_p;
+
+
+	/**
+	 * If pl_type is PN_SERVERS_MANAGER then this will point
+	 * to a valid JobsManager.
+	 */
+	struct ServersManager *pv_servers_manager_p;
+
 } PluginValue;
 
 

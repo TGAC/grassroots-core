@@ -85,7 +85,7 @@ GRASSROOTS_SERVICE_API const char *GetProviderLogo (const json_t * const data_p)
  * be JSON object. If there are multiple providers, then the returned value will be a JSON array
  * with each object representing each provider. Upon failure <code>NULL</code> will be returned.
  */
-GRASSROOTS_SERVICE_API const json_t *GetProviderDetails (const json_t *root_json_p);
+GRASSROOTS_SERVICE_API json_t *GetProviderDetails (const json_t *root_json_p);
 
 
 /**

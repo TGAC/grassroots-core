@@ -28,7 +28,6 @@ static json_t *s_config_p = NULL;
 static bool s_load_config_tried_flag = false;
 
 
-static const json_t *GetConfig (void);
 static const char *GetProviderElement (const char * const element_s);
 
 

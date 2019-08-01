@@ -36,6 +36,8 @@
 #include "operation.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
+#include "grassroots_server.h"
+
 
 /**
  * @brief A datatype to allow access to an external Grassroots Server
@@ -102,6 +104,7 @@ typedef struct ExternalServerNode
 
 /* forward declaration */
 struct ServersManager;
+struct GrassrootsServer;
 
 
 /**
@@ -138,6 +141,10 @@ typedef unsigned char *(*ExternalServerSerialiser) (ExternalServer *server_p, ui
  */
 typedef struct ServersManager
 {
+	/** The plugin that thjis JobsManager was loaded from. */
+	struct Plugin *sm_plugin_p;
+
+
 	/** The UUID for this Server */
 	uuid_t sm_server_id;
 
@@ -240,13 +247,19 @@ extern "C"
 #endif
 
 
+GRASSROOTS_SERVICE_MANAGER_API ServersManager *LoadServersManager (const char *servers_manager_s, struct GrassrootsServer *server_p);
+
+
+GRASSROOTS_SERVICE_MANAGER_LOCAL ServersManager *GetServersManagerFromPlugin (struct Plugin * const plugin_p);
+
+
 /**
  * Get the current Server uuid.
  *
  * @return The pointer to the uuid.
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API uuid_t *GetLocalServerId (void);
+GRASSROOTS_SERVICE_MANAGER_API uuid_t *GetLocalServerId (struct GrassrootsServer *grassroots_p);
 
 
 /**
@@ -255,7 +268,7 @@ GRASSROOTS_SERVICE_MANAGER_API uuid_t *GetLocalServerId (void);
  * @return The c-style string of the uuid.
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API const char *GetLocalServerIdAsString (void);
+GRASSROOTS_SERVICE_MANAGER_API const char *GetLocalServerIdAsString (struct GrassrootsServer *grassroots_p);
 
 
 /**
@@ -452,7 +465,7 @@ GRASSROOTS_SERVICE_MANAGER_API json_t *MakeRemoteJSONCallToExternalServer (Exter
  * @see SERVERS_S
  * @see ServersManager
  */
-GRASSROOTS_SERVICE_MANAGER_API bool AddExternalServerFromJSON (const json_t *json_p);
+GRASSROOTS_SERVICE_MANAGER_API bool AddExternalServerFromJSON (ServersManager *manager_p, const json_t *json_p);
 
 
 /**

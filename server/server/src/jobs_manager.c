@@ -27,10 +27,6 @@
 #include "string_utils.h"
 
 
-static JobsManager *s_jobs_manager_p = NULL;
-static Plugin *s_jobs_manager_plugin_p = NULL;
-
-
 
 //
 //	Get Symbol
@@ -59,19 +55,11 @@ JobsManager *GetJobsManagerFromPlugin (Plugin * const plugin_p)
 
 							plugin_p -> pl_value.pv_jobs_manager_p = manager_p;
 							plugin_p -> pl_type = PN_JOBS_MANAGER;
-
-							s_jobs_manager_plugin_p = plugin_p;
 						}
 				}
 		}
 
 	return manager_p;
-}
-
-
-JobsManager *GetJobsManager (void)
-{
-	return s_jobs_manager_p;
 }
 
 
@@ -89,8 +77,6 @@ void InitJobsManager (JobsManager *manager_p,
 	manager_p -> jm_remove_job_fn = remove_job_fn;
 	manager_p -> jm_get_all_jobs_fn = get_all_jobs_fn;
 	manager_p -> jm_delete_manager_fn = delete_manager_fn;
-
-	s_jobs_manager_p = manager_p;
 }
 
 

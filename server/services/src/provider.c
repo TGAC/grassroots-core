@@ -52,7 +52,7 @@ const char *GetProviderLogo (const json_t * const data_p)
 
 
 
-const json_t *GetProviderDetails (const json_t *root_json_p)
+json_t *GetProviderDetails (const json_t *root_json_p)
 {
 	json_t *provider_p = json_object_get (root_json_p, SERVER_PROVIDER_S);
 

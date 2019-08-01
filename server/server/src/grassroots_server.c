@@ -565,7 +565,7 @@ json_t *GetGlobalServiceConfig (GrassrootsServer *grassroots_p, const char * con
 
 	if (!res_p)
 		{
-			const json_t *config_p = GetConfig ();
+			const json_t *config_p = grassroots_p -> gs_config_p;
 
 			if (config_p)
 				{
@@ -667,19 +667,19 @@ void DisconnectFromExternalServers (GrassrootsServer *server_p)
 
 }
 
-void ConnectToExternalServers (GrassrootsServer *server_p)
+void ConnectToExternalServers (GrassrootsServer *grassroots_p)
 {
-	const json_t *config_p = GetConfig ();
+	json_t *servers_p = json_object_get (grassroots_p -> gs_config_p, SERVERS_S);
 
-	if (config_p)
+	if (servers_p)
 		{
-			json_t *servers_p = json_object_get (config_p, SERVERS_S);
+			ServersManager *manager_p = grassroots_p -> gs_servers_manager_p;
 
-			if (servers_p)
+			if (manager_p)
 				{
 					if (json_is_object (servers_p))
 						{
-							AddExternalServerFromJSON (servers_p);
+							AddExternalServerFromJSON (manager_p, servers_p);
 						}		/* if (json_is_object (json_p)) */
 					else if (json_is_array (servers_p))
 						{
@@ -688,13 +688,15 @@ void ConnectToExternalServers (GrassrootsServer *server_p)
 
 							json_array_foreach (servers_p, index, element_p)
 								{
-									AddExternalServerFromJSON (element_p);
+									AddExternalServerFromJSON (manager_p, element_p);
 								}
 						}
 
-				}		/* if (servers_p) */
+				}
 
-		}		/* if (s_config_p) */
+
+		}		/* if (servers_p) */
+
 }
 
 

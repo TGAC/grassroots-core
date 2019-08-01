@@ -23,6 +23,8 @@
 #include "json_tools.h"
 #include "key_value_pair.h"
 #include "provider.h"
+#include "plugin.h"
+#include "filesystem_utils.h"
 
 
 #ifdef _DEBUG
@@ -33,6 +35,42 @@
 
 
 static bool AddPairedServiceFromJSON (ExternalServer *server_p, json_t *paired_service_json_p);
+
+
+
+//
+//	Get Symbol
+//
+ServersManager *GetServersManagerFromPlugin (Plugin * const plugin_p)
+{
+	ServersManager *manager_p = NULL;
+
+	if (plugin_p -> pl_type == PN_SERVERS_MANAGER)
+		{
+			manager_p = plugin_p -> pl_value.pv_servers_manager_p;
+		}
+	else if (plugin_p -> pl_type == PN_UNKNOWN)
+		{
+			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetCustomServerssManager");
+
+			if (symbol_p)
+				{
+					ServersManager *(*fn_p) (void) = (ServersManager *(*) (void)) symbol_p;
+
+					manager_p = fn_p ();
+
+					if (manager_p)
+						{
+							manager_p -> sm_plugin_p = plugin_p;
+
+							plugin_p -> pl_value.pv_servers_manager_p = manager_p;
+							plugin_p -> pl_type = PN_SERVERS_MANAGER;
+						}
+				}
+		}
+
+	return manager_p;
+}
 
 
 void InitServersManager (ServersManager *manager_p,
@@ -55,16 +93,80 @@ void InitServersManager (ServersManager *manager_p,
 }
 
 
-const char *GetLocalServerIdAsString (void)
+
+
+ServersManager *LoadServersManager (const char *servers_manager_s, GrassrootsServer *server_p)
 {
-	ServersManager *manager_p = GetServersManager ();
+	char *plugin_name_s = MakePluginName (servers_manager_s);
+	ServersManager *manager_p = NULL;
+
+	if (plugin_name_s)
+		{
+			const char *root_path_s = server_p -> gs_path_s;
+			char file_sep_s [2];
+			char *full_servers_managers_path_s = NULL;
+
+			*file_sep_s = GetFileSeparatorChar ();
+			* (file_sep_s + 1) = '\0';
+
+			full_servers_managers_path_s = ConcatenateVarargsStrings (root_path_s, file_sep_s, "servers", file_sep_s, plugin_name_s, NULL);
+
+			if (full_servers_managers_path_s)
+				{
+					Plugin *plugin_p = AllocatePlugin (full_servers_managers_path_s, server_p);
+
+					if (plugin_p)
+						{
+							bool using_plugin_flag = false;
+
+							if (OpenPlugin (plugin_p))
+								{
+									manager_p = GetServersManagerFromPlugin (plugin_p);
+
+									if (manager_p)
+										{
+											using_plugin_flag = true;
+										}
+									else
+										{
+
+										}
+								}		/* if (OpenPlugin (plugin_p)) */
+							else
+								{
+
+								}
+
+							if (plugin_p && (!using_plugin_flag))
+								{
+									FreePlugin (plugin_p);
+								}
+
+
+						}		/* if (plugin_p) */
+
+					FreeCopiedString (full_servers_managers_path_s);
+				}		/* if (full_servers_managers_path_s) */
+
+			FreeCopiedString (plugin_name_s);
+		}		/* if (plugin_name_s) */
+
+	return manager_p;
+}
+
+
+
+
+const char *GetLocalServerIdAsString (GrassrootsServer *grassroots_p)
+{
+	ServersManager *manager_p = GetServersManager (grassroots_p);
 	return manager_p -> sm_server_id_s;
 }
 
 
-uuid_t *GetLocalServerId (void)
+uuid_t *GetLocalServerId (GrassrootsServer *grassroots_p)
 {
-	ServersManager *manager_p = GetServersManager ();
+	ServersManager *manager_p = GetServersManager (grassroots_p);
 	uuid_t *id_p = & (manager_p -> sm_server_id);
 
 	return id_p;
@@ -179,7 +281,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 																							 * the default one
 																							 */
 																							bool success_flag = true;
-																							const json_t *provider_p = GetProviderDetails (server_response_p);
+																							json_t *provider_p = GetProviderDetails (server_response_p);
 
 																							if (!provider_p)
 																								{
@@ -451,10 +553,9 @@ ExternalServer *CreateExternalServerFromJSON (const json_t *json_p)
 }
 
 
-bool AddExternalServerFromJSON (const json_t *json_p)
+bool AddExternalServerFromJSON (ServersManager *manager_p, const json_t *json_p)
 {
 	bool success_flag = false;
-	ServersManager *manager_p = GetServersManager ();
 	ExternalServer *server_p = CreateExternalServerFromJSON (json_p);
 
 	if (server_p)
