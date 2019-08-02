@@ -16,7 +16,7 @@
 
 #include "json_tools.h"
 #include "request_tools.h"
-#include "server.h"
+#include "grassroots_server.h"
 #include "json_util.h"
 #include "streams.h"
 #include "string_utils.h"
