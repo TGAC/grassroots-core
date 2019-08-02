@@ -28,22 +28,6 @@ static const char *GetProviderElement (const char * const element_s);
 
 
 
-bool InitConfig (void)
-{
-	InitSchemaVersionDetails ();
-
-	return (GetConfig () != NULL);
-}
-
-
-bool DestroyConfig (void)
-{
-	bool success_flag = true;
-
-	ClearDefaultSchemaVersionDetails ();
-
-	return success_flag;
-}
 
 
 json_t *GetGlobalConfigValue (const char *key_s)

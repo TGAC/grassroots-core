@@ -21,6 +21,8 @@
  */
 
 
+#include <string.h>
+
 #include "grassroots_server.h"
 #include "memory_allocations.h"
 #include "streams.h"
@@ -29,6 +31,11 @@
 #include "jobs_manager.h"
 #include "key_value_pair.h"
 #include "handler_utils.h"
+#include "time_util.h"
+#include "user.h"
+#include "provider.h"
+#include "grassroots_config.h"
+
 
 
 /*
@@ -64,9 +71,10 @@ static json_t *GetNamedServices (GrassrootsServer *grassroots_p, const json_t * 
 
 static json_t *GetNamedServiceInfo (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
 
-static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p));
 
-static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (json_t *services_p, uuid_t service_id, const char *uuid_s));
+static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p));
+
+static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (GrassrootsServer *grassroots_p, json_t *services_p, uuid_t service_id, const char *uuid_s));
 
 static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid);
 
@@ -86,7 +94,7 @@ static int32 AddPairedServices (GrassrootsServer *grassroots_p, Service *interna
 
 static int32 AddAllPairedServices (GrassrootsServer *grassroots_p, LinkedList *internal_services_p, UserDetails *user_p, ProvidersStateTable *providers_p);
 
-static json_t *GenerateServiceIndexingData (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p);
+static json_t *GenerateServiceIndexingData (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p);
 
 static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, Resource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
 
@@ -232,6 +240,12 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 
 
 	FreeMemory (server_p);
+}
+
+
+const char *GetServerRootDirectory (const GrassrootsServer * const grassroots_p)
+{
+	return grassroots_p -> gs_path_s;
 }
 
 
@@ -767,7 +781,7 @@ static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *se
 
 							if (services_p)
 								{
-									LoadMatchingServicesByName (services_p, SERVICES_PATH_S, service_name_s, user_p);
+									LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
 
 #if SERVER_DEBUG >= STM_LEVEL_FINEST
 									{
@@ -1055,7 +1069,7 @@ static json_t *GetInterestedServices (GrassrootsServer *grassroots_p, const json
 
 	if (resource_p)
 		{
-			Handler *handler_p = GetResourceHandler (grassroots_p, resource_p, user_p);
+			Handler *handler_p = GetResourceHandler (resource_p, grassroots_p, user_p);
 
 			if (handler_p)
 				{
@@ -1311,7 +1325,7 @@ static json_t *GetNamedServiceInfo (GrassrootsServer *grassroots_p, const json_t
 }
 
 
-static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p))
+static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p))
 {
 	json_t *res_p = NULL;
 	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
@@ -1338,7 +1352,7 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 								if (json_is_string (service_name_p))
 									{
 										service_name_s = json_string_value (service_name_p);
-										LoadMatchingServicesByName (services_p, SERVICES_PATH_S, service_name_s, user_p);
+										LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
 									}
 							}
 						}
@@ -1347,7 +1361,7 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 							if (json_is_string (service_name_p))
 								{
 									service_name_s = json_string_value (service_name_p);
-									LoadMatchingServicesByName (services_p, SERVICES_PATH_S, service_name_s, user_p);
+									LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
 								}
 						}
 				}
@@ -1358,7 +1372,7 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 
 					if (providers_p)
 						{
-							res_p = generate_json_fn (services_p, req_p, user_p, providers_p);
+							res_p = generate_json_fn (grassroots_p, services_p, req_p, user_p, providers_p);
 
 							FreeProvidersStateTable (providers_p);
 						}		/* if (providers_p) */
@@ -1403,7 +1417,7 @@ static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char *
 
 	if (services_p)
 		{
-			LoadMatchingServices (services_p, services_path_s, resource_p, handler_p, user_p);
+			LoadMatchingServices (grassroots_p, services_p, services_path_s, resource_p, handler_p, user_p);
 
 			if (services_p -> ll_size > 0)
 				{
@@ -1607,7 +1621,7 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 
 
 
-static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (json_t *services_p, uuid_t service_id, const char *uuid_s))
+static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (GrassrootsServer *grassroots_p, json_t *services_p, uuid_t service_id, const char *uuid_s))
 {
 	json_t *results_array_p = json_array ();
 
@@ -1633,7 +1647,7 @@ static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * co
 
 											if (ConvertStringToUUID (uuid_s, service_id))
 												{
-													if (callback_fn (results_array_p, service_id, uuid_s))
+													if (callback_fn (grassroots_p, results_array_p, service_id, uuid_s))
 														{
 															++ num_successes;
 														}
@@ -1947,7 +1961,7 @@ static int32 AddPairedServices (GrassrootsServer *grassroots_p, Service *interna
 }
 
 
-static json_t *GenerateServiceIndexingData (LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p)
+static json_t *GenerateServiceIndexingData (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p)
 {
 	if (services_p && (services_p -> ll_size > 0))
 		{

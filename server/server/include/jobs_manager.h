@@ -287,6 +287,9 @@ GRASSROOTS_SERVICE_MANAGER_API LinkedList *GetAllServiceJobsFromJobsManager (str
 GRASSROOTS_SERVICE_MANAGER_API JobsManager *LoadJobsManager (const char *jobs_manager_s, struct GrassrootsServer *server_p);
 
 
+GRASSROOTS_SERVICE_MANAGER_API struct GrassrootsServer *GetGrassrootsServerFromJobsManager (const JobsManager * const manager_p);
+
+
 #ifdef __cplusplus
 }
 #endif

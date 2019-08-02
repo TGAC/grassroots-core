@@ -548,7 +548,7 @@ GRASSROOTS_SERVICE_API json_t *CreateSerialisedJSONForServiceJobFromService (str
  * @return The matching Service or <code>NULL</code> if it could not be found.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API Service *GetServiceByName (const char * const service_name_s);
+GRASSROOTS_SERVICE_API Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s);
 
 
 /**
@@ -714,7 +714,7 @@ GRASSROOTS_SERVICE_API void FreeServiceNode (ListItem *node_p);
  * @param service_name_s The name of the Service to find.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  */
-GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (LinkedList *services_p, const char * const services_path_s, const char *service_name_s, UserDetails *user_p);
+GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, UserDetails *user_p);
 
 
 /**
@@ -726,7 +726,7 @@ GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (LinkedList *services_p, 
  * @param handler_p The Handler that is appropriate for the given Resource.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  */
-GRASSROOTS_SERVICE_API void LoadMatchingServices (LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p);
+GRASSROOTS_SERVICE_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p);
 
 
 /**
@@ -736,7 +736,7 @@ GRASSROOTS_SERVICE_API void LoadMatchingServices (LinkedList *services_p, const 
  * @param services_path_s The directory where the Service modules are stored.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  */
-GRASSROOTS_SERVICE_API void LoadKeywordServices (LinkedList *services_p, const char * const services_path_s, UserDetails *user_p);
+GRASSROOTS_SERVICE_API void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, UserDetails *user_p);
 
 
 /**
@@ -749,7 +749,7 @@ GRASSROOTS_SERVICE_API void LoadKeywordServices (LinkedList *services_p, const c
  * to Services list. If this is <code>NULL</code> then all possible reference Services will be added.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  */
-GRASSROOTS_SERVICE_API void AddReferenceServices (LinkedList *services_p, const char * const references_path_s, const char * const services_path_s, const char *operation_name_s, UserDetails *user_p);
+GRASSROOTS_SERVICE_API void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const references_path_s, const char * const services_path_s, const char *operation_name_s, UserDetails *user_p);
 
 
 /**

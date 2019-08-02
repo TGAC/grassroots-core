@@ -396,9 +396,9 @@ void FreeServiceNode (ListItem * const node_p)
  * Load any json stubs for external services that are used to configure generic services, 
  * e.g. web services
  */
-void AddReferenceServices (LinkedList *services_p, const char * const references_path_s, const char * const services_path_s, const char *operation_name_s, UserDetails *user_p)
+void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const references_path_s, const char * const services_path_s, const char *operation_name_s, UserDetails *user_p)
 {
-	const char *root_path_s = GetServerRootDirectory ();
+	const char *root_path_s = GetServerRootDirectory (grassroots_p);
 	char *full_references_path_s = MakeFilename (root_path_s, references_path_s);
 	
 	if (full_references_path_s)
@@ -445,7 +445,7 @@ void AddReferenceServices (LinkedList *services_p, const char * const references
 																{
 																	SetPluginNameForServiceMatcher (matcher_p, plugin_name_s);		
 																	
-																	num_added_services = GetMatchingReferrableServices (services_path_s, (ServiceMatcher *) matcher_p, user_p, services_json_p, services_p, true);
+																	num_added_services = GetMatchingReferrableServices (grassroots_p, (ServiceMatcher *) matcher_p, user_p, services_json_p, services_p, true);
 																}
 															else
 																{
@@ -507,14 +507,14 @@ void SetServiceJobCustomFunctions (Service *service_p, ServiceJob *job_p)
 }
 
 
-Service *GetServiceByName (const char * const service_name_s)
+Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s)
 {
 	Service *service_p = NULL;
 	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
 
 	if (services_p)
 		{
-			LoadMatchingServicesByName (services_p, SERVICES_PATH_S, service_name_s, NULL);
+			LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, NULL);
 
 			if (services_p -> ll_size == 1)
 				{
@@ -714,44 +714,44 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 }
 
 
-void LoadMatchingServicesByName (LinkedList *services_p, const char * const services_path_s, const char *service_name_s, UserDetails *user_p)
+void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, UserDetails *user_p)
 {
 	NameServiceMatcher matcher;
 	
 	InitOperationNameServiceMatcher (&matcher, service_name_s);
 	
 	/* Since we're after a service with a given name, we don't need multiple matches */
-	GetMatchingServices (services_path_s, & (matcher.nsm_base_matcher), user_p, services_p, false);
+	GetMatchingServices (grassroots_p, & (matcher.nsm_base_matcher), user_p, services_p, false);
 	
 	if (services_p -> ll_size == 0)
 		{
-			AddReferenceServices (services_p, REFERENCES_PATH_S, services_path_s, service_name_s, user_p);
+			AddReferenceServices (grassroots_p, services_p, REFERENCES_PATH_S, services_path_s, service_name_s, user_p);
 		}
 }
 
 
 
-void LoadMatchingServices (LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p)
+void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p)
 {
 	ResourceServiceMatcher matcher;
 	
 	InitResourceServiceMatcher (&matcher, resource_p, handler_p);
 	
-	GetMatchingServices (services_path_s, & (matcher.rsm_base_matcher), user_p, services_p, true);
+	GetMatchingServices (grassroots_p, & (matcher.rsm_base_matcher), user_p, services_p, true);
 		
-	AddReferenceServices (services_p, REFERENCES_PATH_S, services_path_s, NULL, user_p);
+	AddReferenceServices (grassroots_p, services_p, REFERENCES_PATH_S, services_path_s, NULL, user_p);
 }
 
 
-void LoadKeywordServices (LinkedList *services_p, const char * const services_path_s, UserDetails *user_p)
+void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, UserDetails *user_p)
 {
 	KeywordServiceMatcher matcher;
 
 	InitKeywordServiceMatcher (&matcher);
 
-	GetMatchingServices (services_path_s, & (matcher.ksm_base_matcher), user_p, services_p, true);
+	GetMatchingServices (grassroots_p, & (matcher.ksm_base_matcher), user_p, services_p, true);
 
-	AddReferenceServices (services_p, REFERENCES_PATH_S, services_path_s, NULL, user_p);
+	AddReferenceServices (grassroots_p, services_p, REFERENCES_PATH_S, services_path_s, NULL, user_p);
 }
 
 

@@ -284,7 +284,8 @@ bool CopyServiceJob (const ServiceJob *src_p, ServiceJob *dest_p)
 
 													if (DeepCopyValidJSON (src_p -> sj_linked_services_p, &linked_services_p))
 														{
-															Service *copied_service_p = GetServiceByName (service_name_s);
+															GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (src_p -> sj_service_p);
+															Service *copied_service_p = GetServiceByName (grassroots_p, service_name_s);
 
 															if (copied_service_p)
 																{
@@ -433,7 +434,8 @@ Service *GetServiceFromServiceJob (ServiceJob *job_p)
 {
 	if (! (job_p -> sj_service_p))
 		{
-			job_p -> sj_service_p = GetServiceByName (job_p -> sj_service_name_s);
+			GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+			job_p -> sj_service_p = GetServiceByName (grassroots_p, job_p -> sj_service_name_s);
 
 			if (! (job_p -> sj_service_p))
 				{
@@ -897,7 +899,8 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 
 							if (GetOperationStatusFromServiceJobJSON (job_json_p, &status))
 								{
-									Service *service_p = GetServiceByName (service_name_s);
+									GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+									Service *service_p = GetServiceByName (grassroots_p, service_name_s);
 
 									if (service_p)
 										{
@@ -996,7 +999,7 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 }
 
 
-ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
+ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer *grassroots_p)
 {
 	ServiceJob *job_p = NULL;
 	const char *service_name_s = GetJSONString (job_json_p, JOB_SERVICE_S);
@@ -1004,7 +1007,7 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p)
 	/* Check whether the job needs a custom deserialiser */
 	if (service_name_s)
 		{
-			Service *service_p = GetServiceByName (service_name_s);
+			Service *service_p = GetServiceByName (grassroots_p, service_name_s);
 
 			if (service_p)
 				{

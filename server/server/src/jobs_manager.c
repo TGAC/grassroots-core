@@ -25,7 +25,7 @@
 #include "jobs_manager.h"
 #include "service_config.h"
 #include "string_utils.h"
-
+#include "grassroots_server.h"
 
 
 //
@@ -146,7 +146,7 @@ JobsManager *LoadJobsManager (const char *jobs_manager_s, GrassrootsServer *serv
 
 	if (plugin_name_s)
 		{
-			const char *root_path_s = GetServerRootDirectory (server_p);
+			const char *root_path_s = server_p -> gs_path_s;
 			char file_sep_s [2];
 			char *full_jobs_managers_path_s = NULL;
 
@@ -196,6 +196,12 @@ JobsManager *LoadJobsManager (const char *jobs_manager_s, GrassrootsServer *serv
 		}		/* if (plugin_name_s) */
 
 	return manager_p;
+}
+
+
+struct GrassrootsServer *GetGrassrootsServerFromJobsManager (const JobsManager * const manager_p)
+{
+	return manager_p -> jm_plugin_p -> pl_server_p;
 }
 
 

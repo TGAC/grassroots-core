@@ -557,7 +557,7 @@ GRASSROOTS_SERVICE_API bool ProcessServiceJobSet (ServiceJobSet *jobs_p, json_t 
  * @see SetServiceJobFromJSON
  *
  */
-GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromJSON (const json_t *json_p);
+GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer *grassroots_p);
 
 
 /**

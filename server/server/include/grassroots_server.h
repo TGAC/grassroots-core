@@ -187,6 +187,10 @@ GRASSROOTS_SERVICE_MANAGER_API struct ServersManager *GetServersManager (Grassro
 
 
 
+
+GRASSROOTS_SERVICE_MANAGER_API const char *GetServerRootDirectory (const GrassrootsServer * const grassroots_p);
+
+
 /**
  * Get a configuration value for a named Service.
  *

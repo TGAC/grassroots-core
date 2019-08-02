@@ -38,30 +38,6 @@
 #endif
 
 
-
-/**
- * Load the global configuration and set the default
- * SchemaVersion to use.
- *
- * @return <code>true</code> if the configuration was successfully
- * loaded, <code>false</code> otherwise.
- * @ingroup server_group
- */
-GRASSROOTS_SERVICE_MANAGER_LOCAL bool InitConfig (void);
-
-
-/**
- * Free the global configuration and the default
- * SchemaVersion.
- *
- * @return <code>true</code> if the data was successfully
- * freed, <code>false</code> otherwise.
- * @ingroup server_group
- */
-GRASSROOTS_SERVICE_MANAGER_LOCAL bool DestroyConfig (void);
-
-
-
 /**
  * Get a configuration value from the global Grassroots configuration file.
  *
