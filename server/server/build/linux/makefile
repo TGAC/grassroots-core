@@ -41,7 +41,6 @@ SRCS 	= \
 	jobs_manager.c \
 	system_util.c \
 	servers_pool.c \
-	grassroots_config.c \
 	grassroots_server.c \
 	plugin.c \
 	unix_platform.c \

@@ -30,7 +30,6 @@
 #include "json_util.h"
 #include "streams.h"
 #include "service_job.h"
-#include "grassroots_config.h"
 #include "paired_service.h"
 #include "linked_service.h"
 #include "servers_pool.h"
@@ -546,9 +545,10 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 			if (*service_pp)
 				{
 					Service *service_p = *service_pp;
+					GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
 					const char *service_name_s = GetServiceName (service_p);
 
-					if (IsServiceEnabled (service_name_s))
+					if (IsServiceEnabled (grassroots_p, service_name_s))
 						{
 							bool using_service_flag = RunServiceMatcher (matcher_p, service_p);
 							
@@ -1220,7 +1220,8 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 
 					if (success_flag)
 						{
-							const json_t *provider_p = GetProviderAsJSON ();
+							GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+							const json_t *provider_p = GetProviderAsJSON (grassroots_p);
 
 							if (provider_p)
 								{

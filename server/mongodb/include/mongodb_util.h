@@ -29,8 +29,9 @@
 #define MONGO_DB_UTIL_H_
 
 #include "mongodb_library.h"
-
+#include "grassroots_server.h"
 #include "typedefs.h"
+
 
 #ifdef __cplusplus
 	extern "C" {
@@ -45,7 +46,7 @@
  * <code>false</code> otherwise.
  * @ingroup server_group
  */
-GRASSROOTS_MONGODB_API bool InitMongoDB (void);
+GRASSROOTS_MONGODB_API bool InitMongoDB (GrassrootsServer *grassroots_p);
 
 
 /**

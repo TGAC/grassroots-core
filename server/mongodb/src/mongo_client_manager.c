@@ -29,7 +29,7 @@
 #include "mongo_client_manager.h"
 #include "memory_allocations.h"
 #include "json_tools.h"
-#include "grassroots_config.h"
+#include "grassroots_server.h"
 #include "json_util.h"
 #include "streams.h"
 
@@ -123,13 +123,13 @@ static void FreeMongoClientManager (MongoClientManager *manager_p)
 }
 
 
-bool InitMongoClientManager (void)
+bool InitMongoClientManager (GrassrootsServer *grassroots_p)
 {
 	bool success_flag = false;
 
 	if (!s_manager_p)
 		{
-			const json_t *mongo_config_p = GetGlobalConfigValue ("mongodb");
+			const json_t *mongo_config_p = GetGlobalConfigValue (grassroots_p, "mongodb");
 
 			if (mongo_config_p)
 				{

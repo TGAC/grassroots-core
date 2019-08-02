@@ -171,6 +171,76 @@ GRASSROOTS_SERVICE_MANAGER_API json_t *GetInitialisedResponseOnServer (Grassroot
 
 
 
+/**
+ * Get a configuration value from the global Grassroots configuration file.
+ *
+ * @param key_s The key to get the associated value for.
+ * @return The JSON fragment containing the configuration data or <code>
+ * NULL</code> if it could not be found.
+ * @memberof GrassrootsServer
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API json_t *GetGlobalConfigValue (const GrassrootsServer *grassroots_p, const char *key_s);
+
+
+/**
+ * Get the Provider name for this Grassroots Server.
+ *
+ * @return The Provider name.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API const char *GetServerProviderName (const GrassrootsServer *grassroots_p);
+
+
+/**
+ * Get the Provider description for this Grassroots Server.
+ *
+ * @return The Provider description.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API const char *GetServerProviderDescription (const GrassrootsServer *grassroots_p);
+
+
+/**
+ * Get the Provider URI for this Grassroots Server.
+ *
+ * @return The Provider URI.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API const char *GetServerProviderURI (const GrassrootsServer *grassroots_p);
+
+
+/**
+ * Get the JSON fragment with all of the details of the Provider
+ * for this Grassroots Server.
+ *
+ * @return A read-only JSON representation of the Provider
+ * or <code>NULL</code> upon error.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API const json_t *GetProviderAsJSON (const GrassrootsServer *grassroots_p);
+
+
+/**
+ * Check if a named Service is enabled upon this Grassroots server.
+ *
+ * @param service_name_s The name of the Service to check.
+ * @return <code>true</code> if the named Service is enabled, <code>false</code> otherwise.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API bool IsServiceEnabled (const GrassrootsServer *grassroots_p, const char *service_name_s);
+
+
+
+/**
+ * Get the job logging URI for this Grassroots Server.
+ *
+ * @return The job logging URI.
+ * @ingroup server_group
+ */
+GRASSROOTS_SERVICE_MANAGER_API const char *GetJobLoggingURI (const GrassrootsServer *grassroots_p);
+
+
 GRASSROOTS_SERVICE_MANAGER_API const SchemaVersion *GetSchemaVersion (GrassrootsServer *server_p);
 
 

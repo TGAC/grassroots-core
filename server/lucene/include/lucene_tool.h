@@ -29,7 +29,7 @@
 #include "string_hash_table.h"
 #include "linked_list.h"
 #include "lucene_document.h"
-
+#include "grassroots_server.h"
 
 
 /**
@@ -103,7 +103,7 @@ extern "C"
  * @return A newly-allocated LuceneTool or <code>NULL</code> upon error.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (uuid_t id);
+GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id);
 
 
 /**

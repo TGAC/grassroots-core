@@ -29,6 +29,7 @@
 
 #include "typedefs.h"
 #include "mongodb_library.h"
+#include "grassroots_server.h"
 
 
 /* forward declaration */
@@ -41,7 +42,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_MONGODB_LOCAL bool InitMongoClientManager (void);
+GRASSROOTS_MONGODB_LOCAL bool InitMongoClientManager (GrassrootsServer *grassroots_p);
 
 
 GRASSROOTS_MONGODB_LOCAL void ExitMongoClientManager (void);

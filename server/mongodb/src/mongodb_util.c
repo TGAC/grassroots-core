@@ -23,20 +23,20 @@
 #include "mongodb_util.h"
 #include "memory_allocations.h"
 #include "json_tools.h"
-#include "grassroots_config.h"
+#include "grassroots_server.h"
 #include "json_util.h"
 #include "streams.h"
 #include "mongo_client_manager.h"
 #include "mongoc.h"
 
 
-bool InitMongoDB (void)
+bool InitMongoDB (GrassrootsServer *grassroots_p)
 {
 	bool b;
 
 	mongoc_init ();
 
-	b = InitMongoClientManager();
+	b = InitMongoClientManager (grassroots_p);
 
 	if (!b)
 		{

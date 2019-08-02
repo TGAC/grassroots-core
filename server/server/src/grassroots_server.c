@@ -754,12 +754,107 @@ void ConnectToExternalServers (GrassrootsServer *grassroots_p)
 }
 
 
+json_t *GetGlobalConfigValue (const GrassrootsServer *grassroots_p, const char *key_s)
+{
+	json_t *value_p = json_object_get (grassroots_p -> gs_config_p, key_s);
+
+	return value_p;
+}
+
+
+const char *GetServerProviderName (const GrassrootsServer *grassroots_p)
+{
+	return GetProviderElement (grassroots_p, PROVIDER_NAME_S);
+}
+
+
+const char *GetServerProviderDescription (const GrassrootsServer *grassroots_p)
+{
+	return GetProviderElement (grassroots_p, PROVIDER_DESCRIPTION_S);
+}
+
+
+const char *GetServerProviderURI (const GrassrootsServer *grassroots_p)
+{
+	return GetProviderElement (grassroots_p, PROVIDER_URI_S);
+}
+
+
+const json_t *GetProviderAsJSON (const GrassrootsServer *grassroots_p)
+{
+	const json_t *provider_p = GetProviderDetails (grassroots_p -> gs_config_p);
+
+	return provider_p;
+}
+
+
+const char *GetJobLoggingURI (const GrassrootsServer *grassroots_p)
+{
+	const char *uri_s = NULL;
+	const json_t *jobs_p = GetCompoundJSONObject (grassroots_p -> gs_config_p, "admin.jobs");
+
+	if (jobs_p)
+		{
+			uri_s = GetJSONString (jobs_p, "uri");
+		}
+
+	return uri_s;
+}
+
+
+bool IsServiceEnabled (const GrassrootsServer *grassroots_p, const char *service_name_s)
+{
+	bool enabled_flag = true;
+	const json_t *services_config_p = GetGlobalConfigValue (grassroots_p, SERVICES_NAME_S);
+
+	if (services_config_p)
+		{
+			const json_t *service_statuses_p = json_object_get (services_config_p, SERVICES_STATUS_S);
+
+			if (service_statuses_p)
+				{
+					const json_t *service_p = json_object_get (service_statuses_p, service_name_s);
+
+					GetJSONBoolean (service_statuses_p, SERVICES_STATUS_DEFAULT_S, &enabled_flag);
+
+					if (service_p)
+						{
+							if (json_is_true (service_p))
+								{
+									enabled_flag = true;
+								}
+							else if (json_is_false (service_p))
+								{
+									enabled_flag = false;
+								}
+
+						}		/* if (service_p) */
+
+				}		/* if (service_statuses_p) */
+
+		}		/* if (services_config_p) */
+
+	return enabled_flag;
+}
 
 
 /*
  * STATIC DEFINITIONS
  */
 
+
+static const char *GetProviderElement (const GrassrootsServer *grassroots_p, const char * const element_s)
+{
+	const char *result_s = NULL;
+	const json_t *provider_p = GetProviderAsJSON (grassroots_p);
+
+	if (provider_p)
+		{
+			result_s = GetJSONString (provider_p, element_s);
+		}
+
+	return result_s;
+}
 
 
 static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid)

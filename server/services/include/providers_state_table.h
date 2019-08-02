@@ -31,6 +31,8 @@
 #include "grassroots_service_library.h"
 #include "json_tools.h"
 #include "json_util.h"
+#include "grassroots_server.h"
+
 
 /**
  * This is a datatype that is used to keep track of which servers
@@ -97,7 +99,7 @@ GRASSROOTS_SERVICE_API void FreeProvidersStateTable (ProvidersStateTable *provid
  * @see AddServicesListToProvidersStateTable
  * @memberof ProvidersStateTable
  */
-GRASSROOTS_SERVICE_API ProvidersStateTable *GetInitialisedProvidersStateTable (const json_t *req_p, LinkedList *services_p);
+GRASSROOTS_SERVICE_API ProvidersStateTable *GetInitialisedProvidersStateTable (const json_t *req_p, LinkedList *services_p, GrassrootsServer *grassroots_p);
 
 
 /**
@@ -179,7 +181,7 @@ GRASSROOTS_SERVICE_API json_t *GetAvailableServicesRequestForAllProviders (const
  * @return <code>true</code> if the Services were added successfully or <code>false</code> upon error.
  * @memberof ProvidersStateTable
  */
-GRASSROOTS_SERVICE_API bool AddServicesListToProvidersStateTable (ProvidersStateTable *providers_p, LinkedList *services_p);
+GRASSROOTS_SERVICE_API bool AddServicesListToProvidersStateTable (ProvidersStateTable *providers_p, LinkedList *services_p, GrassrootsServer *grassroots_p);
 
 
 /**

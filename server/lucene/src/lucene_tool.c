@@ -21,7 +21,7 @@
 #include "lucene_tool.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
-#include "grassroots_config.h"
+#include "grassroots_server.h"
 #include "byte_buffer.h"
 #include "json_util.h"
 #include "key_value_pair.h"
@@ -35,13 +35,13 @@ static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p);
 static bool AddNumericArgument (ByteBuffer *buffer_p, const char * const key_s, const uint32 value, const uint32 default_value);
 
 
-LuceneTool *AllocateLuceneTool (uuid_t id)
+LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 {
 	LuceneTool *tool_p = (LuceneTool *) AllocMemory (sizeof (LuceneTool));
 
 	if (tool_p)
 		{
-			const json_t *lucene_config_p = GetGlobalConfigValue ("lucene");
+			const json_t *lucene_config_p = GetGlobalConfigValue (grassroots_p, "lucene");
 
 			if (lucene_config_p)
 				{

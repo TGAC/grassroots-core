@@ -26,7 +26,7 @@
 #include "json_util.h"
 #include "streams.h"
 #include "provider.h"
-#include "grassroots_config.h"
+#include "grassroots_server.h"
 
 
 #include "service.h"
@@ -140,7 +140,7 @@ ProvidersStateTable *GetInitialisedProvidersStateTableForSingleService (const js
 }
 
 
-ProvidersStateTable *GetInitialisedProvidersStateTable (const json_t *req_p, LinkedList *services_p)
+ProvidersStateTable *GetInitialisedProvidersStateTable (const json_t *req_p, LinkedList *services_p, GrassrootsServer *grassroots_p)
 {
 	ProvidersStateTable *providers_p = AllocateProvidersStateTable (req_p);
 
@@ -150,7 +150,7 @@ ProvidersStateTable *GetInitialisedProvidersStateTable (const json_t *req_p, Lin
 
 			if (services_p)
 				{
-					success_flag = AddServicesListToProvidersStateTable (providers_p, services_p);
+					success_flag = AddServicesListToProvidersStateTable (providers_p, services_p, grassroots_p);
 				}
 
 			if (success_flag)
@@ -218,10 +218,10 @@ bool ClearProvidersStateTable (ProvidersStateTable *providers_p)
 }
 
 
-bool AddServicesListToProvidersStateTable (ProvidersStateTable *providers_p, LinkedList *services_p)
+bool AddServicesListToProvidersStateTable (ProvidersStateTable *providers_p, LinkedList *services_p, GrassrootsServer *grassroots_p)
 {
 	bool success_flag = false;
-	const char *server_s = GetServerProviderURI ();
+	const char *server_s = GetServerProviderURI (grassroots_p);
 
 	if (server_s)
 		{

@@ -27,7 +27,7 @@
 #include "memory_allocations.h"
 #include "streams.h"
 #include "json_tools.h"
-#include "grassroots_config.h"
+#include "grassroots_server.h"
 #include "json_util.h"
 #include "search_options.h"
 #include "sql_clause.h"
