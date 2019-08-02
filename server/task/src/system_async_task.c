@@ -149,9 +149,10 @@ bool RunSystemAsyncTask (SystemAsyncTask *task_p)
 static void *RunAsyncSystemTaskHook (void *data_p)
 {
 	SystemAsyncTask *task_p = ((SystemAsyncTask *) data_p);
-	JobsManager *jobs_manager_p = GetJobsManager ();
-	OperationStatus status = OS_STARTED;
 	ServiceJob *job_p = task_p -> std_service_job_p;
+	GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+	JobsManager *jobs_manager_p = GetJobsManager (grassroots_p);
+	OperationStatus status = OS_STARTED;
 	char uuid_s [UUID_STRING_BUFFER_SIZE];
 
 	ConvertUUIDToString (job_p -> sj_id, uuid_s);
