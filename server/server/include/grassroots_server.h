@@ -46,7 +46,7 @@ typedef struct GrassrootsServer
 
 	struct JobsManager *gs_jobs_manager_p;
 
-	MEM_FLAG gs_job_manager_mem;
+	MEM_FLAG gs_jobs_manager_mem;
 
 	struct ServersManager *gs_servers_manager_p;
 
@@ -86,6 +86,14 @@ GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const
 GRASSROOTS_SERVICE_MANAGER_API void FreeGrassrootsServer (GrassrootsServer *server_p);
 
 
+
+/**
+ * Get the current Server-wide JobsManager.
+ *
+ * @return The JobsManager.
+ * @memberof JobsManager
+ */
+GRASSROOTS_SERVICE_MANAGER_API struct JobsManager *GetJobsManager (GrassrootsServer *grassroots_p);
 
 
 

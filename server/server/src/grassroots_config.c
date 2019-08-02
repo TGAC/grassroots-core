@@ -24,10 +24,6 @@
 #include "provider.h"
 
 
-static json_t *s_config_p = NULL;
-static bool s_load_config_tried_flag = false;
-
-
 static const char *GetProviderElement (const char * const element_s);
 
 
@@ -43,11 +39,6 @@ bool InitConfig (void)
 bool DestroyConfig (void)
 {
 	bool success_flag = true;
-
-	if (s_config_p)
-		{
-			json_decref (s_config_p);
-		}
 
 	ClearDefaultSchemaVersionDetails ();
 

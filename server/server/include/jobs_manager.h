@@ -172,13 +172,7 @@ typedef struct JobsManager
 	extern "C" {
 #endif
 
-/**
- * Get the current Server-wide JobsManager.
- *
- * @return The JobsManager.
- * @memberof JobsManager
- */
-GRASSROOTS_SERVICE_MANAGER_API JobsManager *GetJobsManager (void);
+
 
 
 /**
