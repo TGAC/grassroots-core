@@ -20,7 +20,6 @@
 #include "handler_utils.h"
 #include "streams.h"
 #include "jobs_manager.h"
-#include "grassroots_config.h"
 #include "string_utils.h"
 #include "service_config.h"
 #include "mongodb_util.h"
@@ -41,7 +40,7 @@ static bool s_is_multi_process_system_flag = false;
 
 
 
-bool InitInformationSystem (void)
+bool InitInformationSystem (GrassrootsServer *grassroots_p)
 {
 	bool res_flag = false;
 
@@ -53,21 +52,13 @@ bool InitInformationSystem (void)
 
 					if (c == 0)
 						{
-							if (InitConfig ())
+							if (InitMongoDB (grassroots_p))
 								{
-									if (InitMongoDB ())
-										{
-											res_flag = true;
-										}		/* if (InitMongoDB ()) */
-									else
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitMongoDB failed");
-										}
-
-								}		/* if (InitConfig ()) */
+									res_flag = true;
+								}		/* if (InitMongoDB ()) */
 							else
 								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitConfig failed");
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitMongoDB failed");
 								}
 
 							#ifdef DRMAA_ENABLED
@@ -77,11 +68,10 @@ bool InitInformationSystem (void)
 								}
 							#endif
 
-
 							#ifdef IRODS_ENABLED
 							if (res_flag)
 								{
-									InitRodsEnv ();
+									InitRodsEnv (grassroots_p);
 								}
 							#endif
 						}		/* if (c == 0) */
@@ -116,7 +106,6 @@ bool DestroyInformationSystem (void)
 
 	//FreeExternalServers ();
 	ExitMongoDB ();
-	DestroyConfig ();
 
 
 	curl_global_cleanup ();

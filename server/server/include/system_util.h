@@ -23,6 +23,7 @@
 
 #include "grassroots_service_manager_library.h"
 #include "typedefs.h"
+#include "grassroots_server.h"
 
 #ifdef __cplusplus
 	extern "C" {
@@ -37,7 +38,7 @@
  * initialised, <code>false</code> otherwise.
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API bool InitInformationSystem (void);
+GRASSROOTS_SERVICE_MANAGER_API bool InitInformationSystem (GrassrootsServer *grassroots_p);
 
 
 /**

@@ -29,7 +29,6 @@
 #include "connection.h"
 #include "service_config.h"
 #include "json_tools.h"
-#include "grassroots_config.h"
 #include "grassroots_server.h"
 #include "service.h"
 
@@ -42,7 +41,8 @@ static json_t *AddServiceJobToJSON (ServiceJob *job_p, json_t *req_p);
 bool LogServiceJob (ServiceJob *job_p)
 {
 	bool success_flag = false;
-	const char *uri_s = GetJobLoggingURI ();
+	GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+	const char *uri_s = GetJobLoggingURI (grassroots_p);
 
 	if (uri_s)
 		{
@@ -82,7 +82,8 @@ bool LogServiceJob (ServiceJob *job_p)
 bool LogParameterSet (ParameterSet *params_p, ServiceJob *job_p)
 {
 	bool success_flag = false;
-	const char *uri_s = GetJobLoggingURI ();
+	GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+	const char *uri_s = GetJobLoggingURI (grassroots_p);
 
 	if (uri_s)
 		{

@@ -17,7 +17,6 @@
 #include <stdio.h>
 
 #include "irods_util.h"
-#include "grassroots_config.h"
 
 
 #include "typedefs.h"
@@ -25,9 +24,9 @@
 
 
 
-void InitRodsEnv (void)
+void InitRodsEnv (GrassrootsServer *grassroots_p)
 {
-	json_t *config_p = GetGlobalConfigValue ("irods");
+	json_t *config_p = GetGlobalConfigValue (grassroots_p, "irods");
 
 	if (config_p)
 		{

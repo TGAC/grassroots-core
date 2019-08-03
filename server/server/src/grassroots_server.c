@@ -34,8 +34,6 @@
 #include "time_util.h"
 #include "user.h"
 #include "provider.h"
-#include "grassroots_config.h"
-
 
 
 /*
@@ -102,6 +100,7 @@ static bool IsRequiredExternalOperation (const json_t *external_op_p, const char
 
 static Resource *GetResourceOfInterest (const json_t * const req_p);
 
+static const char *GetProviderElement (const GrassrootsServer *grassroots_p, const char * const element_s);
 
 /*
  * API DEFINITIONS
@@ -896,7 +895,7 @@ static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *se
 
 									if (services_p -> ll_size == 1)
 										{
-											const char *server_uri_s = GetServerProviderURI ();
+											const char *server_uri_s = GetServerProviderURI (grassroots_p);
 											ProvidersStateTable *providers_p = GetInitialisedProvidersStateTableForSingleService (paired_servers_req_p, server_uri_s, service_name_s);
 
 											if (providers_p)
@@ -1463,7 +1462,7 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 
 			if (services_p -> ll_size > 0)
 				{
-					ProvidersStateTable *providers_p = GetInitialisedProvidersStateTable (req_p, services_p);
+					ProvidersStateTable *providers_p = GetInitialisedProvidersStateTable (req_p, services_p, grassroots_p);
 
 					if (providers_p)
 						{
@@ -1516,7 +1515,7 @@ static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char *
 
 			if (services_p -> ll_size > 0)
 				{
-					if (AddServicesListToProvidersStateTable (providers_p, services_p))
+					if (AddServicesListToProvidersStateTable (providers_p, services_p, grassroots_p))
 						{
 							AddAllPairedServices (grassroots_p, services_p, user_p, providers_p);
 

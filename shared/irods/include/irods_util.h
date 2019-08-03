@@ -34,6 +34,7 @@
 #include "rodsPath.h"
 #include "parseCommandLine.h"
 #include "irods_util_library.h"
+#include "grassroots_server.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -42,7 +43,7 @@ extern "C"
 
 
 
-IRODS_UTIL_API void InitRodsEnv (void);
+IRODS_UTIL_API void InitRodsEnv (GrassrootsServer *grassroots_p);
 
 
 IRODS_UTIL_API int PutAndCheckForServices (rcComm_t **connection_pp, rodsEnv *env_p, rodsArguments_t *args_p, rodsPathInp_t *path_inp_p);
