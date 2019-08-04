@@ -482,7 +482,9 @@ GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
 	Synchronicity synchronous,
 	ServiceData *data_p,
 	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p),
-	json_t *(*get_indexing_data_fn) (struct Service *service_p));
+	json_t *(*get_indexing_data_fn) (struct Service *service_p),
+	GrassrootsServer *grassroots_p
+);
 
 
 /**
@@ -888,7 +890,7 @@ GRASSROOTS_SERVICE_API bool AddServiceResponseHeader (Service *service_p, json_t
  * @return The ServicesArray containing the generated Services or <code>NULL</code> upon error.
  * @memberof ServicesArray
  */
-GRASSROOTS_SERVICE_API ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i));
+GRASSROOTS_SERVICE_API ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p);
 
 
 /**

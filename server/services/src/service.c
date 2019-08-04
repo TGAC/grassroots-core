@@ -71,7 +71,8 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 
 static void GenerateServiceUUID (Service *service_p);
 
-static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i));
+
+static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p);
 
 static  uint32 AddLinkedServices (Service *service_p);
 
@@ -97,7 +98,8 @@ bool InitialiseService (Service * const service_p,
 	Synchronicity synchronous,
 	ServiceData *data_p,
 	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p),
-	json_t *(*get_indexing_data_fn) (struct Service *service_p))
+	json_t *(*get_indexing_data_fn) (struct Service *service_p),
+	GrassrootsServer *grassroots_p)
 {
 	bool success_flag = false;
 
@@ -150,7 +152,6 @@ bool InitialiseService (Service * const service_p,
 
 					if (service_name_s)
 						{
-							GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
 							service_p -> se_data_p -> sd_config_p = GetGlobalServiceConfig (grassroots_p, service_name_s, & (service_p -> se_data_p -> sd_config_flag));
 						}
 				}
@@ -957,9 +958,9 @@ ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, UserDetails *user
 
 			if (symbol_p)
 				{
-					ServicesArray *(*fn_p) (UserDetails *) = (ServicesArray *(*) (UserDetails *)) symbol_p;
+					ServicesArray *(*fn_p) (UserDetails *, GrassrootsServer *) = (ServicesArray *(*) (UserDetails *, GrassrootsServer *)) symbol_p;
 
-					services_p = fn_p (user_p);
+					services_p = fn_p (user_p, plugin_p -> pl_server_p);
 
 					if (services_p)
 						{
@@ -1240,7 +1241,6 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 																{
 																	if (json_array_append_new (providers_array_p, copied_provider_p) == 0)
 																		{
-																			GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
 																			ServersManager *servers_manager_p = GetServersManager (grassroots_p);
 																			PairedServiceNode *node_p = (PairedServiceNode *) (service_p -> se_paired_services.ll_head_p);
 
@@ -1806,7 +1806,7 @@ static int CompareServicesByName (const void *v0_p, const void *v1_p)
 }
 
 
-ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i))
+ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p)
 {
 	ServicesArray *services_p = NULL;
 
@@ -1818,7 +1818,7 @@ ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugi
 		{
 			if (json_is_object (config_p))
 				{
-					services_p = GetServiceFromConfigJSON (config_p, plugin_name_s, get_service_fn);
+					services_p = GetServiceFromConfigJSON (config_p, plugin_name_s, get_service_fn, grassroots_p);
 				}
 			else if (json_is_array (config_p))
 				{
@@ -2085,7 +2085,7 @@ GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_
 }
 
 
-static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i))
+static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p)
 {
 	ServicesArray *services_p = NULL;
 
@@ -2122,7 +2122,7 @@ static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, 
 
 															if (copied_op_p)
 																{
-																	Service *service_p = get_service_fn (copied_op_p, i);
+																	Service *service_p = get_service_fn (copied_op_p, i, grassroots_p);
 
 																	if (service_p)
 																		{
@@ -2159,7 +2159,7 @@ static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, 
 
 													if (copied_service_config_p)
 														{
-															Service *service_p = get_service_fn (copied_service_config_p, 0);
+															Service *service_p = get_service_fn (copied_service_config_p, 0, grassroots_p);
 
 															if (service_p)
 																{

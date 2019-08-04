@@ -46,16 +46,16 @@ extern "C"
 
 
 
-GRASSROOTS_MONGODB_LOCAL struct MongoClientManager *AllocateMongoClientManager (const char *uri_s);
+GRASSROOTS_MONGODB_API struct MongoClientManager *AllocateMongoClientManager (const char *uri_s);
 
 
-GRASSROOTS_MONGODB_LOCAL void FreeMongoClientManager (struct MongoClientManager *manager_p);
+GRASSROOTS_MONGODB_API void FreeMongoClientManager (struct MongoClientManager *manager_p);
 
 
-GRASSROOTS_MONGODB_LOCAL struct _mongoc_client_t *GetMongoClientFromMongoClientManager (struct MongoClientManager *manager_p);
+GRASSROOTS_MONGODB_API struct _mongoc_client_t *GetMongoClientFromMongoClientManager (struct MongoClientManager *manager_p);
 
 
-GRASSROOTS_MONGODB_LOCAL void ReleaseMongoClientFromMongoClientManager (struct MongoClientManager *manager_p, struct _mongoc_client_t *client_p);
+GRASSROOTS_MONGODB_API void ReleaseMongoClientFromMongoClientManager (struct MongoClientManager *manager_p, struct _mongoc_client_t *client_p);
 
 
 #ifdef __cplusplus
