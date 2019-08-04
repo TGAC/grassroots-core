@@ -24,19 +24,12 @@
 
 
 
-void InitRodsEnv (GrassrootsServer *grassroots_p)
+void InitRodsEnv (const char *irods_env_s)
 {
-	json_t *config_p = GetGlobalConfigValue (grassroots_p, "irods");
-
-	if (config_p)
+	if (irods_env_s)
 		{
-			const char *env_file_s = GetJSONString (config_p, "env_file");
-
-			if (env_file_s)
-				{
-					/* Use the given iRODS env file */
-					setenv ("IRODS_ENVIRONMENT_FILE", env_file_s, 1);
-				}
+			/* Use the given iRODS env file */
+			setenv ("IRODS_ENVIRONMENT_FILE", irods_env_s, 1);
 		}
 
 }

@@ -166,6 +166,9 @@ typedef struct MongoTool
 	 * This is the current mongo cursor.
 	 */
 	mongoc_cursor_t *mt_cursor_p;
+
+
+	struct MongoClientManager *mt_manager_p;
 } MongoTool;
 
 
@@ -237,7 +240,7 @@ GRASSROOTS_MONGODB_API bool SetMongoToolCollection (MongoTool *tool_p, const cha
  * @memberof MongoTool
  * @see InitMongoDB
  */
-GRASSROOTS_MONGODB_API MongoTool *AllocateMongoTool (mongoc_client_t *client_p);
+GRASSROOTS_MONGODB_API MongoTool *AllocateMongoTool (mongoc_client_t *client_p, struct MongoClientManager *mongo_manager_p);
 
 
 /**

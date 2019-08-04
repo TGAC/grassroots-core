@@ -35,12 +35,10 @@
 #endif
 
 
-static bool s_is_multi_process_system_flag = false;
 
 
 
-
-bool InitInformationSystem (GrassrootsServer *grassroots_p)
+bool InitInformationSystem (void)
 {
 	bool res_flag = false;
 
@@ -52,28 +50,23 @@ bool InitInformationSystem (GrassrootsServer *grassroots_p)
 
 					if (c == 0)
 						{
-							if (InitMongoDB (grassroots_p))
+							if (InitMongoDB ())
 								{
 									res_flag = true;
+
+									#ifdef DRMAA_ENABLED
+									if (res_flag)
+										{
+											res_flag = InitDrmaaEnvironment ();
+										}
+									#endif
+
 								}		/* if (InitMongoDB ()) */
 							else
 								{
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "InitMongoDB failed");
 								}
 
-							#ifdef DRMAA_ENABLED
-							if (res_flag)
-								{
-									res_flag = InitDrmaaEnvironment ();
-								}
-							#endif
-
-							#ifdef IRODS_ENABLED
-							if (res_flag)
-								{
-									InitRodsEnv (grassroots_p);
-								}
-							#endif
 						}		/* if (c == 0) */
 					else
 						{
@@ -116,20 +109,5 @@ bool DestroyInformationSystem (void)
 
 
 	return res_flag;
-}
-
-
-
-
-
-void SetMultiProcessSystem (bool b)
-{
-	s_is_multi_process_system_flag = b;
-}
-
-
-bool IsMultiProcessSystem (void)
-{
-	return s_is_multi_process_system_flag;
 }
 

@@ -102,7 +102,7 @@ static bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p,
 
 
 
-MongoTool *AllocateMongoTool (mongoc_client_t *client_p)
+MongoTool *AllocateMongoTool (mongoc_client_t *client_p, struct MongoClientManager *mongo_manager_p)
 {
 	MongoTool *tool_p = (MongoTool *) AllocMemory (sizeof (MongoTool));
 
@@ -112,7 +112,7 @@ MongoTool *AllocateMongoTool (mongoc_client_t *client_p)
 
 			if (!client_p)
 				{
-					client_p = GetMongoClientFromMongoClientManager ();
+					client_p = GetMongoClientFromMongoClientManager (mongo_manager_p);
 					owns_flag = true;
 				}
 
@@ -123,6 +123,7 @@ MongoTool *AllocateMongoTool (mongoc_client_t *client_p)
 					tool_p -> mt_database_p = NULL;
 					tool_p -> mt_collection_p = NULL;
 					tool_p -> mt_cursor_p = NULL;
+					tool_p -> mt_manager_p = mongo_manager_p;
 
 					return tool_p;
 				}		/* if (client_p) */
@@ -155,9 +156,9 @@ void FreeMongoTool (MongoTool *tool_p)
 			mongoc_database_destroy (tool_p -> mt_database_p);
 		}
 
-	if ((tool_p -> mt_owns_client_flag) && (tool_p -> mt_client_p))
+	if ((tool_p -> mt_owns_client_flag) && (tool_p -> mt_client_p) && (tool_p -> mt_manager_p))
 		{
-			ReleaseMongoClientFromMongoClientManager (tool_p -> mt_client_p);
+			ReleaseMongoClientFromMongoClientManager (tool_p -> mt_manager_p, tool_p -> mt_client_p);
 		}
 
 	FreeMemory (tool_p);
@@ -218,6 +219,10 @@ bool SetMongoToolDatabase (MongoTool *tool_p, const char *db_s)
 			tool_p -> mt_collection_p = NULL;
 
 			success_flag = true;
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get database \"%s\"", db_s);
 		}
 
 	return success_flag;

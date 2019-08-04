@@ -43,7 +43,7 @@ extern "C"
 
 
 
-IRODS_UTIL_API void InitRodsEnv (GrassrootsServer *grassroots_p);
+IRODS_UTIL_API void InitRodsEnv (const char *irods_env_file_s);
 
 
 IRODS_UTIL_API int PutAndCheckForServices (rcComm_t **connection_pp, rodsEnv *env_p, rodsArguments_t *args_p, rodsPathInp_t *path_inp_p);

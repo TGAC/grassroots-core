@@ -46,7 +46,7 @@
  * <code>false</code> otherwise.
  * @ingroup server_group
  */
-GRASSROOTS_MONGODB_API bool InitMongoDB (GrassrootsServer *grassroots_p);
+GRASSROOTS_MONGODB_API bool InitMongoDB (void);
 
 
 /**

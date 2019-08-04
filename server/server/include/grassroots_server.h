@@ -37,6 +37,9 @@
  */
 struct JobsManager;
 struct ServersManager;
+struct MongoClientManager;
+
+
 
 typedef struct GrassrootsServer
 {
@@ -56,6 +59,7 @@ typedef struct GrassrootsServer
 
 	SchemaVersion *gs_schema_version_p;
 
+	struct MongoClientManager *gs_mongo_manager_p;
 } GrassrootsServer;
 
 
@@ -108,7 +112,7 @@ GRASSROOTS_SERVICE_MANAGER_API bool InitGrassrootsServer (GrassrootsServer *serv
  * Connect to any defined separate Grassroots servers.
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_LOCAL void ConnectToExternalServers (GrassrootsServer *server_p);
+GRASSROOTS_SERVICE_MANAGER_API void ConnectToExternalServers (GrassrootsServer *server_p);
 
 
 /**

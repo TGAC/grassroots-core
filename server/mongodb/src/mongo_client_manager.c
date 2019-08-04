@@ -34,10 +34,7 @@
 #include "streams.h"
 
 
-//#undef mongoc_client_t
 #include "mongoc.h"
-
-
 
 typedef struct MongoClientManager
 {
@@ -46,16 +43,9 @@ typedef struct MongoClientManager
 } MongoClientManager;
 
 
-static MongoClientManager *s_manager_p = NULL;
-
-static MongoClientManager *AllocateMongoClientManager (const char *uri_s);
-
-static void FreeMongoClientManager (MongoClientManager *manager_p);
 
 
-
-
-static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
+MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 {
 	mongoc_uri_t *uri_p = NULL;
 
@@ -113,7 +103,7 @@ static MongoClientManager *AllocateMongoClientManager (const char *uri_s)
 }
 
 
-static void FreeMongoClientManager (MongoClientManager *manager_p)
+void FreeMongoClientManager (MongoClientManager *manager_p)
 {
 	mongoc_client_pool_destroy (manager_p -> mcm_clients_p);
 	mongoc_uri_destroy (manager_p -> mcm_uri_p);
@@ -123,81 +113,17 @@ static void FreeMongoClientManager (MongoClientManager *manager_p)
 }
 
 
-bool InitMongoClientManager (GrassrootsServer *grassroots_p)
+
+mongoc_client_t *GetMongoClientFromMongoClientManager (MongoClientManager *manager_p)
 {
-	bool success_flag = false;
-
-	if (!s_manager_p)
-		{
-			const json_t *mongo_config_p = GetGlobalConfigValue (grassroots_p, "mongodb");
-
-			if (mongo_config_p)
-				{
-					const char *uri_s = GetJSONString (mongo_config_p, "uri");
-
-					if (uri_s)
-						{
-							MongoClientManager *manager_p = AllocateMongoClientManager (uri_s);
-
-							if (manager_p)
-								{
-									s_manager_p = manager_p;
-									success_flag = true;
-								}
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create MongoClientManager for %s", uri_s);
-								}
-						}
-					else
-						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, mongo_config_p, "No uri in config");
-						}
-
-				}
-			else
-				{
-					PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "No mongodb in config");
-					success_flag = true;
-				}
-		}
-	else
-		{
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-void ExitMongoClientManager (void)
-{
-	if (s_manager_p)
-		{
-			FreeMongoClientManager (s_manager_p);
-			s_manager_p = NULL;
-		}
-}
-
-
-mongoc_client_t *GetMongoClientFromMongoClientManager (void)
-{
-	mongoc_client_t *client_p = NULL;
-
-	if (s_manager_p)
-		{
-			client_p = mongoc_client_pool_try_pop (s_manager_p -> mcm_clients_p);
-		}
+	mongoc_client_t *client_p = mongoc_client_pool_try_pop (manager_p -> mcm_clients_p);
 
 	return client_p;
 }
 
 
-void ReleaseMongoClientFromMongoClientManager (mongoc_client_t *client_p)
+void ReleaseMongoClientFromMongoClientManager (MongoClientManager *manager_p, mongoc_client_t *client_p)
 {
-	if (s_manager_p)
-		{
-			mongoc_client_pool_push (s_manager_p -> mcm_clients_p, client_p);
-		}
+	mongoc_client_pool_push (manager_p -> mcm_clients_p, client_p);
 }
 

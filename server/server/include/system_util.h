@@ -38,7 +38,7 @@
  * initialised, <code>false</code> otherwise.
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API bool InitInformationSystem (GrassrootsServer *grassroots_p);
+GRASSROOTS_SERVICE_MANAGER_API bool InitInformationSystem (void);
 
 
 /**
@@ -52,32 +52,6 @@ GRASSROOTS_SERVICE_MANAGER_API bool InitInformationSystem (GrassrootsServer *gra
 GRASSROOTS_SERVICE_MANAGER_API bool DestroyInformationSystem (void);
 
 
-/**
- * Set the Grassroots software running on a multi-process system
- * e.g. Apache httpd with multiple processes or single process
- * e.g. Apache httpd ran with the "-X" option or with StartServers
- * and ServerLimit set to 1 when using the event mpm module.
- *
- * @param b <code>true</code> if the system is potentially running
- * within multiple processes, <code>false</code> if definitely
- * running within a single process.
- * @ingroup server_group
- */
-GRASSROOTS_SERVICE_MANAGER_API void SetMultiProcessSystem (bool b);
-
-
-/**
- * Is the Grassroots software running on a multi-process system
- * e.g. Apache httpd with multiple processes or single process
- * e.g. Apache httpd ran with the "-X" option or with StartServers
- * and ServerLimit set to 1 when using the event mpm module.
- *
- * @return <code>true</code> if the system is potentially running
- * within multiple processes, <code>false</code> if definitely
- * running within a single process.
- * @ingroup server_group
- */
-GRASSROOTS_SERVICE_MANAGER_API bool IsMultiProcessSystem (void);
 
 
 #ifdef __cplusplus

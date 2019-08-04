@@ -29,6 +29,7 @@
 
 #include "service_matcher.h"
 #include "jobs_manager.h"
+#include "mongo_client_manager.h"
 #include "key_value_pair.h"
 #include "handler_utils.h"
 #include "time_util.h"
@@ -124,33 +125,33 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 							if (sv_p)
 								{
-									GrassrootsServer *server_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
+									GrassrootsServer *grassroots_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
 
-									if (server_p)
+									if (grassroots_p)
 										{
-											server_p -> gs_path_s = copied_path_s;
-											server_p -> gs_config_filename_s = copied_config_filename_s;
-											server_p -> gs_config_p = config_p;
+											grassroots_p -> gs_path_s = copied_path_s;
+											grassroots_p -> gs_config_filename_s = copied_config_filename_s;
+											grassroots_p -> gs_config_p = config_p;
 
-											server_p -> gs_jobs_manager_p = external_jobs_manager_p;
-											server_p -> gs_jobs_manager_mem = jobs_manager_flag;
+											grassroots_p -> gs_jobs_manager_p = external_jobs_manager_p;
+											grassroots_p -> gs_jobs_manager_mem = jobs_manager_flag;
 
-											server_p -> gs_servers_manager_p = external_servers_manager_p;
-											server_p -> gs_servers_manager_mem = servers_manager_flag;
+											grassroots_p -> gs_servers_manager_p = external_servers_manager_p;
+											grassroots_p -> gs_servers_manager_mem = servers_manager_flag;
 
-											server_p -> gs_schema_version_p = sv_p;
+											grassroots_p -> gs_schema_version_p = sv_p;
 
 											/*
 											 * Load the jobs manager
 											 */
 											if (!external_jobs_manager_p)
 												{
-													JobsManager *jobs_manager_p = LoadJobsManagerFromConfig (server_p);
+													JobsManager *jobs_manager_p = LoadJobsManagerFromConfig (grassroots_p);
 
 													if (jobs_manager_p)
 														{
-															server_p -> gs_jobs_manager_p = jobs_manager_p;
-															server_p -> gs_jobs_manager_mem = MF_SHALLOW_COPY;
+															grassroots_p -> gs_jobs_manager_p = jobs_manager_p;
+															grassroots_p -> gs_jobs_manager_mem = MF_SHALLOW_COPY;
 														}
 												}
 
@@ -160,30 +161,48 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 											 */
 											if (!external_servers_manager_p)
 												{
-													ServersManager *servers_manager_p = LoadServersManagerFromConfig (server_p);
+													ServersManager *servers_manager_p = LoadServersManagerFromConfig (grassroots_p);
 
 													if (servers_manager_p)
 														{
-															server_p -> gs_servers_manager_p = servers_manager_p;
-															server_p -> gs_servers_manager_mem = MF_SHALLOW_COPY;
+															grassroots_p -> gs_servers_manager_p = servers_manager_p;
+															grassroots_p -> gs_servers_manager_mem = MF_SHALLOW_COPY;
 														}
 
 												}
 
+											/*
+												#ifdef DRMAA_ENABLED
+												if (res_flag)
+													{
+														res_flag = InitDrmaaEnvironment ();
+													}
+												#endif
 
-											return server_p;
-										}		/* if (server_p) */
+
+												#ifdef IRODS_ENABLED
+												if (res_flag)
+													{
+														InitRodsEnv ();
+													}
+												#endif
+											 */
+
+											/*
+											ConnectToExternalServers (grassroots_p);
+											 */
+
+											return grassroots_p;
+										}		/* if (grassroots_p) */
 
 									FreeSchemaVersion (sv_p);
 								}		/* if (sv_p) */
-
 
 							json_decref (config_p);
 						}		/* if (config_p) */
 
 					FreeCopiedString (copied_config_filename_s);
 				}		/* if (copied_config_filename_s) */
-
 
 			FreeCopiedString (copied_path_s);
 		}		/* if (copied_path_s) */

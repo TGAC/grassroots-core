@@ -30,27 +30,16 @@
 #include "mongoc.h"
 
 
-bool InitMongoDB (GrassrootsServer *grassroots_p)
+bool InitMongoDB (void)
 {
-	bool b;
-
 	mongoc_init ();
 
-	b = InitMongoClientManager (grassroots_p);
-
-	if (!b)
-		{
-			mongoc_cleanup ();
-		}
-
-	return b;
+	return true;
 }
 
 
 void ExitMongoDB (void)
 {
-	ExitMongoClientManager ();
-
 	mongoc_cleanup ();
 }
 

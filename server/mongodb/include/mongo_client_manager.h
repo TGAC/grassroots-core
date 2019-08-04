@@ -31,9 +31,12 @@
 #include "mongodb_library.h"
 #include "grassroots_server.h"
 
-
-/* forward declaration */
+/* forward declarations */
+struct MongoClientManager;
 struct _mongoc_client_t;
+
+
+
 
 
 #ifdef __cplusplus
@@ -42,16 +45,17 @@ extern "C"
 #endif
 
 
-GRASSROOTS_MONGODB_LOCAL bool InitMongoClientManager (GrassrootsServer *grassroots_p);
+
+GRASSROOTS_MONGODB_LOCAL struct MongoClientManager *AllocateMongoClientManager (const char *uri_s);
 
 
-GRASSROOTS_MONGODB_LOCAL void ExitMongoClientManager (void);
+GRASSROOTS_MONGODB_LOCAL void FreeMongoClientManager (struct MongoClientManager *manager_p);
 
 
-GRASSROOTS_MONGODB_LOCAL struct _mongoc_client_t *GetMongoClientFromMongoClientManager (void);
+GRASSROOTS_MONGODB_LOCAL struct _mongoc_client_t *GetMongoClientFromMongoClientManager (struct MongoClientManager *manager_p);
 
 
-GRASSROOTS_MONGODB_LOCAL void ReleaseMongoClientFromMongoClientManager (struct _mongoc_client_t *client_p);
+GRASSROOTS_MONGODB_LOCAL void ReleaseMongoClientFromMongoClientManager (struct MongoClientManager *manager_p, struct _mongoc_client_t *client_p);
 
 
 #ifdef __cplusplus
