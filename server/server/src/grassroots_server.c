@@ -131,7 +131,6 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 									if (mongo_manager_p)
 										{
-
 											GrassrootsServer *grassroots_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
 
 											if (grassroots_p)
@@ -147,6 +146,8 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 													grassroots_p -> gs_servers_manager_mem = servers_manager_flag;
 
 													grassroots_p -> gs_schema_version_p = sv_p;
+
+													grassroots_p -> gs_mongo_manager_p = mongo_manager_p;
 
 													/*
 													 * Load the jobs manager
@@ -269,6 +270,10 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 	FreeCopiedString (server_p -> gs_path_s);
 	FreeCopiedString (server_p -> gs_config_filename_s);
 
+	if (server_p -> gs_mongo_manager_p)
+		{
+			FreeMongoClientManager (server_p -> gs_mongo_manager_p);
+		}
 
 	FreeMemory (server_p);
 }
@@ -2250,7 +2255,7 @@ static json_t *GetAllModifiedData (const json_t * const req_p, UserDetails *user
 
 static struct MongoClientManager *GetMongoClientManager (const json_t *config_p)
 {
-	const json_t *mongo_config_p = GetGlobalConfigValue (config_p, "mongodb");
+	const json_t *mongo_config_p = json_object_get (config_p, "mongodb");
 
 	if (mongo_config_p)
 		{
