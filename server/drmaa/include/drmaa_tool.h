@@ -29,6 +29,8 @@
 #include "json_util.h"
 #include "uuid/uuid.h"
 //#include "drmaa.h"
+#include "grassroots_server.h"
+
 
 
 /**
@@ -125,7 +127,7 @@ GRASSROOTS_DRMAA_API bool ExitDrmaa (void);
  * @return A newly-allocated DrmaaTool or <code>NULL</code> upon error.
  * @memberof DrmaaTool
  */
-GRASSROOTS_DRMAA_API DrmaaTool *AllocateDrmaaTool (const char *program_name_s, const uuid_t id);
+GRASSROOTS_DRMAA_API DrmaaTool *AllocateDrmaaTool (const char *program_name_s, const uuid_t id, GrassrootsServer *grassroots_p);
 
 
 /**
@@ -137,7 +139,7 @@ GRASSROOTS_DRMAA_API DrmaaTool *AllocateDrmaaTool (const char *program_name_s, c
  * @return <code>true</code> if the DrmaaTool was initialised successfully, <code>false</code> upon error.
  * @memberof DrmaaTool
  */
-GRASSROOTS_DRMAA_API bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t id);
+GRASSROOTS_DRMAA_API bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t id, GrassrootsServer *grassroots_p);
 
 
 /**
@@ -346,7 +348,7 @@ GRASSROOTS_DRMAA_API json_t *ConvertDrmaaToolToJSON (const DrmaaTool * const too
  * @memberof DrmaaTool
  * @see ConvertDrmaaToolFromJSON
  */
-GRASSROOTS_DRMAA_API DrmaaTool *ConvertDrmaaToolFromJSON (const json_t * const json_p);
+GRASSROOTS_DRMAA_API DrmaaTool *ConvertDrmaaToolFromJSON (const json_t * const json_p, GrassrootsServer *grassroots_p);
 
 
 /**

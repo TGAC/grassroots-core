@@ -1938,155 +1938,161 @@ static int32 AddPairedServices (GrassrootsServer *grassroots_p, Service *interna
 {
 	int32 num_added_services = 0;
 	ServersManager *servers_manager_p = GetServersManager (grassroots_p);
-	LinkedList *external_servers_p = GetAllExternalServersFromServersManager (servers_manager_p, DeserialiseExternalServerFromJSON);
 
-	if (external_servers_p)
+	if (servers_manager_p)
 		{
-			const SchemaVersion *sv_p = GetSchemaVersion (grassroots_p);
-			const char *internal_service_name_s = GetServiceName (internal_service_p);
-			ExternalServerNode *external_server_node_p = (ExternalServerNode *) (external_servers_p -> ll_head_p);
+			LinkedList *external_servers_p = GetAllExternalServersFromServersManager (servers_manager_p, DeserialiseExternalServerFromJSON);
 
-			while (external_server_node_p)
+			if (external_servers_p)
 				{
-					ExternalServer *external_server_p = external_server_node_p -> esn_server_p;
+					const SchemaVersion *sv_p = GetSchemaVersion (grassroots_p);
+					const char *internal_service_name_s = GetServiceName (internal_service_p);
+					ExternalServerNode *external_server_node_p = (ExternalServerNode *) (external_servers_p -> ll_head_p);
 
-					/* If it has paired services try and match them up */
-					if (external_server_p -> es_paired_services_p)
+					while (external_server_node_p)
 						{
-							KeyValuePairNode *pairs_node_p = (KeyValuePairNode *) (external_server_p -> es_paired_services_p -> ll_head_p);
+							ExternalServer *external_server_p = external_server_node_p -> esn_server_p;
 
-							while (pairs_node_p)
+							/* If it has paired services try and match them up */
+							if (external_server_p -> es_paired_services_p)
 								{
-									const char *external_service_name_s = pairs_node_p -> kvpn_pair_p -> kvp_key_s;
+									KeyValuePairNode *pairs_node_p = (KeyValuePairNode *) (external_server_p -> es_paired_services_p -> ll_head_p);
 
-									if (strcmp (external_service_name_s, internal_service_name_s) == 0)
+									while (pairs_node_p)
 										{
-											if (!IsServiceInProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
+											const char *external_service_name_s = pairs_node_p -> kvpn_pair_p -> kvp_key_s;
+
+											if (strcmp (external_service_name_s, internal_service_name_s) == 0)
 												{
-													const char *service_name_s = pairs_node_p -> kvpn_pair_p -> kvp_value_s;
-													json_t *req_p = GetAvailableServicesRequestForAllProviders (providers_p, user_p, sv_p);
-
-													/* We don't need to loop after this iteration */
-													pairs_node_p = NULL;
-
-													if (req_p)
+													if (!IsServiceInProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
 														{
-															json_t *response_p = MakeRemoteJSONCallToExternalServer (external_server_p, req_p);
+															const char *service_name_s = pairs_node_p -> kvpn_pair_p -> kvp_value_s;
+															json_t *req_p = GetAvailableServicesRequestForAllProviders (providers_p, user_p, sv_p);
 
-															if (response_p)
+															/* We don't need to loop after this iteration */
+															pairs_node_p = NULL;
+
+															if (req_p)
 																{
-																	json_t *services_p = json_object_get (response_p, SERVICES_NAME_S);
+																	json_t *response_p = MakeRemoteJSONCallToExternalServer (external_server_p, req_p);
 
-																	if (services_p)
+																	if (response_p)
 																		{
-																			/*
-																			 * Get the required Service from the ExternalServer
-																			 */
-																			if (json_is_array (services_p))
+																			json_t *services_p = json_object_get (response_p, SERVICES_NAME_S);
+
+																			if (services_p)
 																				{
-																					const size_t size = json_array_size (services_p);
-																					size_t i;
-
-																					for (i = 0; i < size; ++ i)
+																					/*
+																					 * Get the required Service from the ExternalServer
+																					 */
+																					if (json_is_array (services_p))
 																						{
-																							json_t *service_response_p = json_array_get (services_p, i);
+																							const size_t size = json_array_size (services_p);
+																							size_t i;
 
-																							/* Do we have our remote service definition? */
-																							if (IsRequiredExternalOperation (service_response_p, service_name_s))
+																							for (i = 0; i < size; ++ i)
 																								{
-																									/*
-																									 * Merge the external service with our own and
-																									 * if successful, then remove the external one
-																									 * from the json array
-																									 */
-																									json_t *op_p = json_object_get (service_response_p, OPERATION_S);
+																									json_t *service_response_p = json_array_get (services_p, i);
 
-																									if (op_p)
+																									/* Do we have our remote service definition? */
+																									if (IsRequiredExternalOperation (service_response_p, service_name_s))
 																										{
-																											const json_t *provider_p = GetProviderDetails (service_response_p);
+																											/*
+																											 * Merge the external service with our own and
+																											 * if successful, then remove the external one
+																											 * from the json array
+																											 */
+																											json_t *op_p = json_object_get (service_response_p, OPERATION_S);
 
-																											if (provider_p)
+																											if (op_p)
 																												{
-																													if (json_is_object (provider_p))
+																													const json_t *provider_p = GetProviderDetails (service_response_p);
+
+																													if (provider_p)
 																														{
-																															if (CreateAndAddPairedService (internal_service_p, external_server_p, service_name_s, op_p, provider_p))
+																															if (json_is_object (provider_p))
 																																{
-																																	++ num_added_services;
-
-																																	if (!AddToProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
+																																	if (CreateAndAddPairedService (internal_service_p, external_server_p, service_name_s, op_p, provider_p))
 																																		{
-																																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add external service %s:%s to providers table", external_server_p -> es_name_s, external_service_name_s);
-																																		}
+																																			++ num_added_services;
 
-																																}		/* if (CreateAndAddPairedService (matching_internal_service_p, external_server_p, matching_external_op_p)) */
+																																			if (!AddToProvidersStateTable (providers_p, external_server_p -> es_uri_s, external_service_name_s))
+																																				{
+																																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add external service %s:%s to providers table", external_server_p -> es_name_s, external_service_name_s);
+																																				}
 
-																														}		/* if (json_is_object (provider_p)) */
-																													else if (json_is_array (provider_p))
-																														{
+																																		}		/* if (CreateAndAddPairedService (matching_internal_service_p, external_server_p, matching_external_op_p)) */
 
-																														}
-																													else
-																														{
+																																}		/* if (json_is_object (provider_p)) */
+																															else if (json_is_array (provider_p))
+																																{
 
-																														}
+																																}
+																															else
+																																{
 
-																												}		/* if (provider_p) */
+																																}
 
+																														}		/* if (provider_p) */
+
+																												}
+																											else
+																												{
+																													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_response_p, "No \"%s\" key in service response", OPERATION_S);
+																												}
+
+																											i = size;		/* force exit from loop */
 																										}
-																									else
-																										{
-																											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_response_p, "No \"%s\" key in service response", OPERATION_S);
-																										}
 
-																									i = size;		/* force exit from loop */
-																								}
+																								}		/* for (i = 0; i < size; ++ i) */
 
-																						}		/* for (i = 0; i < size; ++ i) */
+																						}		/* if (json_is_array (services_p)) */
+																					else
+																						{
+																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, services_p, "services is not a json array");
+																						}
 
-																				}		/* if (json_is_array (services_p)) */
+																				}		/* if (services_p) */
 																			else
 																				{
-																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, services_p, "services is not a json array");
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "Failed to get services from response");
 																				}
 
-																		}		/* if (services_p) */
+																			json_decref (response_p);
+																		}		/* if (response_p) */
 																	else
 																		{
-																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, response_p, "Failed to get services from response");
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get response from %s at %s", external_server_p -> es_name_s, external_server_p -> es_uri_s);
 																		}
 
-																	json_decref (response_p);
-																}		/* if (response_p) */
+																	json_decref (req_p);
+																}		/* if (req_p) */
 															else
 																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get response from %s at %s", external_server_p -> es_name_s, external_server_p -> es_uri_s);
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to build request for %s at %s", external_server_p -> es_name_s, external_server_p -> es_uri_s);
 																}
 
-															json_decref (req_p);
-														}		/* if (req_p) */
-													else
-														{
-															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to build request for %s at %s", external_server_p -> es_name_s, external_server_p -> es_uri_s);
-														}
+														}		/* if (!IsServiceInProvidersStateTable (providers_p, external_server_p -> es_name_s, external_service_name_s)) */
 
-												}		/* if (!IsServiceInProvidersStateTable (providers_p, external_server_p -> es_name_s, external_service_name_s)) */
+												}		/* if (strcmp (service_name_s, internal_service_name_s) == 0) */
 
-										}		/* if (strcmp (service_name_s, internal_service_name_s) == 0) */
+											if (pairs_node_p)
+												{
+													pairs_node_p = (KeyValuePairNode *) (pairs_node_p -> kvpn_node.ln_next_p);
+												}
 
-									if (pairs_node_p)
-										{
-											pairs_node_p = (KeyValuePairNode *) (pairs_node_p -> kvpn_node.ln_next_p);
-										}
+										}		/* while (pairs_node_p) */
 
-								}		/* while (pairs_node_p) */
+								}		/* if (external_server_p -> es_paired_services_p) */
 
-						}		/* if (external_server_p -> es_paired_services_p) */
+							external_server_node_p = (ExternalServerNode *) external_server_node_p -> esn_node.ln_next_p;
+						}		/* (while (external_server_node_p) */
 
-					external_server_node_p = (ExternalServerNode *) external_server_node_p -> esn_node.ln_next_p;
-				}		/* (while (external_server_node_p) */
+					FreeLinkedList (external_servers_p);
+				}		/* if (external_servers_p) */
 
-			FreeLinkedList (external_servers_p);
-		}		/* if (external_servers_p) */
+		}		/* if (servers_manager_p) */
+
 
 	return num_added_services;
 }

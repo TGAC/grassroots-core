@@ -31,7 +31,6 @@
 #include "service.h"
 #include "schema_version.h"
 #include "user_details.h"
-#include "service_config.h"
 #include "service_job.h"
 //#include "resource.h"
 

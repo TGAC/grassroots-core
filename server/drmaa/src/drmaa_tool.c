@@ -23,8 +23,8 @@
 #include "string_linked_list.h"
 #include "byte_buffer.h"
 #include "filesystem_utils.h"
-#include "grassroots_config.h"
 #include "math_utils.h"
+#include "grassroots_server.h"
 
 
 #if HTCONDOR_DRMAA_ENABLED
@@ -69,7 +69,7 @@ static bool DeleteJobTemplate (DrmaaTool *tool_p);
 static bool SetUpDrmaaToolValue (const json_t * const json_p, const char * const key_s, DrmaaTool * drmaa_p, bool (*assign_value_fn) (DrmaaTool *drmaa_p, const char *value_s), const bool optional_flag);
 
 
-static bool InitDrmaaToolEnvVars (DrmaaTool *tool_p);
+static bool InitDrmaaToolEnvVars (DrmaaTool *tool_p, GrassrootsServer *grassroots_p);
 
 /*
  * API FUNCTIONS
@@ -131,13 +131,13 @@ bool ExitDrmaa (void)
 
 
 
-DrmaaTool *AllocateDrmaaTool (const char *program_name_s, const uuid_t id)
+DrmaaTool *AllocateDrmaaTool (const char *program_name_s, const uuid_t id, GrassrootsServer *grassroots_p)
 {
 	DrmaaTool *tool_p = (DrmaaTool *) AllocMemory (sizeof (DrmaaTool));
 
 	if (tool_p)
 		{
-			if (InitDrmaaTool (tool_p, program_name_s, id))
+			if (InitDrmaaTool (tool_p, program_name_s, id, grassroots_p))
 				{
 					return tool_p;
 				}
@@ -154,7 +154,7 @@ DrmaaTool *AllocateDrmaaTool (const char *program_name_s, const uuid_t id)
 
 
 
-bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t id)
+bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t id, GrassrootsServer *grassroots_p)
 {
 	memset (tool_p, 0, sizeof (*tool_p));
 
@@ -180,7 +180,7 @@ bool InitDrmaaTool (DrmaaTool *tool_p, const char *program_name_s, const uuid_t 
 													/* the job to be run */
 													if (SetDrmaaAttribute (tool_p, DRMAA_REMOTE_COMMAND, program_name_s))
 														{
-															if (InitDrmaaToolEnvVars (tool_p))
+															if (InitDrmaaToolEnvVars (tool_p, grassroots_p))
 																{
 																	memset (tool_p -> dt_id_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
 																	memset (tool_p -> dt_id_out_s, 0, DRMAA_ID_BUFFER_SIZE * sizeof (char));
@@ -1307,7 +1307,7 @@ static LinkedList *GetProgramArguments (const json_t * const json_p)
 }
 
 
-DrmaaTool *ConvertDrmaaToolFromJSON (const json_t * const json_p)
+DrmaaTool *ConvertDrmaaToolFromJSON (const json_t * const json_p, GrassrootsServer *grassroots_p)
 {
 	DrmaaTool *drmaa_p = NULL;
 	const char *program_name_s = GetJSONString (json_p, DRMAA_PROGRAM_NAME_S);
@@ -1322,7 +1322,7 @@ DrmaaTool *ConvertDrmaaToolFromJSON (const json_t * const json_p)
 
 					if (ConvertStringToUUID (id_s, id))
 						{
-							drmaa_p = AllocateDrmaaTool (program_name_s, (const unsigned char *) id_s);
+							drmaa_p = AllocateDrmaaTool (program_name_s, (const unsigned char *) id_s, grassroots_p);
 
 							if (drmaa_p)
 								{
@@ -1523,14 +1523,14 @@ static bool SetDrmaaVectorAttribute (DrmaaTool *tool_p, const char *name_s, cons
 
 
 
-static bool InitDrmaaToolEnvVars (DrmaaTool *tool_p)
+static bool InitDrmaaToolEnvVars (DrmaaTool *tool_p, GrassrootsServer *grassroots_p)
 {
 	bool success_flag = true;
 	json_t *config_p = NULL;
 
 	tool_p -> dt_environment_s = NULL;
 
-	config_p = GetGlobalConfigValue (DRMAA_S);
+	config_p = GetGlobalConfigValue (grassroots_p, DRMAA_S);
 
 	if (config_p)
 		{

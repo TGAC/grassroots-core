@@ -21,7 +21,6 @@
 #include "streams.h"
 #include "jobs_manager.h"
 #include "string_utils.h"
-#include "service_config.h"
 #include "mongodb_util.h"
 #include "servers_pool.h"
 

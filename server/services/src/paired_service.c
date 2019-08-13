@@ -29,7 +29,6 @@
 #include "connection.h"
 #include "json_tools.h"
 #include "service.h"
-#include "service_config.h"
 #include "remote_service_job.h"
 #include "provider.h"
 

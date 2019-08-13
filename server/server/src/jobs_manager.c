@@ -23,7 +23,6 @@
 
 #define ALLOCATE_JOBS_MANAGER_TAGS (1)
 #include "jobs_manager.h"
-#include "service_config.h"
 #include "string_utils.h"
 #include "grassroots_server.h"
 

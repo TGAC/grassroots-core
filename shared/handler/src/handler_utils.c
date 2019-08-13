@@ -18,7 +18,6 @@
 #include "string_linked_list.h"
 #include "string_utils.h"
 #include "filesystem_utils.h"
-#include "service_config.h"
 #include "json_util.h"
 
 #ifdef _DEBUG
@@ -289,7 +288,7 @@ static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, con
 												{
 													if (OpenPlugin (plugin_p))
 														{
-															Handler *handler_p = GetHandlerFromPlugin (plugin_p, user_p);
+															Handler *handler_p = GetHandlerFromPlugin (plugin_p, user_p, server_p);
 
 															if (handler_p)
 																{

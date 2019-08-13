@@ -27,7 +27,6 @@
 #include "audit.h"
 
 #include "connection.h"
-#include "service_config.h"
 #include "json_tools.h"
 #include "grassroots_server.h"
 #include "service.h"
