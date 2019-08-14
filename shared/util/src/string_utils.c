@@ -890,6 +890,34 @@ const char *Stristr (const char *value_s, const char *substring_s)
 }
 
 
+
+char *Strrstr (const char *haystack_s, const char *needle_s)
+{
+	char *res_s = NULL;
+	const size_t needle_length = strlen (needle_s);
+	const size_t haystack_length = strlen (haystack_s);
+
+	if (needle_length <= haystack_length)
+		{
+			const char *search_s = haystack_s + haystack_length - needle_length;
+
+			while ((search_s >= haystack_s) && (res_s == NULL))
+				{
+					if (strncmp (search_s, needle_s, needle_length) == 0)
+						{
+							res_s = (char *) search_s;
+						}
+					else
+						{
+							-- search_s;
+						}
+				}
+		}
+
+	return res_s;
+}
+
+
 bool IsUUIDSet (uuid_t id)
 {
 	return (!uuid_is_null (id));

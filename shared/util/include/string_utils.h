@@ -306,6 +306,18 @@ GRASSROOTS_UTIL_API const char *Stristr (const char *value_s, const char *substr
 
 
 
+/**
+ * Find the last occurence of a substring within a string.
+ *
+ * @param haystack_s The string to search within.
+ * @param needle_s The string to search for
+ * @return The substring within the larger string or <code>NULL</code> if it was
+ * not found.
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API char *Strrstr (const char *haystack_s, const char *needle_s);
+
+
 
 /**
  * Get the string representation of a uuid_t.
