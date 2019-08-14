@@ -515,10 +515,24 @@ ParameterBounds *CopyParameterBounds (const ParameterBounds * const src_p, const
 							bounds_p -> pb_upper.st_long_value  = src_p -> pb_upper.st_long_value;
 						}
 						break;
-						//				default:
-	//					memcpy (& (bounds_p -> pb_lower), & (src_p -> pb_lower), sizeof (SharedType));
-	//					memcpy (& (bounds_p -> pb_upper), & (src_p -> pb_upper), sizeof (SharedType));
-	//					break;
+
+					case PT_TIME:
+						{
+							CopyTime (src_p -> pb_lower.st_time_p, bounds_p -> pb_lower.st_time_p);
+							CopyTime (src_p -> pb_upper.st_time_p, bounds_p -> pb_upper.st_time_p);
+						}
+						break;
+
+					case PT_BOOLEAN:
+					case PT_FASTA:
+					case PT_JSON:
+					case PT_TABLE:
+						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Parameter type doesn't have ability to be ranged");
+						break;
+
+					case PT_NUM_TYPES:
+						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Invalid Parameter type");
+						break;
 				}
 
 			return bounds_p;
@@ -736,55 +750,56 @@ bool SetParameterValueFromSharedType (Parameter * const param_p, const SharedTyp
 	bool success_flag = false;
 
 	switch (param_p -> pa_type)
-	{
-		case PT_BOOLEAN:
-			success_flag = SetParameterValueFromBoolean (param_p, src_p -> st_boolean_value, current_value_flag);
-			break;
+		{
+			case PT_BOOLEAN:
+				success_flag = SetParameterValueFromBoolean (param_p, src_p -> st_boolean_value, current_value_flag);
+				break;
 
-		case PT_CHAR:
-			success_flag = SetParameterValueFromChar (param_p, src_p -> st_char_value, current_value_flag);
-			break;
+			case PT_CHAR:
+				success_flag = SetParameterValueFromChar (param_p, src_p -> st_char_value, current_value_flag);
+				break;
 
-		case PT_SIGNED_INT:
-		case PT_NEGATIVE_INT:
-			success_flag = SetParameterValueFromSignedInt (param_p, src_p -> st_long_value, current_value_flag);
-			break;
+			case PT_SIGNED_INT:
+			case PT_NEGATIVE_INT:
+				success_flag = SetParameterValueFromSignedInt (param_p, src_p -> st_long_value, current_value_flag);
+				break;
 
-		case PT_UNSIGNED_INT:
-			success_flag = SetParameterValueFromUnsignedInt (param_p, src_p -> st_ulong_value, current_value_flag);
-			break;
+			case PT_UNSIGNED_INT:
+				success_flag = SetParameterValueFromUnsignedInt (param_p, src_p -> st_ulong_value, current_value_flag);
+				break;
 
-		case PT_SIGNED_REAL:
-		case PT_UNSIGNED_REAL:
-			success_flag = SetParameterValueFromReal (param_p, src_p -> st_data_value, current_value_flag);
-			break;
+			case PT_SIGNED_REAL:
+			case PT_UNSIGNED_REAL:
+				success_flag = SetParameterValueFromReal (param_p, src_p -> st_data_value, current_value_flag);
+				break;
 
-		case PT_LARGE_STRING:
-		case PT_STRING:
-		case PT_TABLE:
-		case PT_PASSWORD:
-		case PT_KEYWORD:
-		case PT_FASTA:
-			success_flag = SetParameterValueFromStringValue (param_p, src_p -> st_string_value_s, current_value_flag);
-			break;
+			case PT_LARGE_STRING:
+			case PT_STRING:
+			case PT_TABLE:
+			case PT_PASSWORD:
+			case PT_KEYWORD:
+			case PT_FASTA:
+				success_flag = SetParameterValueFromStringValue (param_p, src_p -> st_string_value_s, current_value_flag);
+				break;
 
-		case PT_FILE_TO_WRITE:
-		case PT_FILE_TO_READ:
-		case PT_DIRECTORY:
-			success_flag = SetParameterValueFromResource (param_p, src_p -> st_resource_value_p, current_value_flag);
-			break;
+			case PT_FILE_TO_WRITE:
+			case PT_FILE_TO_READ:
+			case PT_DIRECTORY:
+				success_flag = SetParameterValueFromResource (param_p, src_p -> st_resource_value_p, current_value_flag);
+				break;
 
-		case PT_JSON:
-			success_flag = SetParameterValueFromJSON (param_p, src_p -> st_json_p, current_value_flag);
-			break;
+			case PT_JSON:
+				success_flag = SetParameterValueFromJSON (param_p, src_p -> st_json_p, current_value_flag);
+				break;
 
-		case PT_TIME:
-			success_flag = SetParameterValueFromTime (param_p, src_p -> st_time_p, current_value_flag);
-			break;
+			case PT_TIME:
+				success_flag = SetParameterValueFromTime (param_p, src_p -> st_time_p, current_value_flag);
+				break;
 
-//		default:
-//			break;
-	}
+			case PT_NUM_TYPES:
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
+				break;
+		}
 
 	return success_flag;
 
@@ -796,84 +811,84 @@ bool SetParameterValue (Parameter * const param_p, const void *value_p, const bo
 	bool success_flag = false;
 
 	switch (param_p -> pa_type)
-	{
-		case PT_BOOLEAN:
-			{
-				const bool b = * ((bool *) value_p);
-				success_flag = SetParameterValueFromBoolean (param_p, b, current_value_flag);
-			}
-			break;
+		{
+			case PT_BOOLEAN:
+				{
+					const bool b = * ((bool *) value_p);
+					success_flag = SetParameterValueFromBoolean (param_p, b, current_value_flag);
+				}
+				break;
 
-		case PT_CHAR:
-			{
-				const char c = * ((char *) value_p);
-				success_flag = SetParameterValueFromChar (param_p, c, current_value_flag);
-			}
-			break;
-
-
-		case PT_SIGNED_INT:
-		case PT_NEGATIVE_INT:
-			{
-				const int32 i = * ((int32 *) value_p);
-				success_flag = SetParameterValueFromSignedInt (param_p, i, current_value_flag);
-			}
-			break;
-
-		case PT_UNSIGNED_INT:
-			{
-				const uint32 i = * ((uint32 *) value_p);
-				success_flag = SetParameterValueFromUnsignedInt (param_p, i, current_value_flag);
-			}
-			break;
-
-		case PT_SIGNED_REAL:
-		case PT_UNSIGNED_REAL:
-			{
-				const double d = * ((double *) value_p);
-				success_flag = SetParameterValueFromReal (param_p, d, current_value_flag);
-			}
-			break;
-
-		case PT_LARGE_STRING:
-		case PT_STRING:
-		case PT_TABLE:
-		case PT_PASSWORD:
-		case PT_KEYWORD:
-		case PT_FASTA:
-			{
-				const char * const value_s = (const char *) value_p;
-				success_flag = SetParameterValueFromStringValue (param_p, value_s, current_value_flag);
-			}
-			break;
-
-		case PT_FILE_TO_WRITE:
-		case PT_FILE_TO_READ:
-		case PT_DIRECTORY:
-			{
-				const Resource * const res_p = (const Resource *) value_p;
-				success_flag = SetParameterValueFromResource (param_p, res_p, current_value_flag);
-			}
-			break;
-
-		case PT_JSON:
-			{
-				const json_t * const src_p = (const json_t *) value_p;
-				success_flag = SetParameterValueFromJSON (param_p, src_p, current_value_flag);
-			}
-			break;
-
-		case PT_TIME:
-			{
-				const struct tm * const src_p = (const struct tm *) value_p;
-				success_flag = SetParameterValueFromTime (param_p, src_p, current_value_flag);
-			}
-			break;
+			case PT_CHAR:
+				{
+					const char c = * ((char *) value_p);
+					success_flag = SetParameterValueFromChar (param_p, c, current_value_flag);
+				}
+				break;
 
 
-//		default:
-//			break;
-	}
+			case PT_SIGNED_INT:
+			case PT_NEGATIVE_INT:
+				{
+					const int32 i = * ((int32 *) value_p);
+					success_flag = SetParameterValueFromSignedInt (param_p, i, current_value_flag);
+				}
+				break;
+
+			case PT_UNSIGNED_INT:
+				{
+					const uint32 i = * ((uint32 *) value_p);
+					success_flag = SetParameterValueFromUnsignedInt (param_p, i, current_value_flag);
+				}
+				break;
+
+			case PT_SIGNED_REAL:
+			case PT_UNSIGNED_REAL:
+				{
+					const double d = * ((double *) value_p);
+					success_flag = SetParameterValueFromReal (param_p, d, current_value_flag);
+				}
+				break;
+
+			case PT_LARGE_STRING:
+			case PT_STRING:
+			case PT_TABLE:
+			case PT_PASSWORD:
+			case PT_KEYWORD:
+			case PT_FASTA:
+				{
+					const char * const value_s = (const char *) value_p;
+					success_flag = SetParameterValueFromStringValue (param_p, value_s, current_value_flag);
+				}
+				break;
+
+			case PT_FILE_TO_WRITE:
+			case PT_FILE_TO_READ:
+			case PT_DIRECTORY:
+				{
+					const Resource * const res_p = (const Resource *) value_p;
+					success_flag = SetParameterValueFromResource (param_p, res_p, current_value_flag);
+				}
+				break;
+
+			case PT_JSON:
+				{
+					const json_t * const src_p = (const json_t *) value_p;
+					success_flag = SetParameterValueFromJSON (param_p, src_p, current_value_flag);
+				}
+				break;
+
+			case PT_TIME:
+				{
+					const struct tm * const src_p = (const struct tm *) value_p;
+					success_flag = SetParameterValueFromTime (param_p, src_p, current_value_flag);
+				}
+				break;
+
+			case PT_NUM_TYPES:
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
+				break;
+		}
 
 	return success_flag;
 }
@@ -1247,52 +1262,53 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 		{
 			/* Set the parameter type */
 			switch (param_type)
-			{
-				case PT_BOOLEAN:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_BOOLEAN_S)) == 0);
-					break;
+				{
+					case PT_BOOLEAN:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_BOOLEAN_S)) == 0);
+						break;
 
-				case PT_CHAR:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_CHAR:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-				case PT_SIGNED_INT:
-				case PT_NEGATIVE_INT:
-				case PT_UNSIGNED_INT:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_INTEGER_S)) == 0);
-					break;
+					case PT_SIGNED_INT:
+					case PT_NEGATIVE_INT:
+					case PT_UNSIGNED_INT:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_INTEGER_S)) == 0);
+						break;
 
-				case PT_SIGNED_REAL:
-				case PT_UNSIGNED_REAL:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_NUMBER_S)) == 0);
-					break;
+					case PT_SIGNED_REAL:
+					case PT_UNSIGNED_REAL:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_NUMBER_S)) == 0);
+						break;
 
-				case PT_STRING:
-				case PT_TABLE:
-				case PT_LARGE_STRING:
-				case PT_PASSWORD:
-				case PT_FILE_TO_WRITE:
-				case PT_DIRECTORY:
-				case PT_KEYWORD:
-				case PT_FASTA:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_STRING:
+					case PT_TABLE:
+					case PT_LARGE_STRING:
+					case PT_PASSWORD:
+					case PT_FILE_TO_WRITE:
+					case PT_DIRECTORY:
+					case PT_KEYWORD:
+					case PT_FASTA:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-				case PT_FILE_TO_READ:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_FILE_TO_READ:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-				case PT_JSON:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("json")) == 0);
-					break;
+					case PT_JSON:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("json")) == 0);
+						break;
 
-				case PT_TIME:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_TIME:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-//				default:
-//					break;
-			}		/* switch (param_p -> pa_type) */
+					case PT_NUM_TYPES:
+						PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type");
+						break;
+				}		/* switch (param_p -> pa_type) */
 
 		}		/* if (full_definition_flag) */
 	else
@@ -1578,125 +1594,127 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 	json_t *value_p = NULL;
 
 	switch (pt)
-	{
-		case PT_BOOLEAN:
-			value_p = (val_p -> st_boolean_value == true) ? json_true () : json_false ();
-			break;
+		{
+			case PT_BOOLEAN:
+				value_p = (val_p -> st_boolean_value == true) ? json_true () : json_false ();
+				break;
 
-		case PT_CHAR:
-			{
-				char buffer_s [2];
-
-				*buffer_s = val_p -> st_char_value;
-				* (buffer_s + 1) = '\0';
-
-				value_p = json_string (buffer_s);
-			}
-			break;
-
-		case PT_SIGNED_INT:
-		case PT_NEGATIVE_INT:
-			value_p = json_integer (val_p -> st_long_value);
-			break;
-
-		case PT_UNSIGNED_INT:
-			value_p = json_integer (val_p -> st_ulong_value);
-			break;
-
-		case PT_SIGNED_REAL:
-		case PT_UNSIGNED_REAL:
-			value_p = json_real (val_p -> st_data_value);
-			break;
-
-		case PT_STRING:
-		case PT_TABLE:
-		case PT_LARGE_STRING:
-		case PT_PASSWORD:
-		case PT_KEYWORD:
-		case PT_FASTA:
-			if (val_p -> st_string_value_s)
+			case PT_CHAR:
 				{
-					value_p = json_string (val_p -> st_string_value_s);
-				}
-			else
-				{
-					value_p = json_string ("");
-				}
-			break;
+					char buffer_s [2];
 
-		case PT_FILE_TO_READ:
-		case PT_FILE_TO_WRITE:
-		case PT_DIRECTORY:
-			{
-				value_p = json_object ();
+					*buffer_s = val_p -> st_char_value;
+					* (buffer_s + 1) = '\0';
 
-				if (value_p)
+					value_p = json_string (buffer_s);
+				}
+				break;
+
+			case PT_SIGNED_INT:
+			case PT_NEGATIVE_INT:
+				value_p = json_integer (val_p -> st_long_value);
+				break;
+
+			case PT_UNSIGNED_INT:
+				value_p = json_integer (val_p -> st_ulong_value);
+				break;
+
+			case PT_SIGNED_REAL:
+			case PT_UNSIGNED_REAL:
+				value_p = json_real (val_p -> st_data_value);
+				break;
+
+			case PT_STRING:
+			case PT_TABLE:
+			case PT_LARGE_STRING:
+			case PT_PASSWORD:
+			case PT_KEYWORD:
+			case PT_FASTA:
+				if (val_p -> st_string_value_s)
 					{
-						char *protocol_s = NULL;
-						char *value_s = NULL;
+						value_p = json_string (val_p -> st_string_value_s);
+					}
+				else
+					{
+						value_p = json_string ("");
+					}
+				break;
 
-						success_flag = false;
-
-						if (val_p -> st_resource_value_p)
-							{
-								protocol_s = val_p -> st_resource_value_p -> re_protocol_s;
-								value_s = val_p -> st_resource_value_p -> re_value_s;
-							}
-						else
-							{
-								protocol_s = "";
-								value_s = "";
-							}
-
-						if (json_object_set_new (value_p, RESOURCE_PROTOCOL_S, json_string (protocol_s)) == 0)
-							{
-								success_flag = (json_object_set_new (value_p, RESOURCE_VALUE_S, json_string (value_s)) == 0);
-							}
-
-						if (!success_flag)
-							{
-								json_object_clear (value_p);
-								json_decref (value_p);
-								value_p = NULL;
-							}
-
-					}		/* if (val_p -> st_resource_value_p) */
-			}
-			break;
-
-			/*
-			 * A json value can legitimately be NULL
-			 */
-		case PT_JSON:
-			if (val_p -> st_json_p)
+			case PT_FILE_TO_READ:
+			case PT_FILE_TO_WRITE:
+			case PT_DIRECTORY:
 				{
-					value_p = json_deep_copy (val_p -> st_json_p);
-				}
-			else
-				{
-					null_flag = true;
-				}
-			break;
+					value_p = json_object ();
 
-
-		case PT_TIME:
-			if (val_p -> st_time_p)
-				{
-					char *time_s = GetTimeAsString (val_p -> st_time_p, true);
-
-					if (time_s)
+					if (value_p)
 						{
-							value_p = json_string (time_s);
-							FreeCopiedString (time_s);
-						}		/* if (time_s) */
+							char *protocol_s = NULL;
+							char *value_s = NULL;
 
-				}		/* if (val_p -> st_time_p) */
-			break;
+							success_flag = false;
+
+							if (val_p -> st_resource_value_p)
+								{
+									protocol_s = val_p -> st_resource_value_p -> re_protocol_s;
+									value_s = val_p -> st_resource_value_p -> re_value_s;
+								}
+							else
+								{
+									protocol_s = "";
+									value_s = "";
+								}
+
+							if (json_object_set_new (value_p, RESOURCE_PROTOCOL_S, json_string (protocol_s)) == 0)
+								{
+									success_flag = (json_object_set_new (value_p, RESOURCE_VALUE_S, json_string (value_s)) == 0);
+								}
+
+							if (!success_flag)
+								{
+									json_object_clear (value_p);
+									json_decref (value_p);
+									value_p = NULL;
+								}
+
+						}		/* if (val_p -> st_resource_value_p) */
+				}
+				break;
+
+				/*
+				 * A json value can legitimately be NULL
+				 */
+			case PT_JSON:
+				if (val_p -> st_json_p)
+					{
+						value_p = json_deep_copy (val_p -> st_json_p);
+					}
+				else
+					{
+						null_flag = true;
+					}
+				break;
 
 
-//		default:
-//			break;
-	}		/* switch (pt) */
+			case PT_TIME:
+				if (val_p -> st_time_p)
+					{
+						char *time_s = GetTimeAsString (val_p -> st_time_p, true);
+
+						if (time_s)
+							{
+								value_p = json_string (time_s);
+								FreeCopiedString (time_s);
+							}		/* if (time_s) */
+
+					}		/* if (val_p -> st_time_p) */
+				break;
+
+
+			case PT_NUM_TYPES:
+				PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type for key \"%s\"", key_s);
+				break;
+		}		/* switch (pt) */
+
 
 	if (value_p)
 		{
@@ -1998,8 +2016,9 @@ static bool GetValueFromJSON (const json_t * const root_p, const char *key_s, co
 
 								break;
 
-//							default:
-//								break;
+							case PT_NUM_TYPES:
+								PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type for key \"%s\"", key_s);
+								break;
 
 						}
 
@@ -2036,60 +2055,64 @@ static bool AddParameterOptionsToJSON (const Parameter * const param_p, json_t *
 							json_t *value_p = NULL;
 
 							switch (param_p -> pa_type)
-							{
-								case PT_BOOLEAN:
-									value_p = (option_p -> po_value.st_boolean_value) ? json_true () : json_false ();
-									break;
+								{
+									case PT_BOOLEAN:
+										value_p = (option_p -> po_value.st_boolean_value) ? json_true () : json_false ();
+										break;
 
-								case PT_CHAR:
-									{
-										char buffer_s [2];
+									case PT_CHAR:
+										{
+											char buffer_s [2];
 
-										*buffer_s = option_p -> po_value.st_char_value;
-										* (buffer_s + 1) = '\0';
+											*buffer_s = option_p -> po_value.st_char_value;
+											* (buffer_s + 1) = '\0';
 
-										value_p = json_string (buffer_s);
-									}
-									break;
+											value_p = json_string (buffer_s);
+										}
+										break;
 
-								case PT_SIGNED_INT:
-								case PT_NEGATIVE_INT:
-									value_p = json_integer (option_p -> po_value.st_long_value);
-									break;
+									case PT_SIGNED_INT:
+									case PT_NEGATIVE_INT:
+										value_p = json_integer (option_p -> po_value.st_long_value);
+										break;
 
-								case PT_UNSIGNED_INT:
-									value_p = json_integer (option_p -> po_value.st_ulong_value);
-									break;
+									case PT_UNSIGNED_INT:
+										value_p = json_integer (option_p -> po_value.st_ulong_value);
+										break;
 
-								case PT_SIGNED_REAL:
-								case PT_UNSIGNED_REAL:
-									value_p = json_real (option_p -> po_value.st_data_value);
-									break;
+									case PT_SIGNED_REAL:
+									case PT_UNSIGNED_REAL:
+										value_p = json_real (option_p -> po_value.st_data_value);
+										break;
 
-								case PT_TABLE:
-								case PT_STRING:
-								case PT_LARGE_STRING:
-								case PT_PASSWORD:
-								case PT_KEYWORD:
-								case PT_FASTA:
-									value_p = json_string (option_p -> po_value.st_string_value_s);
-									break;
+									case PT_TABLE:
+									case PT_STRING:
+									case PT_LARGE_STRING:
+									case PT_PASSWORD:
+									case PT_KEYWORD:
+									case PT_FASTA:
+										value_p = json_string (option_p -> po_value.st_string_value_s);
+										break;
 
-								case PT_FILE_TO_WRITE:
-									break;
+									case PT_FILE_TO_WRITE:
+										break;
 
-								case PT_FILE_TO_READ:
-									break;
+									case PT_FILE_TO_READ:
+										break;
 
-								case PT_DIRECTORY:
-									break;
+									case PT_DIRECTORY:
+										break;
 
-								case PT_JSON:
-									break;
+									case PT_JSON:
+										break;
 
-//								default:
-//									break;
-							}		/* switch (param_p -> pa_type) */
+									case PT_TIME:
+										break;
+
+									case PT_NUM_TYPES:
+										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
+										break;
+								}		/* switch (param_p -> pa_type) */
 
 							if (value_p)
 								{
@@ -2165,32 +2188,33 @@ static bool AddParameterBoundsToJSON (const Parameter * const param_p, json_t *j
 			json_t *max_p = NULL;
 
 			switch (param_p -> pa_type)
-			{
-				case PT_BOOLEAN:
-					min_p = (bounds_p -> pb_lower.st_boolean_value == true) ? json_true () : json_false ();
-					max_p = (bounds_p -> pb_upper.st_boolean_value == true) ? json_true () : json_false ();
-					break;
+				{
+					case PT_BOOLEAN:
+						min_p = (bounds_p -> pb_lower.st_boolean_value == true) ? json_true () : json_false ();
+						max_p = (bounds_p -> pb_upper.st_boolean_value == true) ? json_true () : json_false ();
+						break;
 
-				case PT_SIGNED_INT:
-				case PT_NEGATIVE_INT:
-					min_p = json_integer (bounds_p -> pb_lower.st_long_value);
-					max_p = json_integer (bounds_p -> pb_upper.st_long_value);
-					break;
+					case PT_SIGNED_INT:
+					case PT_NEGATIVE_INT:
+						min_p = json_integer (bounds_p -> pb_lower.st_long_value);
+						max_p = json_integer (bounds_p -> pb_upper.st_long_value);
+						break;
 
-				case PT_UNSIGNED_INT:
-					min_p = json_integer (bounds_p -> pb_lower.st_ulong_value);
-					max_p = json_integer (bounds_p -> pb_upper.st_ulong_value);
-					break;
+					case PT_UNSIGNED_INT:
+						min_p = json_integer (bounds_p -> pb_lower.st_ulong_value);
+						max_p = json_integer (bounds_p -> pb_upper.st_ulong_value);
+						break;
 
-				case PT_SIGNED_REAL:
-				case PT_UNSIGNED_REAL:
-					min_p = json_real (bounds_p -> pb_lower.st_data_value);
-					max_p = json_real (bounds_p -> pb_upper.st_data_value);
-					break;
+					case PT_SIGNED_REAL:
+					case PT_UNSIGNED_REAL:
+						min_p = json_real (bounds_p -> pb_lower.st_data_value);
+						max_p = json_real (bounds_p -> pb_upper.st_data_value);
+						break;
 
-//				default:
-//					break;
-			}		/* switch (param_p -> pa_type) */
+					case PT_NUM_TYPES:
+						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
+						break;
+				}		/* switch (param_p -> pa_type) */
 
 			if (min_p)
 				{
@@ -2523,8 +2547,9 @@ static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBo
 										}
 										break;
 
-	//								default:
-	//									break;
+									case PT_NUM_TYPES:
+										PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Parameter has invalid type");
+										break;
 								}
 
 							if (success_flag)
@@ -2559,140 +2584,140 @@ bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterTy
 	bool success_flag = false;
 
 	switch (pt)
-	{
-		case PT_DIRECTORY:
-		case PT_FILE_TO_READ:
-		case PT_FILE_TO_WRITE:
-			{
-				if (src.st_resource_value_p)
-					{
-						Resource *dest_res_p = CloneResource (src.st_resource_value_p);
+		{
+			case PT_DIRECTORY:
+			case PT_FILE_TO_READ:
+			case PT_FILE_TO_WRITE:
+				{
+					if (src.st_resource_value_p)
+						{
+							Resource *dest_res_p = CloneResource (src.st_resource_value_p);
 
-						if (dest_res_p)
-							{
-								if (dest_p -> st_resource_value_p)
-									{
-										FreeResource (dest_p -> st_resource_value_p);
-									}
+							if (dest_res_p)
+								{
+									if (dest_p -> st_resource_value_p)
+										{
+											FreeResource (dest_p -> st_resource_value_p);
+										}
 
-								dest_p -> st_resource_value_p = dest_res_p;
-								success_flag = true;
-							}
-					}
-				else
-					{
-						if (dest_p -> st_resource_value_p)
-							{
-								FreeResource (dest_p -> st_resource_value_p);
-								dest_p -> st_resource_value_p = NULL;
-							}
+									dest_p -> st_resource_value_p = dest_res_p;
+									success_flag = true;
+								}
+						}
+					else
+						{
+							if (dest_p -> st_resource_value_p)
+								{
+									FreeResource (dest_p -> st_resource_value_p);
+									dest_p -> st_resource_value_p = NULL;
+								}
 
-						success_flag = true;
-					}
+							success_flag = true;
+						}
 
-			}
-			break;
+				}
+				break;
 
-		case PT_TABLE:
-		case PT_STRING:
-		case PT_LARGE_STRING:
-		case PT_PASSWORD:
-		case PT_KEYWORD:
-		case PT_FASTA:
-			{
-				if (src.st_string_value_s)
-					{
-						char *copied_value_s = EasyCopyToNewString (src.st_string_value_s);
+			case PT_TABLE:
+			case PT_STRING:
+			case PT_LARGE_STRING:
+			case PT_PASSWORD:
+			case PT_KEYWORD:
+			case PT_FASTA:
+				{
+					if (src.st_string_value_s)
+						{
+							char *copied_value_s = EasyCopyToNewString (src.st_string_value_s);
 
-						if (copied_value_s)
-							{
-								if (dest_p -> st_string_value_s)
-									{
-										FreeCopiedString (dest_p -> st_string_value_s);
-									}
+							if (copied_value_s)
+								{
+									if (dest_p -> st_string_value_s)
+										{
+											FreeCopiedString (dest_p -> st_string_value_s);
+										}
 
-								dest_p -> st_string_value_s = copied_value_s;
-								success_flag = true;
-							}
-						else
-							{
+									dest_p -> st_string_value_s = copied_value_s;
+									success_flag = true;
+								}
+							else
+								{
 
-							}
-					}
-				else
-					{
-						if (dest_p -> st_string_value_s)
-							{
-								FreeCopiedString (dest_p -> st_string_value_s);
-								dest_p -> st_string_value_s = NULL;
-							}
+								}
+						}
+					else
+						{
+							if (dest_p -> st_string_value_s)
+								{
+									FreeCopiedString (dest_p -> st_string_value_s);
+									dest_p -> st_string_value_s = NULL;
+								}
 
-						success_flag = true;
-					}
-			}
-			break;
+							success_flag = true;
+						}
+				}
+				break;
 
-		case PT_JSON:
-			{
-				if (src.st_json_p)
-					{
-						json_t *copied_value_p = json_deep_copy (src.st_json_p);
+			case PT_JSON:
+				{
+					if (src.st_json_p)
+						{
+							json_t *copied_value_p = json_deep_copy (src.st_json_p);
 
-						if (copied_value_p)
-							{
-								if (dest_p -> st_json_p)
-									{
-										json_decref (dest_p -> st_json_p);
-									}
+							if (copied_value_p)
+								{
+									if (dest_p -> st_json_p)
+										{
+											json_decref (dest_p -> st_json_p);
+										}
 
-								dest_p -> st_json_p = copied_value_p;
-								success_flag = true;
-							}
-					}
-				else
-					{
-						if (dest_p -> st_json_p)
-							{
-								json_decref (dest_p -> st_json_p);
-								dest_p -> st_json_p = NULL;
-							}
+									dest_p -> st_json_p = copied_value_p;
+									success_flag = true;
+								}
+						}
+					else
+						{
+							if (dest_p -> st_json_p)
+								{
+									json_decref (dest_p -> st_json_p);
+									dest_p -> st_json_p = NULL;
+								}
 
-						success_flag = true;
-					}
-			}
-			break;
+							success_flag = true;
+						}
+				}
+				break;
 
-		case PT_SIGNED_INT:
-		case PT_NEGATIVE_INT:
-			dest_p -> st_long_value = src.st_long_value;
-			success_flag = true;
-			break;
+			case PT_SIGNED_INT:
+			case PT_NEGATIVE_INT:
+				dest_p -> st_long_value = src.st_long_value;
+				success_flag = true;
+				break;
 
-		case PT_UNSIGNED_INT:
-			dest_p -> st_ulong_value = src.st_ulong_value;
-			success_flag = true;
-			break;
+			case PT_UNSIGNED_INT:
+				dest_p -> st_ulong_value = src.st_ulong_value;
+				success_flag = true;
+				break;
 
-		case PT_UNSIGNED_REAL:
-		case PT_SIGNED_REAL:
-			dest_p -> st_data_value = src.st_data_value;
-			success_flag = true;
-			break;
+			case PT_UNSIGNED_REAL:
+			case PT_SIGNED_REAL:
+				dest_p -> st_data_value = src.st_data_value;
+				success_flag = true;
+				break;
 
-		case PT_CHAR:
-			dest_p -> st_char_value = src.st_char_value;
-			success_flag = true;
-			break;
+			case PT_CHAR:
+				dest_p -> st_char_value = src.st_char_value;
+				success_flag = true;
+				break;
 
-		case PT_BOOLEAN:
-			dest_p -> st_boolean_value = src.st_boolean_value;
-			success_flag = true;
-			break;
+			case PT_BOOLEAN:
+				dest_p -> st_boolean_value = src.st_boolean_value;
+				success_flag = true;
+				break;
 
-//		default:
-//			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Invalid Paramater Type %d", pt);
-//			break;
-	}
+			case PT_NUM_TYPES:
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter has invalid type");
+				break;
+		}
 
 
 	return success_flag;
@@ -3013,8 +3038,9 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 			*alloc_flag_p = false;
 			break;
 
-	//	default:
-	//		break;
+		case PT_NUM_TYPES:
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
+			break;
 	}		/* switch (param_p -> pa_type) */
 
 
@@ -3687,97 +3713,98 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 	bool success_flag = false;
 
 	switch (pt)
-	{
-		case PT_BOOLEAN:
-			{
-				success_flag = SetBooleanFromJSON (json_p, & (value_p -> st_boolean_value));
-			}
-			break;
+		{
+			case PT_BOOLEAN:
+				{
+					success_flag = SetBooleanFromJSON (json_p, & (value_p -> st_boolean_value));
+				}
+				break;
 
-		case PT_SIGNED_INT:
-		case PT_NEGATIVE_INT:
-			{
-				success_flag = SetIntegerFromJSON (json_p, & (value_p -> st_long_value));
-			}
-			break;
+			case PT_SIGNED_INT:
+			case PT_NEGATIVE_INT:
+				{
+					success_flag = SetIntegerFromJSON (json_p, & (value_p -> st_long_value));
+				}
+				break;
 
-		case PT_UNSIGNED_INT:
-			{
-				int32 i;
+			case PT_UNSIGNED_INT:
+				{
+					int32 i;
 
-				if (SetIntegerFromJSON (json_p, &i))
-					{
-						value_p -> st_ulong_value = (uint32) i;
-						success_flag = true;
-					}
-			}
-			break;
+					if (SetIntegerFromJSON (json_p, &i))
+						{
+							value_p -> st_ulong_value = (uint32) i;
+							success_flag = true;
+						}
+				}
+				break;
 
-		case PT_SIGNED_REAL:
-		case PT_UNSIGNED_REAL:
-			{
-				success_flag = SetRealFromJSON (json_p, & (value_p -> st_data_value));
-			}
-			break;
+			case PT_SIGNED_REAL:
+			case PT_UNSIGNED_REAL:
+				{
+					success_flag = SetRealFromJSON (json_p, & (value_p -> st_data_value));
+				}
+				break;
 
-		case PT_STRING:
-		case PT_FILE_TO_WRITE:
-		case PT_FILE_TO_READ:
-		case PT_DIRECTORY:
-		case PT_KEYWORD:
-		case PT_LARGE_STRING:
-		case PT_PASSWORD:
-		case PT_FASTA:
-			{
-				char *value_s = NULL;
+			case PT_STRING:
+			case PT_FILE_TO_WRITE:
+			case PT_FILE_TO_READ:
+			case PT_DIRECTORY:
+			case PT_KEYWORD:
+			case PT_LARGE_STRING:
+			case PT_PASSWORD:
+			case PT_FASTA:
+				{
+					char *value_s = NULL;
 
-				success_flag = SetStringFromJSON (json_p, &value_s);
+					success_flag = SetStringFromJSON (json_p, &value_s);
 
-				if (success_flag)
-					{
-						if (value_p -> st_string_value_s)
-							{
-								FreeCopiedString (value_p -> st_string_value_s);
-							}
+					if (success_flag)
+						{
+							if (value_p -> st_string_value_s)
+								{
+									FreeCopiedString (value_p -> st_string_value_s);
+								}
 
-						value_p -> st_string_value_s = value_s;
-					}
-			}
-			break;
+							value_p -> st_string_value_s = value_s;
+						}
+				}
+				break;
 
-		case PT_CHAR:
-			{
-				char *value_s = NULL;
+			case PT_CHAR:
+				{
+					char *value_s = NULL;
 
-				if (SetStringFromJSON (json_p, &value_s))
-					{
-						if (strlen (value_s) == 1)
-							{
-								if (value_p -> st_string_value_s)
-									{
-										FreeCopiedString (value_p -> st_string_value_s);
-									}
+					if (SetStringFromJSON (json_p, &value_s))
+						{
+							if (strlen (value_s) == 1)
+								{
+									if (value_p -> st_string_value_s)
+										{
+											FreeCopiedString (value_p -> st_string_value_s);
+										}
 
-								value_p -> st_string_value_s = value_s;
-								success_flag = true;
-							}
-						else
-							{
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" is too long for single char value", value_s);
-							}
-					}
-			}
-			break;
+									value_p -> st_string_value_s = value_s;
+									success_flag = true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" is too long for single char value", value_s);
+								}
+						}
+				}
+				break;
 
-		case PT_JSON:
-			break;
+			case PT_JSON:
+				break;
 
-		case PT_TABLE:
-			break;
+			case PT_TABLE:
+				break;
 
-//	default:
-//			break;
-	}		/* switch (pt) */
+			case PT_NUM_TYPES:
+				PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Parameter has invalid type");
+				break;
+		}		/* switch (pt) */
 
 	return success_flag;
 }
