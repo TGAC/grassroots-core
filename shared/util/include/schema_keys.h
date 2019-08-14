@@ -556,6 +556,9 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 
 	PREFIX const char *PARAM_REMOTE_S  VAL("remote_details");
 
+	PREFIX const char *PARAM_VALUE_SET_FROM_TEXT_S  VAL("value_as_text");
+
+
 	PREFIX const char *KEYWORDS_QUERY_S VAL("query");
 	/* End of doxygen member group */
 	/**@}*/
