@@ -2211,6 +2211,57 @@ static bool AddParameterBoundsToJSON (const Parameter * const param_p, json_t *j
 						max_p = json_real (bounds_p -> pb_upper.st_data_value);
 						break;
 
+
+					case PT_CHAR:
+						{
+							char buffer_s [2];
+
+							* (buffer_s + 1) = '\0';
+
+							*buffer_s = bounds_p -> pb_lower.st_char_value;
+							min_p = json_string (buffer_s);
+
+							*buffer_s = bounds_p -> pb_upper.st_char_value;
+							max_p = json_string (buffer_s);
+						}
+						break;
+
+					case PT_DIRECTORY:
+					case PT_FILE_TO_READ:
+					case PT_FILE_TO_WRITE:
+					case PT_FASTA:
+					case PT_JSON:
+					case PT_KEYWORD:
+					case PT_LARGE_STRING:
+					case PT_PASSWORD:
+					case PT_STRING:
+					case PT_TABLE:
+						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "ParameterBounds for \"%s\" does not make sense", param_p -> pa_name_s);
+						break;
+
+					case PT_TIME:
+						{
+							char *time_s = GetTimeAsString (bounds_p -> pb_lower.st_time_p, true);
+
+							if (time_s)
+								{
+									min_p = json_string (time_s);
+									FreeCopiedString (time_s);
+
+									time_s = GetTimeAsString (bounds_p -> pb_upper.st_time_p, true);
+
+									if (time_s)
+										{
+											max_p = json_string (time_s);
+											FreeCopiedString (time_s);
+										}		/* if (time_s) */
+								}		/* if (time_s) */
+
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "ParameterBounds for \"%s\" does not make sense", param_p -> pa_name_s);
+						}
+						break;
+
+
 					case PT_NUM_TYPES:
 						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
 						break;
@@ -2547,6 +2598,76 @@ static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBo
 										}
 										break;
 
+									case PT_CHAR:
+										{
+											if (json_is_string (min_p))
+												{
+													const char *value_s = json_string_value (min_p);
+													bounds_p -> pb_lower.st_char_value = value_s ? *value_s : '\0';
+
+													if (json_is_string (max_p))
+														{
+															value_s = json_string_value (max_p);
+															bounds_p -> pb_upper.st_char_value = value_s ? *value_s : '\0';
+
+															success_flag = true;
+														}
+													else
+														{
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "max_p is %d not a string", json_typeof (max_p));
+														}
+
+												}
+											else
+												{
+													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "min_p is %d not a string", json_typeof (max_p));
+												}
+
+										}
+										break;
+
+									case PT_DIRECTORY:
+									case PT_FASTA:
+									case PT_FILE_TO_READ:
+									case PT_FILE_TO_WRITE:
+									case PT_JSON:
+									case PT_KEYWORD:
+									case PT_LARGE_STRING:
+									case PT_PASSWORD:
+									case PT_STRING:
+									case PT_TABLE:
+										PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Parameter unsuitable for bounds");
+										break;
+
+
+									case PT_TIME:
+										{
+											if (json_is_string (min_p))
+												{
+													const char *value_s = json_string_value (min_p);
+													bounds_p -> pb_lower.st_time_p = GetTimeFromString (value_s);
+
+													if (json_is_string (max_p))
+														{
+															value_s = json_string_value (max_p);
+															bounds_p -> pb_upper.st_time_p = GetTimeFromString (value_s);
+
+															success_flag = true;
+														}
+													else
+														{
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "max_p is %d not a string", json_typeof (max_p));
+														}
+
+												}
+											else
+												{
+													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "min_p is %d not a string", json_typeof (max_p));
+												}
+
+										}
+										break;
+
 									case PT_NUM_TYPES:
 										PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Parameter has invalid type");
 										break;
@@ -2712,6 +2833,25 @@ bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterTy
 			case PT_BOOLEAN:
 				dest_p -> st_boolean_value = src.st_boolean_value;
 				success_flag = true;
+				break;
+
+
+			case PT_TIME:
+				if (dest_p -> st_time_p)
+					{
+						CopyTime (src.st_time_p, dest_p -> st_time_p);
+					}
+				else
+					{
+						if ((dest_p -> st_time_p = DuplicateTime (src.st_time_p)) != NULL)
+							{
+								success_flag = true;
+							}
+						else
+							{
+								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy time value");
+							}
+					}
 				break;
 
 			case PT_NUM_TYPES:
@@ -2995,53 +3135,85 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 	const SharedType * const value_p = & (param_p -> pa_current_value);
 
 	switch (param_p -> pa_type)
-	{
-		case PT_BOOLEAN:
-			{
-				const char *src_s = (value_p -> st_boolean_value == true) ? "true" : "false";
-				value_s = EasyCopyToNewString (src_s);
+		{
+			case PT_BOOLEAN:
+				{
+					const char *src_s = (value_p -> st_boolean_value == true) ? "true" : "false";
+					value_s = EasyCopyToNewString (src_s);
+					*alloc_flag_p = true;
+				}
+				break;
+
+			case PT_CHAR:
+				{
+					char buffer_s [2];
+
+					*buffer_s = value_p -> st_char_value;
+					* (buffer_s + 1) = '\0';
+
+					value_s = EasyCopyToNewString (buffer_s);
+					*alloc_flag_p = true;
+				}
+				break;
+
+			case PT_SIGNED_INT:
+			case PT_NEGATIVE_INT:
+				value_s = ConvertIntegerToString (value_p -> st_long_value);
 				*alloc_flag_p = true;
-			}
-			break;
+				break;
 
-		case PT_SIGNED_INT:
-		case PT_NEGATIVE_INT:
-			value_s = ConvertIntegerToString (value_p -> st_long_value);
-			*alloc_flag_p = true;
-			break;
+			case PT_UNSIGNED_INT:
+				value_s = ConvertUnsignedIntegerToString (value_p -> st_ulong_value);
+				*alloc_flag_p = true;
+				break;
 
-		case PT_UNSIGNED_INT:
-			value_s = ConvertUnsignedIntegerToString (value_p -> st_ulong_value);
-			*alloc_flag_p = true;
-			break;
+			case PT_SIGNED_REAL:
+			case PT_UNSIGNED_REAL:
+				value_s = ConvertDoubleToString (value_p -> st_data_value);
+				*alloc_flag_p = true;
+				break;
 
-		case PT_SIGNED_REAL:
-		case PT_UNSIGNED_REAL:
-			value_s = ConvertDoubleToString (value_p -> st_data_value);
-			*alloc_flag_p = true;
-			break;
+			case PT_DIRECTORY:
+			case PT_FILE_TO_READ:
+			case PT_FILE_TO_WRITE:
+				value_s = value_p -> st_resource_value_p -> re_value_s;
+				*alloc_flag_p = false;
+				break;
 
-		case PT_DIRECTORY:
-		case PT_FILE_TO_READ:
-		case PT_FILE_TO_WRITE:
-			value_s = value_p -> st_resource_value_p -> re_value_s;
-			*alloc_flag_p = false;
-			break;
+			case PT_TABLE:
+			case PT_LARGE_STRING:
+			case PT_STRING:
+			case PT_PASSWORD:
+			case PT_KEYWORD:
+			case PT_FASTA:
+				value_s = value_p -> st_string_value_s;
+				*alloc_flag_p = false;
+				break;
 
-		case PT_TABLE:
-		case PT_LARGE_STRING:
-		case PT_STRING:
-		case PT_PASSWORD:
-		case PT_KEYWORD:
-		case PT_FASTA:
-			value_s = value_p -> st_string_value_s;
-			*alloc_flag_p = false;
-			break;
+			case PT_JSON:
+				{
+					char *dump_s = json_dumps (value_p -> st_json_p, 0);
 
-		case PT_NUM_TYPES:
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
-			break;
-	}		/* switch (param_p -> pa_type) */
+					if (dump_s)
+						{
+							value_s = EasyCopyToNewString (dump_s);
+							*alloc_flag_p = true;
+
+							free (dump_s);
+						}
+				}
+				break;
+
+
+			case PT_TIME:
+				value_s = GetTimeAsString (value_p -> st_time_p, true);
+				*alloc_flag_p = true;
+				break;
+
+			case PT_NUM_TYPES:
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
+				break;
+		}		/* switch (param_p -> pa_type) */
 
 
 	return value_s;
@@ -3754,6 +3926,7 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 			case PT_LARGE_STRING:
 			case PT_PASSWORD:
 			case PT_FASTA:
+			case PT_TABLE:
 				{
 					char *value_s = NULL;
 
@@ -3796,9 +3969,44 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 				break;
 
 			case PT_JSON:
+				{
+					json_t *dest_p = json_deep_copy (json_p);
+
+					if (dest_p)
+						{
+							if (value_p -> st_json_p)
+								{
+									json_decref (value_p -> st_json_p);
+								}
+
+							value_p -> st_json_p = dest_p;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to copy JSON value");
+						}
+				}
 				break;
 
-			case PT_TABLE:
+			case PT_TIME:
+				{
+					if (json_is_string (json_p))
+						{
+							const char *json_value_s = json_string_value (json_p);
+							struct tm* time_p = GetTimeFromString (json_value_s);
+
+							if (time_p)
+								{
+									if (value_p -> st_time_p)
+										{
+											FreeTime (value_p -> st_time_p);
+										}
+
+									value_p -> st_time_p = time_p;
+									success_flag = true;
+								}
+						}
+				}
 				break;
 
 			case PT_NUM_TYPES:
