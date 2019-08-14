@@ -282,7 +282,12 @@ GRASSROOTS_PARAMS_API ParameterNode *GetParameterNodeFromParameterSetByName (con
 GRASSROOTS_PARAMS_API bool GetParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p, const bool current_value_flag);
 
 
+
+GRASSROOTS_PARAMS_API bool GetCurrentParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p);
+
+
 /**
+ *
  * Allocate a new ParameterSetNode to point to the given ParameterSet
  *
  * @param params_p The ParameterSet that this ParameterSetNode will point to.

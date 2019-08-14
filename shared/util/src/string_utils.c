@@ -133,7 +133,8 @@ bool CloneValidString (const char *src_s, char **dest_ss)
 {
 	bool success_flag = false;
 
-	if (src_s)
+
+	if (!IsStringEmpty (src_s))
 		{
 			char *dest_s = CopyToNewString (src_s, 0, false);
 

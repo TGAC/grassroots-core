@@ -322,6 +322,13 @@ Parameter *GetParameterFromParameterSetByName (const ParameterSet * const params
 }
 
 
+bool GetCurrentParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p)
+{
+	InitSharedType (value_p);
+	return GetParameterValueFromParameterSet (params_p, name_s, value_p, true);
+}
+
+
 bool GetParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p, const bool current_value_flag)
 {
 	bool success_flag = false;
