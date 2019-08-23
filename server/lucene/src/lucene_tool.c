@@ -34,6 +34,9 @@ static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p);
 
 static bool AddNumericArgument (ByteBuffer *buffer_p, const char * const key_s, const uint32 value, const uint32 default_value);
 
+static bool ReplaceValidString (const char *src_s, char **dest_ss);
+
+
 
 LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 {
@@ -61,38 +64,50 @@ LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 
 											if (search_class_s)
 												{
-													const char *working_directory_s = GetJSONString (lucene_config_p, "working_directory");
+													const char *index_class_s = GetJSONString (lucene_config_p, "index_class");
 
-													if (working_directory_s)
+													if (index_class_s)
 														{
-															const char *facet_key_s = GetJSONString (lucene_config_p, "facet_key");
+															const char *working_directory_s = GetJSONString (lucene_config_p, "working_directory");
 
-															if (facet_key_s)
+															if (working_directory_s)
 																{
-																	tool_p -> lt_search_class_s = search_class_s;
-																	tool_p -> lt_classpath_s = classpath_s;
-																	tool_p -> lt_index_s = index_s;
-																	tool_p -> lt_taxonomy_s = taxonomy_s;
-																	tool_p -> lt_working_directory_s = working_directory_s;
-																	tool_p -> lt_facet_key_s = facet_key_s;
-																	tool_p -> lt_output_file_s = NULL;
-																	tool_p -> lt_num_total_hits = 0;
-																	tool_p -> lt_hits_from_index = 0;
-																	tool_p -> lt_hits_to_index = 0;
+																	const char *facet_key_s = GetJSONString (lucene_config_p, "facet_key");
 
-																	uuid_copy (tool_p -> lt_id, id);
+																	if (facet_key_s)
+																		{
+																			tool_p -> lt_name_s = NULL;
+																			tool_p -> lt_search_class_s = search_class_s;
+																			tool_p -> lt_index_class_s = index_class_s;
+																			tool_p -> lt_classpath_s = classpath_s;
+																			tool_p -> lt_index_s = index_s;
+																			tool_p -> lt_taxonomy_s = taxonomy_s;
+																			tool_p -> lt_working_directory_s = working_directory_s;
+																			tool_p -> lt_facet_key_s = facet_key_s;
+																			tool_p -> lt_output_file_s = NULL;
+																			tool_p -> lt_num_total_hits = 0;
+																			tool_p -> lt_hits_from_index = 0;
+																			tool_p -> lt_hits_to_index = 0;
 
-																	return tool_p;
+																			uuid_copy (tool_p -> lt_id, id);
+
+																			return tool_p;
+																		}
+																	else
+																		{
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"facet_key\" in lucene config");
+																		}
+
 																}
 															else
 																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"facet_key\" in lucene config");
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"working_directory\" in lucene config");
 																}
 
-														}
+														}		/* if (index_class_s) */
 													else
 														{
-															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"working_directory\" in lucene config");
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"index_class\" in lucene config");
 														}
 
 												}		/* if (search_class_s) */
@@ -143,11 +158,16 @@ void FreeLuceneTool (LuceneTool *tool_p)
 			FreeCopiedString (tool_p -> lt_output_file_s);
 		}
 
+	if (tool_p -> lt_name_s)
+		{
+			FreeCopiedString (tool_p -> lt_name_s);
+		}
+
 	FreeMemory (tool_p);
 }
 
 
-bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size)
+bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size)
 {
 	bool success_flag = false;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
@@ -206,49 +226,69 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 											 */
 											char uuid_s [UUID_STRING_BUFFER_SIZE];
 											char *full_filename_stem_s = NULL;
+											char *file_s = uuid_s;
 
 											ConvertUUIDToString (tool_p -> lt_id, uuid_s);
 
-											full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, uuid_s);
-
-											if (full_filename_stem_s)
+											if (tool_p -> lt_name_s)
 												{
-													char *output_s = ConcatenateStrings (full_filename_stem_s, ".out");
-
-													if (output_s)
+													if (! (file_s = ConcatenateVarargsStrings (uuid_s, "_", tool_p -> lt_name_s, NULL)))
 														{
-															SetLuceneToolOutput (tool_p, output_s);
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to concatenate Varargs Strings \"%s\", \"_\", \"%s\"", uuid_s, "_", tool_p -> lt_name_s);
+														}
+												}
 
-															if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -query ", query_s, " >> ", full_filename_stem_s, ".log", NULL))
+											if (file_s)
+												{
+													full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, file_s);
+
+													if (full_filename_stem_s)
+														{
+															char *output_s = ConcatenateStrings (full_filename_stem_s, ".out");
+
+															if (output_s)
 																{
-																	const char *command_s = GetByteBufferData (buffer_p);
-																	int res = system (command_s);
-
-																	if (res != -1)
+																	if (SetLuceneToolOutput (tool_p, output_s))
 																		{
-																			int process_exit_code = WEXITSTATUS (res);
+																			if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -query ", query_s, " >> ", full_filename_stem_s, ".log", NULL))
+																				{
+																					const char *command_s = GetByteBufferData (buffer_p);
+																					int res = system (command_s);
 
-																			if (process_exit_code == 0)
-																				{
-																					success_flag = true;
-																					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																					if (res != -1)
+																						{
+																							int process_exit_code = WEXITSTATUS (res);
+
+																							if (process_exit_code == 0)
+																								{
+																									success_flag = true;
+																									PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																								}
+																							else
+																								{
+																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																								}
+																						}
+																					else
+																						{
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
+																						}
 																				}
-																			else
-																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
-																				}
-																		}
-																	else
-																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
-																		}
+
+																		}		/* if (SetLuceneToolOutput (tool_p, output_s)) */
 
 																}		/* if (output_s) */
 
-														}		/* if (output_s) */
+															FreeCopiedString (full_filename_stem_s);
+														}		/* if (full_filename_stem_s) */
 
-													FreeCopiedString (full_filename_stem_s);
-												}		/* if (full_filename_stem_s) */
+													if (file_s != uuid_s)
+														{
+															FreeCopiedString (file_s);
+														}
+
+												}		/* if (file_s) */
+
 
 										}		/* if (AddNumericArgument (buffer_p, "-page_size", page_size, DEFAULT_PAGE_SIZE)) */
 
@@ -265,15 +305,187 @@ bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_
 }
 
 
-
-void SetLuceneToolOutput (LuceneTool *tool_p, char *output_s)
+bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 {
-	if (tool_p -> lt_output_file_s)
+	bool success_flag = false;
+	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+	if (buffer_p)
 		{
-			FreeCopiedString (tool_p -> lt_output_file_s);
+			if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_index_class_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s,  NULL))
+				{
+					bool run_flag = true;
+
+					if (update_flag)
+						{
+							if (!AppendStringToByteBuffer (buffer_p, " -update"))
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to add update flag to buffer");
+									run_flag = false;
+								}
+						}
+
+					if (run_flag)
+						{
+							char uuid_s [UUID_STRING_BUFFER_SIZE];
+							char *full_filename_stem_s = NULL;
+
+							char *file_s = uuid_s;
+
+							ConvertUUIDToString (tool_p -> lt_id, uuid_s);
+
+							if (tool_p -> lt_name_s)
+								{
+									if (! (file_s = ConcatenateVarargsStrings (uuid_s, "_", tool_p -> lt_name_s, NULL)))
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to concatenate Varargs Strings \"%s\", \"_\", \"%s\"", uuid_s, "_", tool_p -> lt_name_s);
+										}
+								}
+
+							if (file_s)
+								{
+									full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, file_s);
+
+									if (full_filename_stem_s)
+										{
+											char *input_s = ConcatenateStrings (full_filename_stem_s, ".json");
+
+											if (input_s)
+												{
+													if (json_dump_file (data_p, input_s, JSON_INDENT (2)) == 0)
+														{
+															if (AppendStringsToByteBuffer (buffer_p, " -data ", input_s, NULL))
+																{
+																	char *output_s = ConcatenateStrings (full_filename_stem_s, ".out");
+
+																	if (output_s)
+																		{
+																			SetLuceneToolOutput (tool_p, output_s);
+
+																			if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
+																				{
+																					const char *command_s = GetByteBufferData (buffer_p);
+																					int res = system (command_s);
+
+																					if (res != -1)
+																						{
+																							int process_exit_code = WEXITSTATUS (res);
+
+																							if (process_exit_code == 0)
+																								{
+																									success_flag = true;
+																									PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																								}
+																							else
+																								{
+																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																								}
+																						}
+																					else
+																						{
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
+																						}
+
+																				}		/* if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL)) */
+																			else
+																				{
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to append output and log params for \"%s\"", full_filename_stem_s);
+																				}
+
+																			FreeCopiedString (output_s);
+																		}		/* if (output_s) */
+																	else
+																		{
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to create output filename for stem \"%s\"", full_filename_stem_s);
+																		}
+
+																}		/* if (AppendStringsToByteBuffer (buffer_p, " -data ", input_s, NULL)) */
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to add data parameter \"%s\"", input_s);
+																}
+
+														}		/* if (json_dump_file (data_p, input_s, JSON_INDENT (2)) == 0) */
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to write data to index to \"%s\"", input_s);
+														}
+
+													FreeCopiedString (input_s);
+												}		/* if (input_s) */
+											else
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to create input filename for stem \"%s\"", full_filename_stem_s);
+												}
+
+											FreeCopiedString (full_filename_stem_s);
+										}		/* if (full_filename_stem_s) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to make full filename stem for \"%s\" and \"%s\"", tool_p -> lt_working_directory_s, uuid_s);
+										}
+
+
+									if (file_s != uuid_s)
+										{
+											FreeCopiedString (file_s);
+										}
+
+								}		/* if (file_s) */
+
+						}		/* if (run_flag) */
+
+				}		/* if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_index_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s,  NULL)) */
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to add command params");
+				}
+
+			FreeByteBuffer (buffer_p);
+		}		/* if (buffer_p) */
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to allocate ByteBuffer");
 		}
 
-	tool_p -> lt_output_file_s = output_s;
+	return success_flag;
+}
+
+
+bool SetLuceneToolOutput (LuceneTool *tool_p, char *output_s)
+{
+	return ReplaceValidString (output_s, & (tool_p -> lt_output_file_s));
+}
+
+
+bool SetLuceneToolName (LuceneTool *tool_p, const char *name_s)
+{
+	return ReplaceValidString (name_s, & (tool_p -> lt_name_s));
+}
+
+
+static bool ReplaceValidString (const char *src_s, char **dest_ss)
+{
+	bool success_flag = true;
+	char *new_value_s = NULL;
+
+	if (src_s)
+		{
+			new_value_s = EasyCopyToNewString (src_s);
+			success_flag = (new_value_s != NULL);
+		}
+
+	if (success_flag)
+		{
+			if (*dest_ss)
+				{
+					FreeCopiedString (*dest_ss);
+				}
+
+			*dest_ss = new_value_s;
+		}
+
+	return success_flag;
 }
 
 

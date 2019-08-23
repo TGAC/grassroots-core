@@ -40,6 +40,10 @@
  */
 typedef struct LuceneTool
 {
+	const char *lt_name_s;
+
+	const char *lt_index_class_s;
+
 	const char *lt_search_class_s;
 
 	const char *lt_classpath_s;
@@ -116,7 +120,7 @@ GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
 
 
 /**
- * Run a LuceneTool.
+ * Run a Lucene Search
  *
  * @param tool_p The LuceneTool to run.
  * @param query_s The query to run.
@@ -125,13 +129,35 @@ GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
  * @return <code>true</code> if the LuceneTool ran successfully, <code>false</code> otherwise.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API bool RunLuceneTool (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size);
+GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size);
 
+
+
+/*
+ * 		for (int i = 0; i < args.length; ++ i) {
+			} else if ("-data".equals (args [i])) {
+				data_dir_name = args [++ i];
+ */
+
+/**
+ * Index data in Lucene.
+ *
+ * @param tool_p The LuceneTool to index with.
+ * @param data_p The data to index
+ * @param update_flag If this is <code>true</code> then add to the current index.
+ * If this <code>false</code>, then the index will be cleared before indexing the given data.
+ * @return <code>true</code> if the LuceneTool ran successfully, <code>false</code> otherwise.
+ * @memberof LuceneTool
+ */
+GRASSROOTS_LUCENE_API bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag);
 
 
 GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p);
 
-GRASSROOTS_LUCENE_API void SetLuceneToolOutput (LuceneTool *tool_p, char *output_s);
+GRASSROOTS_LUCENE_API bool SetLuceneToolOutput (LuceneTool *tool_p, char *output_s);
+
+
+GRASSROOTS_LUCENE_API bool SetLuceneToolName (LuceneTool *tool_p, const char *name_s);
 
 
 #ifdef __cplusplus
