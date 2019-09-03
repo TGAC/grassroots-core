@@ -1535,8 +1535,13 @@ static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * c
 	else
 		{
 			ServersManager *servers_manager_p = GetServersManager (grassroots_p);
-			json_p = AddExternalServerOperationsToJSON (servers_manager_p, OP_LIST_ALL_SERVICES);
+
+			if (servers_manager_p)
+				{
+					json_p = AddExternalServerOperationsToJSON (servers_manager_p, OP_LIST_ALL_SERVICES);
+				}
 		}
+
 
 	return json_p;
 }

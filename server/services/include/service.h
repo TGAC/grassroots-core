@@ -950,7 +950,7 @@ GRASSROOTS_SERVICE_API bool AddPairedService (Service *service_p, PairedService 
  * @return <code>true</code> if the LinkedService was added successfully, <code>false</code> otherwise.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API bool CreateAndAddLinkedService (Service *service_p, const json_t *service_config_p);
+GRASSROOTS_SERVICE_API bool CreateAndAddLinkedService (Service *service_p, const json_t *service_config_p, GrassrootsServer *grassroots_p);
 
 
 /**
