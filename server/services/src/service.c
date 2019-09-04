@@ -161,7 +161,7 @@ bool InitialiseService (Service * const service_p,
 			 */
 			InitLinkedList (& (service_p -> se_linked_services));
 			SetLinkedListFreeNodeFunction (& (service_p -> se_linked_services), FreeLinkedServiceNode);
-			AddLinkedServices (service_p);
+			AddLinkedServices (service_p, grassroots_p);
 
 			service_p -> se_get_metadata_fn = get_metadata_fn;
 			service_p -> se_metadata_p = service_p -> se_get_metadata_fn (service_p);
