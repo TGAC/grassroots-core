@@ -73,7 +73,7 @@ static void GenerateServiceUUID (Service *service_p);
 
 static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p);
 
-static  uint32 AddLinkedServices (Service *service_p);
+static uint32 AddLinkedServices (Service *service_p, GrassrootsServer *grassroots_p);
 
 static int CompareServicesByName (const void *v0_p, const void *v1_p);
 
@@ -288,46 +288,6 @@ bool IsServiceLive (Service *service_p)
 		}
 
 	return is_live_flag;
-}
-
-
-bool SetUpLinkedServices (Service *service_p)
-{
-	bool success_flag = true;
-	const json_t *config_p = service_p -> se_data_p ? service_p -> se_data_p -> sd_config_p : NULL;
-
-	if (config_p)
-		{
-			const json_t *linked_services_json_p = json_object_get (config_p, LINKED_SERVICES_S);
-
-			if (linked_services_json_p)
-				{
-					if (json_is_array (linked_services_json_p))
-						{
-							size_t i;
-							const json_t *linked_service_json_p;
-
-							json_array_foreach (linked_services_json_p, i, linked_service_json_p)
-								{
-									LinkedService *linked_service_p = CreateLinkedServiceFromJSON (service_p, linked_service_json_p);
-
-									if (linked_service_p)
-										{
-											if (!AddLinkedService (service_p, linked_service_p))
-												{
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to add LinkedService \"%s\" to \"%s\"", linked_service_p -> ls_output_service_s, GetServiceName (service_p));
-												}
- 										}
-									else
-										{
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_service_json_p, "Failed to create LinkedService");
-										}
-								}
-						}
-				}
-		}
-
-	return success_flag;
 }
 
 
@@ -1525,7 +1485,7 @@ bool AddPairedService (Service *service_p, PairedService *paired_service_p)
 
 
 
-static uint32 AddLinkedServices (Service *service_p)
+static uint32 AddLinkedServices (Service *service_p, GrassrootsServer *grassroots_p)
 {
 	uint32 num_added_services = 0;
 
@@ -1544,7 +1504,7 @@ static uint32 AddLinkedServices (Service *service_p)
 
 									json_array_foreach (linked_services_config_p, i, link_config_p)
 										{
-											if (!CreateAndAddLinkedService (service_p, link_config_p))
+											if (!CreateAndAddLinkedService (service_p, link_config_p, grassroots_p))
 												{
 													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, link_config_p, "Failed to add LinkedService to \"%s\"", GetServiceName (service_p));
 												}
@@ -1554,7 +1514,7 @@ static uint32 AddLinkedServices (Service *service_p)
 								}		/* if (json_is_array (linked_services_config_p)) */
 							else
 								{
-									if (!CreateAndAddLinkedService (service_p, linked_services_config_p))
+									if (!CreateAndAddLinkedService (service_p, linked_services_config_p, grassroots_p))
 										{
 											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, linked_services_config_p, "Failed to add LinkedService to \"%s\"", GetServiceName (service_p));
 										}
@@ -1572,9 +1532,9 @@ static uint32 AddLinkedServices (Service *service_p)
 }
 
 
-bool CreateAndAddLinkedService (Service *service_p, const json_t *service_config_p)
+bool CreateAndAddLinkedService (Service *service_p, const json_t *service_config_p, GrassrootsServer *grassroots_p)
 {
-	LinkedService *linked_service_p = CreateLinkedServiceFromJSON (service_p, service_config_p);
+	LinkedService *linked_service_p = CreateLinkedServiceFromJSON (service_p, service_config_p, grassroots_p);
 
 	if (linked_service_p)
 		{

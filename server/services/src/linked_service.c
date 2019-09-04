@@ -308,7 +308,7 @@ bool ProcessLinkedService (LinkedService *linked_service_p, ServiceJob *job_p)
 }
 
 
-LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *linked_service_json_p)
+LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *linked_service_json_p, GrassrootsServer *grassroots_p)
 {
 	const char *linked_service_s = GetJSONString (linked_service_json_p, SERVICE_NAME_S);
 
@@ -334,7 +334,6 @@ LinkedService *CreateLinkedServiceFromJSON (Service *service_p, const json_t *li
 
 			if (mapped_params_json_p || function_s)
 				{
-					GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
 					LinkedService *linked_service_p = AllocateLinkedService (linked_service_s, input_root_s, mapped_params_json_p, function_s, json_object_get (linked_service_json_p, LINKED_SERVICE_CONFIG_S), grassroots_p);
 
 					if (linked_service_p)
