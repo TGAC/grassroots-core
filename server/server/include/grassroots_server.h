@@ -45,7 +45,18 @@ typedef struct GrassrootsServer
 {
 	char *gs_path_s;
 
+	/**
+	 * The path to the global grassroots config file
+	 * for this GrassrootsServer.
+	 */
 	char *gs_config_filename_s;
+
+	/**
+	 * The relative path from gs_path_s to the folder
+	 * containing the individual service config files
+	 */
+	char *gs_config_path_s;
+
 
 	struct JobsManager *gs_jobs_manager_p;
 
@@ -77,7 +88,7 @@ extern "C"
  * @memberof GrassrootsServer
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, struct JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, struct ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
+GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, struct JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, struct ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
 
 
 /**

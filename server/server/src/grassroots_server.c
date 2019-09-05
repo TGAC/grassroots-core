@@ -109,7 +109,7 @@ static struct MongoClientManager *GetMongoClientManager (const json_t *config_p)
  * API DEFINITIONS
  */
 
-GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag)
+GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag)
 {
 	char *copied_path_s = EasyCopyToNewString (grassroots_path_s);
 
@@ -602,13 +602,14 @@ json_t *GetGlobalServiceConfig (GrassrootsServer *grassroots_p, const char * con
 	json_t *res_p = NULL;
 	char *conf_s = NULL;
 	char sep_s [2];
+	const char *config_s = grassroots_p -> gs_config_path_s ? grassroots_p -> gs_config_path_s : "config";
 
 	*sep_s = GetFileSeparatorChar ();
 	* (sep_s + 1) = '\0';
 
 	*alloc_flag_p = false;
 
-	conf_s = ConcatenateVarargsStrings ("config", sep_s, service_name_s, NULL);
+	conf_s = ConcatenateVarargsStrings (config_s, sep_s, service_name_s, NULL);
 
 	if (conf_s)
 		{
