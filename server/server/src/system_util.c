@@ -22,7 +22,7 @@
 #include "jobs_manager.h"
 #include "string_utils.h"
 #include "mongodb_util.h"
-#include "servers_pool.h"
+#include "servers_manager.h"
 
 #ifdef DRMAA_ENABLED
 #include "drmaa_util.h"

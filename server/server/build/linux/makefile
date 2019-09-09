@@ -40,7 +40,7 @@ SRCS 	= \
 	audit.c \
 	jobs_manager.c \
 	system_util.c \
-	servers_pool.c \
+	servers_manager.c \
 	grassroots_server.c \
 	plugin.c \
 	unix_platform.c \

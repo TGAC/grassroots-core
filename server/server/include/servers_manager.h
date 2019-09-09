@@ -141,7 +141,7 @@ typedef unsigned char *(*ExternalServerSerialiser) (ExternalServer *server_p, ui
  */
 typedef struct ServersManager
 {
-	/** The plugin that thjis JobsManager was loaded from. */
+	/** The plugin that thjs JobsManager was loaded from. */
 	struct Plugin *sm_plugin_p;
 
 

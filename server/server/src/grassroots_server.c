@@ -109,7 +109,7 @@ static struct MongoClientManager *GetMongoClientManager (const json_t *config_p)
  * API DEFINITIONS
  */
 
-GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag)
+GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, const char *references_path_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag)
 {
 	char *copied_path_s = EasyCopyToNewString (grassroots_path_s);
 
@@ -123,104 +123,114 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 					if (copied_service_config_path_s)
 						{
-							json_t *config_p = LoadConfig (copied_path_s, copied_config_filename_s);
 
-							if (config_p)
+							char *copied_references_path_s = EasyCopyToNewString (references_path_s ? references_path_s: "references");
+
+							if (copied_references_path_s)
 								{
-									SchemaVersion *sv_p = InitSchemaVersionDetails (config_p);
+									json_t *config_p = LoadConfig (copied_path_s, copied_config_filename_s);
 
-									if (sv_p)
+									if (config_p)
 										{
-											struct MongoClientManager *mongo_manager_p = GetMongoClientManager (config_p);
+											SchemaVersion *sv_p = InitSchemaVersionDetails (config_p);
 
-											if (mongo_manager_p)
+											if (sv_p)
 												{
-													GrassrootsServer *grassroots_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
+													struct MongoClientManager *mongo_manager_p = GetMongoClientManager (config_p);
 
-													if (grassroots_p)
+													if (mongo_manager_p)
 														{
-															grassroots_p -> gs_path_s = copied_path_s;
-															grassroots_p -> gs_config_filename_s = copied_config_filename_s;
-															grassroots_p -> gs_config_p = config_p;
-															grassroots_p -> gs_config_path_s = copied_service_config_path_s;
+															GrassrootsServer *grassroots_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
 
-															grassroots_p -> gs_jobs_manager_p = external_jobs_manager_p;
-															grassroots_p -> gs_jobs_manager_mem = jobs_manager_flag;
-
-															grassroots_p -> gs_servers_manager_p = external_servers_manager_p;
-															grassroots_p -> gs_servers_manager_mem = servers_manager_flag;
-
-															grassroots_p -> gs_schema_version_p = sv_p;
-
-															grassroots_p -> gs_mongo_manager_p = mongo_manager_p;
-
-															/*
-															 * Load the jobs manager
-															 */
-															if (!external_jobs_manager_p)
+															if (grassroots_p)
 																{
-																	JobsManager *jobs_manager_p = LoadJobsManagerFromConfig (grassroots_p);
+																	grassroots_p -> gs_path_s = copied_path_s;
+																	grassroots_p -> gs_config_filename_s = copied_config_filename_s;
+																	grassroots_p -> gs_config_p = config_p;
+																	grassroots_p -> gs_config_path_s = copied_service_config_path_s;
+																	grassroots_p -> gs_references_path_s = copied_references_path_s;
 
-																	if (jobs_manager_p)
+																	grassroots_p -> gs_jobs_manager_p = external_jobs_manager_p;
+																	grassroots_p -> gs_jobs_manager_mem = jobs_manager_flag;
+
+																	grassroots_p -> gs_servers_manager_p = external_servers_manager_p;
+																	grassroots_p -> gs_servers_manager_mem = servers_manager_flag;
+
+																	grassroots_p -> gs_schema_version_p = sv_p;
+
+																	grassroots_p -> gs_mongo_manager_p = mongo_manager_p;
+
+																	/*
+																	 * Load the jobs manager
+																	 */
+																	if (!external_jobs_manager_p)
 																		{
-																			grassroots_p -> gs_jobs_manager_p = jobs_manager_p;
-																			grassroots_p -> gs_jobs_manager_mem = MF_SHALLOW_COPY;
-																		}
-																}
+																			JobsManager *jobs_manager_p = LoadJobsManagerFromConfig (grassroots_p);
 
-
-															/*
-															 * Load the servers manager
-															 */
-															if (!external_servers_manager_p)
-																{
-																	ServersManager *servers_manager_p = LoadServersManagerFromConfig (grassroots_p);
-
-																	if (servers_manager_p)
-																		{
-																			grassroots_p -> gs_servers_manager_p = servers_manager_p;
-																			grassroots_p -> gs_servers_manager_mem = MF_SHALLOW_COPY;
+																			if (jobs_manager_p)
+																				{
+																					grassroots_p -> gs_jobs_manager_p = jobs_manager_p;
+																					grassroots_p -> gs_jobs_manager_mem = MF_SHALLOW_COPY;
+																				}
 																		}
 
-																}
+
+																	/*
+																	 * Load the servers manager
+																	 */
+																	if (!external_servers_manager_p)
+																		{
+																			ServersManager *servers_manager_p = LoadServersManagerFromConfig (grassroots_p);
+
+																			if (servers_manager_p)
+																				{
+																					grassroots_p -> gs_servers_manager_p = servers_manager_p;
+																					grassroots_p -> gs_servers_manager_mem = MF_SHALLOW_COPY;
+																				}
+
+																		}
 
 
 
 
-															/*
-																#ifdef DRMAA_ENABLED
-																if (res_flag)
-																	{
-																		res_flag = InitDrmaaEnvironment ();
-																	}
-																#endif
+																	/*
+																		#ifdef DRMAA_ENABLED
+																		if (res_flag)
+																			{
+																				res_flag = InitDrmaaEnvironment ();
+																			}
+																		#endif
 
 
-																#ifdef IRODS_ENABLED
-																if (res_flag)
-																	{
-																		InitRodsEnv ();
-																	}
-																#endif
-															 */
+																		#ifdef IRODS_ENABLED
+																		if (res_flag)
+																			{
+																				InitRodsEnv ();
+																			}
+																		#endif
+																	 */
 
-															/*
-															ConnectToExternalServers (grassroots_p);
-															 */
+																	/*
+																	ConnectToExternalServers (grassroots_p);
+																	 */
 
-															return grassroots_p;
-														}		/* if (grassroots_p) */
-
-
-
-												}		/* if (mongo_manager_p) */
+																	return grassroots_p;
+																}		/* if (grassroots_p) */
 
 
-											FreeSchemaVersion (sv_p);
-										}		/* if (sv_p) */
 
-									json_decref (config_p);
-								}		/* if (config_p) */
+														}		/* if (mongo_manager_p) */
+
+
+													FreeSchemaVersion (sv_p);
+												}		/* if (sv_p) */
+
+											json_decref (config_p);
+										}		/* if (config_p) */
+
+
+									FreeCopiedString (copied_references_path_s);
+								}		/* if (copied_service_config_path_s) */
 
 							FreeCopiedString (copied_service_config_path_s);
 						}		/* if (copied_service_config_path_s) */
@@ -280,6 +290,7 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 	FreeCopiedString (server_p -> gs_path_s);
 	FreeCopiedString (server_p -> gs_config_filename_s);
 	FreeCopiedString (server_p -> gs_config_path_s);
+	FreeCopiedString (server_p -> gs_references_path_s);
 
 	if (server_p -> gs_mongo_manager_p)
 		{

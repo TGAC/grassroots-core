@@ -31,7 +31,7 @@
 #include "service_job.h"
 #include "paired_service.h"
 #include "linked_service.h"
-#include "servers_pool.h"
+#include "servers_manager.h"
 #include "string_utils.h"
 #include "service_job.h"
 #include "provider.h"
@@ -685,7 +685,7 @@ void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *ser
 	
 	if (services_p -> ll_size == 0)
 		{
-			AddReferenceServices (grassroots_p, services_p, REFERENCES_PATH_S, services_path_s, service_name_s, user_p);
+			AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, service_name_s, user_p);
 		}
 }
 
@@ -699,7 +699,7 @@ void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_
 	
 	GetMatchingServices (grassroots_p, & (matcher.rsm_base_matcher), user_p, services_p, true);
 		
-	AddReferenceServices (grassroots_p, services_p, REFERENCES_PATH_S, services_path_s, NULL, user_p);
+	AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, NULL, user_p);
 }
 
 
@@ -711,7 +711,7 @@ void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p
 
 	GetMatchingServices (grassroots_p, & (matcher.ksm_base_matcher), user_p, services_p, true);
 
-	AddReferenceServices (grassroots_p, services_p, REFERENCES_PATH_S, services_path_s, NULL, user_p);
+	AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, NULL, user_p);
 }
 
 

@@ -78,12 +78,6 @@ struct ExternalServer;
 PATH_PREFIX const char *SERVICES_PATH_S PATH_VAL("services");
 
 
-/**
- * This specifies the relative filesystem path to where the Referred Service
- * configuration files are stored.
- */
-PATH_PREFIX const char *REFERENCES_PATH_S PATH_VAL("references");
-
 
 /**
  * A datatype detailing the addon services
