@@ -164,12 +164,13 @@ typedef struct ServersManager
 	 * @param serialise_fn The function used to serialise the ExternalServer into the unsigned char array
 	 * which is the value stored in the ServersManager. If this is <code>NULL</code> then
 	 * SerialiseExternalServerToJSON is used by default.
-	 * @return <code>true</code> if the ExternalServer was added successfully,
-	 * <code>false</code> otherwise.
+	 * @return If 0, then the server was added successfully and can be freed. If 1 is returned then
+	 * the server was added successfully and the ServersManager has taken ownership of the given ExternalServer
+	 * and will take care of freeing it. Upon error, 1 will be returned.
 	 * @memberof ServersManager
 	 * @see SerialiseExternalServerToJSON
 	 */
-	bool (*sm_add_server_fn) (struct ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn);
+	int (*sm_add_server_fn) (struct ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn);
 
 	/**
 	 * @brief Find an ExternalServer.
@@ -223,9 +224,8 @@ typedef struct ServersManager
 	 * Free a given ServersManager.
 	 *
 	 * @param manager_p This ServersManager.
-	 * @return <code>true</code> if the ServersManager was freed successfully, <code>false</code> othewise.
 	 */
-	bool (*sm_free_servers_manager_fn) (struct ServersManager *manager_p);
+	void (*sm_free_servers_manager_fn) (struct ServersManager *manager_p);
 
 
 	/**
@@ -285,11 +285,11 @@ GRASSROOTS_SERVICE_MANAGER_API const char *GetLocalServerIdAsString (struct Gras
  * @memberof ServersManager
  */
 GRASSROOTS_SERVICE_MANAGER_API void InitServersManager (ServersManager *manager_p,
-                      bool (*add_server_fn) (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn),
+                      int (*add_server_fn) (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn),
 											ExternalServer *(*get_server_fn)  (ServersManager *manager_p, const char * const server_uri_s, ExternalServerDeserialiser deserialise_fn),
 											ExternalServer *(*remove_server_fn) (ServersManager *manager_p, const char * const server_uri_s, ExternalServerDeserialiser deserialise_fn),
 											LinkedList *(*get_all_servers_fn) (struct ServersManager *manager_p, ExternalServerDeserialiser deserialise_fn),
-											bool (*free_servers_manager_fn) (struct ServersManager *manager_p));
+											void (*free_servers_manager_fn) (struct ServersManager *manager_p));
 
 
 /**
@@ -300,14 +300,15 @@ GRASSROOTS_SERVICE_MANAGER_API void InitServersManager (ServersManager *manager_
  * @param serialise_fn The function used to serialise the ExternalServer into the unsigned char array
  * which is the value stored in the ServersManager. If this is <code>NULL</code> then
  * SerialiseExternalServerToJSON is used by default.
- * @return <code>true</code> if the ExternalServer was added successfully,
- * <code>false</code> otherwise.
+ * @return If 0, then the server was added successfully and can be freed. If 1 is returned then
+ * the server was added successfully and the ServersManager has taken ownership of the given ExternalServer
+ * and will take care of freeing it. Upon error, 1 will be returned.
  * @memberof ServersManager
  * @see SerialiseExternalServerToJSON
  * @memberof ServersManager
  * @see sm_add_server_fn
  */
-GRASSROOTS_SERVICE_MANAGER_API bool AddExternalServerToServersManager (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn);
+GRASSROOTS_SERVICE_MANAGER_API int AddExternalServerToServersManager (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn);
 
 
 /**
@@ -370,12 +371,10 @@ GRASSROOTS_SERVICE_MANAGER_API LinkedList *GetAllExternalServersFromServersManag
  * Free a ServersManager and all of its associated ExternalServers.
  *
  * @param manager_p The ServersManager to free.
- * @return <code>true</code> if the ServersManager and its associated ExternalServers were freed
- * successfully, <code>false</code>otherwise.
  * @memberof ServersManager
  * @see sm_free_servers_manager_fn
  */
-GRASSROOTS_SERVICE_MANAGER_API bool FreeServersManager (ServersManager *manager_p);
+GRASSROOTS_SERVICE_MANAGER_API void FreeServersManager (ServersManager *manager_p);
 
 
 /**

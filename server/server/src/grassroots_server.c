@@ -190,6 +190,10 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 																		}
 
+																	if (grassroots_p -> gs_servers_manager_p)
+																		{
+																			ConnectToExternalServers (grassroots_p);
+																		}
 
 
 

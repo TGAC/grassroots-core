@@ -51,7 +51,7 @@ ServersManager *GetServersManagerFromPlugin (Plugin * const plugin_p)
 		}
 	else if (plugin_p -> pl_type == PN_UNKNOWN)
 		{
-			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetCustomServerssManager");
+			void *symbol_p = GetSymbolFromPlugin (plugin_p, "GetCustomServersManager");
 
 			if (symbol_p)
 				{
@@ -74,11 +74,11 @@ ServersManager *GetServersManagerFromPlugin (Plugin * const plugin_p)
 
 
 void InitServersManager (ServersManager *manager_p,
-                      bool (*add_server_fn) (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn),
+                      int (*add_server_fn) (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn),
 											ExternalServer *(*get_server_fn)  (ServersManager *manager_p, const char * const server_uri_s, ExternalServerDeserialiser deserialise_fn),
 											ExternalServer *(*remove_server_fn) (ServersManager *manager_p, const char * const server_uri_s, ExternalServerDeserialiser deserialise_fn),
 											LinkedList *(*get_all_servers_fn) (struct ServersManager *manager_p, ExternalServerDeserialiser deserialise_fn),
-											bool (*free_servers_manager_fn) (struct ServersManager *manager_p))
+											void (*free_servers_manager_fn) (struct ServersManager *manager_p))
 {
 	uuid_generate (manager_p -> sm_server_id);
 	ConvertUUIDToString (manager_p -> sm_server_id, manager_p -> sm_server_id_s);
@@ -88,8 +88,6 @@ void InitServersManager (ServersManager *manager_p,
 	manager_p -> sm_remove_server_fn = remove_server_fn;
 	manager_p -> sm_get_all_servers_fn = get_all_servers_fn;
 	manager_p -> sm_free_servers_manager_fn = free_servers_manager_fn;
-
-//	s_servers_manager_p = manager_p;
 }
 
 
@@ -173,7 +171,7 @@ uuid_t *GetLocalServerId (GrassrootsServer *grassroots_p)
 }
 
 
-bool AddExternalServerToServersManager (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn)
+int AddExternalServerToServersManager (ServersManager *manager_p, ExternalServer *server_p, ExternalServerSerialiser serialise_fn)
 {
 	return manager_p -> sm_add_server_fn (manager_p, server_p, serialise_fn);
 }
@@ -197,16 +195,12 @@ LinkedList *GetAllExternalServersFromServersManager (ServersManager *manager_p, 
 }
 
 
-bool FreeServersManager (ServersManager *manager_p)
+void FreeServersManager (ServersManager *manager_p)
 {
-	bool success_flag = true;
-
 	if (manager_p -> sm_free_servers_manager_fn)
 		{
-			success_flag = manager_p -> sm_free_servers_manager_fn (manager_p);
+			manager_p -> sm_free_servers_manager_fn (manager_p);
 		}
-
-	return success_flag;
 }
 
 
@@ -555,31 +549,45 @@ ExternalServer *CreateExternalServerFromJSON (const json_t *json_p)
 
 bool AddExternalServerFromJSON (ServersManager *manager_p, const json_t *json_p)
 {
-	bool success_flag = false;
 	ExternalServer *server_p = CreateExternalServerFromJSON (json_p);
 
 	if (server_p)
 		{
-			if (AddExternalServerToServersManager (manager_p, server_p, NULL))
-				{
-					char *uuid_s = GetUUIDAsString (server_p -> es_id);
+			int res = AddExternalServerToServersManager (manager_p, server_p, NULL);
 
-					if (uuid_s)
-						{
-							PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s, uuid_s);
-							FreeUUIDString (uuid_s);
-						}
-					else
-						{
-							PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s);
-						}
-
-					success_flag = true;
-				}
-			else
+			switch (res)
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add external server %s on %s to manager", server_p -> es_name_s, server_p -> es_uri_s);
+					case 0:
+						FreeExternalServer (server_p);
+						// deliberate fall through
+
+					case 1:
+						{
+							char *uuid_s = GetUUIDAsString (server_p -> es_id);
+
+							if (uuid_s)
+								{
+									PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s, uuid_s);
+									FreeUUIDString (uuid_s);
+								}
+							else
+								{
+									PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s);
+								}
+
+							return true;
+						}
+						break;
+
+					case -1:
+						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add external server %s on %s to manager", server_p -> es_name_s, server_p -> es_uri_s);
+						break;
+
+					default:
+						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Unknown status adding external server %s on %s to manager", server_p -> es_name_s, server_p -> es_uri_s);
+						break;
 				}
+
 
 			FreeExternalServer (server_p);
 		}		/* if (server_p) */
@@ -588,7 +596,7 @@ bool AddExternalServerFromJSON (ServersManager *manager_p, const json_t *json_p)
 			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to allocate external server from json");
 		}
 
-	return success_flag;
+	return false;
 }
 
 
