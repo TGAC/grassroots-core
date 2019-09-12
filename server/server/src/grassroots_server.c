@@ -222,7 +222,7 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 																}		/* if (grassroots_p) */
 
 
-
+															FreeMongoClientManager (mongo_manager_p);
 														}		/* if (mongo_manager_p) */
 
 
@@ -255,8 +255,6 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 void FreeGrassrootsServer (GrassrootsServer *server_p)
 {
-	FreeCopiedString (server_p -> gs_path_s);
-
 	if (server_p -> gs_jobs_manager_p)
 		{
 			switch (server_p -> gs_jobs_manager_mem)
@@ -300,6 +298,9 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 		{
 			FreeMongoClientManager (server_p -> gs_mongo_manager_p);
 		}
+
+
+	FreeSchemaVersion (server_p -> gs_schema_version_p);
 
 	FreeMemory (server_p);
 }
@@ -783,6 +784,7 @@ void DisconnectFromExternalServers (GrassrootsServer *server_p)
 {
 
 }
+
 
 void ConnectToExternalServers (GrassrootsServer *grassroots_p)
 {

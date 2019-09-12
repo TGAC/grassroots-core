@@ -197,9 +197,16 @@ LinkedList *GetAllExternalServersFromServersManager (ServersManager *manager_p, 
 
 void FreeServersManager (ServersManager *manager_p)
 {
+	Plugin *plugin_p = manager_p -> sm_plugin_p;
+
 	if (manager_p -> sm_free_servers_manager_fn)
 		{
 			manager_p -> sm_free_servers_manager_fn (manager_p);
+		}
+
+	if (plugin_p)
+		{
+			FreePlugin (plugin_p);
 		}
 }
 

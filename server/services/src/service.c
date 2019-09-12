@@ -1227,7 +1227,7 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 																									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create provider for external server %s at %s array", external_server_p -> es_name_s, external_server_p -> es_uri_s);
 																								}
 
-																							FreeExternalServer (external_server_p);
+
 																						}		/* if (external_server_p) */
 																					else
 																						{
