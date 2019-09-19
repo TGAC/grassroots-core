@@ -2121,6 +2121,10 @@ bson_oid_t *GetBSONOidFromString (const char *id_s)
 							bson_oid_init_from_string (id_p, id_s);
 						}
 				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\ is not a valid bson_oid", id_s);
+				}
 		}
 
 	return id_p;
