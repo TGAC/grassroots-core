@@ -40,7 +40,7 @@
  */
 typedef struct LuceneTool
 {
-	const char *lt_name_s;
+	char *lt_name_s;
 
 	const char *lt_index_class_s;
 

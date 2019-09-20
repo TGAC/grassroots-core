@@ -875,7 +875,7 @@ static bool CopyValidJSON (const json_t *src_p, const char *src_key_s, json_t **
 }
 
 
-bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
+bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p, GrassrootsServer *grassroots_p)
 {
 	bool success_flag = false;
 
@@ -899,7 +899,6 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p)
 
 							if (GetOperationStatusFromServiceJobJSON (job_json_p, &status))
 								{
-									GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
 									Service *service_p = GetServiceByName (grassroots_p, service_name_s);
 
 									if (service_p)
@@ -1034,7 +1033,7 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer
 
 							if (job_p)
 								{
-									if (!InitServiceJobFromJSON (job_p, job_json_p))
+									if (!InitServiceJobFromJSON (job_p, job_json_p, grassroots_p))
 										{
 											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to create ServiceJob with InitServiceJobFromJSON");
 											FreeServiceJob (job_p);

@@ -569,7 +569,7 @@ GRASSROOTS_SERVICE_API ServiceJob *CreateServiceJobFromJSON (const json_t *job_j
  * <code>false</code> otherwise.
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *json_p);
+GRASSROOTS_SERVICE_API bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *json_p, GrassrootsServer *grassroots_p);
 
 
 /**
