@@ -105,6 +105,9 @@ static const char *GetProviderElement (const GrassrootsServer *grassroots_p, con
 
 static struct MongoClientManager *GetMongoClientManager (const json_t *config_p);
 
+static Resource *GetResourceFromRequest (const json_t *req_p);
+
+
 /*
  * API DEFINITIONS
  */
@@ -1275,6 +1278,26 @@ static json_t *GetInterestedServices (GrassrootsServer *grassroots_p, const json
 }
 
 
+static Resource *GetResourceFromRequest (const json_t *req_p)
+{
+	Resource *resource_p = NULL;
+	const json_t *resource_json_p = json_object_get (req_p, RESOURCE_S);
+
+	if (resource_json_p)
+		{
+			resource_p = GetResourceFromJSON (resource_json_p);
+
+			if (!resource_p)
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, resource_json_p, "Failed to create Resource from JSON");
+				}
+		}
+
+	return resource_p;
+}
+
+
+
 static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p)
 {
 	json_t *paired_servers_p = (req_p != NULL) ? json_object_get (req_p, SERVERS_S) : NULL;
@@ -1282,8 +1305,10 @@ static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * co
 
 	if (providers_p)
 		{
+			Resource *resource_p = GetResourceFromRequest (req_p);
+
 			/* Get the local services */
-			json_t *services_p = GetServicesAsJSON (grassroots_p, SERVICES_PATH_S, user_p, NULL, NULL, providers_p);
+			json_t *services_p = GetServicesAsJSON (grassroots_p, SERVICES_PATH_S, user_p, resource_p, NULL, providers_p);
 
 			FreeProvidersStateTable (providers_p);
 
@@ -1305,6 +1330,11 @@ static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * co
 			else
 				{
 					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "GetServicesAsJSON returned no services");
+				}
+
+			if (resource_p)
+				{
+					FreeResource (resource_p);
 				}
 
 		}		/* if (providers_p) */
@@ -1493,35 +1523,51 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 	if (services_p)
 		{
 			const char *service_name_s = NULL;
-			json_t *service_names_p = json_object_get (req_p, SERVICES_NAME_S);
+			json_t *services_req_p = json_object_get (req_p, SERVICES_NAME_S);
 
-			if (service_names_p)
+			if (services_req_p)
 				{
-					json_t *service_name_p = NULL;
 
-					if (json_is_array (service_names_p))
+					if (json_is_array (services_req_p))
 						{
 							size_t index;
+							json_t *service_req_p;
 
 							/*@TODO
 							 * This is inefficient and would be better to loop through in
 							 * a LoadServices.... method passing in an array of service names
 							 */
-							json_array_foreach (service_names_p, index, service_name_p)
-							{
-								if (json_is_string (service_name_p))
-									{
-										service_name_s = json_string_value (service_name_p);
-										LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
-									}
-							}
+							json_array_foreach (services_req_p, index, service_req_p)
+								{
+									const char *service_name_s = GetJSONSting (service_req_p, SERVICE_NAME_S);
+
+									if (service_name_s)
+										{
+											Resource *resource_p = GetResourceFromRequest (service_req_p);
+
+											LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
+
+											if (resource_p)
+												{
+													FreeResource (resource_p);
+												}
+										}
+								}
 						}
 					else
 						{
-							if (json_is_string (service_name_p))
+							const char *service_name_s = GetJSONSting (services_req_p, SERVICE_NAME_S);
+
+							if (service_name_s)
 								{
-									service_name_s = json_string_value (service_name_p);
+									Resource *resource_p = GetResourceFromRequest (services_req_p);
+
 									LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
+
+									if (resource_p)
+										{
+											FreeResource (resource_p);
+										}
 								}
 						}
 				}

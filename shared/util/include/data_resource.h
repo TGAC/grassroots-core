@@ -67,13 +67,6 @@ typedef struct Resource
 	 * application-specific configuration details.
 	 */
 	json_t *re_data_p;
-
-	/**
-	 * Does this Resource own any data pointed
-	 * to by re_data_p? If so, it will delete
-	 * re_data_p when this Resource is freed.
-	 */
-	bool re_owns_data_flag;
 } Resource;
 
 /*
@@ -311,6 +304,29 @@ GRASSROOTS_UTIL_API bool GetResourceProtocolAndPath (const char * const resource
  * @memberof Resource
  */
 GRASSROOTS_UTIL_API json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * const path_s, const char * const title_s, json_t *data_p);
+
+
+/**
+ * @brief Get the json representation of a Resource.
+ *
+ * @param resource_p the Resource.
+ * @return The json_t object representing the Resource or <code>NULL</code>
+ * upon failure.
+ * @memberof Resource
+ */
+GRASSROOTS_UTIL_API json_t *GetResourceAsJSON (Resource *resource_p);
+
+
+/**
+ * @brief Create a new Resource from  a JSON fragment.
+ *  *
+ * @param jon_p The JSON fragemnt describing the Fesource..
+ * @return The newly-allocateed Resource or e or <code>NULL</code>
+ * upon failure.
+ * @memberof Resource
+ */
+GRASSROOTS_UTIL_API Resource *GetResourceFromJSON (const json_t *json_p);
+
 
 #ifdef __cplusplus
 }
