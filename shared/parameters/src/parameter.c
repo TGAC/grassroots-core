@@ -84,6 +84,8 @@ static bool AddParameterStoreToJSON (const Parameter * const param_p, json_t *ro
 
 static bool AddParameterLevelToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
+static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
+
 
 static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
@@ -948,12 +950,20 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 																								{
 																									if (AddParameterVisibilityToJSON (param_p, root_p, sv_p))
 																										{
-																											success_flag = true;
+																											if (AddParameterRefreshToJSON (param_p, root_p, sv_p))
+																												{
+																													success_flag = true;
+																												}		/* if (AddParameterRefreshToJSON (param_p, root_p, sv_p)) */
+																											else
+																												{
+																													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterRefreshToJSON for \"%s\"", param_p -> pa_name_s);
+																												}
+
 																										}		/* if (AddParameterVisibilityToJSON (param_p, root_p, sv_p)) */
-																										else
-																											{
-																												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterVisibilityToJSON for \"%s\"", param_p -> pa_name_s);
-																											}
+																									else
+																										{
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterVisibilityToJSON for \"%s\"", param_p -> pa_name_s);
+																										}
 
 																								}		/* if (AddParameterBoundsToJSON (param_p, root_p)) */
 																							else
@@ -1580,6 +1590,19 @@ static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_
 	if (! (param_p -> pa_visible_flag))
 		{
 			success_flag = SetJSONBoolean (root_p, PARAM_VISIBLE_S, false);
+		}
+
+	return success_flag;
+}
+
+
+static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
+{
+	bool success_flag = true;
+
+	if (param_p -> pa_refresh_service_flag)
+		{
+			success_flag = SetJSONBoolean (root_p, PARAM_REFRESH_S, true);
 		}
 
 	return success_flag;
@@ -3060,16 +3083,26 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 									if (param_p)
 										{
-											bool visible_flag;
+											bool flag = true;
 
-
-											if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &visible_flag))
+											if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &flag))
 												{
-													if (!visible_flag)
+													if (!flag)
 														{
-															param_p -> pa_visible_flag = visible_flag;
+															param_p -> pa_visible_flag = flag;
 														}
 												}
+
+
+											flag = false;
+											if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
+												{
+													if (!flag)
+														{
+															param_p -> pa_visible_flag = flag;
+														}
+												}
+
 
 											/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
 

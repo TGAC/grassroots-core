@@ -466,6 +466,10 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *PARAM_COMPOUND_TEXT_S VAL("text");
 	PREFIX const char *PARAM_COMPOUND_VALUE_S VAL("value");
 
+
+	PREFIX const char *PARAM_REFRESH_S VAL("refresh");
+
+
 	/**
 	 * The JSON key for the default value of Parameter.
 	 */

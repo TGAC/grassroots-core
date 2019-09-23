@@ -107,6 +107,7 @@ static struct MongoClientManager *GetMongoClientManager (const json_t *config_p)
 
 static Resource *GetResourceFromRequest (const json_t *req_p);
 
+static void ProcessServiceRequest (const json_t *service_req_p, json_t *services_res_p, GrassrootsServer *grassroots_p, ProvidersStateTable *providers_p, const char *server_s, UserDetails *user_p);
 
 /*
  * API DEFINITIONS
@@ -1518,82 +1519,107 @@ static json_t *GetNamedServiceInfo (GrassrootsServer *grassroots_p, const json_t
 static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p))
 {
 	json_t *res_p = NULL;
-	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
+	json_t *services_req_p = json_object_get (req_p, SERVICES_NAME_S);
 
-	if (services_p)
+	if (services_req_p)
 		{
-			const char *service_name_s = NULL;
-			json_t *services_req_p = json_object_get (req_p, SERVICES_NAME_S);
+			ProvidersStateTable *providers_p = AllocateProvidersStateTable (req_p);
 
-			if (services_req_p)
+			if (providers_p)
 				{
+					const char *server_s = GetServerProviderURI (grassroots_p);
+					json_t *services_res_p = json_array ();
 
-					if (json_is_array (services_req_p))
+					res_p = GetInitialisedResponseOnServer (grassroots_p, req_p, SERVICES_NAME_S, services_res_p);
+
+					if (res_p)
 						{
-							size_t index;
-							json_t *service_req_p;
 
-							/*@TODO
-							 * This is inefficient and would be better to loop through in
-							 * a LoadServices.... method passing in an array of service names
-							 */
-							json_array_foreach (services_req_p, index, service_req_p)
+							if (json_is_array (services_req_p))
 								{
-									const char *service_name_s = GetJSONSting (service_req_p, SERVICE_NAME_S);
+									size_t i;
+									const size_t num_requested_services = json_array_size (services_req_p);
 
-									if (service_name_s)
+									/*@TODO
+									 * This is inefficient and would be better to loop through in
+									 * a LoadServices.... method passing in an array of service names
+									 */
+									for (i = 0; i < num_requested_services; ++ i)
 										{
-											Resource *resource_p = GetResourceFromRequest (service_req_p);
+											json_t *service_req_p = json_array_get (services_req_p, i);
 
-											LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
-
-											if (resource_p)
-												{
-													FreeResource (resource_p);
-												}
-										}
+											ProcessServiceRequest (service_req_p, services_res_p, grassroots_p, providers_p, server_s, user_p);
+										}		/* for (i = 0; i < num_requested_services; ++ i) */
 								}
-						}
-					else
-						{
-							const char *service_name_s = GetJSONSting (services_req_p, SERVICE_NAME_S);
-
-							if (service_name_s)
+							else
 								{
-									Resource *resource_p = GetResourceFromRequest (services_req_p);
-
-									LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
-
-									if (resource_p)
-										{
-											FreeResource (resource_p);
-										}
+									ProcessServiceRequest (services_req_p, services_res_p, grassroots_p, providers_p, server_s, user_p);
 								}
+
 						}
-				}
 
-			if (services_p -> ll_size > 0)
-				{
-					ProvidersStateTable *providers_p = GetInitialisedProvidersStateTable (req_p, services_p, grassroots_p);
+					FreeProvidersStateTable (providers_p);
+				}		/* if (providers_p) */
 
-					if (providers_p)
-						{
-							res_p = generate_json_fn (grassroots_p, services_p, req_p, user_p, providers_p);
-
-							FreeProvidersStateTable (providers_p);
-						}		/* if (providers_p) */
-
-
-				}		/* if (services_p -> ll_size > 0) */
-
-			FreeLinkedList (services_p);
-		}		/* if (services_p) */
+		}		/* if (services_req_p) */
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__,  "Failed to create services list");
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, req_p, "No \"%s\" key", SERVICES_NAME_S);
 		}
 
 	return res_p;
+}
+
+
+
+static void ProcessServiceRequest (const json_t *service_req_p, json_t *services_res_p, GrassrootsServer *grassroots_p, ProvidersStateTable *providers_p, const char *server_s, UserDetails *user_p)
+{
+	const char *service_name_s = GetJSONString (service_req_p, SERVICE_NAME_S);
+
+	if (service_name_s)
+		{
+			Resource *resource_p = GetResourceFromRequest (service_req_p);
+			Service *service_p = GetServiceByName (grassroots_p, service_name_s);
+
+			if (service_p)
+				{
+					AddPairedServices (grassroots_p, service_p, user_p, providers_p);
+
+					if (AddToProvidersStateTable (providers_p, server_s, service_name_s))
+						{
+							json_t *service_res_p = GetServiceAsJSON (service_p, resource_p, user_p, false);
+
+							if (service_res_p)
+								{
+									if (json_array_append_new (services_res_p, service_res_p) != 0)
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_res_p, "Failed to add JSON for service \"%s\"", service_name_s);
+											json_decref (service_res_p);
+										}
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get Service JSON for service \"%s\"", service_name_s);
+								}
+
+						}
+
+					FreeService (service_p);
+				}		/* if (service_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to load service \"%s\"", service_name_s);
+				}
+
+			if (resource_p)
+				{
+					FreeResource (resource_p);
+				}
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_req_p, "Failed to load service \"%s\"", service_name_s);
+		}
 }
 
 
@@ -1651,6 +1677,7 @@ static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char *
 
 	return NULL;
 }
+
 
 
 
