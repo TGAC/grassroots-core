@@ -225,6 +225,16 @@ typedef struct Parameter
 	 */
 	bool pa_visible_flag;
 
+
+	/**
+	 *  When the value of this Parameter is changed in the client,
+	 *  should it make a request to the server to refresh the
+	 *  service definition?
+	 *
+	 *  This is ananlagous to the javascript onchange() event.
+	 */
+	bool pa_refresh_service_flag;
+
 } Parameter;
 
 

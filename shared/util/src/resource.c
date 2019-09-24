@@ -20,6 +20,7 @@
 #include "string_utils.h"
 #include "memory_allocations.h"
 #include "json_util.h"
+#include "streams.h"
 
 
 static bool ReplaceValue (const char * const src_s, char **dest_ss);
@@ -112,6 +113,7 @@ Resource *AllocateResource (const char *protocol_s, const char *value_s, const c
 
 void InitResource (Resource *resource_p)
 {
+	resource_p -> re_title_s = NULL;
 	resource_p -> re_protocol_s = NULL;
 	resource_p -> re_value_s = NULL;
 	resource_p -> re_data_p = NULL;
@@ -145,10 +147,10 @@ void ClearResource (Resource *resource_p)
 			resource_p -> re_title_s = NULL;
 		}
 
-	if ((resource_p -> re_data_p) && (resource_p -> re_owns_data_flag))
+	if (resource_p -> re_data_p)
 		{
-			json_object_clear (resource_p -> re_data_p);
 			json_decref (resource_p -> re_data_p);
+			resource_p -> re_data_p = NULL;
 		}
 }
 
@@ -187,15 +189,28 @@ bool SetResourceData (Resource *resource_p, json_t *data_p, const bool owns_data
 
 	if (resource_p -> re_data_p)
 		{
-			if (resource_p -> re_owns_data_flag)
+			json_decref (resource_p -> re_data_p);
+		}
+
+
+	if (owns_data_flag)
+		{
+			resource_p -> re_data_p = data_p;
+		}
+	else
+		{
+			json_t *copy_p = json_deep_copy (data_p);
+
+			if (copy_p)
 				{
-					success_flag = (json_object_clear (resource_p -> re_data_p) == 0);
-					json_decref (resource_p -> re_data_p);
+					resource_p -> re_data_p = copy_p;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to copy data for Resource");
 				}
 		}
 
-	resource_p -> re_data_p = data_p;
-	resource_p -> re_owns_data_flag = owns_data_flag;
 
 	return success_flag;
 }
@@ -269,6 +284,50 @@ json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * co
 			json_object_clear (json_p);
 			json_decref (json_p);
 		}
+
+	return NULL;
+}
+
+
+json_t *GetResourceAsJSON (Resource *resource_p)
+{
+	return GetResourceAsJSONByParts (resource_p -> re_protocol_s, resource_p -> re_value_s, resource_p -> re_title_s, resource_p -> re_data_p);
+}
+
+
+Resource *GetResourceFromJSON (const json_t *json_p)
+{
+	const char *protocol_s = GetJSONString (json_p, RESOURCE_PROTOCOL_S);
+
+	if (protocol_s)
+		{
+			const char *value_s = GetJSONString (json_p, RESOURCE_VALUE_S);
+			const char *title_s = GetJSONString (json_p, RESOURCE_TITLE_S);
+			const char *description_s = GetJSONString (json_p, RESOURCE_DESCRIPTION_S);
+			json_t *data_p = NULL;
+			Resource *resource_p = AllocateResource (protocol_s, value_s, title_s);
+
+
+			if (resource_p)
+				{
+
+					if (strcmp (protocol_s, PROTOCOL_INLINE_S) == 0)
+						{
+							data_p = json_object_get (json_p, RESOURCE_DATA_S);
+
+							if (data_p)
+								{
+									if (SetResourceData (resource_p, data_p, true))
+										{
+											return resource_p;
+										}
+								}
+						}
+
+					FreeResource (resource_p);
+				}
+
+		}		/* if (protocol_s) */
 
 	return NULL;
 }
