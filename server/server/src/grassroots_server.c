@@ -1493,29 +1493,37 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 	if (services_p)
 		{
 			const char *service_name_s = NULL;
-			json_t *service_names_p = json_object_get (req_p, SERVICES_NAME_S);
+			json_t *service_reqs_p = json_object_get (req_p, SERVICES_NAME_S);
 
-			if (service_names_p)
+			if (service_reqs_p)
 				{
-					json_t *service_name_p = NULL;
-
-					if (json_is_array (service_names_p))
+					if (json_is_array (service_reqs_p))
 						{
 							size_t index;
+							json_t *service_req_p;
 
 							/*@TODO
 							 * This is inefficient and would be better to loop through in
 							 * a LoadServices.... method passing in an array of service names
 							 */
-							json_array_foreach (service_names_p, index, service_name_p)
-							{
-								if (json_is_string (service_name_p))
-									{
-										service_name_s = json_string_value (service_name_p);
-										LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
-									}
-							}
-						}
+							json_array_foreach (service_reqs_p, index, service_req_p)
+								{
+									const char *service_name_s = GetJSONString (service_req_p, SERVICE_NAME_S);
+
+									if (service_name_s)
+										{
+
+										}		/* if (service_name_s) */
+
+									if (json_is_string (service_name_p))
+										{
+											service_name_s = json_string_value (service_name_p);
+											LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
+										}
+
+								}		/* json_array_foreach (service_reqs_p, index, service_req_p) */
+
+						}		/* if (json_is_array (service_reqs_p)) */
 					else
 						{
 							if (json_is_string (service_name_p))
@@ -1524,7 +1532,7 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 									LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
 								}
 						}
-				}
+				}		/* if (service_reqs_p) */
 
 			if (services_p -> ll_size > 0)
 				{
