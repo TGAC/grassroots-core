@@ -65,6 +65,7 @@ ParameterSet *AllocateParameterSet (const char *name_s, const char *description_
 							set_p -> ps_name_s = name_s;
 							set_p -> ps_description_s = description_s;
 							set_p -> ps_grouped_params_p = groups_list_p;
+							set_p -> ps_current_level = PL_ALL;
 
 							return set_p;
 						}
@@ -242,7 +243,25 @@ json_t *GetParameterSetSelectionAsJSON (const ParameterSet * const param_set_p, 
 														{
 															int res = json_object_set_new (param_set_json_p, PARAM_SET_GROUPS_S, group_names_p);
 
-															if (res != 0)
+															if (res == 0)
+																{
+																	const char *level_s = GetParameterLevelAsString (param_set_p -> ps_current_level);
+
+																	if (level_s)
+																		{
+																			if (!SetJSONString (param_set_json_p, PARAM_LEVEL_S, level_s))
+																				{
+																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set \"%s\": \"%s\" for level", PARAM_LEVEL_S, level_s);
+																					success_flag = false;
+																				}
+																		}
+																	else
+																		{
+																			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get level as string from %d", param_set_p -> ps_current_level);
+																			success_flag = false;
+																		}
+																}
+															else
 																{
 																	PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to set \"%s\" for JSON group names", PARAM_SET_GROUPS_S);
 																	success_flag = false;
@@ -367,20 +386,25 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 
 	if (op_p)
 		{
+			ParameterLevel level = PL_ALL;
 			const char *name_s = GetJSONString (op_p, PARAM_SET_NAME_S);
 			const char *description_s = GetJSONString (op_p, PARAM_SET_DESCRIPTION_S);
+			const char *level_s = GetJSONString (op_p, PARAM_LEVEL_S);
 
 			#if PARAMETER_SET_DEBUG >= STM_LEVEL_FINER
 			PrintJSONToLog (op_p, "CreateParameterSetFromJSON op:\n", PARAMETER_SET_DEBUG, __FILE__, __LINE__);
 			#endif
 			
+			if (level_s)
+				{
+					GetParameterLevelFromString (level_s, &level);
+				}
 
 			params_p = AllocateParameterSet (name_s, description_s);
 			
 			if (params_p)
 				{
 					bool success_flag = true;
-
 					/* Get the parameters array */
 					json_t *param_set_json_p = json_object_get (op_p, PARAM_SET_KEY_S);
 
@@ -501,7 +525,18 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 
 								}		/* if (json_p && json_is_array (json_p)) */
 
-							if (!success_flag)
+
+
+							if (success_flag)
+								{
+									const char *level_s = GetJSONString (op_p, PARAM_LEVEL_S);
+
+									if (level_s)
+										{
+											GetParameterLevelFromString (level_s, & (params_p -> ps_current_level));
+										}
+								}
+							else
 								{
 									FreeParameterSet (params_p);
 									params_p = NULL;

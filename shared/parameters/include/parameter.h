@@ -727,6 +727,29 @@ GRASSROOTS_PARAMS_API bool GetParameterLevelFromConfig (const struct ServiceData
 
 
 /**
+ * Get the string representation of a given ParameterLevel.
+ *
+ * @param level The ParameterLevel to get the string representation for.
+ * will be stored.
+ * @return The string or <code>NULL</code> upon error.
+ * @memberof Parameter
+ */
+GRASSROOTS_PARAMS_API const char *GetParameterLevelAsString (const ParameterLevel level);
+
+
+
+/**
+ * Get the ParameterLevel from a string representation.
+ *
+ * @param level_s The string representation of the ParameterLevel
+ * @param level The ParameterLevel which will be set.
+ * @return code>true</code> if the ParameterLevel was set successfully, <code>false</code> otherwise.
+ * @memberof Parameter
+ */
+GRASSROOTS_PARAMS_API bool GetParameterLevelFromString (const char *level_s, ParameterLevel *level_p);
+
+
+/**
  * Allocate a ParameterNode for a given Parameter so that it can be stored
  * upon a LinkedList.
  *

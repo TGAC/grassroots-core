@@ -1150,29 +1150,63 @@ static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, js
 }
 
 
+const char *GetParameterLevelAsString (const ParameterLevel level)
+{
+	const char *level_s = NULL;
+
+	switch (level)
+		{
+			case PL_SIMPLE:
+				level_s = PARAM_LEVEL_TEXT_SIMPLE_S;
+				break;
+
+			case PL_ADVANCED:
+				level_s = PARAM_LEVEL_TEXT_ADVANCED_S;
+				break;
+
+			case PL_ALL:
+				level_s = PARAM_LEVEL_TEXT_ALL_S;
+				break;
+
+			default:
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unknown ParameterLevel %d", level);
+				break;
+		}		/* switch (param_p -> pa_level) */
+
+	return level_s;
+}
+
+
+
+bool GetParameterLevelFromString (const char *level_s, ParameterLevel *level_p)
+{
+	bool match_flag = true;
+
+	if (strcmp (level_s, PARAM_LEVEL_TEXT_SIMPLE_S) == 0)
+		{
+			*level_p = PL_SIMPLE;
+		}
+	if (strcmp (level_s, PARAM_LEVEL_TEXT_ADVANCED_S) == 0)
+		{
+			*level_p = PL_ADVANCED;
+		}
+	if (strcmp (level_s, PARAM_LEVEL_TEXT_ALL_S) == 0)
+		{
+			*level_p = PL_ALL;
+		}
+	else
+		{
+			match_flag = false;
+		}
+
+	return match_flag;
+}
+
+
 static bool AddParameterLevelToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p))
 {
 	bool success_flag = false;
-	const char *level_s = NULL;
-
-	switch (param_p -> pa_level)
-	{
-		case PL_SIMPLE:
-			level_s = PARAM_LEVEL_TEXT_SIMPLE_S;
-			break;
-
-		case PL_ADVANCED:
-			level_s = PARAM_LEVEL_TEXT_ADVANCED_S;
-			break;
-
-		case PL_ALL:
-			level_s = PARAM_LEVEL_TEXT_ALL_S;
-			break;
-
-		default:
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unknown ParameterLevel %d for param %s", param_p -> pa_level, param_p -> pa_name_s);
-			break;
-	}		/* switch (param_p -> pa_level) */
+	const char *level_s = GetParameterLevelAsString (param_p -> pa_level);
 
 	if (level_s)
 		{

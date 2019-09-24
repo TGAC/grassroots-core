@@ -313,6 +313,9 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *SERVICE_CONFIG_S VAL("config");
 	PREFIX const char *SERVICE_TYPE_VALUE_S VAL("Grassroots:Service");
 
+	PREFIX const char *SERVICE_RUN_MODE_S VAL("run_mode");
+
+
 	/* End of doxygen member group */
 	/**@}*/
 

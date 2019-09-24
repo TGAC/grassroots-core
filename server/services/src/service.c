@@ -999,7 +999,7 @@ bool DeallocatePluginService (Plugin * const plugin_p)
 }
 
 
-json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag)
+json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
 {
 	json_t *service_json_p = NULL;
 	json_error_t err;

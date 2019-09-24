@@ -36,7 +36,6 @@
 #include "operation.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
-#include "grassroots_server.h"
 
 
 /**

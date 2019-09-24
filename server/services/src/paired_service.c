@@ -260,7 +260,7 @@ json_t *MakeRemotePairedServiceCall (const char * const service_name_s, Paramete
 					 * Only send the databases that the external paired service knows about
 					 */
 					const SchemaVersion *sv_p = GetSchemaVersion (grassroots_p);
-					json_t *service_req_p = GetServiceRunRequest (service_name_s, params_p, sv_p, true);
+					json_t *service_req_p = GetServiceRunRequest (service_name_s, params_p, sv_p, true, PL_ALL);
 
 					if (service_req_p)
 						{

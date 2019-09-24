@@ -68,6 +68,13 @@ typedef struct ParameterSet
 	 * ParameterSet.
 	 */
 	LinkedList *ps_grouped_params_p;
+
+	/**
+	 * This is used when responding to parameters sent by another Grassroots
+	 * Server or Client if there are two different run routines depending upon
+	 * the simple or advanced parameters being set.
+	 */
+	ParameterLevel ps_current_level;
 } ParameterSet;
 
 
