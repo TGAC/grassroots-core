@@ -631,6 +631,13 @@ GRASSROOTS_UTIL_API bool AddOntologyContextTerm (json_t *root_p, const char *key
 GRASSROOTS_UTIL_API json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move);
 
 
+
+
+GRASSROOTS_UTIL_API bool GetJSONStringAsInteger (const json_t *json_p, const char * const key_s, int *answer_p);
+
+GRASSROOTS_UTIL_API bool GetJSONStringAsDouble (const json_t *json_p, const char * const key_s, double *answer_p);
+
+
 #ifdef __cplusplus
 }
 #endif

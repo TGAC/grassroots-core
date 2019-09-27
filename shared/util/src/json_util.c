@@ -1389,6 +1389,35 @@ json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move)
 }
 
 
+bool GetJSONStringAsInteger (const json_t *json_p, const char * const key_s, int *answer_p)
+{
+	bool success_flag = false;
+	const char *value_s = GetJSONString (json_p, key_s);
+
+	if (value_s)
+		{
+			success_flag = GetValidInteger (&value_s, answer_p);
+		}		/* if (value_s) */
+
+	return success_flag;
+}
+
+
+
+bool GetJSONStringAsDouble (const json_t *json_p, const char * const key_s, double *answer_p)
+{
+	bool success_flag = false;
+	const char *value_s = GetJSONString (json_p, key_s);
+
+	if (value_s)
+		{
+			success_flag = GetValidRealNumber (&value_s, answer_p, NULL);
+		}		/* if (value_s) */
+
+	return success_flag;
+}
+
+
 
 static bool SetJSONValue (const json_t *json_p, const char * const key_s, json_t *value_p)
 {
