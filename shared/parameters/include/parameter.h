@@ -235,6 +235,18 @@ typedef struct Parameter
 	 */
 	bool pa_refresh_service_flag;
 
+
+
+	/**
+	 * Is this parameter optional? I.E. should it be displayed
+	 * to the client with a checkbox to toggle it being active
+	 * or not.
+	 */
+	bool pa_optional_flag;
+
+
+	char *pa_optional_label_s;
+
 } Parameter;
 
 
@@ -817,9 +829,23 @@ GRASSROOTS_PARAMS_API bool CreateAndAddParameterOptionToParameter (Parameter *pa
  * @return The LinkedList of ParameterOptionNodes or <code>NULL</code>
  * upon error.
  * @memberof Parameter
- *
  */
 GRASSROOTS_PARAMS_API LinkedList *GetMultiOptions (Parameter *param_p);
+
+
+
+
+/**
+ * Make a Parameter toggleable between active and inactive.
+ *
+ * @param param_p The Parameter to set the toggleable label value for.
+ * @param optional_value_s The value that will be presented to the user when the Parameter
+ * is made inactive.
+ * @return <code>true</code> if the Parameter toggleability was configured successfully,
+ * <code>false</code> otherwise.
+ * @memberof Parameter
+ */
+GRASSROOTS_PARAMS_API bool SetParameterToggleable (Parameter *param_p, const char *optional_value_s);
 
 
 #ifdef __cplusplus

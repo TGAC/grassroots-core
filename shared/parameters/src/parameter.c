@@ -86,6 +86,7 @@ static bool AddParameterLevelToJSON (const Parameter * const param_p, json_t *ro
 
 static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
+static bool AddParameterOptionalFlagToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
@@ -244,6 +245,7 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 													param_p -> pa_remote_parameter_details_p = remote_params_p;
 
 													param_p -> pa_visible_flag = true;
+													param_p -> pa_optional_flag = true;
 
 													InitSharedType (& (param_p -> pa_current_value));
 													InitSharedType (& (param_p -> pa_default));
@@ -335,6 +337,11 @@ void FreeParameter (Parameter *param_p)
 	if (param_p -> pa_display_name_s)
 		{
 			FreeCopiedString (param_p -> pa_display_name_s);
+		}
+
+	if (param_p -> pa_optional_label_s)
+		{
+			FreeCopiedString (param_p -> pa_optional_label_s);
 		}
 
 	if (param_p -> pa_options_p)
@@ -952,6 +959,15 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 																										{
 																											if (AddParameterRefreshToJSON (param_p, root_p, sv_p))
 																												{
+																													if (AddParameterOptionalFlagToJSON (param_p, root_p, sv_p))
+																														{
+																															success_flag = true;
+																														}		/* if (AddParameterOptionalFlagToJSON (param_p, root_p, sv_p)) */
+																													else
+																														{
+																															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterOptionalFlagToJSON for \"%s\"", param_p -> pa_name_s);
+																														}
+
 																													success_flag = true;
 																												}		/* if (AddParameterRefreshToJSON (param_p, root_p, sv_p)) */
 																											else
@@ -1637,6 +1653,19 @@ static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *
 	if (param_p -> pa_refresh_service_flag)
 		{
 			success_flag = SetJSONBoolean (root_p, PARAM_REFRESH_S, true);
+		}
+
+	return success_flag;
+}
+
+
+static bool AddParameterOptionalFlagToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
+{
+	bool success_flag = true;
+
+	if (param_p -> pa_optional_flag)
+		{
+			success_flag = SetJSONBoolean (root_p, PARAM_OPTIONAL_S, true);
 		}
 
 	return success_flag;
@@ -3133,10 +3162,18 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 												{
 													if (!flag)
 														{
-															param_p -> pa_visible_flag = flag;
+															param_p -> pa_refresh_service_flag = flag;
 														}
 												}
 
+											flag = false;
+											if (GetJSONBoolean (root_p, PARAM_OPTIONAL_S, flag))
+												{
+													if (flag)
+														{
+															param_p -> pa_visible_flag = flag;
+														}
+												}
 
 											/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
 
@@ -3194,6 +3231,41 @@ const char *GetUIName (const Parameter * const parameter_p)
 
 }
 
+
+bool SetParameterToggleable (Parameter *param_p, bool toggleable_flag, const char *optional_value_s)
+{
+	bool success_flag = false;
+
+	if (toggleable_flag)
+		{
+			char *copied_value_s = EasyCopyToNewString (optional_value_s);
+
+			if (copied_value_s)
+				{
+					if (param_p -> pa_optional_label_s)
+						{
+							FreeCopiedString (param_p -> pa_optional_label_s);
+							param_p -> pa_optional_label_s = NULL;
+						}
+
+					param_p -> pa_optional_label_s = optional_value_s;
+
+					param_p -> pa_optional_flag = true;
+					success_flag = true;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy \"%s\"", optional_value_s);
+				}
+		}
+	else
+		{
+			param_p -> pa_optional_flag = false;
+			success_flag = true;
+		}
+
+	return success_flag;
+}
 
 
 char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_flag_p)
