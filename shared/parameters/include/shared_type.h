@@ -48,22 +48,22 @@
 typedef union SharedType
 {
 	/** A Boolean value */
-	bool st_boolean_value;
+	bool *st_boolean_value_p;
 
 	/** A signed integer */
-	int32 st_long_value;
+	int32 *st_long_value_p;
 
 	/** An unsigned integer */
-	uint32 st_ulong_value;
+	uint32 *st_ulong_value_p;
 
 	/** A real number */
-	double64 st_data_value;
+	double64 *st_data_value_p;
 
 	/** A c-style string */
 	char *st_string_value_s;
 
 	/** A single character */
-	char st_char_value;
+	char *st_char_value_p;
 
 	/** A Resource */
 	Resource *st_resource_value_p;
@@ -96,6 +96,23 @@ typedef struct SharedTypeNode
 	/** The SharedType value */
 	SharedType stn_value;
 } SharedTypeNode;
+
+
+
+/**
+ * A datatype used for numeric parameters that
+ * have a finite range of values.
+ *
+ * @ingroup parameters_group
+ */
+typedef struct ParameterBounds
+{
+	/** The minimum value that the Parameter can take. */
+	SharedType pb_lower;
+
+	/** The maximum value that the Parameter can take. */
+	SharedType pb_upper;
+} ParameterBounds;
 
 
 
@@ -138,6 +155,46 @@ GRASSROOTS_PARAMS_API void InitSharedType (SharedType *st_p);
  */
 GRASSROOTS_PARAMS_API bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterType pt);
 
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeCharValue (SharedType * value_p, const char c);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeUnsignedIntValue (SharedType * value_p, const uint32 i, const ParameterBounds * const bounds_p);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeSignedIntValue (SharedType * value_p, const int32 i, const ParameterBounds * const bounds_p);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeRealValue (SharedType * value_p, const double64 d, const ParameterBounds * const bounds_p);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeStringValue (SharedType *value_p, const char * const src_s);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeResourceValue (SharedType *value_p, const Resource * const src_p);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const src_p);
+
+
+GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p);
+
+
+GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeValue (SharedType *value_p, const struct tm * const src_p);
+
+
+GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeRealValue (const SharedType *src_p, SharedType *dest_p);
+
+GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeUnsignedIntValue (const SharedType *src_p, SharedType *dest_p);
+
+GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeSignedIntValue (const SharedType *src_p, SharedType *dest_p);
+
+GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeBooleanValue (const SharedType *src_p, SharedType *dest_p);
+
+GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeCharValue (const SharedType *src_p, SharedType *dest_p);
 
 #ifdef __cplusplus
 }

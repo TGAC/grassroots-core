@@ -73,24 +73,6 @@ typedef enum
 } ParameterLevel;
 
 
-
-/**
- * A datatype used for numeric parameters that
- * have a finite range of values.
- *
- * @ingroup parameters_group
- */
-typedef struct ParameterBounds
-{
-	/** The minimum value that the Parameter can take. */
-	SharedType pb_lower;
-
-	/** The maximum value that the Parameter can take. */
-	SharedType pb_upper;
-} ParameterBounds;
-
-
-
 /**
  * This is a datatype that stores a read-only c-style string
  * along with a ParameterType.
@@ -238,9 +220,7 @@ typedef struct Parameter
 
 
 	/**
-	 * Is this parameter optional? I.E. should it be displayed
-	 * to the client with a checkbox to toggle it being active
-	 * or not.
+	 * Is this parameter optional? I.E. can it have a null value?
 	 */
 	bool pa_optional_flag;
 
@@ -845,7 +825,7 @@ GRASSROOTS_PARAMS_API LinkedList *GetMultiOptions (Parameter *param_p);
  * <code>false</code> otherwise.
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API bool SetParameterToggleable (Parameter *param_p, const char *optional_value_s);
+GRASSROOTS_PARAMS_API bool SetParameterOptional (Parameter *param_p, bool optional_flag, const char *optional_value_s);
 
 
 #ifdef __cplusplus

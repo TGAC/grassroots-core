@@ -146,32 +146,6 @@ static bool SetParameterValueFromJSON (Parameter * const param_p, const json_t *
 static bool SetParameterValueFromTime (Parameter * const param_p, const struct tm * const src_p, const bool current_flag);
 
 
-static bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b);
-
-
-static bool SetSharedTypeCharValue (SharedType * value_p, const char c);
-
-
-static bool SetSharedTypeUnsignedIntValue (SharedType * value_p, const uint32 i, const ParameterBounds * const bounds_p);
-
-
-static bool SetSharedTypeSignedIntValue (SharedType * value_p, const int32 i, const ParameterBounds * const bounds_p);
-
-
-static bool SetSharedTypeRealValue (SharedType * value_p, const double64 d, const ParameterBounds * const bounds_p);
-
-
-static bool SetSharedTypeStringValue (SharedType *value_p, const char * const src_s);
-
-
-static bool SetSharedTypeResourceValue (SharedType *value_p, const Resource * const src_p);
-
-
-static bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const src_p);
-
-
-static bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p);
-
 
 static const json_t *GetParameterFromConfig (const json_t *service_config_p, const char * const param_name_s);
 
@@ -245,7 +219,9 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 													param_p -> pa_remote_parameter_details_p = remote_params_p;
 
 													param_p -> pa_visible_flag = true;
-													param_p -> pa_optional_flag = true;
+													param_p -> pa_optional_flag = false;
+													param_p -> pa_optional_label_s = NULL;
+
 
 													InitSharedType (& (param_p -> pa_current_value));
 													InitSharedType (& (param_p -> pa_default));
@@ -466,85 +442,15 @@ ParameterBounds *CopyParameterBounds (const ParameterBounds * const src_p, const
 
 	if (bounds_p)
 		{
-			switch (pt)
+			if (CopySharedType (src_p -> pb_lower, & (bounds_p -> pb_lower), pt))
 				{
-					case PT_DIRECTORY:
-					case PT_FILE_TO_READ:
-					case PT_FILE_TO_WRITE:
-						break;
-
-					case PT_STRING:
-					case PT_LARGE_STRING:
-					case PT_PASSWORD:
-					case PT_KEYWORD:
+					if (CopySharedType (src_p -> pb_upper, & (bounds_p -> pb_upper), pt))
 						{
-							bounds_p -> pb_lower.st_string_value_s = EasyCopyToNewString (src_p -> pb_lower.st_string_value_s);
-							bounds_p -> pb_upper.st_string_value_s = EasyCopyToNewString (src_p -> pb_upper.st_string_value_s);
-
-							if (! ((bounds_p -> pb_lower.st_string_value_s) && (bounds_p -> pb_upper.st_string_value_s)))
-								{
-									FreeParameterBounds (bounds_p, pt);
-									bounds_p = NULL;
-								}
+							return bounds_p;
 						}
-						break;
-
-					case PT_CHAR:
-						{
-							bounds_p -> pb_lower.st_char_value  = src_p -> pb_lower.st_char_value;
-							bounds_p -> pb_upper.st_char_value  = src_p -> pb_upper.st_char_value;
-						}
-						break;
-
-					case PT_SIGNED_REAL:
-					case PT_UNSIGNED_REAL:
-						{
-							bounds_p -> pb_lower.st_data_value  = src_p -> pb_lower.st_data_value;
-							bounds_p -> pb_upper.st_data_value  = src_p -> pb_upper.st_data_value;
-						}
-						break;
-
-					case PT_SIGNED_INT:
-						{
-							bounds_p -> pb_lower.st_long_value  = src_p -> pb_lower.st_long_value;
-							bounds_p -> pb_upper.st_long_value  = src_p -> pb_upper.st_long_value;
-						}
-						break;
-
-					case PT_UNSIGNED_INT:
-						{
-							bounds_p -> pb_lower.st_ulong_value  = src_p -> pb_lower.st_ulong_value;
-							bounds_p -> pb_upper.st_ulong_value  = src_p -> pb_upper.st_ulong_value;
-						}
-						break;
-
-					case PT_NEGATIVE_INT:
-						{
-							bounds_p -> pb_lower.st_long_value  = src_p -> pb_lower.st_long_value;
-							bounds_p -> pb_upper.st_long_value  = src_p -> pb_upper.st_long_value;
-						}
-						break;
-
-					case PT_TIME:
-						{
-							CopyTime (src_p -> pb_lower.st_time_p, bounds_p -> pb_lower.st_time_p);
-							CopyTime (src_p -> pb_upper.st_time_p, bounds_p -> pb_upper.st_time_p);
-						}
-						break;
-
-					case PT_BOOLEAN:
-					case PT_FASTA:
-					case PT_JSON:
-					case PT_TABLE:
-						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Parameter type doesn't have ability to be ranged");
-						break;
-
-					case PT_NUM_TYPES:
-						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Invalid Parameter type");
-						break;
 				}
 
-			return bounds_p;
+			FreeParameterBounds (bounds_p, pt);
 		}
 
 	return NULL;
@@ -761,11 +667,11 @@ bool SetParameterValueFromSharedType (Parameter * const param_p, const SharedTyp
 	switch (param_p -> pa_type)
 		{
 			case PT_BOOLEAN:
-				success_flag = SetParameterValueFromBoolean (param_p, src_p -> st_boolean_value, current_value_flag);
+				success_flag = SetParameterValueFromBoolean (param_p, src_p -> st_boolean_value_p, current_value_flag);
 				break;
 
 			case PT_CHAR:
-				success_flag = SetParameterValueFromChar (param_p, src_p -> st_char_value, current_value_flag);
+				success_flag = SetParameterValueFromChar (param_p, * (src_p -> st_char_value, current_value_flag);
 				break;
 
 			case PT_SIGNED_INT:
@@ -1668,6 +1574,14 @@ static bool AddParameterOptionalFlagToJSON (const Parameter * const param_p, jso
 			success_flag = SetJSONBoolean (root_p, PARAM_OPTIONAL_S, true);
 		}
 
+	if (success_flag)
+		{
+			if (param_p -> pa_optional_label_s)
+				{
+					success_flag = SetJSONString (root_p, PARAM_UNSET_LABEL_S, param_p -> pa_optional_label_s);
+				}
+		}
+
 	return success_flag;
 }
 
@@ -1682,7 +1596,10 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 	switch (pt)
 		{
 			case PT_BOOLEAN:
-				value_p = (val_p -> st_boolean_value == true) ? json_true () : json_false ();
+				if (val_p -> st_boolean_value_p)
+					{
+						value_p = (val_p -> st_boolean_value_p == true) ? json_true () : json_false ();
+					}
 				break;
 
 			case PT_CHAR:
@@ -1698,16 +1615,25 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
-				value_p = json_integer (val_p -> st_long_value);
+				if (val_p -> st_long_value_p)
+					{
+						value_p = json_integer (* (val_p -> st_long_value_p));
+					}
 				break;
 
 			case PT_UNSIGNED_INT:
-				value_p = json_integer (val_p -> st_ulong_value);
+				if (val_p -> st_ulong_value_p)
+					{
+						value_p = json_integer (* (val_p -> st_ulong_value_p));
+					}
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				value_p = json_real (val_p -> st_data_value);
+				if (val_p -> st_data_value_p)
+					{
+						value_p = json_integer (* (val_p -> st_data_value_p));
+					}
 				break;
 
 			case PT_STRING:
@@ -2786,257 +2712,6 @@ static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBo
 }
 
 
-bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterType pt)
-{
-	bool success_flag = false;
-
-	switch (pt)
-		{
-			case PT_DIRECTORY:
-			case PT_FILE_TO_READ:
-			case PT_FILE_TO_WRITE:
-				{
-					if (src.st_resource_value_p)
-						{
-							Resource *dest_res_p = CloneResource (src.st_resource_value_p);
-
-							if (dest_res_p)
-								{
-									if (dest_p -> st_resource_value_p)
-										{
-											FreeResource (dest_p -> st_resource_value_p);
-										}
-
-									dest_p -> st_resource_value_p = dest_res_p;
-									success_flag = true;
-								}
-						}
-					else
-						{
-							if (dest_p -> st_resource_value_p)
-								{
-									FreeResource (dest_p -> st_resource_value_p);
-									dest_p -> st_resource_value_p = NULL;
-								}
-
-							success_flag = true;
-						}
-
-				}
-				break;
-
-			case PT_TABLE:
-			case PT_STRING:
-			case PT_LARGE_STRING:
-			case PT_PASSWORD:
-			case PT_KEYWORD:
-			case PT_FASTA:
-				{
-					if (src.st_string_value_s)
-						{
-							char *copied_value_s = EasyCopyToNewString (src.st_string_value_s);
-
-							if (copied_value_s)
-								{
-									if (dest_p -> st_string_value_s)
-										{
-											FreeCopiedString (dest_p -> st_string_value_s);
-										}
-
-									dest_p -> st_string_value_s = copied_value_s;
-									success_flag = true;
-								}
-							else
-								{
-
-								}
-						}
-					else
-						{
-							if (dest_p -> st_string_value_s)
-								{
-									FreeCopiedString (dest_p -> st_string_value_s);
-									dest_p -> st_string_value_s = NULL;
-								}
-
-							success_flag = true;
-						}
-				}
-				break;
-
-			case PT_JSON:
-				{
-					if (src.st_json_p)
-						{
-							json_t *copied_value_p = json_deep_copy (src.st_json_p);
-
-							if (copied_value_p)
-								{
-									if (dest_p -> st_json_p)
-										{
-											json_decref (dest_p -> st_json_p);
-										}
-
-									dest_p -> st_json_p = copied_value_p;
-									success_flag = true;
-								}
-						}
-					else
-						{
-							if (dest_p -> st_json_p)
-								{
-									json_decref (dest_p -> st_json_p);
-									dest_p -> st_json_p = NULL;
-								}
-
-							success_flag = true;
-						}
-				}
-				break;
-
-			case PT_SIGNED_INT:
-			case PT_NEGATIVE_INT:
-				dest_p -> st_long_value = src.st_long_value;
-				success_flag = true;
-				break;
-
-			case PT_UNSIGNED_INT:
-				dest_p -> st_ulong_value = src.st_ulong_value;
-				success_flag = true;
-				break;
-
-			case PT_UNSIGNED_REAL:
-			case PT_SIGNED_REAL:
-				dest_p -> st_data_value = src.st_data_value;
-				success_flag = true;
-				break;
-
-			case PT_CHAR:
-				dest_p -> st_char_value = src.st_char_value;
-				success_flag = true;
-				break;
-
-			case PT_BOOLEAN:
-				dest_p -> st_boolean_value = src.st_boolean_value;
-				success_flag = true;
-				break;
-
-
-			case PT_TIME:
-				if (dest_p -> st_time_p)
-					{
-						CopyTime (src.st_time_p, dest_p -> st_time_p);
-					}
-				else
-					{
-						if ((dest_p -> st_time_p = DuplicateTime (src.st_time_p)) != NULL)
-							{
-								success_flag = true;
-							}
-						else
-							{
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy time value");
-							}
-					}
-				break;
-
-			case PT_NUM_TYPES:
-				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter has invalid type");
-				break;
-		}
-
-
-	return success_flag;
-}
-
-
-
-void InitSharedType (SharedType *st_p)
-{
-	memset (st_p, 0, sizeof (SharedType));
-}
-
-
-void ClearSharedType (SharedType *st_p, const ParameterType pt)
-{
-	switch (pt)
-		{
-			case PT_DIRECTORY:
-			case PT_FILE_TO_READ:
-			case PT_FILE_TO_WRITE:
-				if (st_p -> st_resource_value_p)
-					{
-						FreeResource (st_p -> st_resource_value_p);
-						st_p -> st_resource_value_p = NULL;
-					}
-				break;
-
-			case PT_TABLE:
-			case PT_STRING:
-			case PT_LARGE_STRING:
-			case PT_PASSWORD:
-			case PT_KEYWORD:
-			case PT_FASTA:
-				if (st_p -> st_string_value_s)
-					{
-						FreeCopiedString (st_p -> st_string_value_s);
-						st_p -> st_string_value_s = NULL;
-					}
-				break;
-
-			case PT_JSON:
-				if (st_p -> st_json_p)
-					{
-	#if PARAMETER_DEBUG >= STM_LEVEL_FINER
-						PrintJSONRefCounts (st_p -> st_json_p, "freeing param json", STM_LEVEL_FINER, __FILE__, __LINE__);
-	#endif
-
-						json_decref (st_p -> st_json_p);
-						st_p -> st_json_p = NULL;
-					}
-				break;
-
-			case PT_TIME:
-				if (st_p -> st_time_p)
-					{
-						FreeTime (st_p -> st_time_p);
-						st_p -> st_time_p = NULL;
-					}
-				break;
-
-			case PT_NEGATIVE_INT:
-				st_p -> st_long_value = INT32_MIN;
-				break;
-
-			case PT_SIGNED_INT:
-				st_p -> st_long_value = 0;
-				break;
-
-			case PT_UNSIGNED_INT:
-				st_p -> st_ulong_value = 0;
-				break;
-
-			case PT_SIGNED_REAL:
-			case PT_UNSIGNED_REAL:
-				st_p -> st_data_value = 0.0f;
-				break;
-
-			case PT_BOOLEAN:
-				st_p -> st_boolean_value = false;
-				break;
-
-			case PT_CHAR:
-				st_p -> st_char_value = '\0';
-				break;
-
-			case PT_NUM_TYPES:
-				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Invalid ParameterType");
-				break;
-
-		}
-
-	InitSharedType (st_p);
-}
 
 
 bool IsJSONParameterConcise (const json_t * const json_p)
@@ -3167,13 +2842,15 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 												}
 
 											flag = false;
-											if (GetJSONBoolean (root_p, PARAM_OPTIONAL_S, flag))
+											if (GetJSONBoolean (root_p, PARAM_OPTIONAL_S, &flag))
 												{
 													if (flag)
 														{
 															param_p -> pa_visible_flag = flag;
 														}
 												}
+
+											param_p -> pa_optional_label_s = GetJSONString (root_p, PARAM_UNSET_LABEL_S);
 
 											/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
 
@@ -3232,11 +2909,11 @@ const char *GetUIName (const Parameter * const parameter_p)
 }
 
 
-bool SetParameterToggleable (Parameter *param_p, bool toggleable_flag, const char *optional_value_s)
+bool SetParameterOptional (Parameter *param_p, bool optional_flag, const char *optional_value_s)
 {
 	bool success_flag = false;
 
-	if (toggleable_flag)
+	if (optional_flag)
 		{
 			char *copied_value_s = EasyCopyToNewString (optional_value_s);
 
@@ -3248,7 +2925,7 @@ bool SetParameterToggleable (Parameter *param_p, bool toggleable_flag, const cha
 							param_p -> pa_optional_label_s = NULL;
 						}
 
-					param_p -> pa_optional_label_s = optional_value_s;
+					param_p -> pa_optional_label_s = copied_value_s;
 
 					param_p -> pa_optional_flag = true;
 					success_flag = true;
@@ -3616,7 +3293,7 @@ static LinkedList *CopySharedTypesList (const LinkedList *source_p)
 }
 
 
-static bool SetParameterValueFromBoolean (Parameter * const param_p, const bool b, const bool current_flag)
+static bool SetParameterValueFromBoolean (Parameter * const param_p, const bool *b_p, const bool current_flag)
 {
 	bool success_flag = false;
 
@@ -3772,233 +3449,6 @@ static bool SetParameterValueFromTime (Parameter * const param_p, const struct t
 
 
 
-static bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b)
-{
-	value_p -> st_boolean_value = b;
-
-	return true;
-}
-
-
-static bool SetSharedTypeCharValue (SharedType * value_p, const char c)
-{
-	value_p -> st_char_value = c;
-
-	return true;
-}
-
-
-
-static bool SetSharedTypeUnsignedIntValue (SharedType * value_p, const uint32 i, const ParameterBounds * const bounds_p)
-{
-	bool success_flag = false;
-
-	if (bounds_p)
-		{
-			if ((i >= bounds_p -> pb_lower.st_ulong_value) &&
-					(i <= bounds_p -> pb_upper.st_ulong_value))
-				{
-					value_p -> st_ulong_value = i;
-					success_flag = true;
-				}
-		}
-	else
-		{
-			value_p -> st_ulong_value = i;
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-static bool SetSharedTypeSignedIntValue (SharedType * value_p, const int32 i, const ParameterBounds * const bounds_p)
-{
-	bool success_flag = false;
-
-	if (bounds_p)
-		{
-			if ((i >= bounds_p -> pb_lower.st_long_value) &&
-					(i <= bounds_p -> pb_upper.st_long_value))
-				{
-					value_p -> st_long_value = i;
-					success_flag = true;
-				}
-		}
-	else
-		{
-			value_p -> st_long_value = i;
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-
-static bool SetSharedTypeRealValue (SharedType * value_p, const double64 d, const ParameterBounds * const bounds_p)
-{
-	bool success_flag = false;
-
-	if (bounds_p)
-		{
-			if ((d >= bounds_p -> pb_lower.st_data_value) &&
-					(d <= bounds_p -> pb_upper.st_data_value))
-				{
-					value_p -> st_data_value = d;
-					success_flag = true;
-				}
-		}
-	else
-		{
-			value_p -> st_data_value = d;
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-static bool SetSharedTypeStringValue (SharedType *value_p, const char * const src_s)
-{
-	bool success_flag = false;
-
-	if (src_s)
-		{
-			char *copied_value_s = EasyCopyToNewString (src_s);
-
-			if (copied_value_s)
-				{
-					/* If we have a previous value, delete it */
-					if (value_p -> st_string_value_s)
-						{
-							FreeCopiedString (value_p -> st_string_value_s);
-						}
-
-					value_p -> st_string_value_s = copied_value_s;
-					success_flag = true;
-				}
-		}
-	else
-		{
-			/* If we have a previous value, delete it */
-			if (value_p -> st_string_value_s)
-				{
-					FreeCopiedString (value_p -> st_string_value_s);
-					value_p -> st_string_value_s = NULL;
-				}
-
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-static bool SetSharedTypeResourceValue (SharedType *value_p, const Resource * const src_p)
-{
-	bool success_flag = false;
-
-	if (src_p)
-		{
-			if (value_p -> st_resource_value_p)
-				{
-					success_flag = CopyResource (src_p, value_p -> st_resource_value_p);
-				}
-			else
-				{
-					value_p -> st_resource_value_p = AllocateResource (src_p -> re_protocol_s, src_p -> re_value_s, src_p -> re_title_s);
-
-					success_flag = (value_p -> st_resource_value_p != NULL);
-				}
-		}
-	else
-		{
-			if (value_p -> st_resource_value_p)
-				{
-					FreeResource (value_p -> st_resource_value_p);
-					value_p -> st_resource_value_p = NULL;
-				}
-
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-static bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const src_p)
-{
-	bool success_flag = false;
-
-	if (src_p)
-		{
-			json_t *json_value_p = json_deep_copy (src_p);
-
-			if (json_value_p)
-				{
-					/* If we have a previous value, delete it */
-					if (value_p -> st_json_p)
-						{
-							WipeJSON (value_p -> st_json_p);
-						}
-
-					value_p -> st_json_p = json_value_p;
-					success_flag = true;
-				}
-		}
-	else
-		{
-			/* If we have a previous value, delete it */
-			if (value_p -> st_json_p)
-				{
-					WipeJSON (value_p -> st_json_p);
-					value_p -> st_json_p = NULL;
-				}
-
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-static bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p)
-{
-	bool success_flag = false;
-
-	if (src_p)
-		{
-			if (! (value_p -> st_time_p))
-				{
-					if (! (value_p -> st_time_p = AllocateTime ()))
-						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate time variable");
-						}
-				}
-
-			if (value_p -> st_time_p)
-				{
-					CopyTime (src_p, value_p -> st_time_p);
-					success_flag = true;
-				}
-
-		}
-	else
-		{
-			/* If we have a previous value, delete it */
-			if (value_p -> st_time_p)
-				{
-					FreeTime (value_p -> st_time_p);
-					value_p -> st_time_p = NULL;
-				}
-
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
 
 static bool SetRemoteParameterDetailsFromJSON (Parameter *param_p, const json_t * json_p)
 {
@@ -4034,6 +3484,7 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
 				{
+
 					success_flag = SetIntegerFromJSON (json_p, & (value_p -> st_long_value));
 				}
 				break;

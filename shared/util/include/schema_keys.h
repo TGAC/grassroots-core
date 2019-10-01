@@ -475,6 +475,11 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 
 	PREFIX const char *PARAM_OPTIONAL_S VAL("optional");
 
+
+	PREFIX const char *PARAM_UNSET_LABEL_S VAL("unset_label");
+
+
+
 	/**
 	 * The JSON key for the default value of Parameter.
 	 */

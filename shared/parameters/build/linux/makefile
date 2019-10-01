@@ -36,6 +36,7 @@ SRCS 	= \
 	parameter_option.c \
 	parameter_set.c \
 	remote_parameter_details.c \
+	shared_type.c
 
 CPPFLAGS += -DUNIX -DGRASSROOTS_PARAMS_LIBRARY_EXPORTS
 
