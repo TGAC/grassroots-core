@@ -119,19 +119,19 @@ static LinkedList *CopySharedTypesList (const LinkedList *source_p);
 static bool SetRemoteParameterDetailsFromJSON (Parameter *param_p, const json_t * json_p);
 
 
-static bool SetParameterValueFromBoolean (Parameter * const param_p, const bool b, const bool current_flag);
+static bool SetParameterValueFromBoolean (Parameter * const param_p, const bool *b_p, const bool current_flag);
 
 
-static bool SetParameterValueFromChar (Parameter * const param_p, const char c, const bool current_flag);
+static bool SetParameterValueFromChar (Parameter * const param_p, const char *c_p, const bool current_flag);
 
 
-static bool SetParameterValueFromSignedInt (Parameter * const param_p, const int32 i, const bool current_flag);
+static bool SetParameterValueFromSignedInt (Parameter * const param_p, const int32 *i_p, const bool current_flag);
 
 
-static bool SetParameterValueFromUnsignedInt (Parameter * const param_p, const uint32 i, const bool current_flag);
+static bool SetParameterValueFromUnsignedInt (Parameter * const param_p, const uint32 *i_p, const bool current_flag);
 
 
-static bool SetParameterValueFromReal (Parameter * const param_p, const double64 d, const bool current_flag);
+static bool SetParameterValueFromReal (Parameter * const param_p, const double64 *d_p, const bool current_flag);
 
 
 static bool SetParameterValueFromStringValue (Parameter * const param_p, const char * const src_s, const bool current_flag);
@@ -671,21 +671,21 @@ bool SetParameterValueFromSharedType (Parameter * const param_p, const SharedTyp
 				break;
 
 			case PT_CHAR:
-				success_flag = SetParameterValueFromChar (param_p, * (src_p -> st_char_value, current_value_flag);
+				success_flag = SetParameterValueFromChar (param_p, src_p -> st_char_value_p, current_value_flag);
 				break;
 
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
-				success_flag = SetParameterValueFromSignedInt (param_p, src_p -> st_long_value, current_value_flag);
+				success_flag = SetParameterValueFromSignedInt (param_p, src_p -> st_long_value_p, current_value_flag);
 				break;
 
 			case PT_UNSIGNED_INT:
-				success_flag = SetParameterValueFromUnsignedInt (param_p, src_p -> st_ulong_value, current_value_flag);
+				success_flag = SetParameterValueFromUnsignedInt (param_p, src_p -> st_ulong_value_p, current_value_flag);
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				success_flag = SetParameterValueFromReal (param_p, src_p -> st_data_value, current_value_flag);
+				success_flag = SetParameterValueFromReal (param_p, src_p -> st_data_value_p, current_value_flag);
 				break;
 
 			case PT_LARGE_STRING:
@@ -729,15 +729,15 @@ bool SetParameterValue (Parameter * const param_p, const void *value_p, const bo
 		{
 			case PT_BOOLEAN:
 				{
-					const bool b = * ((bool *) value_p);
-					success_flag = SetParameterValueFromBoolean (param_p, b, current_value_flag);
+					const bool *b_p = (const bool *) value_p;
+					success_flag = SetParameterValueFromBoolean (param_p, b_p, current_value_flag);
 				}
 				break;
 
 			case PT_CHAR:
 				{
-					const char c = * ((char *) value_p);
-					success_flag = SetParameterValueFromChar (param_p, c, current_value_flag);
+					const char *c_p = (const char *) value_p;
+					success_flag = SetParameterValueFromChar (param_p, c_p, current_value_flag);
 				}
 				break;
 
@@ -745,23 +745,23 @@ bool SetParameterValue (Parameter * const param_p, const void *value_p, const bo
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
 				{
-					const int32 i = * ((int32 *) value_p);
-					success_flag = SetParameterValueFromSignedInt (param_p, i, current_value_flag);
+					const int32 *i_p = (const int32 *) value_p;
+					success_flag = SetParameterValueFromSignedInt (param_p, i_p, current_value_flag);
 				}
 				break;
 
 			case PT_UNSIGNED_INT:
 				{
-					const uint32 i = * ((uint32 *) value_p);
-					success_flag = SetParameterValueFromUnsignedInt (param_p, i, current_value_flag);
+					const uint32 *i_p = (const uint32 *) value_p;
+					success_flag = SetParameterValueFromUnsignedInt (param_p, i_p, current_value_flag);
 				}
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
 				{
-					const double d = * ((double *) value_p);
-					success_flag = SetParameterValueFromReal (param_p, d, current_value_flag);
+					const double d = (const double *) value_p;
+					success_flag = SetParameterValueFromReal (param_p, d_p, current_value_flag);
 				}
 				break;
 
@@ -3297,83 +3297,162 @@ static bool SetParameterValueFromBoolean (Parameter * const param_p, const bool 
 {
 	bool success_flag = false;
 
-	if (current_flag)
+	if (b_p)
 		{
-			success_flag = SetSharedTypeBooleanValue (& (param_p -> pa_current_value), b);
+			if (current_flag)
+				{
+					success_flag = SetSharedTypeBooleanValue (& (param_p -> pa_current_value), *b_p);
+				}
+			else
+				{
+					success_flag = SetSharedTypeBooleanValue (& (param_p -> pa_default), *b_p);
+				}
 		}
 	else
 		{
-			success_flag = SetSharedTypeBooleanValue (& (param_p -> pa_default), b);
+			if (current_flag)
+				{
+					ClearSharedType (& (param_p -> pa_current_value), PT_BOOLEAN);
+				}
+			else
+				{
+					ClearSharedType (& (param_p -> pa_default), PT_BOOLEAN);
+				}
+
+			success_flag = true;
 		}
 
 	return success_flag;
 }
 
 
-static bool SetParameterValueFromChar (Parameter * const param_p, const char c, const bool current_flag)
+static bool SetParameterValueFromChar (Parameter * const param_p, const char *c_p, const bool current_flag)
 {
 	bool success_flag = false;
 
-	if (current_flag)
+	if (c_p)
 		{
-			success_flag = SetSharedTypeCharValue (& (param_p -> pa_current_value), c);
+			if (current_flag)
+				{
+					success_flag = SetSharedTypeCharValue (& (param_p -> pa_current_value), *c_p);
+				}
+			else
+				{
+					success_flag = SetSharedTypeCharValue (& (param_p -> pa_default), *c_p);
+				}
 		}
 	else
 		{
-			success_flag = SetSharedTypeCharValue (& (param_p -> pa_default), c);
+			if (current_flag)
+				{
+					ClearSharedType (& (param_p -> pa_current_value), PT_CHAR);
+				}
+			else
+				{
+					ClearSharedType (& (param_p -> pa_default), PT_CHAR);
+				}
+
+			success_flag = true;
 		}
 
 	return success_flag;
 }
 
 
-static bool SetParameterValueFromSignedInt (Parameter * const param_p, const int32 i, const bool current_flag)
+static bool SetParameterValueFromSignedInt (Parameter * const param_p, const int32 *i_p, const bool current_flag)
 {
 	bool success_flag = false;
 
-	if (current_flag)
+	if (i_p)
 		{
-			success_flag = SetSharedTypeSignedIntValue (& (param_p -> pa_current_value), i, param_p -> pa_bounds_p);
+			if (current_flag)
+				{
+					success_flag = SetSharedTypeSignedIntValue (& (param_p -> pa_current_value), *i_p, param_p -> pa_bounds_p);
+				}
+			else
+				{
+					success_flag = SetSharedTypeSignedIntValue (& (param_p -> pa_default), *i_p, param_p -> pa_bounds_p);
+				}
 		}
 	else
 		{
-			success_flag = SetSharedTypeSignedIntValue (& (param_p -> pa_default), i, param_p -> pa_bounds_p);
+			if (current_flag)
+				{
+					ClearSharedType (& (param_p -> pa_current_value), PT_SIGNED_INT);
+				}
+			else
+				{
+					ClearSharedType (& (param_p -> pa_default), PT_SIGNED_INT);
+				}
+
+			success_flag = true;
 		}
 
 	return success_flag;
 }
 
 
-static bool SetParameterValueFromUnsignedInt (Parameter * const param_p, const uint32 i, const bool current_flag)
+static bool SetParameterValueFromUnsignedInt (Parameter * const param_p, const uint32 *i_p, const bool current_flag)
 {
 	bool success_flag = false;
 
-	if (current_flag)
+	if (i_p)
 		{
-			success_flag = SetSharedTypeUnsignedIntValue (& (param_p -> pa_current_value), i, param_p -> pa_bounds_p);
+			if (current_flag)
+				{
+					success_flag = SetSharedTypeUnsignedIntValue (& (param_p -> pa_current_value), *i_p, param_p -> pa_bounds_p);
+				}
+			else
+				{
+					success_flag = SetSharedTypeUnsignedIntValue (& (param_p -> pa_default), *i_p, param_p -> pa_bounds_p);
+				}
 		}
 	else
 		{
-			success_flag = SetSharedTypeUnsignedIntValue (& (param_p -> pa_default), i, param_p -> pa_bounds_p);
+			if (current_flag)
+				{
+					ClearSharedType (& (param_p -> pa_current_value), PT_UNSIGNED_INT);
+				}
+			else
+				{
+					ClearSharedType (& (param_p -> pa_default), PT_UNSIGNED_INT);
+				}
+
+			success_flag = true;
 		}
 
 	return success_flag;
 }
 
 
-static bool SetParameterValueFromReal (Parameter * const param_p, const double64 d, const bool current_flag)
+static bool SetParameterValueFromReal (Parameter * const param_p, const double64 *d_p, const bool current_flag)
 {
 	bool success_flag = false;
 
-	if (current_flag)
+	if (i_p)
 		{
-			success_flag = SetSharedTypeRealValue (& (param_p -> pa_current_value), d, param_p -> pa_bounds_p);
+			if (current_flag)
+				{
+					success_flag = SetSharedTypeRealValue (& (param_p -> pa_current_value), *d_p, param_p -> pa_bounds_p);
+				}
+			else
+				{
+					success_flag = SetSharedTypeRealValue (& (param_p -> pa_default), *d_p, param_p -> pa_bounds_p);
+				}
 		}
 	else
 		{
-			success_flag = SetSharedTypeRealValue (& (param_p -> pa_default), d, param_p -> pa_bounds_p);
-		}
+			if (current_flag)
+				{
+					ClearSharedType (& (param_p -> pa_current_value), PT_SIGNED_REAL);
+				}
+			else
+				{
+					ClearSharedType (& (param_p -> pa_default), PT_SIGNED_REAL);
+				}
 
+			success_flag = true;
+		}
 	return success_flag;
 }
 
