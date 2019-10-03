@@ -2123,7 +2123,7 @@ bson_oid_t *GetBSONOidFromString (const char *id_s)
 				}
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\ is not a valid bson_oid", id_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" is not a valid bson_oid", id_s);
 				}
 		}
 

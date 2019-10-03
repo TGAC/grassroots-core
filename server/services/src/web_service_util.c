@@ -528,24 +528,51 @@ static bool AppendParameterValue (ByteBuffer *buffer_p, const Parameter *param_p
 	switch (param_p -> pa_type)
 		{
 			case PT_BOOLEAN:
-				value_s = (char *) ((value_p -> st_boolean_value == true) ? "true" : "false");
+				if (value_p -> st_boolean_value_p)
+					{
+						value_s = (char *) (((* (value_p -> st_boolean_value_p)) == true) ? "true" : "false");
+					}
+				else
+					{
+						success_flag = true;
+					}
 				break;
 
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
-				value_s = ConvertIntegerToString (value_p -> st_long_value);
-				alloc_value = AT_STANDARD;
+				if (value_p -> st_long_value_p)
+					{
+						value_s = ConvertIntegerToString (* (value_p -> st_long_value_p));
+						alloc_value = AT_STANDARD;					}
+				else
+					{
+						success_flag = true;
+					}
 				break;
 
 			case PT_UNSIGNED_INT:
-				value_s = ConvertUnsignedIntegerToString (value_p -> st_ulong_value);
-				alloc_value = AT_STANDARD;
+				if (value_p -> st_ulong_value_p)
+					{
+						value_s = ConvertUnsignedIntegerToString (* (value_p -> st_ulong_value_p));
+						alloc_value = AT_STANDARD;
+					}
+				else
+					{
+						success_flag = true;
+					}
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				value_s = ConvertDoubleToString (value_p -> st_data_value);
-				alloc_value = AT_STANDARD;
+				if (value_p -> st_data_value_p)
+					{
+						value_s = ConvertDoubleToString (* (value_p -> st_data_value_p));
+						alloc_value = AT_STANDARD;
+					}
+				else
+					{
+						success_flag = true;
+					}
 				break;
 
 			case PT_DIRECTORY:

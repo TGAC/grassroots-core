@@ -45,7 +45,7 @@
  *
  * @ingroup parameters_group
  */
-typedef union SharedType
+typedef struct SharedType
 {
 	/** A Boolean value */
 	bool *st_boolean_value_p;
@@ -78,7 +78,10 @@ typedef union SharedType
 	/** A time and date */
 	struct tm *st_time_p;
 
+	ParameterType st_active_type;
+
 } SharedType;
+
 
 
 /**
@@ -156,34 +159,43 @@ GRASSROOTS_PARAMS_API void InitSharedType (SharedType *st_p);
 GRASSROOTS_PARAMS_API bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterType pt);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b);
+GRASSROOTS_PARAMS_API bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeCharValue (SharedType * value_p, const char c);
+GRASSROOTS_PARAMS_API bool SetSharedTypeCharValue (SharedType * value_p, const char c);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeUnsignedIntValue (SharedType * value_p, const uint32 i, const ParameterBounds * const bounds_p);
+GRASSROOTS_PARAMS_API bool SetSharedTypeUnsignedIntValue (SharedType * value_p, const uint32 i, const ParameterBounds * const bounds_p);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeSignedIntValue (SharedType * value_p, const int32 i, const ParameterBounds * const bounds_p);
+GRASSROOTS_PARAMS_API bool SetSharedTypeSignedIntValue (SharedType * value_p, const int32 i, const ParameterBounds * const bounds_p);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeRealValue (SharedType * value_p, const double64 d, const ParameterBounds * const bounds_p);
+GRASSROOTS_PARAMS_API bool SetSharedTypeRealValue (SharedType * value_p, const double64 d, const ParameterBounds * const bounds_p);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeStringValue (SharedType *value_p, const char * const src_s);
+GRASSROOTS_PARAMS_API bool SetSharedTypeStringValue (SharedType *value_p, const char * const src_s);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeResourceValue (SharedType *value_p, const Resource * const src_p);
+GRASSROOTS_PARAMS_API bool SetSharedTypeResourceValue (SharedType *value_p, const Resource * const src_p);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const src_p);
+GRASSROOTS_PARAMS_API bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const src_p);
 
 
-GRASSROOTS_PARAMS_LOCAL bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p);
+GRASSROOTS_PARAMS_API bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p);
+
+
+GRASSROOTS_PARAMS_API bool CompareSharedTypeBooleanValue (const SharedType *value_p, const bool value_to_check);
+
+
+GRASSROOTS_PARAMS_API bool ClearAndSetSharedTypeValue (SharedType *st_p, const void *value_p, const ParameterType pt);
 
 
 GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeValue (SharedType *value_p, const struct tm * const src_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeValue (SharedType *st_p, const void *value_p, const ParameterType pt);
 
 
 GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeRealValue (const SharedType *src_p, SharedType *dest_p);
