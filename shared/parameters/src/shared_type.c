@@ -137,17 +137,17 @@ void InitSharedType (SharedType *st_p)
 }
 
 
-void ClearSharedType (SharedType *st_p, const ParameterType pt)
+void ClearSharedType (SharedType *st_p)
 {
-	switch (pt)
+	switch (st_p -> st_active_type)
 		{
 			case PT_DIRECTORY:
 			case PT_FILE_TO_READ:
 			case PT_FILE_TO_WRITE:
-				if (st_p -> st_resource_value_p)
+				if (st_p -> st_value.st_resource_value_p)
 					{
-						FreeResource (st_p -> st_resource_value_p);
-						st_p -> st_resource_value_p = NULL;
+						FreeResource (st_p -> st_value.st_resource_value_p);
+						st_p -> st_value.st_resource_value_p = NULL;
 					}
 				break;
 
@@ -157,79 +157,80 @@ void ClearSharedType (SharedType *st_p, const ParameterType pt)
 			case PT_PASSWORD:
 			case PT_KEYWORD:
 			case PT_FASTA:
-				if (st_p -> st_string_value_s)
+				if (st_p -> st_value.st_string_value_s)
 					{
-						FreeCopiedString (st_p -> st_string_value_s);
-						st_p -> st_string_value_s = NULL;
+						FreeCopiedString (st_p -> st_value.st_string_value_s);
+						st_p -> st_value.st_string_value_s = NULL;
 					}
 				break;
 
 			case PT_JSON:
-				if (st_p -> st_json_p)
+				if (st_p -> st_value.st_json_p)
 					{
-	#if PARAMETER_DEBUG >= STM_LEVEL_FINER
+						#if PARAMETER_DEBUG >= STM_LEVEL_FINER
 						PrintJSONRefCounts (st_p -> st_json_p, "freeing param json", STM_LEVEL_FINER, __FILE__, __LINE__);
-	#endif
+						#endif
 
-						json_decref (st_p -> st_json_p);
-						st_p -> st_json_p = NULL;
+						json_decref (st_p -> st_value.st_json_p);
+						st_p -> st_value.st_json_p = NULL;
 					}
 				break;
 
 			case PT_TIME:
-				if (st_p -> st_time_p)
+				if (st_p -> st_value.st_time_p)
 					{
-						FreeTime (st_p -> st_time_p);
-						st_p -> st_time_p = NULL;
+						FreeTime (st_p -> st_value.st_time_p);
+						st_p -> st_value.st_time_p = NULL;
 					}
 				break;
 
 			case PT_NEGATIVE_INT:
 			case PT_SIGNED_INT:
-				if (st_p -> st_long_value_p)
+				if (st_p -> st_value.st_long_value_p)
 					{
-						FreeMemory (st_p -> st_long_value_p);
-						st_p -> st_long_value_p = NULL;
+						FreeMemory (st_p -> st_value.st_long_value_p);
+						st_p -> st_value.st_long_value_p = NULL;
 					}
 				break;
 
 			case PT_UNSIGNED_INT:
-				if (st_p -> st_ulong_value_p)
+				if (st_p -> st_value.st_ulong_value_p)
 					{
-						FreeMemory (st_p -> st_ulong_value_p);
-						st_p -> st_ulong_value_p = NULL;
+						FreeMemory (st_p -> st_value.st_ulong_value_p);
+						st_p -> st_value.st_ulong_value_p = NULL;
 					}
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				if (st_p -> st_data_value_p)
+				if (st_p -> st_value.st_data_value_p)
 					{
-						FreeMemory (st_p -> st_data_value_p);
-						st_p -> st_data_value_p = NULL;
+						FreeMemory (st_p -> st_value.st_data_value_p);
+						st_p -> st_value.st_data_value_p = NULL;
 					}
 				break;
 
 			case PT_BOOLEAN:
-				if (st_p -> st_boolean_value_p)
+				if (st_p -> st_value.st_boolean_value_p)
 					{
-						FreeMemory (st_p -> st_boolean_value_p);
-						st_p -> st_boolean_value_p = NULL;
+						FreeMemory (st_p -> st_value.st_boolean_value_p);
+						st_p -> st_value.st_boolean_value_p = NULL;
 					}
 				break;
 
 			case PT_CHAR:
-				if (st_p -> st_char_value_p)
+				if (st_p -> st_value.st_char_value_p)
 					{
-						FreeMemory (st_p -> st_char_value_p);
-						st_p -> st_char_value_p = NULL;
+						FreeMemory (st_p -> st_value.st_char_value_p);
+						st_p -> st_value.st_char_value_p = NULL;
 					}
 				break;
 
 			case PT_NUM_TYPES:
-				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Invalid ParameterType");
 				break;
 		}
+
+	st_p -> st_active_type = PT_NUM_TYPES;
 }
 
 
@@ -240,7 +241,7 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 
 	if (json_is_null (json_p))
 		{
-			ClearSharedType (value_p, pt);
+			ClearSharedType (value_p);
 			success_flag = true;
 		}
 	else
@@ -249,14 +250,14 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 				{
 					case PT_BOOLEAN:
 						{
-							success_flag = SetBooleanFromJSON (json_p, value_p -> st_boolean_value_p);
+							success_flag = SetBooleanFromJSON (json_p, value_p -> st_value.st_boolean_value_p);
 						}
 						break;
 
 					case PT_SIGNED_INT:
 					case PT_NEGATIVE_INT:
 						{
-							success_flag = SetIntegerFromJSON (json_p, value_p -> st_long_value_p);
+							success_flag = SetIntegerFromJSON (json_p, value_p -> st_value.st_long_value_p);
 						}
 						break;
 
@@ -274,7 +275,7 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 					case PT_SIGNED_REAL:
 					case PT_UNSIGNED_REAL:
 						{
-							success_flag = SetRealFromJSON (json_p, value_p -> st_data_value_p);
+							success_flag = SetRealFromJSON (json_p, value_p -> st_value.st_data_value_p);
 						}
 						break;
 
@@ -294,12 +295,12 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 
 							if (success_flag)
 								{
-									if (value_p -> st_string_value_s)
+									if (value_p -> st_value.st_string_value_s)
 										{
-											FreeCopiedString (value_p -> st_string_value_s);
+											FreeCopiedString (value_p -> st_value.st_string_value_s);
 										}
 
-									value_p -> st_string_value_s = value_s;
+									value_p -> st_value.st_string_value_s = value_s;
 								}
 						}
 						break;
@@ -328,12 +329,12 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 
 							if (dest_p)
 								{
-									if (value_p -> st_json_p)
+									if (value_p -> st_value.st_json_p)
 										{
-											json_decref (value_p -> st_json_p);
+											json_decref (value_p -> st_value.st_json_p);
 										}
 
-									value_p -> st_json_p = dest_p;
+									value_p -> st_value.st_json_p = dest_p;
 								}
 							else
 								{
@@ -351,12 +352,12 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 
 									if (time_p)
 										{
-											if (value_p -> st_time_p)
+											if (value_p -> st_value.st_time_p)
 												{
-													FreeTime (value_p -> st_time_p);
+													FreeTime (value_p -> st_value.st_time_p);
 												}
 
-											value_p -> st_time_p = time_p;
+											value_p -> st_value.st_time_p = time_p;
 											success_flag = true;
 										}
 								}
@@ -378,20 +379,41 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 
 
 
-bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b)
+bool SetSharedTypeBooleanValue (SharedType *value_p, const bool b)
 {
-	if (! (value_p -> st_boolean_value_p))
+	if (value_p -> st_active_type == PT_BOOLEAN)
 		{
-			value_p -> st_boolean_value_p = (bool *) AllocMemory (sizeof (bool));
+			if (! (value_p -> st_value.st_boolean_value_p))
+				{
+					value_p -> st_value.st_boolean_value_p = (bool *) AllocMemory (sizeof (bool));
 
-			if (! (value_p -> st_boolean_value_p))
+					if (! (value_p -> st_value.st_boolean_value_p))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate bool value");
+							return false;
+						}
+				}
+
+			* (value_p -> st_value.st_boolean_value_p) = b;
+		}
+	else
+		{
+			bool *b_p = (bool *) AllocMemory (sizeof (bool));
+
+			if (b_p)
+				{
+					*b_p = b;
+
+					ClearSharedType (value_p);
+					value_p -> st_active_type = PT_BOOLEAN;
+					value_p -> st_value.st_boolean_value_p = b_p;
+				}
+			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate bool value");
 					return false;
 				}
 		}
-
-	* (value_p -> st_boolean_value_p) = b;
 
 	return true;
 }
@@ -399,18 +421,39 @@ bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b)
 
 bool SetSharedTypeCharValue (SharedType * value_p, const char c)
 {
-	if (! (value_p -> st_char_value_p))
+	if (value_p -> st_active_type == PT_CHAR)
 		{
-			value_p -> st_char_value_p = (char *) AllocMemory (sizeof (char));
+			if (! (value_p -> st_value.st_char_value_p))
+				{
+					value_p -> st_value.st_char_value_p = (char *) AllocMemory (sizeof (char));
 
-			if (! (value_p -> st_char_value_p))
+					if (! (value_p -> st_value.st_char_value_p))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate char value");
+							return false;
+						}
+				}
+
+			* (value_p -> st_value.st_char_value_p) = c;
+		}
+	else
+		{
+			char *c_p = (char *) AllocMemory (sizeof (char));
+
+			if (c_p)
+				{
+					*c_p = c;
+
+					ClearSharedType (value_p);
+					value_p -> st_active_type = PT_CHAR;
+					value_p -> st_value.st_char_value_p = c_p;
+				}
+			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate char value");
 					return false;
 				}
 		}
-
-	* (value_p -> st_char_value_p) = c;
 
 	return true;
 }
@@ -421,32 +464,53 @@ bool SetSharedTypeUnsignedIntValue (SharedType * value_p, const uint32 i, const 
 {
 	if (bounds_p)
 		{
-			if ((bounds_p -> pb_lower.st_ulong_value_p) && (i < * (bounds_p -> pb_lower.st_ulong_value_p)))
+			if ((bounds_p -> pb_lower.st_value.st_ulong_value_p) && (i < * (bounds_p -> pb_lower.st_value.st_ulong_value_p)))
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " UINT32_FMT " is lower than bound " UINT32_FMT);
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " UINT32_FMT " is lower than bound " UINT32_FMT, i, * (bounds_p -> pb_lower.st_value.st_ulong_value_p));
 					return false;
 				}
 
-			if ((bounds_p -> pb_upper.st_ulong_value_p) && (i > * (bounds_p -> pb_upper.st_ulong_value_p)))
+			if ((bounds_p -> pb_upper.st_value.st_ulong_value_p) && (i > * (bounds_p -> pb_upper.st_value.st_ulong_value_p)))
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " UINT32_FMT " is higher than bound " UINT32_FMT);
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " UINT32_FMT " is higher than bound " UINT32_FMT, i, * (bounds_p -> pb_upper.st_value.st_ulong_value_p));
 					return false;
 				}
 		}
 
 
-	if (! (value_p -> st_ulong_value_p))
+	if (value_p -> st_active_type == PT_UNSIGNED_INT)
 		{
-			value_p -> st_ulong_value_p = (uint32 *) AllocMemory (sizeof (uint32));
+			if (! (value_p -> st_value.st_ulong_value_p))
+				{
+					value_p -> st_value.st_ulong_value_p = (uint32 *) AllocMemory (sizeof (uint32));
 
-			if (! (value_p -> st_ulong_value_p))
+					if (! (value_p -> st_value.st_ulong_value_p))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate unsigned int value");
+							return false;
+						}
+				}
+
+			* (value_p -> st_value.st_ulong_value_p) = i;
+		}
+	else
+		{
+			uint32 *i_p = (uint32 *) AllocMemory (sizeof (uint32));
+
+			if (i_p)
+				{
+					*i_p = i;
+
+					ClearSharedType (value_p);
+					value_p -> st_active_type = PT_UNSIGNED_INT;
+					value_p -> st_value.st_ulong_value_p = i_p;
+				}
+			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate unsigned int value");
 					return false;
 				}
 		}
-
-	* (value_p -> st_ulong_value_p) = i;
 
 	return true;
 }
@@ -456,32 +520,52 @@ bool SetSharedTypeSignedIntValue (SharedType * value_p, const int32 i, const Par
 {
 	if (bounds_p)
 		{
-			if ((bounds_p -> pb_lower.st_long_value_p) && (i < * (bounds_p -> pb_lower.st_long_value_p)))
+			if ((bounds_p -> pb_lower.st_value.st_long_value_p) && (i < * (bounds_p -> pb_lower.st_value.st_long_value_p)))
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " INT32_FMT " is lower than bound " INT32_FMT);
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " INT32_FMT " is lower than bound " INT32_FMT, i, * (bounds_p -> pb_lower.st_value.st_long_value_p));
 					return false;
 				}
 
-			if ((bounds_p -> pb_upper.st_long_value_p) && (i > * (bounds_p -> pb_upper.st_long_value_p)))
+			if ((bounds_p -> pb_upper.st_value.st_long_value_p) && (i > * (bounds_p -> pb_upper.st_value.st_long_value_p)))
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " INT32_FMT " is higher than bound " INT32_FMT);
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " INT32_FMT " is higher than bound " INT32_FMT, i, * (bounds_p -> pb_lower.st_value.st_long_value_p));
 					return false;
 				}
 		}
 
-
-	if (! (value_p -> st_long_value_p))
+	if (value_p -> st_active_type == PT_SIGNED_INT)
 		{
-			value_p -> st_long_value_p = (int32 *) AllocMemory (sizeof (int32));
+			if (! (value_p -> st_value.st_long_value_p))
+				{
+					value_p -> st_value.st_long_value_p = (int32 *) AllocMemory (sizeof (int32));
 
-			if (! (value_p -> st_long_value_p))
+					if (! (value_p -> st_value.st_long_value_p))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate signed int value");
+							return false;
+						}
+				}
+
+			* (value_p -> st_value.st_long_value_p) = i;
+		}
+	else
+		{
+			int32 *i_p = (int32 *) AllocMemory (sizeof (int32));
+
+			if (i_p)
+				{
+					*i_p = i;
+
+					ClearSharedType (value_p);
+					value_p -> st_active_type = PT_SIGNED_INT;
+					value_p -> st_value.st_long_value_p = i_p;
+				}
+			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate signed int value");
 					return false;
 				}
 		}
-
-	* (value_p -> st_long_value_p) = i;
 
 	return true;
 }
@@ -492,32 +576,53 @@ bool SetSharedTypeRealValue (SharedType * value_p, const double64 d, const Param
 {
 	if (bounds_p)
 		{
-			if ((bounds_p -> pb_lower.st_data_value_p) && (d < * (bounds_p -> pb_lower.st_data_value_p)))
+			if ((bounds_p -> pb_lower.st_value.st_data_value_p) && (d < * (bounds_p -> pb_lower.st_value.st_data_value_p)))
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " DOUBLE64_FMT " is lower than bound " DOUBLE64_FMT);
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " DOUBLE64_FMT " is lower than bound " DOUBLE64_FMT, d, * (bounds_p -> pb_lower.st_value.st_data_value_p));
 					return false;
 				}
 
-			if ((bounds_p -> pb_upper.st_data_value_p) && (d > * (bounds_p -> pb_upper.st_data_value_p)))
+			if ((bounds_p -> pb_upper.st_value.st_data_value_p) && (d > * (bounds_p -> pb_upper.st_value.st_data_value_p)))
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " DOUBLE64_FMT " is higher than bound " DOUBLE64_FMT);
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Value " DOUBLE64_FMT " is higher than bound " DOUBLE64_FMT,  d, * (bounds_p -> pb_lower.st_value.st_data_value_p));
 					return false;
 				}
 		}
 
 
-	if (! (value_p -> st_data_value_p))
+	if ((value_p -> st_active_type == PT_SIGNED_REAL) || (value_p -> st_active_type == PT_UNSIGNED_REAL))
 		{
-			value_p -> st_data_value_p = (double64 *) AllocMemory (sizeof (double64));
-
-			if (! (value_p -> st_data_value_p))
+			if (! (value_p -> st_value.st_data_value_p))
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate double64 value");
+					value_p -> st_value.st_data_value_p = (double64 *) AllocMemory (sizeof (double64));
+
+					if (! (value_p -> st_value.st_data_value_p))
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate double value");
+							return false;
+						}
+				}
+
+			* (value_p -> st_value.st_data_value_p) = d;
+		}
+	else
+		{
+			double64 *d_p = (double64 *) AllocMemory (sizeof (double64));
+
+			if (d_p)
+				{
+					*d_p = d;
+
+					ClearSharedType (value_p);
+					value_p -> st_active_type = PT_UNSIGNED_REAL;
+					value_p -> st_value.st_data_value_p = d_p;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate double value");
 					return false;
 				}
 		}
-
-	* (value_p -> st_data_value_p) = d;
 
 	return true;
 }

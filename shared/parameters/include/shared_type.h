@@ -47,38 +47,41 @@
  */
 typedef struct SharedType
 {
-	/** A Boolean value */
-	bool *st_boolean_value_p;
-
-	/** A signed integer */
-	int32 *st_long_value_p;
-
-	/** An unsigned integer */
-	uint32 *st_ulong_value_p;
-
-	/** A real number */
-	double64 *st_data_value_p;
-
-	/** A c-style string */
-	char *st_string_value_s;
-
-	/** A single character */
-	char *st_char_value_p;
-
-	/** A Resource */
-	Resource *st_resource_value_p;
-
-	/** A LinkedList of multiple values */
-	LinkedList *st_multiple_values_p;
-
-	/** A JSON fragment */
-	json_t *st_json_p;
-
-
-	/** A time and date */
-	struct tm *st_time_p;
-
 	ParameterType st_active_type;
+
+	union
+		{
+			/** A Boolean value */
+			bool *st_boolean_value_p;
+
+			/** A signed integer */
+			int32 *st_long_value_p;
+
+			/** An unsigned integer */
+			uint32 *st_ulong_value_p;
+
+			/** A real number */
+			double64 *st_data_value_p;
+
+			/** A c-style string */
+			char *st_string_value_s;
+
+			/** A single character */
+			char *st_char_value_p;
+
+			/** A Resource */
+			Resource *st_resource_value_p;
+
+			/** A LinkedList of multiple values */
+			LinkedList *st_multiple_values_p;
+
+			/** A JSON fragment */
+			json_t *st_json_p;
+
+
+			/** A time and date */
+			struct tm *st_time_p;
+		} st_value;
 
 } SharedType;
 
@@ -130,10 +133,9 @@ extern "C"
  * for the value.
  *
  * @param st_p The SharedType to clear.
- * @param pt The ParameterType for this SharedType
  * @memberof SharedType
  */
-GRASSROOTS_PARAMS_API void ClearSharedType (SharedType *st_p, const ParameterType pt);
+GRASSROOTS_PARAMS_API void ClearSharedType (SharedType *st_p);
 
 
 

@@ -165,8 +165,9 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 /******************************************************/
 
-Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+bool InitialiseParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
+	bool init_flag = false;
 	char *new_name_s = CopyToNewString (name_s, 0, true);
 
 	if (new_name_s)
@@ -200,70 +201,45 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 
 									if (remote_params_p)
 										{
-											Parameter *param_p = (Parameter *) AllocMemory (sizeof (Parameter));
+											param_p -> pa_type = type;
+											param_p -> pa_multi_valued_flag = multi_valued_flag;
+											param_p -> pa_name_s = new_name_s;
+											param_p -> pa_display_name_s = new_display_name_s;
+											param_p -> pa_description_s = new_description_s;
+											param_p -> pa_options_p = options_p;
+											param_p -> pa_check_value_fn = check_value_fn;
+											param_p -> pa_bounds_p = bounds_p;
+											param_p -> pa_level = level;
+											param_p -> pa_store_p = store_p;
+											param_p -> pa_group_p = NULL;
 
-											if (param_p)
+											param_p -> pa_remote_parameter_details_p = remote_params_p;
+
+											param_p -> pa_visible_flag = true;
+											param_p -> pa_optional_flag = false;
+											param_p -> pa_optional_label_s = NULL;
+
+											if (multi_valued_flag)
 												{
-													param_p -> pa_type = type;
-													param_p -> pa_multi_valued_flag = multi_valued_flag;
-													param_p -> pa_name_s = new_name_s;
-													param_p -> pa_display_name_s = new_display_name_s;
-													param_p -> pa_description_s = new_description_s;
-													param_p -> pa_options_p = options_p;
-													param_p -> pa_check_value_fn = check_value_fn;
-													param_p -> pa_bounds_p = bounds_p;
-													param_p -> pa_level = level;
-													param_p -> pa_store_p = store_p;
-													param_p -> pa_group_p = NULL;
-
-													param_p -> pa_remote_parameter_details_p = remote_params_p;
-
-													param_p -> pa_visible_flag = true;
-													param_p -> pa_optional_flag = false;
-													param_p -> pa_optional_label_s = NULL;
-
-
-													InitSharedType (& (param_p -> pa_current_value));
-													InitSharedType (& (param_p -> pa_default));
-
-													if (multi_valued_flag)
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Multi-valued parameters not yet implemented");
+												}
+											else
+												{
+													/*
+													 * Check for any values that have been overrode in
+													 * the service configuration.
+													 */
+													if (service_data_p)
 														{
-															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Multi-valued parameters not yet implemented");
-														}
-													else
-														{
-															/*
-															 * Check for any values that have been overrode in
-															 * the service configuration.
-															 */
-															if (service_data_p)
-																{
-																	GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+															GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 
-																	GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
+															GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
 
-																	GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
-																}
-
-															if (SetParameterValueFromSharedType (param_p, current_value_p ? current_value_p : &default_value, true))
-																{
-																	if (SetParameterValueFromSharedType (param_p, &default_value, false))
-																		{
-																			return param_p;
-																		}		/* if (SetParameterValueFromSharedType (param_p, &default_value, false)) */
-																	else
-																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param current value for %s", param_p -> pa_name_s);
-																		}
-																}		/* if (SetParameterValueFromSharedType (param_p, current_value_p ? current_value_p : &default_value, true)) */
-															else
-																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param default value for %s", param_p -> pa_name_s);
-																}
+															GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
 														}
 
-													FreeMemory (param_p);
-												}		/* if (param_p) */
+													init_flag = true;
+												}
 
 											FreeLinkedList (remote_params_p);
 										}		/* if (remote_params_p) */
@@ -276,18 +252,38 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 					if (new_display_name_s)
 						{
 							FreeCopiedString (new_display_name_s);
-						}		/* if (new_description_s) */	
+						}		/* if (new_description_s) */
 
 
 					if (new_description_s)
 						{
 							FreeCopiedString (new_description_s);
-						}		/* if (new_description_s) */	
+						}		/* if (new_description_s) */
 
 				}		/* if (success_flag) */
 
 			FreeCopiedString (new_name_s);
 		}		/* if (new_name_s) */
+
+	return init_flag;
+
+}
+
+
+
+Parameter *AllocateParameter (const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const void *default_value_p, const void *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+{
+	Parameter *param_p = (Parameter *) AllocMemory (sizeof (Parameter));
+
+	if (param_p)
+		{
+			if (InitialiseParameter (param_p, service_data_p, type, multi_valued_flag, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+				{
+					return param_p;
+				}
+
+			FreeParameter (param_p);
+		}
 
 	return NULL;
 }
