@@ -300,6 +300,33 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
 
 
 
+
+/**
+ * Initialise a Parameter
+ *
+ * @param service_data_p The ServiceData for the Service that is allocating this Parameter.
+ * @param type The ParameterType for this Parameter.
+ * @param multi_valued_flag If this is <code>true</code> then the Parameter can hold multiple values. For single value Parameters, set this to <code>false</code>.
+ * @param name_s The name of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * @param display_name_s An optional name to display for the Parameter for use in Clients. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * This can be <code>NULL</code>.
+ * @param description_s The description of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * @param options_p This can be used to constrain the Parameter to a fixed set of values. If this is <code>NULL</code> then the Parameter can be set to any value.
+ * @param default_value The default value for this Parameter.
+ * @param current_value_p If this is not <code>NULL</code>, then copy this value as the current value of the Parameter. If this is <code>NULL</code>, then current value for this Parameter
+ * will be set to be a copy of its default value.
+ * @param bounds_p If this is not <code>NULL</code>, then this will be used to specify the minimum and maximum values that this Parameter can take. If this is <code>NULL</code>,
+ * then the Parameter can take any value.
+ * @param level The ParameterLevel for this Parameter. This determines when the Client should display this Parameter to the user.
+ * @param check_value_fn If this is not <code>NULL</code>, then this will be used to check whether the Parameter has been set to a valid value.
+ * @return A newly-allocated Parameter or <code>NULL</code> upon error.
+ * @memberof Parameter
+ */
+GRASSROOTS_PARAMS_API bool InitialiseParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const void *default_value_p, const void *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+
+
+
+
 /**
  * Allocate a Parameter
  *
@@ -324,7 +351,6 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
 GRASSROOTS_PARAMS_API Parameter *AllocateParameter (const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const void *default_value_p, const void *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
-GRASSROOTS_PARAMS_API Parameter *AllocateBoolParameter (const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const void *default_value_p, const void *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
 /**
@@ -344,6 +370,17 @@ GRASSROOTS_PARAMS_API Parameter *CloneParameter (const Parameter * const src_p);
  * @memberof Parameter
  */
 GRASSROOTS_PARAMS_API void FreeParameter (Parameter *param_p);
+
+
+
+
+/**
+ * Clear a Parameter.
+ *
+ * @param param_p The Parameter to clear.
+ * @memberof Parameter
+ */
+GRASSROOTS_PARAMS_API void ClearParameter (Parameter *param_p);
 
 
 /**

@@ -93,10 +93,10 @@ static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, js
 
 static bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p);
 
-static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const SharedType *val_p, const char *key_s);
+static bool AddValueToJSON (json_t *root_p, const SharedType *val_p, const char *key_s);
 
 
-static bool AddCurrentValueToJSON (const ParameterType param_type, const SharedType * const value_p, json_t *root_p, const SchemaVersion * const sv_p);
+static bool AddCurrentValueToJSON (const SharedType * const value_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 
 static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
@@ -165,7 +165,7 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 /******************************************************/
 
-bool InitialiseParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+bool InitialiseParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	bool init_flag = false;
 	char *new_name_s = CopyToNewString (name_s, 0, true);
@@ -202,7 +202,6 @@ bool InitialiseParameter (Parameter *param_p, const struct ServiceData *service_
 									if (remote_params_p)
 										{
 											param_p -> pa_type = type;
-											param_p -> pa_multi_valued_flag = multi_valued_flag;
 											param_p -> pa_name_s = new_name_s;
 											param_p -> pa_display_name_s = new_display_name_s;
 											param_p -> pa_description_s = new_description_s;
@@ -219,27 +218,20 @@ bool InitialiseParameter (Parameter *param_p, const struct ServiceData *service_
 											param_p -> pa_optional_flag = false;
 											param_p -> pa_optional_label_s = NULL;
 
-											if (multi_valued_flag)
+											/*
+											 * Check for any values that have been overrode in
+											 * the service configuration.
+											 */
+											if (service_data_p)
 												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Multi-valued parameters not yet implemented");
+													GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+
+													GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
+
+													GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
 												}
-											else
-												{
-													/*
-													 * Check for any values that have been overrode in
-													 * the service configuration.
-													 */
-													if (service_data_p)
-														{
-															GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 
-															GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
-
-															GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
-														}
-
-													init_flag = true;
-												}
+											init_flag = true;
 
 											FreeLinkedList (remote_params_p);
 										}		/* if (remote_params_p) */
@@ -289,7 +281,7 @@ Parameter *AllocateParameter (const struct ServiceData *service_data_p, Paramete
 }
 
 
-void FreeParameter (Parameter *param_p)
+void ClearParameter (Parameter *param_p)
 {
 #if PARAMETER_DEBUG >= STM_LEVEL_FINER
 	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Freeing parameter %s", param_p -> pa_name_s);
@@ -332,7 +324,13 @@ void FreeParameter (Parameter *param_p)
 	FreeHashTable (param_p -> pa_store_p);
 
 	FreeLinkedList (param_p -> pa_remote_parameter_details_p);
+}
 
+
+
+void FreeParameter (Parameter *param_p)
+{
+	ClearParameter (param_p);
 	FreeMemory (param_p);
 }
 
@@ -814,7 +812,7 @@ json_t *GetRunnableParameterAsJSON (const char * const name_s, const SharedType 
 		{
 			if (AddParameterNameToJSON (name_s, root_p, sv_p))
 				{
-					if (AddCurrentValueToJSON (param_type, value_p, root_p, sv_p))
+					if (AddCurrentValueToJSON (value_p, root_p, sv_p))
 						{
 							return root_p;
 						}
@@ -1525,13 +1523,13 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 static bool AddDefaultValueToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
 {
-	return AddValueToJSON (root_p, param_p -> pa_type, & (param_p -> pa_default), PARAM_DEFAULT_VALUE_S);
+	return AddValueToJSON (root_p, & (param_p -> pa_default), PARAM_DEFAULT_VALUE_S);
 }
 
 
-static bool AddCurrentValueToJSON (const ParameterType param_type, const SharedType * const value_p, json_t *root_p, const SchemaVersion * const sv_p)
+static bool AddCurrentValueToJSON (const SharedType * const value_p, json_t *root_p, const SchemaVersion * const sv_p)
 {
-	return AddValueToJSON (root_p, param_type, value_p, PARAM_CURRENT_VALUE_S);
+	return AddValueToJSON (root_p, value_p, PARAM_CURRENT_VALUE_S);
 }
 
 
@@ -1583,29 +1581,33 @@ static bool AddParameterOptionalFlagToJSON (const Parameter * const param_p, jso
 
 
 
-static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const SharedType *val_p, const char *key_s)
+static bool AddValueToJSON (json_t *root_p,  const SharedType *val_p, const char *key_s)
 {
 	bool success_flag = false;
 	bool null_flag = false;
 	json_t *value_p = NULL;
 
-	switch (pt)
+	switch (val_p -> st_active_type)
 		{
 			case PT_BOOLEAN:
-				if (val_p -> st_boolean_value_p)
+				if (val_p -> st_value.st_boolean_value_p)
 					{
-						value_p = (val_p -> st_boolean_value_p == true) ? json_true () : json_false ();
+						value_p = (* (val_p -> st_value.st_boolean_value_p) == true) ? json_true () : json_false ();
 					}
 				break;
 
 			case PT_CHAR:
 				{
-					char buffer_s [2];
+					if (val_p -> st_value.st_boolean_value_p)
+						{
+							char buffer_s [2];
 
-					*buffer_s = * (val_p -> st_char_value_p);
-					* (buffer_s + 1) = '\0';
+							*buffer_s = * (val_p -> st_char_value_p);
+							* (buffer_s + 1) = '\0';
 
-					value_p = json_string (buffer_s);
+							value_p = json_string (buffer_s);
+						}
+
 				}
 				break;
 
@@ -2958,6 +2960,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 			case PT_JSON:
 				{
+					if ()
 					char *dump_s = json_dumps (value_p -> st_json_p, 0);
 
 					if (dump_s)
@@ -2972,8 +2975,11 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 
 			case PT_TIME:
-				value_s = GetTimeAsString (value_p -> st_time_p, true);
-				*alloc_flag_p = true;
+				if (value_p -> st_value.st_time_p)
+					{
+						value_s = GetTimeAsString (value_p -> st_value.st_time_p, true);
+						*alloc_flag_p = true;
+					}
 				break;
 
 			case PT_NUM_TYPES:

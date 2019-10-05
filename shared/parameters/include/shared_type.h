@@ -210,6 +210,36 @@ GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeBooleanValue (const SharedType *src_p
 
 GRASSROOTS_PARAMS_LOCAL bool CopySharedTypeCharValue (const SharedType *src_p, SharedType *dest_p);
 
+
+
+
+
+GRASSROOTS_PARAMS_API const bool *GetSharedTypeBooleanValue (SharedType * value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const char *GetSharedTypeCharValue (SharedType * value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const uint32 *GetSharedTypeUnsignedIntValue (SharedType * value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const int32 *GetSharedTypeSignedIntValue (SharedType * value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const double64 *GetSharedTypeRealValue (SharedType * value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const char *GetSharedTypeStringValue (SharedType *value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const Resource *GetSharedTypeResourceValue (SharedType *value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const json_t *GetSharedTypeJSONValue (SharedType *value_p, bool *error_flag_p);
+
+
+GRASSROOTS_PARAMS_API const struct tm *GetSharedTypeTimeValue (SharedType *value_p, bool *error_flag_p);
+
 #ifdef __cplusplus
 }
 #endif

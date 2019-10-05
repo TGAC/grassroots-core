@@ -1222,3 +1222,168 @@ bool SetSharedTypeValue (SharedType *st_p, const void *value_p, const ParameterT
 
 	return success_flag;
 }
+
+
+const bool *GetSharedTypeBooleanValue (SharedType *value_p, bool *error_flag_p)
+{
+	const bool *result_p = NULL;
+
+	if (value_p -> st_active_type == PT_BOOLEAN)
+		{
+			result_p = value_p -> st_value.st_boolean_value_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a boolean variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+const char *GetSharedTypeCharValue (SharedType *value_p, bool *error_flag_p)
+{
+	const char *result_p = NULL;
+
+	if (value_p -> st_active_type == PT_CHAR)
+		{
+			result_p = value_p -> st_value.st_char_value_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a char variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+
+const uint32 *GetSharedTypeUnsignedIntValue (SharedType *value_p, bool *error_flag_p)
+{
+	const uint32 *result_p = NULL;
+
+	if (value_p -> st_active_type == PT_UNSIGNED_INT)
+		{
+			result_p = value_p -> st_value.st_ulong_value_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a uint32 variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+const int32 *GetSharedTypeSignedIntValue (SharedType *value_p, bool *error_flag_p)
+{
+	const int32 *result_p = NULL;
+
+	if ((value_p -> st_active_type == PT_SIGNED_INT) || (value_p -> st_active_type == PT_NEGATIVE_INT))
+		{
+			result_p = value_p -> st_value.st_long_value_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a int32 variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+const double64 *GetSharedTypeRealValue (SharedType *value_p, bool *error_flag_p)
+{
+	const double64 *result_p = NULL;
+
+	if ((value_p -> st_active_type == PT_SIGNED_REAL) || (value_p -> st_active_type == PT_UNSIGNED_REAL))
+		{
+			result_p = value_p -> st_value.st_data_value_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a double variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+const char *GetSharedTypeStringValue (SharedType *value_p, bool *error_flag_p)
+{
+	const char *result_p = NULL;
+
+	if ((value_p -> st_active_type == PT_LARGE_STRING) || (value_p -> st_active_type == PT_STRING) || (value_p -> st_active_type == PT_TABLE) ||
+			(value_p -> st_active_type == PT_PASSWORD) || (value_p -> st_active_type == PT_KEYWORD) || (value_p -> st_active_type == PT_FASTA))
+		{
+			result_p = value_p -> st_value.st_string_value_s;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a uint32 variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+const Resource *GetSharedTypeResourceValue (SharedType *value_p, bool *error_flag_p)
+{
+	const Resource *result_p = NULL;
+
+	if ((value_p -> st_active_type == PT_FILE_TO_READ) || (value_p -> st_active_type == PT_FILE_TO_WRITE) || (value_p -> st_active_type == PT_DIRECTORY))
+		{
+			result_p = value_p -> st_value.st_resource_value_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a resource variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+const json_t *GetSharedTypeJSONValue (SharedType *value_p, bool *error_flag_p)
+{
+	const json_t *result_p = NULL;
+
+	if (value_p -> st_active_type == PT_JSON)
+		{
+			result_p = value_p -> st_value.st_json_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a json variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
+
+const struct tm *GetSharedTypeTimeValue (SharedType *value_p, bool *error_flag_p)
+{
+	const struct tm *result_p = NULL;
+
+	if (value_p -> st_active_type == PT_TIME)
+		{
+			result_p = value_p -> st_value.st_boolean_value_p;
+		}
+	else
+		{
+			*error_flag_p = true;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SharedType value is not a time variable, it's a \"%s\"", GetGrassrootsTypeAsString (value_p -> st_active_type));
+		}
+
+	return result_p;
+}
+
