@@ -124,9 +124,6 @@ typedef struct Parameter
 	/** The type of the parameter. */
 	ParameterType pa_type;
 
-	/** Does the parameter store multiple values? */
-	bool pa_multi_valued_flag;
-
 	/** The name of the parameter. */
 	char *pa_name_s;
 

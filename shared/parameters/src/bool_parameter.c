@@ -32,7 +32,7 @@ static typedef enum
 } ValueOffset;
 
 
-BoolParameter *AllocateBoolParameter (const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const bool *default_value_p, const bool *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+BoolParameter *AllocateBoolParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const bool *default_value_p, const bool *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	BoolParameter *param_p = (BoolParameter *) AllocMemory (sizeof (BoolParameter));
 
@@ -63,7 +63,7 @@ BoolParameter *AllocateBoolParameter (const struct ServiceData *service_data_p, 
 
 
 
-			if (InitialiseParameter (& (param_p -> bp_base_parameter), service_data_p, type, multi_valued_flag, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+			if (InitialiseParameter (& (param_p -> bp_base_parameter), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
 				{
 					return param_p;
 				}

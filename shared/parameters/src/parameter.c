@@ -374,7 +374,7 @@ Parameter *CloneParameter (const Parameter * const src_p)
 
 			CopySharedType (src_p -> pa_current_value, &current_value, src_p -> pa_type);
 
-			dest_param_p = AllocateParameter (NULL, src_p -> pa_type, src_p -> pa_multi_valued_flag, src_p -> pa_name_s, src_p -> pa_display_name_s, src_p -> pa_description_s, dest_options_p, src_p -> pa_default, &current_value, dest_bounds_p, src_p -> pa_level, src_p -> pa_check_value_fn);
+			dest_param_p = AllocateParameter (NULL, src_p -> pa_type, src_p -> pa_name_s, src_p -> pa_display_name_s, src_p -> pa_description_s, dest_options_p, src_p -> pa_default, &current_value, dest_bounds_p, src_p -> pa_level, src_p -> pa_check_value_fn);
 
 			if (dest_param_p)
 				{
