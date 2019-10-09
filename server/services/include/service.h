@@ -976,6 +976,21 @@ GRASSROOTS_SERVICE_API bool AddLinkedService (Service *service_p, LinkedService 
 GRASSROOTS_SERVICE_API json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
 
 
+/**
+ * Get the JSON fragment for sending to a Grassroots Server detailing how to update the
+ * parameters for a Service
+ *
+ * @param service_name_s The name of the Service to get the JSON fragment for.
+ * @param params_p The ParameterSet to use. If run_flag is false, then this can be <code>NULL</code>.
+ * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
+ * then you can set this value to the version that you require. If this is <code>NULL</code>, then the
+ * current version of the running Grassroots system will be used.
+ * @param run_flag Whether the Service should be run or not.
+ * @return The JSON fragment to be added to an array to send to the Server or <code>NULL
+ * </code> upon error.
+ */
+GRASSROOTS_SERVICE_API json_t *GetServiceRefreshRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
+
 
 /**
  * Get the JSON fragment for a job result list registering that a Service

@@ -291,6 +291,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *SERVICES_ID_S VAL("path");
 	PREFIX const char *SERVICE_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 	PREFIX const char *SERVICE_RUN_S VAL("start_service");
+	PREFIX const char *SERVICE_REFRESH_S VAL("refresh_service");
 	PREFIX const char *SERVICES_STATUS_S VAL("status");
 	PREFIX const char *SERVICES_STATUS_DEFAULT_S VAL("default");
 	/* End of doxygen member group */

@@ -75,7 +75,7 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 
 static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (GrassrootsServer *grassroots_p, json_t *services_p, uuid_t service_id, const char *uuid_s));
 
-static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid);
+static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid);
 
 static bool AddServiceStatusToJSON (GrassrootsServer *grassroots_p, json_t *results_p, uuid_t job_id, const char *uuid_s);
 
@@ -108,6 +108,10 @@ static struct MongoClientManager *GetMongoClientManager (const json_t *config_p)
 static Resource *GetResourceFromRequest (const json_t *req_p);
 
 static void ProcessServiceRequest (const json_t *service_req_p, json_t *services_res_p, GrassrootsServer *grassroots_p, ProvidersStateTable *providers_p, const char *server_s, UserDetails *user_p);
+
+static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
+
+static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
 
 /*
  * API DEFINITIONS
@@ -545,7 +549,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 
 													json_array_foreach (op_p, i, value_p)
 														{
-															int8 res = RunServiceFromJSON (grassroots_p, value_p, external_servers_req_p, user_p, service_results_p, user_uuid);
+															int8 res = ProcessServiceFromJSON (grassroots_p, value_p, external_servers_req_p, user_p, service_results_p, user_uuid);
 
 															if (res < 0)
 																{
@@ -565,7 +569,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 												}
 											else
 												{
-													int8 res = RunServiceFromJSON (grassroots_p, op_p, external_servers_req_p, user_p, service_results_p, user_uuid);
+													int8 res = ProcessServiceFromJSON (grassroots_p, op_p, external_servers_req_p, user_p, service_results_p, user_uuid);
 
 													if (res < 0)
 														{
@@ -926,190 +930,71 @@ static const char *GetProviderElement (const GrassrootsServer *grassroots_p, con
 }
 
 
-static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid)
+static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid)
 {
 	/* Get the requested operation */
-	json_t *op_p = json_object_get (service_req_p, SERVICE_RUN_S);
 	int8 res = 0;
-	char *req_s = json_dumps (service_req_p, JSON_PRESERVE_ORDER | JSON_INDENT (2));
+	json_t *op_p = json_object_get (service_req_p, SERVICE_RUN_S);
+	typedef enum
+		{
+			RUN,
+			REFRESH,
+			NONE
+		} Mode;
+	Mode mode = NONE;
 
 	if (op_p)
 		{
 			if (json_is_true (op_p))
 				{
-					const char *service_name_s = GetServiceNameFromJSON (service_req_p);
+					mode = RUN;
+				}
+			else
+				{
+					op_p = json_object_get (service_req_p, SERVICE_REFRESH_S);
 
-					if (service_name_s)
+					if (json_is_true (op_p))
 						{
-							LinkedList *services_p = AllocateLinkedList  (FreeServiceNode);
-
-							if (services_p)
-								{
-									LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, user_p);
-
-#if SERVER_DEBUG >= STM_LEVEL_FINEST
-									{
-										ServiceNode * node_p = (ServiceNode *) (services_p -> ll_head_p);
-
-										while (node_p)
-											{
-												Service *service_p = node_p -> sn_service_p;
-												const char *name_s = GetServiceName (service_p);
-
-												PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "matched service \"%s\"\n", name_s);
-
-												node_p = (ServiceNode *) (node_p -> sn_node.ln_next_p);
-											}
-									}
-#endif
-
-									if (services_p -> ll_size == 1)
-										{
-											const char *server_uri_s = GetServerProviderURI (grassroots_p);
-											ProvidersStateTable *providers_p = GetInitialisedProvidersStateTableForSingleService (paired_servers_req_p, server_uri_s, service_name_s);
-
-											if (providers_p)
-												{
-													ServiceNode *node_p = (ServiceNode *) LinkedListRemHead (services_p);
-													Service *service_p =  node_p -> sn_service_p;
-													ParameterSet *params_p = NULL;
-													bool delete_service_flag = true;
-
-													AddPairedServices (grassroots_p, service_p, user_p, providers_p);
-
-													/* We no longer need the node so detach our service from it and delete it */
-													node_p -> sn_service_p = NULL;
-													FreeServiceNode ((ListItem *) node_p);
-
-													/*
-													 * If the service is asynchronous, let it
-													 * take care of deleting itself rather
-													 * than doing it after it has been run here.
-													 */
-													if (service_p -> se_synchronous != SY_SYNCHRONOUS)
-														{
-															delete_service_flag = false;
-														}
-
-													/*
-													 * Convert the json parameter set into a ParameterSet
-													 * to run the Service with.
-													 */
-													params_p = CreateParameterSetFromJSON (service_req_p, service_p, true);
-
-													if (params_p)
-														{
-															ServiceJobSet *jobs_p = NULL;
-
-															#if SERVER_DEBUG >= STM_LEVEL_FINER
-															PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "about to run service \"%s\"\n", service_name_s);
-															#endif
-
-															/*
-															 * Now we reset the providers table back to its initial state
-															 */
-															if (ReinitProvidersStateTable (providers_p, paired_servers_req_p, server_uri_s, service_name_s))
-																{
-																	if ((!IsServiceLockable (service_p)) || LockService (service_p))
-																		{
-																			jobs_p = RunService (service_p, params_p, user_p, providers_p);
-
-																			if (jobs_p)
-																				{
-																					if (ProcessServiceJobSet (jobs_p, res_p))
-																						{
-																							++ res;
-																						}
-
-																					#if SERVER_DEBUG >= STM_LEVEL_FINER
-																						{
-																							PrintJSONToLog (res_p, "initial results", STM_LEVEL_FINER, __FILE__, __LINE__);
-																							FlushLog ();
-																							PrintJSONRefCounts (res_p, "initial results: ",  STM_LEVEL_FINER, __FILE__, __LINE__);
-																						}
-																					#endif
-
-
-																				}		/* if (jobs_p) */
-																			else
-																				{
-																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "No jobs from running %s with params from %s", service_name_s, req_s);
-																				}
-
-																			/*
-																			 * If the Service is asynchronous, unlock it and from this point on it
-																			 * we can not assume anything about the current status of the Service
-																			 * as it's controlled and live in separate threads.
-																			 */
-																			if (! ((!IsServiceLockable (service_p)) || UnlockService (service_p)))
-																				{
-
-																				}
-																		}		/* if ((!IsServiceLockable ()) || LockService (service_p)) */
-																	else
-																		{
-																			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to lock Service %s", service_name_s);
-																		}
-
-
-																}		/* if (ReinitProvidersStateTable (providers_p, req_p, server_uri_s, service_name_s)) */
-
-
-															FreeParameterSet  (params_p);
-														}		/* if (params_p) */
-													else
-														{
-															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to get params from %s", req_s);
-														}
-
-													if (delete_service_flag)
-														{
-															FreeService (service_p);
-														}
-													else
-														{
-															/*
-															 * Let the service know that we have finished with it and it can
-															 * delete itself when appropriate e.g. after its jobs have finished
-															 * running.
-															 */
-															ReleaseService (service_p);
-														}
-
-													FreeProvidersStateTable (providers_p);
-												}		/* if (providers_p) */
-
-
-										}		/* if (services_p -> ll_size == 1)) */
-									else
-										{
-											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to find matching service %s, found " UINT32_FMT, service_name_s, services_p -> ll_size);
-										}
-
-									FreeLinkedList (services_p);
-								}		/* if (services_p) */
-							else
-								{
-									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to get allocate services list");
-								}
-
-						}		/* if (service_name_s) */
-					else
-						{
-							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to get service name from json %s", req_s);
+							mode = REFRESH;
 						}
-				}		/* if (json_is_true (op_p)) */
-
-		}		/* if (op_p) */
-	else
-		{
-			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to get run value from json %s", req_s);
+				}
 		}
 
-
-	if (req_s)
+	if (mode != NONE)
 		{
-			free (req_s);
+			const char *service_name_s = GetServiceNameFromJSON (service_req_p);
+
+			if (service_name_s)
+				{
+					Service *service_p = GetServiceByName (grassroots_p, service_name_s);
+
+					if (service_p)
+						{
+							if (mode == RUN)
+								{
+									res = RunServiceFromJSON (grassroots_p, service_p, service_req_p, paired_servers_req_p, user_p, res_p);
+								}		/* if (mode == RUN) */
+							else if (mode == RUN)
+								{
+									res = RefreshServiceFromJSON (grassroots_p, service_p, service_req_p, paired_servers_req_p, user_p, res_p);
+								}		/* if (mode == RUN) */
+
+						}		/* if (service_p) */
+					else
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to get service \"%s\"", service_name_s);
+						}
+
+				}		/* if (service_name_s) */
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  service_req_p, "Failed to get service name from json");
+				}
+
+		}		/* if (mode != NONE) */
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  service_req_p, "Failed to get processing value from json");
 		}
 
 #if SERVER_DEBUG >= STM_LEVEL_FINE
@@ -1120,6 +1005,169 @@ static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *se
 #if SERVER_DEBUG >= STM_LEVEL_FINER
 	PrintJSONRefCounts (STM_LEVEL_FINER, __FILE__, __LINE__, res_p, "final result: ");
 #endif
+
+	return res;
+}
+
+
+static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p)
+{
+	int res = 0;
+	const char *server_uri_s = GetServerProviderURI (grassroots_p);
+	const char *service_name_s = GetServiceName (service_p);
+	ProvidersStateTable *providers_p = GetInitialisedProvidersStateTableForSingleService (paired_servers_req_p, server_uri_s, service_name_s);
+
+	if (providers_p)
+		{
+			AddPairedServices (grassroots_p, service_p, user_p, providers_p);
+
+			Resource *resource_p = AllocateResource (NULL, NULL, NULL);
+
+			if (resource_p)
+				{
+					if (SetResourceData (resource_p, service_req_p, false))
+						{
+							json_t *service_json_p = GetServiceAsJSON (service_p, resource_p, user_p, false);
+
+							if (service_json_p)
+								{
+
+								}		/* if (service_json_p) */
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_req_p, "GetServiceAsJSON%s", service_name_s);
+								}
+
+						}		/* if (SetResourceData (resource_p, service_req_p, false)) */
+
+					FreeResource (resource_p);
+				}		/* if (resource_p) */
+
+			FreeProvidersStateTable (providers_p);
+		}		/* if (providers_p) */
+
+
+	FreeService (service_p);
+
+
+	return res;
+}
+
+
+
+
+static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p)
+{
+	int res = 0;
+	const char *server_uri_s = GetServerProviderURI (grassroots_p);
+	const char *service_name_s = GetServiceName (service_p);
+	ProvidersStateTable *providers_p = GetInitialisedProvidersStateTableForSingleService (paired_servers_req_p, server_uri_s, service_name_s);
+
+	if (providers_p)
+		{
+			ParameterSet *params_p = NULL;
+			bool delete_service_flag = true;
+
+			AddPairedServices (grassroots_p, service_p, user_p, providers_p);
+
+			/*
+			 * If the service is asynchronous, let it
+			 * take care of deleting itself rather
+			 * than doing it after it has been run here.
+			 */
+			if (service_p -> se_synchronous != SY_SYNCHRONOUS)
+				{
+					delete_service_flag = false;
+				}
+
+			/*
+			 * Convert the json parameter set into a ParameterSet
+			 * to run the Service with.
+			 */
+			params_p = CreateParameterSetFromJSON (service_req_p, service_p, true);
+
+			if (params_p)
+				{
+					ServiceJobSet *jobs_p = NULL;
+
+					#if SERVER_DEBUG >= STM_LEVEL_FINER
+					PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "about to run service \"%s\"\n", service_name_s);
+					#endif
+
+					/*
+					 * Now we reset the providers table back to its initial state
+					 */
+					if (ReinitProvidersStateTable (providers_p, paired_servers_req_p, server_uri_s, service_name_s))
+						{
+							if ((!IsServiceLockable (service_p)) || LockService (service_p))
+								{
+									jobs_p = RunService (service_p, params_p, user_p, providers_p);
+
+									if (jobs_p)
+										{
+											if (ProcessServiceJobSet (jobs_p, res_p))
+												{
+													++ res;
+												}
+
+											#if SERVER_DEBUG >= STM_LEVEL_FINER
+												{
+													PrintJSONToLog (res_p, "initial results", STM_LEVEL_FINER, __FILE__, __LINE__);
+													FlushLog ();
+													PrintJSONRefCounts (res_p, "initial results: ",  STM_LEVEL_FINER, __FILE__, __LINE__);
+												}
+											#endif
+
+
+										}		/* if (jobs_p) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_req_p, "No jobs from running %s", service_name_s);
+										}
+
+									/*
+									 * If the Service is asynchronous, unlock it and from this point on it
+									 * we can not assume anything about the current status of the Service
+									 * as it's controlled and live in separate threads.
+									 */
+									if (! ((!IsServiceLockable (service_p)) || UnlockService (service_p)))
+										{
+
+										}
+								}		/* if ((!IsServiceLockable ()) || LockService (service_p)) */
+							else
+								{
+									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to lock Service %s", service_name_s);
+								}
+
+
+						}		/* if (ReinitProvidersStateTable (providers_p, req_p, server_uri_s, service_name_s)) */
+
+
+					FreeParameterSet  (params_p);
+				}		/* if (params_p) */
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_req_p, "Failed to get params");
+				}
+
+
+			if (delete_service_flag)
+				{
+					FreeService (service_p);
+				}
+			else
+				{
+					/*
+					 * Let the service know that we have finished with it and it can
+					 * delete itself when appropriate e.g. after its jobs have finished
+					 * running.
+					 */
+					ReleaseService (service_p);
+				}
+
+			FreeProvidersStateTable (providers_p);
+		}		/* if (providers_p) */
 
 	return res;
 }
