@@ -77,6 +77,7 @@ static uint32 AddLinkedServices (Service *service_p, GrassrootsServer *grassroot
 
 static int CompareServicesByName (const void *v0_p, const void *v1_p);
 
+static json_t *GetServiceRequest (const char * const service_name_s, const char *action_key_s, const bool action_value, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
 
 /*
  * FUNCTION DEFINITIONS
@@ -1001,10 +1002,22 @@ bool DeallocatePluginService (Plugin * const plugin_p)
 
 json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
 {
+	return GetServiceRequest ( service_name_s, SERVICE_REFRESH_S, true, params_p, sv_p, run_flag, level);
+}
+
+
+json_t *GetServiceRefreshRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
+{
+	return GetServiceRequest ( service_name_s, SERVICE_RUN_S, true, params_p, sv_p, run_flag, level);
+}
+
+
+static json_t *GetServiceRequest (const char * const service_name_s, const char *action_key_s, const bool action_value, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
+{
 	json_t *service_json_p = NULL;
 	json_error_t err;
 
-	service_json_p = json_pack_ex (&err, 0, "{s:s,s:b}", SERVICE_NAME_S, service_name_s, SERVICE_RUN_S, run_flag);
+	service_json_p = json_pack_ex (&err, 0, "{s:s,s:b}", SERVICE_NAME_S, service_name_s, action_key_s, action_value);
 
 	if (service_json_p)
 		{
