@@ -90,7 +90,6 @@ static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *
 static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 
-static bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p);
 
 static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const SharedType *val_p, const char *key_s);
 
@@ -1875,7 +1874,7 @@ bool AddColumnParameterHint (const char *name_s, const ParameterType param_type,
 
 
 
-static bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p)
+bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p)
 {
 	bool success_flag = false;
 
