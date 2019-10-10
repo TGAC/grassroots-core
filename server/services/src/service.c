@@ -70,7 +70,7 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 
 static void GenerateServiceUUID (Service *service_p);
 
-static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
+static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, const ParameterSet *params_p, const SchemaVersion *sv_p, const ParameterLevel level);
 
 static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p);
 
@@ -78,7 +78,7 @@ static uint32 AddLinkedServices (Service *service_p, GrassrootsServer *grassroot
 
 static int CompareServicesByName (const void *v0_p, const void *v1_p);
 
-static json_t *GetServiceRequest (const char * const service_name_s, const char *action_key_s, const bool action_value, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
+
 
 /*
  * FUNCTION DEFINITIONS
@@ -1003,17 +1003,17 @@ bool DeallocatePluginService (Plugin * const plugin_p)
 
 json_t *GetServiceRefreshRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
 {
-	return GetServiceProcessRequest (service_name_s, SERVICE_REFRESH_S, params_p, sv_p, run_flag, level);
+	return GetServiceProcessRequest (service_name_s, SERVICE_REFRESH_S, run_flag, params_p, sv_p, level);
 }
 
 
 json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
 {
-	return GetServiceRequest ( service_name_s, SERVICE_REFRESH_S, true, params_p, sv_p, run_flag, level);
+	return GetServiceProcessRequest (service_name_s, SERVICE_RUN_S, run_flag, params_p, sv_p, level);
 }
 
 
-static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
+static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, const ParameterSet *params_p, const SchemaVersion *sv_p, const ParameterLevel level)
 {
 	json_t *service_json_p = NULL;
 	json_error_t err;

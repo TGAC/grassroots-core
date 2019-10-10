@@ -949,14 +949,15 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 				{
 					mode = RUN;
 				}
-			else
-				{
-					op_p = json_object_get (service_req_p, SERVICE_REFRESH_S);
+		}
 
-					if (json_is_true (op_p))
-						{
-							mode = REFRESH;
-						}
+	if (mode == NONE)
+		{
+			op_p = json_object_get (service_req_p, SERVICE_REFRESH_S);
+
+			if (json_is_true (op_p))
+				{
+					mode = REFRESH;
 				}
 		}
 
@@ -974,7 +975,7 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 								{
 									res = RunServiceFromJSON (grassroots_p, service_p, service_req_p, paired_servers_req_p, user_p, res_p);
 								}		/* if (mode == RUN) */
-							else if (mode == RUN)
+							else if (mode == REFRESH)
 								{
 									res = RefreshServiceFromJSON (grassroots_p, service_p, service_req_p, paired_servers_req_p, user_p, res_p);
 								}		/* if (mode == RUN) */

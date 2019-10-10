@@ -196,6 +196,7 @@ bool SetResourceData (Resource *resource_p, json_t *data_p, const bool owns_data
 	if (owns_data_flag)
 		{
 			resource_p -> re_data_p = data_p;
+			success_flag = true;
 		}
 	else
 		{
@@ -204,6 +205,7 @@ bool SetResourceData (Resource *resource_p, json_t *data_p, const bool owns_data
 			if (copy_p)
 				{
 					resource_p -> re_data_p = copy_p;
+					success_flag = true;
 				}
 			else
 				{
