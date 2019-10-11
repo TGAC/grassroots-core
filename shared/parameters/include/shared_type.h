@@ -28,7 +28,7 @@
 #define SHARED_SRC_PARAMETERS_INCLUDE_SHARED_TYPE_H_
 
 #include "grassroots_params_library.h"
-
+#include "typedefs.h"
 #include "data_resource.h"
 
 #include "linked_list.h"
@@ -99,6 +99,10 @@ typedef struct SharedTypeNode
 
 
 
+/* forward declarations */
+struct ParameterBounds;
+
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -137,6 +141,46 @@ GRASSROOTS_PARAMS_API void InitSharedType (SharedType *st_p);
  * @memberof SharedType
  */
 GRASSROOTS_PARAMS_API bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterType pt);
+
+
+
+/**
+ * Set the value stored in a SharedType object.
+ *
+ * @param st_p The SharedType to set the value for.
+ * @param pt The ParameterType for this SharedType.
+ * @param value_p The value to set.
+ * @return <code>true</code> if the value was set successfully, <code>false</code> otherwise.
+ * @memberof SharedType
+ */
+GRASSROOTS_PARAMS_API bool SetSharedTypeValue (SharedType *st_p, const ParameterType pt, void *value_p, const struct ParameterBounds *bounds_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeCharValue (SharedType * value_p, const char c);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeUnsignedIntValue (SharedType * value_p, const uint32 i, const struct ParameterBounds * const bounds_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeSignedIntValue (SharedType * value_p, const int32 i, const struct ParameterBounds * const bounds_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeRealValue (SharedType * value_p, const double64 d, const struct ParameterBounds * const bounds_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeStringValue (SharedType *value_p, const char * const src_s);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeResourceValue (SharedType *value_p, const Resource * const src_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeJSONValue (SharedType *value_p, const json_t * const src_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p);
 
 
 #ifdef __cplusplus
