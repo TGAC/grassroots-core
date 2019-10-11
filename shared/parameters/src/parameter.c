@@ -786,11 +786,11 @@ bool SetParameterValue (Parameter * const param_p, const void *value_p, const bo
 
 	if (current_value_flag)
 		{
-			success_flag = SetSharedTypeValue (& (param_p -> pa_current_value), param_p -> pa_type, value_p);
+			success_flag = SetSharedTypeValue (& (param_p -> pa_current_value), param_p -> pa_type, value_p, param_p -> pa_bounds_p);
 		}
 	else
 		{
-			success_flag = SetSharedTypeValue (& (param_p -> pa_default), param_p -> pa_type, value_p);
+			success_flag = SetSharedTypeValue (& (param_p -> pa_default), param_p -> pa_type, value_p, param_p -> pa_bounds_p);
 		}
 
 	if (!success_flag)
