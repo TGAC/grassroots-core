@@ -75,7 +75,7 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 
 static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (GrassrootsServer *grassroots_p, json_t *services_p, uuid_t service_id, const char *uuid_s));
 
-static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid);
+static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid, const char **key_ss);
 
 static bool AddServiceStatusToJSON (GrassrootsServer *grassroots_p, json_t *results_p, uuid_t job_id, const char *uuid_s);
 
@@ -532,48 +532,24 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 
 							if (service_results_p)
 								{
+									const char *key_s = NULL;
 									uuid_t user_uuid;
 
 									uuid_clear (user_uuid);
+									const json_t *external_servers_req_p = json_object_get (req_p, SERVERS_S);
 
-									res_p = GetInitialisedResponseOnServer (grassroots_p, req_p, SERVICE_RESULTS_S, service_results_p);
-
-									if (res_p)
+									if (json_is_array (op_p))
 										{
-											const json_t *external_servers_req_p = json_object_get (req_p, SERVERS_S);
+											size_t i;
+											json_t *value_p;
 
-											if (json_is_array (op_p))
+											json_array_foreach (op_p, i, value_p)
 												{
-													size_t i;
-													json_t *value_p;
-
-													json_array_foreach (op_p, i, value_p)
-														{
-															int8 res = ProcessServiceFromJSON (grassroots_p, value_p, external_servers_req_p, user_p, service_results_p, user_uuid);
-
-															if (res < 0)
-																{
-																	char *value_s = json_dumps (value_p, JSON_INDENT (2));
-
-																	if (value_s)
-																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from %s", value_s);
-																			free (value_s);
-																		}
-																	else
-																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from");
-																		}
-																}
-														}		/* json_array_foreach (op_p, i, value_p) */
-												}
-											else
-												{
-													int8 res = ProcessServiceFromJSON (grassroots_p, op_p, external_servers_req_p, user_p, service_results_p, user_uuid);
+													int8 res = ProcessServiceFromJSON (grassroots_p, value_p, external_servers_req_p, user_p, service_results_p, user_uuid, &key_s);
 
 													if (res < 0)
 														{
-															char *value_s = json_dumps (op_p, JSON_INDENT (2));
+															char *value_s = json_dumps (value_p, JSON_INDENT (2));
 
 															if (value_s)
 																{
@@ -585,19 +561,44 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from");
 																}
 														}
-												}
-
-										}		/* if (res_p) */
+												}		/* json_array_foreach (op_p, i, value_p) */
+										}
 									else
 										{
-											*error_ss = "Failed to create service response";
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create response");
+											int8 res = ProcessServiceFromJSON (grassroots_p, op_p, external_servers_req_p, user_p, service_results_p, user_uuid, &key_s);
+
+											if (res < 0)
+												{
+													char *value_s = json_dumps (op_p, JSON_INDENT (2));
+
+													if (value_s)
+														{
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from %s", value_s);
+															free (value_s);
+														}
+													else
+														{
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from");
+														}
+												}
 										}
+
+									if (key_s)
+										{
+											res_p = GetInitialisedResponseOnServer (grassroots_p, req_p, key_s, service_results_p);
+
+											if (!res_p)
+												{
+													*error_ss = "Failed to create service response";
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create service result response");
+												}
+										}
+
 
 								}		/* if (service_results_p) */
 							else
 								{
-									*error_ss = "Failed to create service response";
+									*error_ss = "Failed to create service results array";
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create service results array");
 								}
 
@@ -930,7 +931,7 @@ static const char *GetProviderElement (const GrassrootsServer *grassroots_p, con
 }
 
 
-static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid)
+static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p, uuid_t user_uuid, const char **key_ss)
 {
 	/* Get the requested operation */
 	int8 res = 0;
@@ -948,6 +949,7 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 			if (json_is_true (op_p))
 				{
 					mode = RUN;
+					*key_ss = SERVICE_RESULTS_S;
 				}
 		}
 
@@ -958,6 +960,7 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 			if (json_is_true (op_p))
 				{
 					mode = REFRESH;
+					*key_ss = SERVICES_NAME_S;
 				}
 		}
 
@@ -1032,11 +1035,21 @@ static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *ser
 
 							if (service_json_p)
 								{
+									if (json_array_append_new (res_p, service_json_p) == 0)
+										{
+											res = 1;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, res_p, "Failed to add json_response for %s", service_name_s);
+											json_decref (service_json_p);
 
+											res = -1;
+										}
 								}		/* if (service_json_p) */
 							else
 								{
-									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_req_p, "GetServiceAsJSON%s", service_name_s);
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_req_p, "GetServiceAsJSON %s", service_name_s);
 								}
 
 						}		/* if (SetResourceData (resource_p, service_req_p, false)) */
