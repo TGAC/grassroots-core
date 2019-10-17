@@ -216,6 +216,7 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 													param_p -> pa_remote_parameter_details_p = remote_params_p;
 
 													param_p -> pa_visible_flag = true;
+													param_p -> pa_refresh_service_flag = false;
 
 													InitSharedType (& (param_p -> pa_current_value));
 													InitSharedType (& (param_p -> pa_default));
@@ -2951,10 +2952,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 											flag = false;
 											if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
 												{
-													if (!flag)
-														{
-															param_p -> pa_visible_flag = flag;
-														}
+													param_p -> pa_refresh_service_flag = flag;
 												}
 
 

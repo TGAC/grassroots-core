@@ -353,22 +353,36 @@ static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const 
 
 					while (node_p && success_flag)
 						{
-							json_t *name_p = json_string (node_p -> sln_string_s);
+							json_t *service_p = json_object ();
 
-							if (name_p)
+							if (service_p)
 								{
-									if (json_array_append_new (service_names_p, name_p) == 0)
+									if (SetJSONString (service_p, SERVICE_NAME_S, node_p -> sln_string_s))
 										{
-											node_p = (StringListNode *) (node_p -> sln_node.ln_next_p);
+											if (json_array_append_new (service_names_p, service_p) == 0)
+												{
+													node_p = (StringListNode *) (node_p -> sln_node.ln_next_p);
+												}
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append \"%s\": \"%s\" to JSON object", SERVICE_NAME_S, node_p -> sln_string_s);
+													success_flag = false;
+												}
 										}
 									else
 										{
-											json_decref (name_p);
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set \"%s\": \"%s\" for JSON object", SERVICE_NAME_S, node_p -> sln_string_s);
 											success_flag = false;
+										}
+
+									if (!success_flag)
+										{
+											json_decref (service_p);
 										}
 								}
 							else
 								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate JSON object for service");
 									success_flag = false;
 								}
 
