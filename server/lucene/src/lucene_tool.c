@@ -250,9 +250,9 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 																{
 																	if (SetLuceneToolOutput (tool_p, output_s))
 																		{
-																			if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL))
+																			if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
 																				{
-																					if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
+																					if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL))
 																						{
 																							const char *command_s = GetByteBufferData (buffer_p);
 																							int res = system (command_s);
@@ -276,10 +276,9 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
 																								}
 
-																						}		/* if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL)) */
+																						}		/* if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL)) */
 
-																				}		/* if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL)) */
-
+																				}		/* if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL)) */
 
 																		}		/* if (SetLuceneToolOutput (tool_p, output_s)) */
 
