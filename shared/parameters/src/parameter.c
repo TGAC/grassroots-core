@@ -82,8 +82,6 @@ static bool AddParameterGroupToJSON (const Parameter * const param_p, json_t *js
 
 static bool AddParameterStoreToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
-static bool AddParameterLevelToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
-
 static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 
@@ -843,7 +841,7 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 										{
 											if (AddParameterTypeToJSON (param_p -> pa_type, root_p, sv_p, full_definition_flag))
 												{
-													if (AddParameterLevelToJSON (param_p, root_p, sv_p))
+													if (AddParameterLevelToJSON (param_p -> pa_level, root_p, sv_p))
 														{
 															if (AddParameterDescriptionToJSON (param_p, root_p, sv_p))
 																{
@@ -1093,11 +1091,11 @@ bool GetParameterLevelFromString (const char *level_s, ParameterLevel *level_p)
 		{
 			*level_p = PL_SIMPLE;
 		}
-	if (strcmp (level_s, PARAM_LEVEL_TEXT_ADVANCED_S) == 0)
+	else if (strcmp (level_s, PARAM_LEVEL_TEXT_ADVANCED_S) == 0)
 		{
 			*level_p = PL_ADVANCED;
 		}
-	if (strcmp (level_s, PARAM_LEVEL_TEXT_ALL_S) == 0)
+	else if (strcmp (level_s, PARAM_LEVEL_TEXT_ALL_S) == 0)
 		{
 			*level_p = PL_ALL;
 		}
@@ -1110,10 +1108,10 @@ bool GetParameterLevelFromString (const char *level_s, ParameterLevel *level_p)
 }
 
 
-static bool AddParameterLevelToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p))
+bool AddParameterLevelToJSON (const ParameterLevel level, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p))
 {
 	bool success_flag = false;
-	const char *level_s = GetParameterLevelAsString (param_p -> pa_level);
+	const char *level_s = GetParameterLevelAsString (level);
 
 	if (level_s)
 		{

@@ -826,6 +826,10 @@ GRASSROOTS_PARAMS_API LinkedList *GetMultiOptions (Parameter *param_p);
 GRASSROOTS_PARAMS_API bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p);
 
 
+GRASSROOTS_PARAMS_API bool AddParameterLevelToJSON (const ParameterLevel level, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p));
+
+
+
 #ifdef __cplusplus
 }
 #endif

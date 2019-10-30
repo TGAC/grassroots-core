@@ -250,30 +250,36 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 																{
 																	if (SetLuceneToolOutput (tool_p, output_s))
 																		{
-																			if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -query ", query_s, " >> ", full_filename_stem_s, ".log", NULL))
+																			if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL))
 																				{
-																					const char *command_s = GetByteBufferData (buffer_p);
-																					int res = system (command_s);
-
-																					if (res != -1)
+																					if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
 																						{
-																							int process_exit_code = WEXITSTATUS (res);
+																							const char *command_s = GetByteBufferData (buffer_p);
+																							int res = system (command_s);
 
-																							if (process_exit_code == 0)
+																							if (res != -1)
 																								{
-																									success_flag = true;
-																									PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																									int process_exit_code = WEXITSTATUS (res);
+
+																									if (process_exit_code == 0)
+																										{
+																											success_flag = true;
+																											PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																										}
+																									else
+																										{
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																										}
 																								}
 																							else
 																								{
-																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
 																								}
-																						}
-																					else
-																						{
-																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
-																						}
-																				}
+
+																						}		/* if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL)) */
+
+																				}		/* if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL)) */
+
 
 																		}		/* if (SetLuceneToolOutput (tool_p, output_s)) */
 
