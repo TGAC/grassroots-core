@@ -5,6 +5,7 @@
  *      Author: billy
  */
 
+#define ALLOCATE_LUCENE_FACET_CONSTANTS (1)
 #include "lucene_facet.h"
 #include "memory_allocations.h"
 #include "json_util.h"

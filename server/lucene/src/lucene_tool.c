@@ -614,7 +614,7 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p)
 {
 	bool success_flag = false;
-	LuceneFacetNode *node_p = tool_p -> lt_facet_results_p -> ll_head_p;
+	LuceneFacetNode *node_p = (LuceneFacetNode *) (tool_p -> lt_facet_results_p -> ll_head_p);
 
 	if (node_p)
 		{
@@ -622,20 +622,26 @@ bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p)
 
 			if (facets_array_p)
 				{
-					if (json_object_set_new (metadata_p, "facets", facets_array_p))
+					if (json_object_set_new (metadata_p, "facets", facets_array_p) == 0)
 						{
 							while (node_p)
 								{
-									json_t *facet_json_p = GetLuceneFacetAsJSON (node_p -> lfn_facet_p);
+									LuceneFacet *facet_p = node_p -> lfn_facet_p;
+									json_t *facet_json_p = GetLuceneFacetAsJSON (facet_p);
 
 									if (facet_json_p)
 										{
 											if (json_array_append_new (facets_array_p, facet_json_p) != 0)
 												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, facet_json_p, "Failed to add facets JSON to array");
 													json_decref (facet_json_p);
-												}
+												}		/*  if (json_array_append_new (facets_array_p, facet_json_p) != 0) */
 
 										}		/* if (facet_json_p) */
+									else
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetLuceneFacetAsJSON failed for \"%s\": " UINT32_FMT, facet_p -> lf_name_s, facet_p -> lf_count);
+										}
 
 									node_p = (LuceneFacetNode *) (node_p -> lfn_node.ln_next_p);
 								}		/* while (node_p) */
@@ -645,13 +651,18 @@ bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p)
 									success_flag = true;
 								}
 
-						}		/* if (json_object_set_new (metadata_p, "facets", facets_array_p)) */
+						}		/* if (json_object_set_new (metadata_p, "facets", facets_array_p) == 0) */
 					else
 						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, metadata_p, "Failed to add facets array to metadata JSON");
 							json_decref (facets_array_p);
 						}
 
 				}		/* if (facets_array_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate facets array as JSON");
+				}
 
 		}		/* if (node_p) */
 	else
@@ -740,49 +751,74 @@ static bool ParseFacetResults (LuceneTool *tool_p, const json_t *results_p)
 
 	if (facets_json_p)
 		{
-			const json_t *labels_json_p = json_object_get (results_p, "labelValues");
-
-			if (labels_json_p)
+			if (json_is_array (facets_json_p))
 				{
-					if (json_is_array (labels_json_p))
+					if (json_array_size (facets_json_p) > 0)
 						{
-							const size_t num_facets = json_array_size (labels_json_p);
-							size_t i;
+							const json_t *entry_p = json_array_get (facets_json_p, 0);
+							const json_t *labels_json_p = json_object_get (entry_p, "labelValues");
 
-							for (i = 0; i < num_facets; ++ i)
+							if (labels_json_p)
 								{
-									const json_t *label_json_p = json_array_get (labels_json_p, i);
-									LuceneFacet *facet_p = AllcoateLuceneFacet (label_json_p);
-
-									if (facet_p)
+									if (json_is_array (labels_json_p))
 										{
-											LuceneFacetNode *node_p = AllocateLuceneFacetNode (facet_p);
+											const size_t num_facets = json_array_size (labels_json_p);
+											size_t i;
 
-											if (node_p)
+											for (i = 0; i < num_facets; ++ i)
 												{
-													LinkedListAddTail (tool_p -> lt_facet_results_p, & (node_p -> lfn_node));
-												}
-											else
+													const json_t *label_json_p = json_array_get (labels_json_p, i);
+													LuceneFacet *facet_p = GetLuceneFacetFromResultsJSON (label_json_p);
+
+													if (facet_p)
+														{
+															LuceneFacetNode *node_p = AllocateLuceneFacetNode (facet_p);
+
+															if (node_p)
+																{
+																	LinkedListAddTail (tool_p -> lt_facet_results_p, & (node_p -> lfn_node));
+																}
+															else
+																{
+																	FreeLuceneFacet (facet_p);
+																}
+
+														}		/* if (facet_p) */
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, label_json_p, "failed to allocate LuceneFacet");
+														}
+
+												}		/* for (i = 0; i < num_facets; ++ i) */
+
+
+											if (tool_p -> lt_facet_results_p -> ll_size == num_facets)
 												{
-													FreeLuceneFacet (facet_p);
+													success_flag = true;
 												}
+
+										}		/* if (json_is_array (labels_json_p)) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, entry_p, "\"labelValues\" is not an array");
 										}
-								}
 
-
-							if (tool_p -> lt_facet_results_p -> ll_size == num_facets)
+								}		/* if (labels_json_p) */
+							else
 								{
-									success_flag = true;
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, entry_p, "Failed to get \"labelValues\" from json");
 								}
-						}
+
+						}		/* if (json_array_size (facets_json_p) > 0) */
 					else
 						{
-
+							PrintJSONToLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "\"facets\" is an empty array");
 						}
-				}
+
+				}		/* if (json_is_array (facets_json_p)) */
 			else
 				{
-					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Failed to get \"labelValues\" from json");
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "\"facets\" is not an array");
 				}
 		}
 	else
