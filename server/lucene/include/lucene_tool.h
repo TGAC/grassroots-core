@@ -32,6 +32,7 @@
 #include "grassroots_server.h"
 
 
+
 /**
  * @struct LuceneTool
  * @brief A Tool for running Lucene jobs.
@@ -66,6 +67,7 @@ typedef struct LuceneTool
 
 	uuid_t lt_id;
 
+	LinkedList *lt_facet_results_p;
 } LuceneTool;
 
 
@@ -90,6 +92,10 @@ LUCENE_TOOL_PREFIX const char *LT_NUM_TOTAL_HITS_S LUCENE_TOOL_VAL ("total_hits"
 LUCENE_TOOL_PREFIX const char *LT_HITS_START_INDEX_S LUCENE_TOOL_VAL ("from");
 
 LUCENE_TOOL_PREFIX const char *LT_HITS_END_INDEX_S LUCENE_TOOL_VAL ("to");
+
+LUCENE_TOOL_PREFIX const char *LT_FACETS_S LUCENE_TOOL_VAL ("facets");
+
+
 
 
 #ifdef __cplusplus
@@ -158,6 +164,9 @@ GRASSROOTS_LUCENE_API bool SetLuceneToolOutput (LuceneTool *tool_p, char *output
 
 
 GRASSROOTS_LUCENE_API bool SetLuceneToolName (LuceneTool *tool_p, const char *name_s);
+
+
+GRASSROOTS_LUCENE_API bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p);
 
 
 #ifdef __cplusplus

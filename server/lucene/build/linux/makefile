@@ -38,6 +38,7 @@ INCLUDES = \
 	
 SRCS 	= \
 	lucene_document.c \
+	lucene_facet.c \
 	lucene_tool.c \
 	
 CPPFLAGS += -DGRASSROOTS_LUCENE_LIBRARY_EXPORTS 

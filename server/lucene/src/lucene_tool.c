@@ -28,6 +28,7 @@
 #include "string_utils.h"
 #include "filesystem_utils.h"
 #include "math_utils.h"
+#include "lucene_facet.h"
 
 
 static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p);
@@ -35,6 +36,8 @@ static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p);
 static bool AddNumericArgument (ByteBuffer *buffer_p, const char * const key_s, const uint32 value, const uint32 default_value);
 
 static bool ReplaceValidString (const char *src_s, char **dest_ss);
+
+static bool ParseFacetResults (LuceneTool *tool_p, const json_t *results_p);
 
 
 
@@ -76,22 +79,34 @@ LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 
 																	if (facet_key_s)
 																		{
-																			tool_p -> lt_name_s = NULL;
-																			tool_p -> lt_search_class_s = search_class_s;
-																			tool_p -> lt_index_class_s = index_class_s;
-																			tool_p -> lt_classpath_s = classpath_s;
-																			tool_p -> lt_index_s = index_s;
-																			tool_p -> lt_taxonomy_s = taxonomy_s;
-																			tool_p -> lt_working_directory_s = working_directory_s;
-																			tool_p -> lt_facet_key_s = facet_key_s;
-																			tool_p -> lt_output_file_s = NULL;
-																			tool_p -> lt_num_total_hits = 0;
-																			tool_p -> lt_hits_from_index = 0;
-																			tool_p -> lt_hits_to_index = 0;
+																			LinkedList *facet_results_p = AllocateLinkedList (FreeLuceneFacetNode);
 
-																			uuid_copy (tool_p -> lt_id, id);
+																			if (facet_results_p)
+																				{
+																					tool_p -> lt_name_s = NULL;
+																					tool_p -> lt_search_class_s = search_class_s;
+																					tool_p -> lt_index_class_s = index_class_s;
+																					tool_p -> lt_classpath_s = classpath_s;
+																					tool_p -> lt_index_s = index_s;
+																					tool_p -> lt_taxonomy_s = taxonomy_s;
+																					tool_p -> lt_working_directory_s = working_directory_s;
+																					tool_p -> lt_facet_key_s = facet_key_s;
+																					tool_p -> lt_output_file_s = NULL;
+																					tool_p -> lt_num_total_hits = 0;
+																					tool_p -> lt_hits_from_index = 0;
+																					tool_p -> lt_hits_to_index = 0;
 
-																			return tool_p;
+																					uuid_copy (tool_p -> lt_id, id);
+
+																					tool_p -> lt_facet_results_p = facet_results_p;
+																					return tool_p;
+
+																				}
+																			else
+																				{
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list for storing LuceneFacets");
+																				}
+
 																		}
 																	else
 																		{
@@ -162,6 +177,8 @@ void FreeLuceneTool (LuceneTool *tool_p)
 		{
 			FreeCopiedString (tool_p -> lt_name_s);
 		}
+
+	FreeLinkedList (tool_p -> lt_facet_results_p);
 
 	FreeMemory (tool_p);
 }
@@ -438,7 +455,7 @@ bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 
 								}		/* if (file_s) */
 
-						}		/* if (run_flag) */
+						}		/* iflfn_node (run_flag) */
 
 				}		/* if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_index_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s,  NULL)) */
 			else
@@ -576,6 +593,9 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 										}
 
 
+									ParseFacetResults (tool_p, results_p);
+
+
 								}		/* if (docs_p) */
 
 							FreeLuceneDocument (document_p);
@@ -590,6 +610,57 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 	return success_flag;
 }
 
+
+bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p)
+{
+	bool success_flag = false;
+	LuceneFacetNode *node_p = tool_p -> lt_facet_results_p -> ll_head_p;
+
+	if (node_p)
+		{
+			json_t *facets_array_p = json_array ();
+
+			if (facets_array_p)
+				{
+					if (json_object_set_new (metadata_p, "facets", facets_array_p))
+						{
+							while (node_p)
+								{
+									json_t *facet_json_p = GetLuceneFacetAsJSON (node_p -> lfn_facet_p);
+
+									if (facet_json_p)
+										{
+											if (json_array_append_new (facets_array_p, facet_json_p) != 0)
+												{
+													json_decref (facet_json_p);
+												}
+
+										}		/* if (facet_json_p) */
+
+									node_p = (LuceneFacetNode *) (node_p -> lfn_node.ln_next_p);
+								}		/* while (node_p) */
+
+							if (json_array_size (facets_array_p) == tool_p -> lt_facet_results_p -> ll_size)
+								{
+									success_flag = true;
+								}
+
+						}		/* if (json_object_set_new (metadata_p, "facets", facets_array_p)) */
+					else
+						{
+							json_decref (facets_array_p);
+						}
+
+				}		/* if (facets_array_p) */
+
+		}		/* if (node_p) */
+	else
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
 
 
 static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p)
@@ -656,6 +727,67 @@ static bool AddNumericArgument (ByteBuffer *buffer_p, const char * const key_s, 
 	else
 		{
 			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
+static bool ParseFacetResults (LuceneTool *tool_p, const json_t *results_p)
+{
+	bool success_flag = false;
+	const json_t *facets_json_p = json_object_get (results_p, "facets");
+
+	if (facets_json_p)
+		{
+			const json_t *labels_json_p = json_object_get (results_p, "labelValues");
+
+			if (labels_json_p)
+				{
+					if (json_is_array (labels_json_p))
+						{
+							const size_t num_facets = json_array_size (labels_json_p);
+							size_t i;
+
+							for (i = 0; i < num_facets; ++ i)
+								{
+									const json_t *label_json_p = json_array_get (labels_json_p, i);
+									LuceneFacet *facet_p = AllcoateLuceneFacet (label_json_p);
+
+									if (facet_p)
+										{
+											LuceneFacetNode *node_p = AllocateLuceneFacetNode (facet_p);
+
+											if (node_p)
+												{
+													LinkedListAddTail (tool_p -> lt_facet_results_p, & (node_p -> lfn_node));
+												}
+											else
+												{
+													FreeLuceneFacet (facet_p);
+												}
+										}
+								}
+
+
+							if (tool_p -> lt_facet_results_p -> ll_size == num_facets)
+								{
+									success_flag = true;
+								}
+						}
+					else
+						{
+
+						}
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Failed to get \"labelValues\" from json");
+				}
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Failed to get \"facets\" from json");
 		}
 
 	return success_flag;
