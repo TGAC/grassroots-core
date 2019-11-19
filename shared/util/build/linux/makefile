@@ -47,6 +47,7 @@ SRCS 	:= \
 	file_output_stream.c \
 	filesystem_utils.c \
 	hash_table.c \
+	int_linked_list.c \
 	io_utils.c  \
 	json_util.c \
 	linked_list.c \
