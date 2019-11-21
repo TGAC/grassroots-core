@@ -384,7 +384,7 @@ bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 																		{
 																			SetLuceneToolOutput (tool_p, output_s);
 
-																			if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
+																			if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, "-err ", full_filename_stem_s, ".err", NULL))
 																				{
 																					const char *command_s = GetByteBufferData (buffer_p);
 																					int res = system (command_s);
