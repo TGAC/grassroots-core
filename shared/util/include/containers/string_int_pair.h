@@ -129,8 +129,16 @@ GRASSROOTS_UTIL_API void ClearStringIntPair (StringIntPair *pair_p);
  * @param pairs_p The StringIntPairArray to sort.
  * @memberof StringIntPairArray
  */
-GRASSROOTS_UTIL_API void SortStringIntPairsByCount (StringIntPairArray *pairs_p);
+GRASSROOTS_UTIL_API void SortStringIntPairsByCountAscending (StringIntPairArray *pairs_p);
 
+
+/**
+ * Sort the entries of a StringIntPairArray into descending order of their values.
+ *
+ * @param pairs_p The StringIntPairArray to sort.
+ * @memberof StringIntPairArray
+ */
+GRASSROOTS_UTIL_API void SortStringIntPairsByCountDescending (StringIntPairArray *pairs_p);
 
 /**
  * Get the JSON fragment representing a StringIntPairArray.

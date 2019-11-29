@@ -1164,3 +1164,29 @@ bool DoesStringEndWith (const char *value_s, const char *ending_s)
 }
 
 
+char *GetStringAsLowerCase (const char *value_s)
+{
+	char *lower_s = NULL;
+
+	if (value_s)
+		{
+			lower_s = EasyCopyToNewString (value_s);
+
+			if (lower_s)
+				{
+					char *c_p = lower_s;
+
+					while (*c_p != '\0')
+						{
+							*c_p = tolower (*c_p);
+							++ c_p;
+						}
+				}
+		}
+
+	return lower_s;
+
+}
+
+
+

@@ -28,7 +28,9 @@
 #include "data_resource.h"
 
 
-static int CompareStringIntCounts (const void *v0_p, const void *v1_p);
+static int CompareStringIntCountsAscending (const void *v0_p, const void *v1_p);
+
+static int CompareStringIntCountsDescending (const void *v0_p, const void *v1_p);
 
 
 StringIntPairArray *AllocateStringIntPairArray (const uint32 size)
@@ -135,9 +137,15 @@ void ClearStringIntPair (StringIntPair *pair_p)
 
 
 
-void SortStringIntPairsByCount (StringIntPairArray *pairs_p)
+void SortStringIntPairsByCountAscending (StringIntPairArray *pairs_p)
 {
-	qsort (pairs_p -> sipa_values_p, pairs_p -> sipa_size, sizeof (StringIntPair), CompareStringIntCounts);
+	qsort (pairs_p -> sipa_values_p, pairs_p -> sipa_size, sizeof (StringIntPair), CompareStringIntCountsAscending);
+}
+
+
+void SortStringIntPairsByCountDescending (StringIntPairArray *pairs_p)
+{
+	qsort (pairs_p -> sipa_values_p, pairs_p -> sipa_size, sizeof (StringIntPair), CompareStringIntCountsDescending);
 }
 
 
@@ -199,10 +207,19 @@ json_t *GetStringIntPairsAsResourceJSON (const StringIntPairArray *pairs_p, cons
 }
 
 
-static int CompareStringIntCounts (const void *v0_p, const void *v1_p)
+static int CompareStringIntCountsAscending (const void *v0_p, const void *v1_p)
 {
 	const StringIntPair *pair0_p = (const StringIntPair *) v0_p;
 	const StringIntPair *pair1_p = (const StringIntPair *) v1_p;
 
 	return ((pair0_p -> sip_value) - (pair1_p -> sip_value));
+}
+
+
+static int CompareStringIntCountsDescending (const void *v0_p, const void *v1_p)
+{
+	const StringIntPair *pair0_p = (const StringIntPair *) v0_p;
+	const StringIntPair *pair1_p = (const StringIntPair *) v1_p;
+
+	return ((pair1_p -> sip_value) - (pair0_p -> sip_value));
 }
