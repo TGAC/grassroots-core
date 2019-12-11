@@ -499,6 +499,7 @@ ParameterBounds *CopyParameterBounds (const ParameterBounds * const src_p, const
 					case PT_BOOLEAN:
 					case PT_FASTA:
 					case PT_JSON:
+					case PT_JSON_TABLE:
 					case PT_TABLE:
 						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Parameter type doesn't have ability to be ranged");
 						break;
@@ -762,6 +763,7 @@ bool SetParameterValueFromSharedType (Parameter * const param_p, const SharedTyp
 				break;
 
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				success_flag = SetParameterValueFromJSON (param_p, src_p -> st_json_p, current_value_flag);
 				break;
 
@@ -1247,6 +1249,7 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 						break;
 
 					case PT_JSON:
+					case PT_JSON_TABLE:
 						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("json")) == 0);
 						break;
 
@@ -1646,6 +1649,7 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 				 * A json value can legitimately be NULL
 				 */
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				if (val_p -> st_json_p)
 					{
 						value_p = json_deep_copy (val_p -> st_json_p);
@@ -1933,6 +1937,7 @@ bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const Par
 								break;
 
 							case PT_JSON:
+							case PT_JSON_TABLE:
 								{
 									if (json_value_p)
 										{
@@ -2066,6 +2071,7 @@ static bool AddParameterOptionsToJSON (const Parameter * const param_p, json_t *
 										break;
 
 									case PT_JSON:
+									case PT_JSON_TABLE:
 										break;
 
 									case PT_TIME:
@@ -2193,6 +2199,7 @@ static bool AddParameterBoundsToJSON (const Parameter * const param_p, json_t *j
 					case PT_FILE_TO_WRITE:
 					case PT_FASTA:
 					case PT_JSON:
+					case PT_JSON_TABLE:
 					case PT_KEYWORD:
 					case PT_LARGE_STRING:
 					case PT_PASSWORD:
@@ -2593,6 +2600,7 @@ static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBo
 									case PT_FILE_TO_READ:
 									case PT_FILE_TO_WRITE:
 									case PT_JSON:
+									case PT_JSON_TABLE:
 									case PT_KEYWORD:
 									case PT_LARGE_STRING:
 									case PT_PASSWORD:
@@ -2741,6 +2749,7 @@ bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterTy
 				break;
 
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				{
 					if (src.st_json_p)
 						{
@@ -3074,6 +3083,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 				break;
 
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				{
 					char *dump_s = json_dumps (value_p -> st_json_p, 0);
 
@@ -3205,6 +3215,7 @@ bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt
 				break;
 
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				break;
 
 			case PT_TIME:
@@ -3626,6 +3637,7 @@ bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const Par
 				break;
 
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				{
 					json_t *dest_p = json_deep_copy (json_p);
 

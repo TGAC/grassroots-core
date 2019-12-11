@@ -49,6 +49,7 @@ void ClearSharedType (SharedType *st_p, const ParameterType pt)
 				break;
 
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				if (st_p -> st_json_p)
 					{
 	#if PARAMETER_DEBUG >= STM_LEVEL_FINER
@@ -169,6 +170,7 @@ bool SetSharedTypeValue (SharedType *st_p, const ParameterType pt, void *value_p
 				break;
 
 			case PT_JSON:
+			case PT_JSON_TABLE:
 				{
 					const json_t * const src_p = (const json_t *) value_p;
 					success_flag = SetSharedTypeJSONValue (st_p, src_p);

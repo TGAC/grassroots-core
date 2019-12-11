@@ -110,6 +110,13 @@ typedef enum ParameterType
 	 */
 	PT_TIME,
 
+
+	/**
+	 * Tabular data stored as a JSON array where each object is it
+	 * is a row within the tabular data.
+	 */
+	PT_JSON_TABLE,
+
 	/** The number of possible ParameterType values. */
 	PT_NUM_TYPES
 } ParameterType;
