@@ -39,27 +39,30 @@
 #endif
 
 
+
 static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
-		{
-				"xsd:boolean",
-				"params:signed_integer",
-				"params:unsigned_integer",
-				"params:negative_integer",
-				"xsd:double",
-				"params:unsigned_number",
-				"xsd:string",
-				"params:output_filename",
-				"params:input_filename",
-				"params:directory",
-				"params:character",
-				"params:password",
-				"params:keyword",
-				"params:large_string",
-				"params:json",
-				"params:tabular",
-				"params:fasta",
-				"xsd:date"
-		};
+{
+		"xsd:boolean",
+		"params:signed_integer",
+		"params:unsigned_integer",
+		"params:negative_integer",
+		"xsd:double",
+		"params:unsigned_number",
+		"xsd:string",
+		"params:output_filename",
+		"params:input_filename",
+		"params:directory",
+		"params:character",
+		"params:password",
+		"params:keyword",
+		"params:large_string",
+		"params:json",
+		"params:tabular",
+		"params:fasta",
+		"xsd:date",
+		"params:json_array"
+};
+
 
 
 
@@ -1995,7 +1998,10 @@ bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const Par
 	else
 		{
 			/* json params are allowed to be NULL */
-			success_flag = (param_type == PT_JSON);
+			if ((param_type == PT_JSON) || (param_type == PT_JSON_TABLE))
+				{
+					success_flag = true;
+				}
 		}
 
 	return success_flag;
