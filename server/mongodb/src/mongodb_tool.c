@@ -64,18 +64,6 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 static json_t *ConvertBSONToJSON (const bson_t *bson_p);
 
 
-/**
- * Create a BSON object from the given id and use it to update some MongoDB documents.
- *
- * @param tool_p The MongoTool that will update the MongoDB documents.
- * @param id_p The id to update the MongoDB documents with.
- * @param json_p The update statement specifying the update operation to perform.
- * @return <code>true</code> if the MongoDB documents were updated successfully,
- * <code>false</code> otherwise.
- * @memberof MongoTool
- * @see UpdateMongoDocumentByBSON
- */
-static bool UpdateMongoDocument (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p);
 
 
 

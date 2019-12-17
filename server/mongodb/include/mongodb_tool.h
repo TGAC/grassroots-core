@@ -28,7 +28,7 @@
 #ifndef MONGODB_TOOL_H_
 #define MONGODB_TOOL_H_
 
-#include "mongoc.h"
+#include "mongoc/mongoc.h"
 #include "typedefs.h"
 #include "jansson.h"
 #include "mongodb_library.h"
@@ -276,6 +276,20 @@ GRASSROOTS_MONGODB_API bson_oid_t *InsertJSONIntoMongoCollection (MongoTool *too
  * @memberof MongoTool
  */
 GRASSROOTS_MONGODB_API bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p);
+
+
+/**
+ * Create a BSON object from the given id and use it to update some MongoDB documents.
+ *
+ * @param tool_p The MongoTool that will update the MongoDB documents.
+ * @param id_p The id to update the MongoDB documents with.
+ * @param json_p The update statement specifying the update operation to perform.
+ * @return <code>true</code> if the MongoDB documents were updated successfully,
+ * <code>false</code> otherwise.
+ * @memberof MongoTool
+ * @see UpdateMongoDocumentByBSON
+ */
+bool UpdateMongoDocument (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p);
 
 
 /**
