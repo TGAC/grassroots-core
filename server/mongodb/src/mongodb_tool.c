@@ -867,9 +867,9 @@ bson_t *GenerateQuery (const json_t *json_p)
 					json_t *value_p;
 
 					json_object_foreach (json_p, key_s, value_p)
-					{
-						AddToQuery (query_p, key_s, value_p);
-					}		/* json_object_foreach (json_p, key_p, value_p) */
+						{
+							AddToQuery (query_p, key_s, value_p);
+						}		/* json_object_foreach (json_p, key_p, value_p) */
 
 #if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, query_p, "final bson search query");
@@ -885,7 +885,7 @@ bson_t *GenerateQuery (const json_t *json_p)
 }
 
 
-bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss, bson_t *extra_opts_p)
+bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss, bson_t *extra_opts_p, const bson_oid_t *last_id_p, const uint32 page_size)
 {
 	bool success_flag = false;
 	bson_t *query_p = GenerateQuery (query_json_p);  // ConvertJSONToBSON (query_json_p);
@@ -896,7 +896,7 @@ bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_js
 			PrintBSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "query: ");
 #endif
 
-			success_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss, extra_opts_p);
+			success_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss, extra_opts_p, last_id_p, page_size);
 			bson_destroy (query_p);
 		}
 
@@ -992,7 +992,7 @@ void LogBSONOid (const bson_oid_t *bson_p, const int level, const char * const f
 }
 
 
-bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss, bson_t *extra_opts_p)
+bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss, bson_t *extra_opts_p, const bson_oid_t *last_id_p, const uint32 page_size)
 {
 	bool success_flag = false;
 
@@ -1116,7 +1116,7 @@ int32 GetAllMongoResultsForKeyValuePair (MongoTool *tool_p, json_t **docs_pp, co
 
 					num_results = 0;
 
-					if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss, NULL))
+					if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, fields_ss, NULL, NULL, 0))
 						{
 							*docs_pp = GetAllExistingMongoResultsAsJSON (tool_p);
 
@@ -1347,7 +1347,7 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 
 			if (json_p)
 				{
-					if (FindMatchingMongoDocumentsByJSON (tool_p, json_p, NULL, NULL))
+					if (FindMatchingMongoDocumentsByJSON (tool_p, json_p, NULL, NULL, NULL, 0))
 						{
 							res = HasMongoQueryResults (tool_p) ? 1 : 0;
 						}
@@ -1361,7 +1361,7 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 
 
 
-json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
+json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, const bson_oid_t *last_id_p, const uint32 page_size)
 {
 	json_t *results_array_p = NULL;
 
@@ -1389,7 +1389,7 @@ json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *ex
 
 					if (query_p)
 						{
-							if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, extra_opts_p))
+							if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, extra_opts_p, last_id_p, page_size))
 								{
 									if (!IterateOverMongoResults (tool_p, AddBSONDocumentToJSONArray, results_array_p))
 										{
@@ -1654,7 +1654,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 			if (query_p)
 				{
-					const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, NULL);
+					const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, NULL, NULL, 0);
 
 					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "FindMatchingMongoDocumentsByBSON returned %s", exists_flag ? "true" : "false");
@@ -2111,7 +2111,7 @@ bson_oid_t *GetBSONOidFromString (const char *id_s)
 				}
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\ is not a valid bson_oid", id_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" is not a valid bson_oid", id_s);
 				}
 		}
 
