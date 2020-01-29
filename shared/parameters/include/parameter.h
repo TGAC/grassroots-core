@@ -235,6 +235,12 @@ typedef struct Parameter
 	 */
 	bool pa_refresh_service_flag;
 
+
+	/**
+	 * Must this Parameter contain a valid value or can it be empty?
+	 */
+	bool pa_required_flag;
+
 } Parameter;
 
 

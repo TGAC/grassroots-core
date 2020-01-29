@@ -219,6 +219,8 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 													param_p -> pa_visible_flag = true;
 													param_p -> pa_refresh_service_flag = false;
 
+													param_p -> pa_required_flag = true;
+
 													InitSharedType (& (param_p -> pa_current_value));
 													InitSharedType (& (param_p -> pa_default));
 
@@ -1604,7 +1606,7 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 					}
 				else
 					{
-						value_p = json_string ("");
+						null_flag = true;
 					}
 				break;
 

@@ -424,3 +424,32 @@ bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p)
 	return success_flag;
 }
 
+
+
+/*
+GRASSROOTS_PARAMS_API bool GetSharedTypeBooleanValue (const SharedType *value_p, bool * const b_p)
+
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeCharValue (const SharedType *value_p, char * const c_p);
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeUnsignedIntValue (const SharedType * value_p, uint32 * const i_p);
+
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeSignedIntValue (const SharedType * value_p, int32 * const i_p);
+
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeRealValue (const SharedType * value_p, double64 * const d_p);
+
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeStringValue (const SharedType *value_p, char * const src_s);
+
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeResourceValue (const SharedType *value_p, Resource * const res_p);
+
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeJSONValue (const SharedType *value_p, json_t * const json_p);
+
+
+GRASSROOTS_PARAMS_API bool GetSharedTypeTimeValue (const SharedType *value_p, struct tm * const time_p);
+*/
+
