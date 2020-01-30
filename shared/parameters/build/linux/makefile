@@ -4,7 +4,7 @@ DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE :=$(realpath $(DIR_BUILD)/../../include)
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build_utils/linux)
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
 endif
 include $(DIR_BUILD_CONFIG)/project.properties
 
@@ -31,12 +31,16 @@ INCLUDES = \
 	-I$(DIR_UUID_INC)
 	
 SRCS 	= \
+	boolean_parameter.c \
+	char_parameter.c \
 	parameter.c \
 	parameter_group.c \
 	parameter_option.c \
 	parameter_set.c \
 	remote_parameter_details.c \
-	shared_type.c
+	shared_type.c \
+	signed_int_parameter.c \
+	typed_value.c
 	
 	
 CPPFLAGS += -DUNIX -DGRASSROOTS_PARAMS_LIBRARY_EXPORTS

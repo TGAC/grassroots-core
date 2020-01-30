@@ -163,6 +163,101 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 /******************************************************/
 
+bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,  ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+{
+	char *new_name_s = CopyToNewString (name_s, 0, true);
+
+	if (new_name_s)
+		{
+			bool success_flag = true;
+			char *new_description_s = NULL;
+
+			if (description_s)
+				{
+					new_description_s = CopyToNewString (description_s, 0, true);
+					success_flag = (new_description_s != NULL);
+				}
+
+			if (success_flag)
+				{
+					char *new_display_name_s = NULL;
+
+					if (display_name_s)
+						{
+							new_display_name_s = CopyToNewString (display_name_s, 0, true);
+							success_flag = (new_display_name_s != NULL);
+						}
+
+					if (success_flag)
+						{
+							HashTable *store_p = GetHashTableOfStrings (8, 75);
+
+							if (store_p)
+								{
+									LinkedList *remote_params_p = AllocateLinkedList (FreeRemoteParameterDetailsNode);
+
+									if (remote_params_p)
+										{
+											param_p -> pa_type = type;
+											param_p -> pa_name_s = new_name_s;
+											param_p -> pa_display_name_s = new_display_name_s;
+											param_p -> pa_description_s = new_description_s;
+											param_p -> pa_options_p = options_p;
+											param_p -> pa_check_value_fn = check_value_fn;
+											param_p -> pa_bounds_p = bounds_p;
+											param_p -> pa_level = level;
+											param_p -> pa_store_p = store_p;
+											param_p -> pa_group_p = NULL;
+
+											param_p -> pa_remote_parameter_details_p = remote_params_p;
+
+											param_p -> pa_visible_flag = true;
+											param_p -> pa_refresh_service_flag = false;
+
+											param_p -> pa_required_flag = true;
+
+											/*
+											 * Check for any values that have been overrode in
+											 * the service configuration.
+											 */
+											if (service_data_p)
+												{
+													//GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+
+													GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
+
+													GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
+												}
+										}
+
+									FreeLinkedList (remote_params_p);
+								}		/* if (remote_params_p) */
+
+							FreeHashTable (store_p);
+						}		/* if (store_p) */
+
+
+					if (new_display_name_s)
+						{
+							FreeCopiedString (new_display_name_s);
+						}		/* if (new_description_s) */
+
+
+					if (new_description_s)
+						{
+							FreeCopiedString (new_description_s);
+						}		/* if (new_description_s) */
+
+				}		/* if (success_flag) */
+
+			FreeCopiedString (new_name_s);
+		}		/* if (new_name_s) */
+
+	return false;
+}
+
+
+
 Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	char *new_name_s = CopyToNewString (name_s, 0, true);
@@ -203,7 +298,6 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 											if (param_p)
 												{
 													param_p -> pa_type = type;
-													param_p -> pa_multi_valued_flag = multi_valued_flag;
 													param_p -> pa_name_s = new_name_s;
 													param_p -> pa_display_name_s = new_display_name_s;
 													param_p -> pa_description_s = new_description_s;
@@ -220,9 +314,6 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 													param_p -> pa_refresh_service_flag = false;
 
 													param_p -> pa_required_flag = true;
-
-													InitSharedType (& (param_p -> pa_current_value));
-													InitSharedType (& (param_p -> pa_default));
 
 													if (multi_valued_flag)
 														{
@@ -291,10 +382,10 @@ Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType t
 }
 
 
-void FreeParameter (Parameter *param_p)
+void ClearParameter (Parameter *param_p)
 {
 #if PARAMETER_DEBUG >= STM_LEVEL_FINER
-	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Freeing parameter %s", param_p -> pa_name_s);
+	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Clearing parameter %s", param_p -> pa_name_s);
 #endif
 
 
@@ -323,15 +414,18 @@ void FreeParameter (Parameter *param_p)
 			FreeParameterBounds (param_p -> pa_bounds_p, param_p -> pa_type);
 		}
 
-	ClearSharedType (& (param_p -> pa_current_value), param_p -> pa_type);
-	ClearSharedType (& (param_p -> pa_default), param_p -> pa_type);
-
 	FreeHashTable (param_p -> pa_store_p);
 
 	FreeLinkedList (param_p -> pa_remote_parameter_details_p);
+}
 
+
+void FreeParameter (Parameter *param_p)
+{
+	ClearParameter (param_p);
 	FreeMemory (param_p);
 }
+
 
 
 Parameter *CloneParameter (const Parameter * const src_p)
@@ -369,7 +463,7 @@ Parameter *CloneParameter (const Parameter * const src_p)
 		{
 			SharedType current_value;
 
-			InitSharedType (&current_value);
+			InitSharedType (&current_value, src_p -> pa_type);
 
 			CopySharedType (src_p -> pa_current_value, &current_value, src_p -> pa_type);
 
@@ -1566,32 +1660,85 @@ static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const Shared
 	switch (pt)
 		{
 			case PT_BOOLEAN:
-				value_p = (val_p -> st_boolean_value == true) ? json_true () : json_false ();
+				{
+					bool b;
+
+					if (GetSharedTypeBooleanValue (val_p, &b))
+						{
+							value_p = (b == true) ? json_true () : json_false ();
+						}
+					else
+						{
+							null_flag = true;
+						}
+				}
 				break;
 
 			case PT_CHAR:
 				{
-					char buffer_s [2];
+					char c;
 
-					*buffer_s = val_p -> st_char_value;
-					* (buffer_s + 1) = '\0';
+					if (GetSharedTypeSignedCharValue (val_p, &c))
+						{
+							char buffer_s [2];
 
-					value_p = json_string (buffer_s);
+							*buffer_s = c;
+							* (buffer_s + 1) = '\0';
+
+							value_p = json_string (buffer_s);
+						}
+					else
+						{
+							null_flag = true;
+						}
 				}
 				break;
 
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
-				value_p = json_integer (val_p -> st_long_value);
+				{
+					int i;
+
+					if (GetSharedTypeSignedIntValue (val_p, &i))
+						{
+							value_p = json_integer (i);
+						}
+					else
+						{
+							null_flag = true;
+						}
+				}
 				break;
 
 			case PT_UNSIGNED_INT:
-				value_p = json_integer (val_p -> st_ulong_value);
+				{
+					uint32 i;
+
+					if (GetSharedTypeUnsignedIntValue (val_p, &i))
+						{
+							value_p = json_integer (i);
+						}
+					else
+						{
+							null_flag = true;
+						}
+				}
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				value_p = json_real (val_p -> st_data_value);
+				{
+					double d;
+
+					if (GetSharedTypeRealValue (val_p, &d))
+						{
+							value_p = json_real (d);
+						}
+					else
+						{
+							null_flag = true;
+						}
+				}
 				break;
 
 			case PT_STRING:
@@ -2910,13 +3057,10 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 							const char *description_s = NULL;
 							const char *display_name_s = NULL;
 							bool multi_valued_flag = false;
-							SharedType def;
 							LinkedList *options_p = NULL;
 							ParameterBounds *bounds_p = NULL;
 							ParameterLevel level = PL_ALL;
 							bool success_flag = false;
-
-							InitSharedType (&def);
 
 							if (GetParameterLevelFromJSON (root_p, &level))
 								{
@@ -2929,18 +3073,14 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 									description_s = GetJSONString (root_p, PARAM_DESCRIPTION_S);
 									display_name_s = GetJSONString (root_p, PARAM_DISPLAY_NAME_S);
 
-									if (GetValueFromJSON (root_p, PARAM_DEFAULT_VALUE_S, pt, &def))
+									if (GetParameterOptionsFromJSON (root_p, &options_p, pt))
 										{
-											if (GetParameterOptionsFromJSON (root_p, &options_p, pt))
+											if (GetParameterBoundsFromJSON (root_p, &bounds_p, pt))
 												{
-													if (GetParameterBoundsFromJSON (root_p, &bounds_p, pt))
-														{
-															success_flag = true;
-														}
+													success_flag = true;
+												}
 
-												}		/* if (GetParameterOptionsFromJSON (root_p, &options_p, pt)) */
-
-										}		/* if (GetValueFromJSON (root_p, PARAM_DEFAULT_VALUE_S, pt, &def)) */
+										}		/* if (GetParameterOptionsFromJSON (root_p, &options_p, pt)) */
 								}
 							else
 								{
@@ -2949,7 +3089,66 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 							if (success_flag)
 								{
-									param_p = AllocateParameter (NULL, pt, multi_valued_flag, name_s, display_name_s, description_s, options_p, def, &current_value, bounds_p, level, NULL);
+									switch (pt)
+										{
+											case PT_BOOLEAN:
+												{
+													bool *current_value_p = NULL;
+													bool *default_value_p = NULL;
+													bool b;
+
+													if (GetJSONBoolean (root_p, PARAM_CURRENT_VALUE_S, &b))
+														{
+															*current_value_p = b;
+														}
+
+													if (GetJSONBoolean (root_p, PARAM_DEFAULT_VALUE_S, &b))
+														{
+															*default_value_p = b;
+														}
+
+													param_p = AllocateBooleanParameter (NULL, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, bounds_p, level, NULL);
+												}
+											break;
+
+										case PT_CHAR:
+											break;
+
+										case PT_JSON:
+										case PT_JSON_TABLE:
+											break;
+
+										case PT_PASSWORD:
+										case PT_STRING:
+										case PT_KEYWORD:
+										case PT_LARGE_STRING:
+										case PT_TABLE:
+										case PT_FASTA:
+											break;
+
+										case PT_FILE_TO_WRITE:
+										case PT_FILE_TO_READ:
+										case PT_DIRECTORY:
+											break;
+
+										case PT_TIME:
+											break;
+
+										case PT_SIGNED_INT:
+										case PT_NEGATIVE_INT:
+											break;
+
+										case PT_UNSIGNED_INT:
+											break;
+
+										case PT_SIGNED_REAL:
+										case PT_UNSIGNED_REAL:
+											break;
+
+										case PT_NUM_TYPES:
+											break;
+										}
+
 
 									if (param_p)
 										{
@@ -2990,8 +3189,6 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 										}
 								}
 
-							ClearSharedType (&def, pt);
-							ClearSharedType (&current_value, pt);
 
 						}		/* if (GetValueFromJSON (root_p, PARAM_CURRENT_VALUE_S, pt, &current_value)) */
 
@@ -3038,9 +3235,14 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 		{
 			case PT_BOOLEAN:
 				{
-					const char *src_s = (value_p -> st_boolean_value == true) ? "true" : "false";
-					value_s = EasyCopyToNewString (src_s);
-					*alloc_flag_p = true;
+					bool b;
+
+					if (GetSharedTypeBooleanValue (value_p, &b))
+						{
+							const char *src_s = (b == true) ? "true" : "false";
+							value_s = EasyCopyToNewString (src_s);
+							*alloc_flag_p = true;
+						}
 				}
 				break;
 
@@ -3058,6 +3260,9 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
+				{
+
+				}
 				value_s = ConvertIntegerToString (value_p -> st_long_value);
 				*alloc_flag_p = true;
 				break;
@@ -3146,13 +3351,11 @@ bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt
 				{
 					if (Stricmp (value_s, "true") == 0)
 						{
-							value_p -> st_boolean_value = true;
-							success_flag = true;
+							success_flag = SetSharedTypeBooleanValue (value_p, true);
 						}
 					else if (Stricmp (value_s, "false") == 0)
 						{
-							value_p -> st_boolean_value = false;
-							success_flag = true;
+							success_flag = SetSharedTypeBooleanValue (value_p, false);
 						}
 				}
 				break;
@@ -3160,12 +3363,11 @@ bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
 				{
-					int32 value;
+					int32 value = 0;
 
 					if (sscanf (value_s, INT32_FMT, &value) > 0)
 						{
-							value_p -> st_long_value = value;
-							success_flag = true;
+							success_flag = SetSharedTypeSignedIntValue (value_p, value, NULL);
 						}
 				}
 				break;
@@ -3176,8 +3378,7 @@ bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt
 
 					if (sscanf (value_s, UINT32_FMT, &value) > 0)
 						{
-							value_p -> st_ulong_value = value;
-							success_flag = true;
+							success_flag = SetSharedTypeUnsignedIntValue (value_p, value, NULL);
 						}
 				}
 				break;
@@ -3189,8 +3390,7 @@ bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt
 
 					if (sscanf (value_s, DOUBLE64_FMT, &value) > 0)
 						{
-							value_p -> st_data_value = value;
-							success_flag = true;
+							success_flag = SetSharedTypeRealValue (value_p, value, NULL);
 						}
 				}
 				break;
@@ -3220,6 +3420,7 @@ bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt
 
 
 			case PT_CHAR:
+				success_flag = SetSharedTypeCharValue (value_p, *value_s);
 				break;
 
 			case PT_JSON:

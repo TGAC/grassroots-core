@@ -45,38 +45,41 @@
  *
  * @ingroup parameters_group
  */
-typedef union SharedType
+typedef struct SharedType
 {
-	/** A Boolean value */
-	bool st_boolean_value;
+	ParameterType st_active_type;
 
-	/** A signed integer */
-	int32 st_long_value;
+	union
+		{
+			/** A Boolean value */
+			bool *st_boolean_value_p;
 
-	/** An unsigned integer */
-	uint32 st_ulong_value;
+			/** A signed integer */
+			int32 *st_long_value_p;
 
-	/** A real number */
-	double64 st_data_value;
+			/** An unsigned integer */
+			uint32 *st_ulong_value_p;
 
-	/** A c-style string */
-	char *st_string_value_s;
+			/** A real number */
+			double64 *st_data_value_p;
 
-	/** A single character */
-	char st_char_value;
+			/** A c-style string */
+			char *st_string_value_s;
 
-	/** A Resource */
-	Resource *st_resource_value_p;
+			/** A single character */
+			char *st_char_value_p;
 
-	/** A LinkedList of multiple values */
-	LinkedList *st_multiple_values_p;
+			/** A Resource */
+			Resource *st_resource_value_p;
 
-	/** A JSON fragment */
-	json_t *st_json_p;
+			/** A JSON fragment */
+			json_t *st_json_p;
 
 
-	/** A time and date */
-	struct tm *st_time_p;
+			/** A time and date */
+			struct tm *st_time_p;
+		} st_value;
+
 
 } SharedType;
 
@@ -114,10 +117,9 @@ extern "C"
  * for the value.
  *
  * @param st_p The SharedType to clear.
- * @param pt The ParameterType for this SharedType
  * @memberof SharedType
  */
-GRASSROOTS_PARAMS_API void ClearSharedType (SharedType *st_p, const ParameterType pt);
+GRASSROOTS_PARAMS_API void ClearSharedType (SharedType *st_p);
 
 
 
@@ -125,9 +127,10 @@ GRASSROOTS_PARAMS_API void ClearSharedType (SharedType *st_p, const ParameterTyp
  * Initialise a SharedType ready for use.
  *
  * @param st_p The SharedType to initialise.
+ * @param pt The ParameterType for this SharedType
  * @memberof SharedType
  */
-GRASSROOTS_PARAMS_API void InitSharedType (SharedType *st_p);
+GRASSROOTS_PARAMS_API void InitSharedType (SharedType *st_p, const ParameterType pt);
 
 
 
@@ -136,11 +139,10 @@ GRASSROOTS_PARAMS_API void InitSharedType (SharedType *st_p);
  *
  * @param src The SharedType to copy the value from.
  * @param dest_p The SharedType to copy the value to.
- * @param pt The ParameterType for this SharedType
  * @return <code>true</code> if the value was copied successfully, <code>false</code> otherwise.
  * @memberof SharedType
  */
-GRASSROOTS_PARAMS_API bool CopySharedType (const SharedType src, SharedType *dest_p, const ParameterType pt);
+GRASSROOTS_PARAMS_API bool CopySharedType (const SharedType src, SharedType *dest_p);
 
 
 
@@ -148,12 +150,11 @@ GRASSROOTS_PARAMS_API bool CopySharedType (const SharedType src, SharedType *des
  * Set the value stored in a SharedType object.
  *
  * @param st_p The SharedType to set the value for.
- * @param pt The ParameterType for this SharedType.
  * @param value_p The value to set.
  * @return <code>true</code> if the value was set successfully, <code>false</code> otherwise.
  * @memberof SharedType
  */
-GRASSROOTS_PARAMS_API bool SetSharedTypeValue (SharedType *st_p, const ParameterType pt, void *value_p, const struct ParameterBounds *bounds_p);
+GRASSROOTS_PARAMS_API bool SetSharedTypeValue (SharedType *st_p, void *value_p, const struct ParameterBounds *bounds_p);
 
 
 GRASSROOTS_PARAMS_API bool SetSharedTypeBooleanValue (SharedType * value_p, const bool b);
@@ -183,10 +184,6 @@ GRASSROOTS_PARAMS_API bool SetSharedTypeJSONValue (SharedType *value_p, const js
 GRASSROOTS_PARAMS_API bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p);
 
 
-
-
-
-/*
 GRASSROOTS_PARAMS_API bool GetSharedTypeBooleanValue (const SharedType *value_p, bool * const b_p);
 
 
@@ -212,7 +209,6 @@ GRASSROOTS_PARAMS_API bool GetSharedTypeJSONValue (const SharedType *value_p, js
 
 
 GRASSROOTS_PARAMS_API bool GetSharedTypeTimeValue (const SharedType *value_p, struct tm * const time_p);
-*/
 
 
 #ifdef __cplusplus

@@ -15,20 +15,20 @@
 #include "json_tools.h"
 
 
-void InitSharedType (SharedType *st_p)
+void InitSharedType (SharedType *st_p, const ParameterType pt)
 {
 	memset (st_p, 0, sizeof (SharedType));
 }
 
 
-void ClearSharedType (SharedType *st_p, const ParameterType pt)
+void ClearSharedType (SharedType *st_p)
 {
-	switch (pt)
+	switch (st_p -> st_active_type)
 		{
 			case PT_DIRECTORY:
 			case PT_FILE_TO_READ:
 			case PT_FILE_TO_WRITE:
-				if (st_p -> st_resource_value_p)
+				if (st_p -> st_value.st_resource_value_p)
 					{
 						FreeResource (st_p -> st_resource_value_p);
 						st_p -> st_resource_value_p = NULL;
@@ -70,28 +70,46 @@ void ClearSharedType (SharedType *st_p, const ParameterType pt)
 				break;
 
 			case PT_NEGATIVE_INT:
-				st_p -> st_long_value = INT32_MIN;
-				break;
-
 			case PT_SIGNED_INT:
-				st_p -> st_long_value = 0;
+				if (st_p -> st_long_value_p)
+					{
+						FreeMemory (st_p -> st_long_value_p);
+						st_p -> st_long_value_p = NULL;
+
+					}
 				break;
 
 			case PT_UNSIGNED_INT:
-				st_p -> st_ulong_value = 0;
+				if (st_p -> st_ulong_value_p)
+					{
+						FreeMemory (st_p -> st_ulong_value_p);
+						st_p -> st_ulong_value_p = NULL;
+					}
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				st_p -> st_data_value = 0.0f;
+				if (st_p -> st_data_value_p)
+					{
+						FreeMemory (st_p -> st_data_value_p);
+						st_p -> st_data_value_p = NULL;
+					}
 				break;
 
 			case PT_BOOLEAN:
-				st_p -> st_boolean_value = false;
+				if (st_p -> st_boolean_value_p)
+					{
+						FreeMemory (st_p -> st_boolean_value_p);
+						st_p -> st_boolean_value_p = NULL;
+					}
 				break;
 
 			case PT_CHAR:
-				st_p -> st_char_value = '\0';
+				if (st_p -> st_char_value_p)
+					{
+						FreeMemory (st_p -> st_char_value_p);
+						st_p -> st_char_value_p = NULL;
+					}
 				break;
 
 			case PT_NUM_TYPES:
@@ -426,30 +444,266 @@ bool SetSharedTypeTimeValue (SharedType *value_p, const struct tm * const src_p)
 
 
 
-/*
-GRASSROOTS_PARAMS_API bool GetSharedTypeBooleanValue (const SharedType *value_p, bool * const b_p)
+bool GetSharedTypeBooleanValue (const SharedType *value_p, bool * const b_p)
+{
+	bool got_flag = false;
+
+	if (value_p -> st_active_type == PT_BOOLEAN)
+		{
+			if (value_p -> st_value.st_boolean_value_p)
+				{
+					*b_p = * (value_p -> st_value.st_boolean_value_p);
+					got_flag = true;
+				}
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeBooleanValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+		}
+
+	return got_flag;
+}
 
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeCharValue (const SharedType *value_p, char * const c_p);
+bool GetSharedTypeCharValue (const SharedType *value_p, char * const c_p)
+{
+	bool got_flag = false;
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeUnsignedIntValue (const SharedType * value_p, uint32 * const i_p);
+	if (value_p -> st_active_type == PT_CHAR)
+		{
+			if (value_p -> st_value.st_char_value_p)
+				{
+					*c_p = * (value_p -> st_value.st_char_value_p);
+					got_flag = true;
+				}
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeCharValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+		}
+
+	return got_flag;
+}
 
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeSignedIntValue (const SharedType * value_p, int32 * const i_p);
+bool GetSharedTypeUnsignedIntValue (const SharedType * value_p, uint32 * const i_p)
+{
+	bool got_flag = false;
+
+	if (value_p -> st_active_type == PT_UNSIGNED_INT)
+		{
+			if (value_p -> st_value.st_ulong_value_p)
+				{
+					*i_p = * (value_p -> st_value.st_ulong_value_p);
+					got_flag = true;
+				}
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeUnsignedIntValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+		}
+
+	return got_flag;
+}
 
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeRealValue (const SharedType * value_p, double64 * const d_p);
+bool GetSharedTypeSignedIntValue (const SharedType * value_p, int32 * const i_p)
+{
+	bool got_flag = false;
+
+	if ((value_p -> st_active_type == PT_SIGNED_INT) || (value_p -> st_active_type == PT_NEGATIVE_INT))
+		{
+			if (value_p -> st_value.st_long_value_p)
+				{
+					*i_p = * (value_p -> st_value.st_long_value_p);
+					got_flag = true;
+				}
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeSignedIntValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+		}
+
+	return got_flag;
+}
 
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeStringValue (const SharedType *value_p, char * const src_s);
+bool GetSharedTypeRealValue (const SharedType *value_p, double64 * const d_p)
+{
+	bool got_flag = false;
+
+	if ((value_p -> st_active_type == PT_SIGNED_REAL) || (value_p -> st_active_type == PT_UNSIGNED_REAL))
+		{
+			if (value_p -> st_value.st_data_value_p)
+				{
+					*d_p = * (value_p -> st_value.st_data_value_p);
+					got_flag = true;
+				}
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeRealValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+		}
+
+	return got_flag;
+}
 
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeResourceValue (const SharedType *value_p, Resource * const res_p);
+bool GetSharedTypeStringValue (const SharedType *value_p, char ** const src_ss)
+{
+	bool got_flag = false;
+
+	switch (value_p -> st_active_type)
+		{
+			case PT_TABLE:
+			case PT_LARGE_STRING:
+			case PT_STRING:
+			case PT_PASSWORD:
+			case PT_KEYWORD:
+			case PT_FASTA:
+				{
+					if (value_p -> st_value.st_string_value_s)
+						{
+							*src_ss = * (value_p -> st_value.st_string_value_s);
+							got_flag = true;
+						}
+				}
+				break;
+
+			default:
+				{
+					const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+					if (!type_s)
+						{
+							type_s = "Unknown type";
+						}
+
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeStringValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+				}
+				break;
+		}
+
+	return got_flag;
+
+}
 
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeJSONValue (const SharedType *value_p, json_t * const json_p);
+const Resource *GetSharedTypeResourceValue (const SharedType *value_p, bool *success_flag_p)
+{
+	Resource *res_p = NULL;
+
+	if (value_p -> st_active_type == PT_FILE_TO_READ)
+		{
+			res_p = value_p -> st_value.st_resource_value_p;
+			*success_flag_p = true;
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeResourceValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+
+			*success_flag_p = false;
+		}
+
+	return res_p;
+}
 
 
-GRASSROOTS_PARAMS_API bool GetSharedTypeTimeValue (const SharedType *value_p, struct tm * const time_p);
-*/
+bool GetSharedTypeJSONValue (const SharedType *value_p, json_t * const json_p);
+
+const struct tm *GetSharedTypeTimeValue (const SharedType *value_p, bool *success_flag_p)
+{
+	struct tm *res_p = NULL;
+
+	if (value_p -> st_active_type == PT_TIME)
+		{
+			res_p = value_p -> st_value.st_time_p;
+			*success_flag_p = true;
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeTimeValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+
+			*success_flag_p = false;
+		}
+
+	return res_p;
+}
+
+
+const struct tm *GetSharedTypeTimeValue (const SharedType *value_p, bool *success_flag_p)
+{
+	struct tm *res_p = NULL;
+
+	if (value_p -> st_active_type == PT_TIME)
+		{
+			res_p = value_p -> st_value.st_time_p;
+			*success_flag_p = true;
+		}
+	else
+		{
+			const char *type_s = GetGrassrootsTypeAsString (value_p -> st_active_type);
+
+			if (!type_s)
+				{
+					type_s = "Unknown type";
+				}
+
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetSharedTypeTimeValue failed, value of type %d: \%s\"", value_p -> st_active_type, type_s);
+
+			*success_flag_p = false;
+		}
+
+	return res_p;
+}
+
 

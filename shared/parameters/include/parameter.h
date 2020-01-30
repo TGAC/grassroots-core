@@ -1,3 +1,4 @@
+#include "jansson.h"
 /*
 ** Copyright 2014-2016 The Earlham Institute
 ** 
@@ -24,7 +25,6 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
 
-#include "jansson.h"
 #include "uuid/uuid.h"
 
 #include "linked_list.h"
@@ -127,6 +127,9 @@ typedef struct NamedParameterType
 struct ParameterGroup;
 
 
+typedef struct Parameter Parameter;
+
+
 /**
  * @brief The datatype that stores all of the information about a Parameter.
  *
@@ -137,13 +140,10 @@ struct ParameterGroup;
  *
  * @ingroup parameters_group
  */
-typedef struct Parameter
+struct Parameter
 {
 	/** The type of the parameter. */
 	ParameterType pa_type;
-
-	/** Does the parameter store multiple values? */
-	bool pa_multi_valued_flag;
 
 	/** The name of the parameter. */
 	char *pa_name_s;
@@ -154,11 +154,6 @@ typedef struct Parameter
 	/** The description for this parameter. */
 	char *pa_description_s;
 
-	/**
-	 * The default value for this parameter. It requires use
-	 * of pa_type to access the correct value.
-	 */
-	SharedType pa_default;
 
 	/**
 	 * If the parameter can only take one of a
@@ -189,13 +184,6 @@ typedef struct Parameter
 	 * The level of the parameter.
 	 */
 	ParameterLevel pa_level;
-
-	/**
-	 * The current value for this parameter. It requires use
-	 * of pa_type to access the correct value.
-	 */
-	SharedType pa_current_value;
-
 
 	/**
 	 * A map allowing the Parameter to store an arbitrary set of key-value
@@ -241,7 +229,15 @@ typedef struct Parameter
 	 */
 	bool pa_required_flag;
 
-} Parameter;
+
+	void (*pa_clear_fn) (struct Parameter *param_p);
+
+
+	bool (*pa_add_values_to_json) (const struct Parameter *param_p, json_t *param_json_p);
+
+	bool (*pa_get_values_from_json) (struct Parameter *param_p, const json_t *param_json_p);
+
+};
 
 
 /**
@@ -319,7 +315,6 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
  *
  * @param service_data_p The ServiceData for the Service that is allocating this Parameter.
  * @param type The ParameterType for this Parameter.
- * @param multi_valued_flag If this is <code>true</code> then the Parameter can hold multiple values. For single value Parameters, set this to <code>false</code>.
  * @param name_s The name of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
  * @param display_name_s An optional name to display for the Parameter for use in Clients. The Parameter will store a copy of this string so this value does not need to remain in scope.
  * This can be <code>NULL</code>.
@@ -335,7 +330,11 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API Parameter *AllocateParameter (const struct ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+GRASSROOTS_PARAMS_API Parameter *AllocateParameter (const struct ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+
+
+
+GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,  ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
 /**
@@ -355,6 +354,15 @@ GRASSROOTS_PARAMS_API Parameter *CloneParameter (const Parameter * const src_p);
  * @memberof Parameter
  */
 GRASSROOTS_PARAMS_API void FreeParameter (Parameter *param_p);
+
+
+/**
+ * Clear a Parameter.
+ *
+ * @param param_p The Parameter to clear.
+ * @memberof Parameter
+ */
+GRASSROOTS_PARAMS_API void ClearParameter (Parameter *param_p);
 
 
 /**
