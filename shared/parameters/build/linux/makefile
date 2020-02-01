@@ -33,14 +33,19 @@ INCLUDES = \
 SRCS 	= \
 	boolean_parameter.c \
 	char_parameter.c \
+	double_paramteter.c \
+	json_paramteter.c \
 	parameter.c \
 	parameter_group.c \
 	parameter_option.c \
 	parameter_set.c \
 	remote_parameter_details.c \
 	shared_type.c \
+	resource_paramteter.c \
 	signed_int_parameter.c \
-	typed_value.c
+	time_paramteter.c \
+	typed_value.c \
+	unsigned_int_parameter.c 
 	
 	
 CPPFLAGS += -DUNIX -DGRASSROOTS_PARAMS_LIBRARY_EXPORTS

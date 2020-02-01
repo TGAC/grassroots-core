@@ -43,7 +43,7 @@ static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json
  * API DEFINITIONS
  */
 
-SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, bool *default_value_p, bool *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, int32 *default_value_p, int32 *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	SignedIntParameter *param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
 
@@ -53,7 +53,7 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 
 			if (current_value_p)
 				{
-					param_p -> sip_current_value_p = (bool *) AllocMemory (sizeof (bool));
+					param_p -> sip_current_value_p = (int32 *) AllocMemory (sizeof (int32));
 
 					if (param_p -> sip_current_value_p)
 						{
@@ -64,13 +64,16 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 							success_flag = false;
 						}
 				}
-
+			else
+				{
+					param_p -> sip_current_value_p = NULL;
+				}
 
 			if (success_flag)
 				{
 					if (default_value_p)
 						{
-							param_p -> sip_default_value_p = (bool *) AllocMemory (sizeof (bool));
+							param_p -> sip_default_value_p = (int32 *) AllocMemory (sizeof (int32));
 
 							if (param_p -> sip_default_value_p)
 								{
@@ -81,11 +84,15 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 									success_flag = false;
 								}
 						}
+					else
+						{
+							param_p -> sip_default_value_p = NULL;
+						}
 				}
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> sip_base_param), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
 						{
 							if (service_data_p)
 								{
@@ -149,7 +156,7 @@ static bool SetSignedIntParameterValue (int32 **param_value_pp, const int32 *new
 		{
 			if (! (*param_value_pp))
 				{
-					*param_value_pp = (bool *) AllocMemory (sizeof (int32));
+					*param_value_pp = (int32 *) AllocMemory (sizeof (int32));
 
 					if (! (*param_value_pp))
 						{

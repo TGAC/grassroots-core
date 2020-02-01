@@ -67,6 +67,10 @@ CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, 
 							success_flag = false;
 						}
 				}
+			else
+				{
+					param_p -> cp_current_value_p = NULL;
+				}
 
 
 			if (success_flag)
@@ -84,6 +88,10 @@ CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, 
 									success_flag = false;
 								}
 						}
+					else
+						{
+							param_p -> cp_default_value_p = NULL;
+						}
 				}
 
 			if (success_flag)
@@ -94,6 +102,9 @@ CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, 
 								{
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 								}
+
+							param_p -> cp_min_value_p = NULL;
+							param_p -> cp_max_value_p = NULL;
 
 							return param_p;
 						}
@@ -172,6 +183,59 @@ static bool SetCharParameterValue (char **param_value_pp, const char *new_value_
 					FreeMemory (*param_value_pp);
 					*param_value_pp = NULL;
 				}
+		}
+
+	return success_flag;
+}
+
+
+bool SetCharParameterBounds (CharParameter *param_p, const char min_value, const char max_value)
+{
+	if (! (param_p -> cp_min_value_p))
+		{
+			param_p -> cp_min_value_p = (char *) AllocMemory (sizeof (char));
+
+			if (! (param_p -> cp_min_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
+					return false;
+				}
+		}
+
+	if (! (param_p -> cp_max_value_p))
+		{
+			param_p -> cp_max_value_p = (char *) AllocMemory (sizeof (char));
+
+			if (! (param_p -> cp_max_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
+					return false;
+				}
+		}
+
+	* (param_p -> cp_min_value_p) = min_value;
+	* (param_p -> cp_max_value_p) = max_value;
+
+	return true;
+}
+
+
+bool IsCharParameterBounded (const CharParameter *param_p)
+{
+	return ((* (param_p -> cp_min_value_p)) && (* (param_p -> cp_max_value_p)))
+}
+
+
+bool GetCharParameterBounds (const CharParameter *param_p, char *min_p, char *max_p)
+{
+	bool success_flag = false;
+
+	if (IsCharParameterBounded (param_p))
+		{
+			*min_p = * (param_p -> cp_min_value_p);
+			*max_p = * (param_p -> cp_max_value_p);
+
+			success_flag = true;
 		}
 
 	return success_flag;

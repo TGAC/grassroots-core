@@ -14,39 +14,37 @@
 ** limitations under the License.
 */
 /*
- * char_parameter.h
+ * time_parameter.h
  *
- *  Created on: 30 Jan 2020
+ *  Created on: 31 Jan 2020
  *      Author: billy
  */
 
-#ifndef CORE_SHARED_PARAMETERS_INCLUDE_CHAR_PARAMETER_H_
-#define CORE_SHARED_PARAMETERS_INCLUDE_CHAR_PARAMETER_H_
+#ifndef CORE_SHARED_PARAMETERS_INCLUDE_TIME_PARAMETER_H_
+#define CORE_SHARED_PARAMETERS_INCLUDE_TIME_PARAMETER_H_
 
 
 #include "parameter.h"
 #include "grassroots_params_library.h"
+#include "time.h"
 
 
-typedef struct CharParameter
+typedef struct TimeParameter
 {
-	Parameter cp_base_param;
+	Parameter tp_base_param;
 
-	char *cp_current_value_p;
+	struct tm *tp_current_value_p;
 
-	char *cp_default_value_p;
-
-	char *cp_min_value_p;
-
-	char *cp_max_value_p;
-
-} CharParameter;
+	struct tm *tp_default_value_p;
+} TimeParameter;
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-
-/*
- * Allocate a CharParameter
+/**
+ * Allocate a TimeParameter
  *
  * @param service_data_p The ServiceData for the Service that is allocating this Parameter.
  * @param name_s The name of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
@@ -62,33 +60,37 @@ typedef struct CharParameter
  * @param level The ParameterLevel for this Parameter. This determines when the Client should display this Parameter to the user.
  * @param check_value_fn If this is not <code>NULL</code>, then this will be used to check whether the Parameter has been set to a valid value.
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
- * @memberof BooleanParameter
+ * @memberof TimeParameter
  */
-GRASSROOTS_PARAMS_API CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p,
+																														const char * const name_s, const char * const display_name_s,
+																														const char * const description_s, LinkedList *options_p,
+																														struct tm *default_value_p, struct tm *current_value_p, ParameterBounds *bounds_p,
+																														ParameterLevel level,
+																														const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
-GRASSROOTS_PARAMS_API void FreeCharParameter (CharParameter *param_p);
+
+GRASSROOTS_PARAMS_API void FreeTimeParameter (TimeParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API const char *GetCharParameterCurrentValue (const CharParameter *param_p);
+GRASSROOTS_PARAMS_API const struct tm *GetTimeParameterCurrentValue (const TimeParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool SetCharParameterCurrentValue (CharParameter *param_p, const char *value_p);
+GRASSROOTS_PARAMS_API bool SetTimeParameterCurrentValue (TimeParameter *param_p, const struct tm *value_p);
 
 
-GRASSROOTS_PARAMS_API const char *GetCharParameterDefaultValue (const CharParameter *param_p);
+GRASSROOTS_PARAMS_API const struct tm *GetTimeParameterDefaultValue (const TimeParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool SetCharParameterDefaultValue (CharParameter *param_p, const char *value_p);
+GRASSROOTS_PARAMS_API bool SetTimeParameterDefaultValue (TimeParameter *param_p, const struct tm *value_p);
 
 
-GRASSROOTS_PARAMS_API bool SetCharParameterBounds (CharParameter *param_p, const char min_value, const char max_value);
+#ifdef __cplusplus
+}
+#endif
 
 
-GRASSROOTS_PARAMS_API bool IsCharParameterBounded (const CharParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool GetCharParameterBounds (const CharParameter *param_p, char *min_p, char *max_p);
-
-
-#endif /* CORE_SHARED_PARAMETERS_INCLUDE_CHAR_PARAMETER_H_ */
+#endif /* CORE_SHARED_PARAMETERS_INCLUDE_TIME_PARAMETER_H_ */

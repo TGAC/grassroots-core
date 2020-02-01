@@ -65,6 +65,10 @@ BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_da
 							success_flag = false;
 						}
 				}
+			else
+				{
+					param_p -> bp_current_value_p = NULL;
+				}
 
 
 			if (success_flag)
@@ -81,6 +85,10 @@ BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_da
 								{
 									success_flag = false;
 								}
+						}
+					else
+						{
+							param_p -> bp_default_value_p = NULL;
 						}
 				}
 

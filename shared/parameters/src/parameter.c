@@ -75,7 +75,6 @@ static bool AddParameterDescriptionToJSON (const Parameter * const param_p, json
 
 static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root_p, const SchemaVersion * const sv_p, const bool full_definition_flag);
 
-static bool AddDefaultValueToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 static bool AddParameterOptionsToJSON (const Parameter * const param_p, json_t *json_p, const SchemaVersion * const sv_p);
 
@@ -95,10 +94,9 @@ static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, js
 static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const SharedType *val_p, const char *key_s);
 
 
-static bool AddCurrentValueToJSON (const ParameterType param_type, const SharedType * const value_p, json_t *root_p, const SchemaVersion * const sv_p);
-
-
 static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
+
+static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p);
 
 
 static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBounds **bounds_pp, const ParameterType pt);
@@ -258,128 +256,121 @@ bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, Param
 
 
 
-Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType type, bool multi_valued_flag, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
-{
-	char *new_name_s = CopyToNewString (name_s, 0, true);
-
-	if (new_name_s)
-		{
-			bool success_flag = true;
-			char *new_description_s = NULL;
-
-			if (description_s)
-				{
-					new_description_s = CopyToNewString (description_s, 0, true);
-					success_flag = (new_description_s != NULL);
-				}
-
-			if (success_flag)
-				{
-					char *new_display_name_s = NULL;
-
-					if (display_name_s)
-						{
-							new_display_name_s = CopyToNewString (display_name_s, 0, true);
-							success_flag = (new_display_name_s != NULL);
-						}
-
-					if (success_flag)
-						{
-							HashTable *store_p = GetHashTableOfStrings (8, 75);
-
-							if (store_p)
-								{
-									LinkedList *remote_params_p = AllocateLinkedList (FreeRemoteParameterDetailsNode);
-
-									if (remote_params_p)
-										{
-											Parameter *param_p = (Parameter *) AllocMemory (sizeof (Parameter));
-
-											if (param_p)
-												{
-													param_p -> pa_type = type;
-													param_p -> pa_name_s = new_name_s;
-													param_p -> pa_display_name_s = new_display_name_s;
-													param_p -> pa_description_s = new_description_s;
-													param_p -> pa_options_p = options_p;
-													param_p -> pa_check_value_fn = check_value_fn;
-													param_p -> pa_bounds_p = bounds_p;
-													param_p -> pa_level = level;
-													param_p -> pa_store_p = store_p;
-													param_p -> pa_group_p = NULL;
-
-													param_p -> pa_remote_parameter_details_p = remote_params_p;
-
-													param_p -> pa_visible_flag = true;
-													param_p -> pa_refresh_service_flag = false;
-
-													param_p -> pa_required_flag = true;
-
-													if (multi_valued_flag)
-														{
-															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Multi-valued parameters not yet implemented");
-														}
-													else
-														{
-															/*
-															 * Check for any values that have been overrode in
-															 * the service configuration.
-															 */
-															if (service_data_p)
-																{
-																	GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-
-																	GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
-
-																	GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
-																}
-
-															if (SetParameterValueFromSharedType (param_p, current_value_p ? current_value_p : &default_value, true))
-																{
-																	if (SetParameterValueFromSharedType (param_p, &default_value, false))
-																		{
-																			return param_p;
-																		}		/* if (SetParameterValueFromSharedType (param_p, &default_value, false)) */
-																	else
-																		{
-																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param current value for %s", param_p -> pa_name_s);
-																		}
-																}		/* if (SetParameterValueFromSharedType (param_p, current_value_p ? current_value_p : &default_value, true)) */
-															else
-																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param default value for %s", param_p -> pa_name_s);
-																}
-														}
-
-													FreeMemory (param_p);
-												}		/* if (param_p) */
-
-											FreeLinkedList (remote_params_p);
-										}		/* if (remote_params_p) */
-
-									FreeHashTable (store_p);
-								}		/* if (store_p) */
-
-						}
-
-					if (new_display_name_s)
-						{
-							FreeCopiedString (new_display_name_s);
-						}		/* if (new_description_s) */	
-
-
-					if (new_description_s)
-						{
-							FreeCopiedString (new_description_s);
-						}		/* if (new_description_s) */	
-
-				}		/* if (success_flag) */
-
-			FreeCopiedString (new_name_s);
-		}		/* if (new_name_s) */
-
-	return NULL;
-}
+//Parameter *AllocateParameter (const ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+//{
+//	char *new_name_s = CopyToNewString (name_s, 0, true);
+//
+//	if (new_name_s)
+//		{
+//			bool success_flag = true;
+//			char *new_description_s = NULL;
+//
+//			if (description_s)
+//				{
+//					new_description_s = CopyToNewString (description_s, 0, true);
+//					success_flag = (new_description_s != NULL);
+//				}
+//
+//			if (success_flag)
+//				{
+//					char *new_display_name_s = NULL;
+//
+//					if (display_name_s)
+//						{
+//							new_display_name_s = CopyToNewString (display_name_s, 0, true);
+//							success_flag = (new_display_name_s != NULL);
+//						}
+//
+//					if (success_flag)
+//						{
+//							HashTable *store_p = GetHashTableOfStrings (8, 75);
+//
+//							if (store_p)
+//								{
+//									LinkedList *remote_params_p = AllocateLinkedList (FreeRemoteParameterDetailsNode);
+//
+//									if (remote_params_p)
+//										{
+//											Parameter *param_p = (Parameter *) AllocMemory (sizeof (Parameter));
+//
+//											if (param_p)
+//												{
+//													param_p -> pa_type = type;
+//													param_p -> pa_name_s = new_name_s;
+//													param_p -> pa_display_name_s = new_display_name_s;
+//													param_p -> pa_description_s = new_description_s;
+//													param_p -> pa_options_p = options_p;
+//													param_p -> pa_check_value_fn = check_value_fn;
+//													param_p -> pa_bounds_p = bounds_p;
+//													param_p -> pa_level = level;
+//													param_p -> pa_store_p = store_p;
+//													param_p -> pa_group_p = NULL;
+//
+//													param_p -> pa_remote_parameter_details_p = remote_params_p;
+//
+//													param_p -> pa_visible_flag = true;
+//													param_p -> pa_refresh_service_flag = false;
+//
+//													param_p -> pa_required_flag = true;
+//
+//													/*
+//													 * Check for any values that have been overrode in
+//													 * the service configuration.
+//													 */
+//													if (service_data_p)
+//														{
+//															GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+//
+//															GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
+//
+//															GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
+//														}
+//
+//													if (SetParameterValueFromSharedType (param_p, current_value_p ? current_value_p : &default_value, true))
+//														{
+//															if (SetParameterValueFromSharedType (param_p, &default_value, false))
+//																{
+//																	return param_p;
+//																}		/* if (SetParameterValueFromSharedType (param_p, &default_value, false)) */
+//															else
+//																{
+//																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param current value for %s", param_p -> pa_name_s);
+//																}
+//														}		/* if (SetParameterValueFromSharedType (param_p, current_value_p ? current_value_p : &default_value, true)) */
+//													else
+//														{
+//															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param default value for %s", param_p -> pa_name_s);
+//														}
+//
+//													FreeMemory (param_p);
+//												}		/* if (param_p) */
+//
+//											FreeLinkedList (remote_params_p);
+//										}		/* if (remote_params_p) */
+//
+//									FreeHashTable (store_p);
+//								}		/* if (store_p) */
+//
+//						}
+//
+//					if (new_display_name_s)
+//						{
+//							FreeCopiedString (new_display_name_s);
+//						}		/* if (new_description_s) */
+//
+//
+//					if (new_description_s)
+//						{
+//							FreeCopiedString (new_description_s);
+//						}		/* if (new_description_s) */
+//
+//				}		/* if (success_flag) */
+//
+//			FreeCopiedString (new_name_s);
+//		}		/* if (new_name_s) */
+//
+//	return NULL;
+//}
 
 
 void ClearParameter (Parameter *param_p)
@@ -428,9 +419,28 @@ void FreeParameter (Parameter *param_p)
 
 
 
+
+
 Parameter *CloneParameter (const Parameter * const src_p)
 {
-	Parameter *dest_param_p = NULL;
+	Parameter *dest_p = src_p -> pa_clone_fn (src_p);
+
+	if (dest_p)
+		{
+			if (CopyBaseParamaeter (src_p, dest_p))
+				{
+					return dest_p;
+				}
+
+			FreeParameter (dest_p);
+		}
+
+	return NULL;
+}
+
+
+static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p)
+{
 	bool success_flag = true;
 	ParameterBounds *dest_bounds_p = NULL;
 	LinkedList *dest_options_p = NULL;
@@ -461,23 +471,72 @@ Parameter *CloneParameter (const Parameter * const src_p)
 
 	if (success_flag)
 		{
-			SharedType current_value;
-
-			InitSharedType (&current_value, src_p -> pa_type);
-
-			CopySharedType (src_p -> pa_current_value, &current_value, src_p -> pa_type);
-
-			dest_param_p = AllocateParameter (NULL, src_p -> pa_type, src_p -> pa_multi_valued_flag, src_p -> pa_name_s, src_p -> pa_display_name_s, src_p -> pa_description_s, dest_options_p, src_p -> pa_default, &current_value, dest_bounds_p, src_p -> pa_level, src_p -> pa_check_value_fn);
-
-			if (dest_param_p)
+			if (CopyRemoteParameterDetails (src_p, dest_p))
 				{
-					dest_param_p -> pa_visible_flag = src_p -> pa_visible_flag;
-				}
-		}
+					HashTable *dest_store_p = NULL;
 
-	return dest_param_p;
+					if (GetHashTableSize (src_p -> pa_store_p) > 0)
+						{
+							dest_store_p = CopyHashTable (src_p -> pa_store_p, true);
+						}
+					else
+						{
+							dest_store_p = GetHashTableOfStrings (8, 75);
+						}
+
+
+					if (dest_store_p)
+						{
+							char *dest_name_s = NULL;
+
+							if (CloneValidString (src_p -> pa_name_s, &dest_name_s))
+								{
+									char *dest_display_name_s = NULL;
+
+									if (CloneValidString (src_p -> pa_display_name_s, &dest_display_name_s))
+										{
+											char *dest_description_s = NULL;
+
+											if (CloneValidString (src_p -> pa_description_s, &dest_description_s))
+												{
+													dest_p -> pa_type = src_p -> pa_type;
+													dest_p -> pa_name_s = dest_name_s;
+													dest_p -> pa_display_name_s = dest_display_name_s;
+													dest_p -> pa_description_s = dest_description_s;
+													dest_p -> pa_options_p = dest_options_p;
+													dest_p -> pa_bounds_p = dest_bounds_p;
+													dest_p -> pa_check_value_fn = src_p -> pa_check_value_fn;
+													dest_p -> pa_level = src_p -> pa_level;
+													dest_p -> pa_visible_flag = src_p -> pa_visible_flag;
+													dest_p -> pa_refresh_service_flag = src_p -> pa_refresh_service_flag;
+													dest_p -> pa_required_flag = src_p -> pa_required_flag;
+
+													dest_p -> pa_clear_fn = src_p -> pa_clear_fn;
+													dest_p -> pa_add_values_to_json_fn = src_p -> pa_add_values_to_json_fn;
+													dest_p -> pa_get_values_from_json_fn = src_p -> pa_get_values_from_json_fn;
+													dest_p -> pa_clone_fn = src_p -> pa_clone_fn;
+
+
+													dest_p -> pa_group_p = src_p -> pa_group_p;
+													dest_p -> pa_store_p = src_p -> pa_store_p;
+
+													return true;
+												}		/* if (CloneValidString (src_p -> pa_description_s, &dest_description_s)) */
+
+											FreeCopiedString (dest_display_name_s);
+										}		/* if (CloneValidString (src_p -> pa_display_name_s, &dest_display_name_s)) */
+
+									FreeCopiedString (dest_name_s);
+								}		/* if (CloneValidString (src_p -> pa_name_s, &dest_name_s)) */
+
+						}		/* if (dest_store_p) */
+
+				}		/* if (CopyRemoteParameterDetails (src_p, dest_p)) */
+
+		}		/* if (success_flag) */
+
+	return false;
 }
-
 
 
 ParameterNode *AllocateParameterNode (Parameter *param_p)
@@ -525,6 +584,12 @@ ParameterBounds *AllocateParameterBounds (void)
 
 ParameterBounds *CopyParameterBounds (const ParameterBounds * const src_p, const ParameterType pt)
 {
+	ParameterBounds *bounds_p = NULL;
+
+	if (src_p)
+		{
+
+		}
 	ParameterBounds *bounds_p = AllocateParameterBounds ();
 
 	if (bounds_p)
@@ -633,11 +698,6 @@ void FreeParameterBounds (ParameterBounds *bounds_p, const ParameterType pt)
 	FreeMemory (bounds_p);
 }
 
-
-bool SetParameterDefaultValue (Parameter *param_p, const SharedType *def_p)
-{
-	return SetParameterValueFromSharedType (param_p, def_p, false);
-}
 
 
 
@@ -903,15 +963,15 @@ bool SetParameterValue (Parameter * const param_p, const void *value_p, const bo
 
 
 
-json_t *GetRunnableParameterAsJSON (const char * const name_s, const SharedType * const value_p, const ParameterType param_type, const SchemaVersion * const sv_p, const bool full_definition_flag)
+json_t *GetRunnableParameterAsJSON (const Parameter *param_p, const SchemaVersion * const sv_p, const bool full_definition_flag)
 {
 	json_t *root_p = json_object ();
 
 	if (root_p)
 		{
-			if (AddParameterNameToJSON (name_s, root_p, sv_p))
+			if (AddParameterNameToJSON (param_p -> pa_name_s, root_p, sv_p))
 				{
-					if (AddCurrentValueToJSON (param_type, value_p, root_p, sv_p))
+					if (AddParameterValuesToJSON (param_p, root_p, full_definition_flag))
 						{
 							return root_p;
 						}
@@ -926,7 +986,7 @@ json_t *GetRunnableParameterAsJSON (const char * const name_s, const SharedType 
 
 json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion * const sv_p, const bool full_definition_flag)
 {
-	json_t *root_p = GetRunnableParameterAsJSON (param_p -> pa_name_s, & (param_p -> pa_current_value), param_p -> pa_type, sv_p, full_definition_flag);
+	json_t *root_p = GetRunnableParameterAsJSON (param_p, sv_p, full_definition_flag);
 
 	if (root_p)
 		{
@@ -948,45 +1008,37 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 																{
 																	if (AddParameterDisplayNameToJSON (param_p, root_p, sv_p))
 																		{
-																			if (AddDefaultValueToJSON (param_p, root_p, sv_p))
+																			if (AddParameterOptionsToJSON (param_p, root_p, sv_p))
 																				{
-																					if (AddParameterOptionsToJSON (param_p, root_p, sv_p))
+																					if (AddParameterBoundsToJSON (param_p, root_p, sv_p))
 																						{
-																							if (AddParameterBoundsToJSON (param_p, root_p, sv_p))
+																							if (AddParameterVisibilityToJSON (param_p, root_p, sv_p))
 																								{
-																									if (AddParameterVisibilityToJSON (param_p, root_p, sv_p))
+																									if (AddParameterRefreshToJSON (param_p, root_p, sv_p))
 																										{
-																											if (AddParameterRefreshToJSON (param_p, root_p, sv_p))
-																												{
-																													success_flag = true;
-																												}		/* if (AddParameterRefreshToJSON (param_p, root_p, sv_p)) */
-																											else
-																												{
-																													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterRefreshToJSON for \"%s\"", param_p -> pa_name_s);
-																												}
-
-																										}		/* if (AddParameterVisibilityToJSON (param_p, root_p, sv_p)) */
+																											success_flag = true;
+																										}		/* if (AddParameterRefreshToJSON (param_p, root_p, sv_p)) */
 																									else
 																										{
-																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterVisibilityToJSON for \"%s\"", param_p -> pa_name_s);
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterRefreshToJSON for \"%s\"", param_p -> pa_name_s);
 																										}
 
-																								}		/* if (AddParameterBoundsToJSON (param_p, root_p)) */
+																								}		/* if (AddParameterVisibilityToJSON (param_p, root_p, sv_p)) */
 																							else
 																								{
-																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterBoundsToJSON for \"%s\"", param_p -> pa_name_s);
+																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterVisibilityToJSON for \"%s\"", param_p -> pa_name_s);
 																								}
 
-																						}		/* if (AddParameterOptionsToJSON (param_p, root_p)) */
+																						}		/* if (AddParameterBoundsToJSON (param_p, root_p)) */
 																					else
 																						{
-																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterOptionsToJSON for \"%s\"", param_p -> pa_name_s);
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterBoundsToJSON for \"%s\"", param_p -> pa_name_s);
 																						}
 
-																				}		/* if (AddDefaultValueToJSON (param_p, root_p)) */
+																				}		/* if (AddParameterOptionsToJSON (param_p, root_p)) */
 																			else
 																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddDefaultValueToJSON for \"%s\"", param_p -> pa_name_s);
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterOptionsToJSON for \"%s\"", param_p -> pa_name_s);
 																				}
 
 																		}		/* if (AddParameterDisplayNameToJSON (param_p, root_p)) */
@@ -1612,17 +1664,10 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 }
 
 
-static bool AddDefaultValueToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
+bool AddParameterValuesToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
-	return AddValueToJSON (root_p, param_p -> pa_type, & (param_p -> pa_default), PARAM_DEFAULT_VALUE_S);
+	return (param_p -> pa_add_values_to_json_fn (param_p, param_json_p, full_definition_flag));
 }
-
-
-static bool AddCurrentValueToJSON (const ParameterType param_type, const SharedType * const value_p, json_t *root_p, const SchemaVersion * const sv_p)
-{
-	return AddValueToJSON (root_p, param_type, value_p, PARAM_CURRENT_VALUE_S);
-}
-
 
 static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
 {
@@ -1648,209 +1693,6 @@ static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *
 
 	return success_flag;
 }
-
-
-
-static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const SharedType *val_p, const char *key_s)
-{
-	bool success_flag = false;
-	bool null_flag = false;
-	json_t *value_p = NULL;
-
-	switch (pt)
-		{
-			case PT_BOOLEAN:
-				{
-					bool b;
-
-					if (GetSharedTypeBooleanValue (val_p, &b))
-						{
-							value_p = (b == true) ? json_true () : json_false ();
-						}
-					else
-						{
-							null_flag = true;
-						}
-				}
-				break;
-
-			case PT_CHAR:
-				{
-					char c;
-
-					if (GetSharedTypeSignedCharValue (val_p, &c))
-						{
-							char buffer_s [2];
-
-							*buffer_s = c;
-							* (buffer_s + 1) = '\0';
-
-							value_p = json_string (buffer_s);
-						}
-					else
-						{
-							null_flag = true;
-						}
-				}
-				break;
-
-			case PT_SIGNED_INT:
-			case PT_NEGATIVE_INT:
-				{
-					int i;
-
-					if (GetSharedTypeSignedIntValue (val_p, &i))
-						{
-							value_p = json_integer (i);
-						}
-					else
-						{
-							null_flag = true;
-						}
-				}
-				break;
-
-			case PT_UNSIGNED_INT:
-				{
-					uint32 i;
-
-					if (GetSharedTypeUnsignedIntValue (val_p, &i))
-						{
-							value_p = json_integer (i);
-						}
-					else
-						{
-							null_flag = true;
-						}
-				}
-				break;
-
-			case PT_SIGNED_REAL:
-			case PT_UNSIGNED_REAL:
-				{
-					double d;
-
-					if (GetSharedTypeRealValue (val_p, &d))
-						{
-							value_p = json_real (d);
-						}
-					else
-						{
-							null_flag = true;
-						}
-				}
-				break;
-
-			case PT_STRING:
-			case PT_TABLE:
-			case PT_LARGE_STRING:
-			case PT_PASSWORD:
-			case PT_KEYWORD:
-			case PT_FASTA:
-				if (val_p -> st_string_value_s)
-					{
-						value_p = json_string (val_p -> st_string_value_s);
-					}
-				else
-					{
-						null_flag = true;
-					}
-				break;
-
-			case PT_FILE_TO_READ:
-			case PT_FILE_TO_WRITE:
-			case PT_DIRECTORY:
-				{
-					value_p = json_object ();
-
-					if (value_p)
-						{
-							char *protocol_s = NULL;
-							char *value_s = NULL;
-
-							success_flag = false;
-
-							if (val_p -> st_resource_value_p)
-								{
-									protocol_s = val_p -> st_resource_value_p -> re_protocol_s;
-									value_s = val_p -> st_resource_value_p -> re_value_s;
-								}
-							else
-								{
-									protocol_s = "";
-									value_s = "";
-								}
-
-							if (json_object_set_new (value_p, RESOURCE_PROTOCOL_S, json_string (protocol_s)) == 0)
-								{
-									success_flag = (json_object_set_new (value_p, RESOURCE_VALUE_S, json_string (value_s)) == 0);
-								}
-
-							if (!success_flag)
-								{
-									json_object_clear (value_p);
-									json_decref (value_p);
-									value_p = NULL;
-								}
-
-						}		/* if (val_p -> st_resource_value_p) */
-				}
-				break;
-
-				/*
-				 * A json value can legitimately be NULL
-				 */
-			case PT_JSON:
-			case PT_JSON_TABLE:
-				if (val_p -> st_json_p)
-					{
-						value_p = json_deep_copy (val_p -> st_json_p);
-					}
-				else
-					{
-						null_flag = true;
-					}
-				break;
-
-
-			case PT_TIME:
-				if (val_p -> st_time_p)
-					{
-						char *time_s = GetTimeAsString (val_p -> st_time_p, true);
-
-						if (time_s)
-							{
-								value_p = json_string (time_s);
-								FreeCopiedString (time_s);
-							}		/* if (time_s) */
-
-					}		/* if (val_p -> st_time_p) */
-				break;
-
-
-			case PT_NUM_TYPES:
-				PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type for key \"%s\"", key_s);
-				break;
-		}		/* switch (pt) */
-
-
-	if (value_p)
-		{
-			success_flag = (json_object_set_new (root_p, key_s, value_p) == 0);
-		}		/* if (default_value_p) */
-	else
-		{
-			success_flag = null_flag;
-		}
-
-#if SERVER_DEBUG >= STM_LEVEL_FINER
-	PrintJSONToLog (root_p, "AddValueToJSON - root_p :: ", STM_LEVEL_FINER, __FILE__, __LINE__);
-#endif
-
-	return success_flag;
-
-}
-
 
 
 const char *GetGrassrootsTypeAsString (const ParameterType param_type)
@@ -3229,17 +3071,18 @@ const char *GetUIName (const Parameter * const parameter_p)
 char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_flag_p)
 {
 	char *value_s = NULL;
-	const SharedType * const value_p = & (param_p -> pa_current_value);
 
 	switch (param_p -> pa_type)
 		{
 			case PT_BOOLEAN:
 				{
-					bool b;
+					BooleanParameter *boolean_param_p = (BooleanParameter *) param_p;
+					const bool *value_p = GetBooleanParameterCurrentValue (boolean_param_p);
 
-					if (GetSharedTypeBooleanValue (value_p, &b))
+					if (value_p)
 						{
-							const char *src_s = (b == true) ? "true" : "false";
+							const char *src_s = (*value_p == true) ? "true" : "false";
+
 							value_s = EasyCopyToNewString (src_s);
 							*alloc_flag_p = true;
 						}
@@ -3248,41 +3091,91 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 			case PT_CHAR:
 				{
-					char buffer_s [2];
+					CharParameter *char_param_p = (CharParameter *) param_p;
+					const char *value_p = GeCharParameterCurrentValue (char_param_p);
 
-					*buffer_s = value_p -> st_char_value;
-					* (buffer_s + 1) = '\0';
+					if (value_p)
+						{
+							char buffer_s [2];
 
-					value_s = EasyCopyToNewString (buffer_s);
-					*alloc_flag_p = true;
+							*buffer_s = *value_p;
+							* (buffer_s + 1) = '\0';
+
+							value_s = EasyCopyToNewString (buffer_s);
+							*alloc_flag_p = true;
+						}
 				}
 				break;
 
 			case PT_SIGNED_INT:
 			case PT_NEGATIVE_INT:
 				{
+					SignedIntParameter *int_param_p = (SignedIntParameter *) param_p;
+					const int32 *value_p = GetSignedIntParameterCurrentValue (int_param_p);
 
+					if (value_p)
+						{
+							value_s = ConvertIntegerToString (*value_p);
+							*alloc_flag_p = true;
+						}
 				}
-				value_s = ConvertIntegerToString (value_p -> st_long_value);
-				*alloc_flag_p = true;
 				break;
 
 			case PT_UNSIGNED_INT:
-				value_s = ConvertUnsignedIntegerToString (value_p -> st_ulong_value);
-				*alloc_flag_p = true;
+				{
+					UnsignedIntParameter *int_param_p = (UnsignedIntParameter *) param_p;
+					const uint32 *value_p = GetUnsignedIntParameterCurrentValue (int_param_p);
+
+					if (value_p)
+						{
+							value_s = ConvertUnsignedIntegerToString (*value_p);
+							*alloc_flag_p = true;
+						}
+				}
 				break;
 
 			case PT_SIGNED_REAL:
 			case PT_UNSIGNED_REAL:
-				value_s = ConvertDoubleToString (value_p -> st_data_value);
-				*alloc_flag_p = true;
+				{
+					DoubleParameter *double_param_p = (DoubleParameter *) param_p;
+					const double64 *value_p = GetDoubleParameterCurrentValue (double_param_p);
+
+					if (value_p)
+						{
+							value_s = ConvertDoubleToString (*value_p);
+							*alloc_flag_p = true;
+						}
+				}
 				break;
 
 			case PT_DIRECTORY:
 			case PT_FILE_TO_READ:
 			case PT_FILE_TO_WRITE:
-				value_s = value_p -> st_resource_value_p -> re_value_s;
-				*alloc_flag_p = false;
+				{
+					ResourceParameter *resource_param_p = (ResourceParameter *) param_p;
+					const Resource *resource_p = GetUnsignedIntParameterCurrentValue (resource_param_p);
+
+					if (resource_p)
+						{
+							json_t *resource_json_p = GetResourceAsJSON (resource_p);
+
+							if (resource_json_p)
+								{
+									char *resource_s = json_dumps (resource_json_p, JSON_INDENT (2));
+
+									if (resource_s)
+										{
+											value_s = EasyCopyToNewString (resource_s);
+											*alloc_flag_p = true;
+
+											free (resource_s);
+										}
+
+									json_decref (resource_json_p);
+								}		/* if (resource_json_p) */
+						}
+				}
+
 				break;
 
 			case PT_TABLE:
@@ -3291,29 +3184,45 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 			case PT_PASSWORD:
 			case PT_KEYWORD:
 			case PT_FASTA:
-				value_s = value_p -> st_string_value_s;
-				*alloc_flag_p = false;
+				{
+					StringParameter *string_param_p = (StringParameter *) param_p;
+					value_s = GetStringParameterCurrentValue (string_param_p);
+				}
 				break;
 
 			case PT_JSON:
 			case PT_JSON_TABLE:
 				{
-					char *dump_s = json_dumps (value_p -> st_json_p, 0);
+					JSONParameter *json_param_p = (JSONParameter *) param_p;
+					const json_t *value_p = GetJSONParameterCurrentValue (json_param_p);
 
-					if (dump_s)
+					if (value_p)
 						{
-							value_s = EasyCopyToNewString (dump_s);
-							*alloc_flag_p = true;
+							char *dump_s = json_dumps (value_p, 0);
 
-							free (dump_s);
+							if (dump_s)
+								{
+									value_s = EasyCopyToNewString (dump_s);
+									*alloc_flag_p = true;
+
+									free (dump_s);
+								}
 						}
 				}
 				break;
 
 
 			case PT_TIME:
-				value_s = GetTimeAsString (value_p -> st_time_p, true);
-				*alloc_flag_p = true;
+				{
+					TimeParameter *time_param_p = (TimeParameter *) param_p;
+					const struct tm *value_p = GetTimeParameterCurrentValue (time_param_p);
+
+					if (value_p)
+						{
+							value_s = GetTimeAsString (value_p , true);
+							*alloc_flag_p = true;
+						}
+				}
 				break;
 
 			case PT_NUM_TYPES:
