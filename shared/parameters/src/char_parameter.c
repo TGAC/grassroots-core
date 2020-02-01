@@ -222,7 +222,7 @@ bool SetCharParameterBounds (CharParameter *param_p, const char min_value, const
 
 bool IsCharParameterBounded (const CharParameter *param_p)
 {
-	return ((* (param_p -> cp_min_value_p)) && (* (param_p -> cp_max_value_p)))
+	return ((* (param_p -> cp_min_value_p)) && (* (param_p -> cp_max_value_p)));
 }
 
 
@@ -258,6 +258,19 @@ static void ClearCharParameter (Parameter *param_p)
 			FreeMemory (char_param_p -> cp_default_value_p);
 			char_param_p -> cp_default_value_p = NULL;
 		}
+
+	if (char_param_p -> cp_min_value_p)
+		{
+			FreeMemory (char_param_p -> cp_min_value_p);
+			char_param_p -> cp_min_value_p = NULL;
+		}
+
+	if (char_param_p -> cp_max_value_p)
+		{
+			FreeMemory (char_param_p -> cp_max_value_p);
+			char_param_p -> cp_max_value_p = NULL;
+		}
+
 }
 
 

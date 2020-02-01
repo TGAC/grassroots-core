@@ -32,6 +32,16 @@
 #include "time_util.h"
 
 
+#include "boolean_parameter.h"
+#include "char_parameter.h"
+#include "double_parameter.h"
+#include "json_parameter.h"
+#include "resource_parameter.h"
+#include "signed_int_parameter.h"
+#include "string_parameter.h"
+#include "unsigned_int_parameter.h"
+
+
 #ifdef _DEBUG
 #define PARAMETER_DEBUG	(STM_LEVEL_INFO)
 #else

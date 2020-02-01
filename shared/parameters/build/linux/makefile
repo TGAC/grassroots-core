@@ -33,7 +33,7 @@ INCLUDES = \
 SRCS 	= \
 	boolean_parameter.c \
 	char_parameter.c \
-	double_paramteter.c \
+	double_parameter.c \
 	json_paramteter.c \
 	parameter.c \
 	parameter_group.c \

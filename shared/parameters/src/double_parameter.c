@@ -30,7 +30,7 @@
  * STATIC DECLARATIONS
  */
 
-static bool SetDoubleParameterValue (int32 **param_value_pp, const int32 *new_value_p);
+static bool SetDoubleParameterValue (double64 **param_value_pp, const double64 *new_value_p);
 
 static void ClearDoubleParameter (Parameter *param_p);
 
@@ -43,7 +43,7 @@ static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t 
  * API DEFINITIONS
  */
 
-DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, int32 *default_value_p, int32 *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, double64 *default_value_p, double64 *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	DoubleParameter *param_p = (DoubleParameter *) AllocMemory (sizeof (DoubleParameter));
 
@@ -149,7 +149,7 @@ bool SetDoubleParameterDefaultValue (DoubleParameter *param_p, const double64 *v
  * STATIC DEFINITIONS
  */
 
-static bool SetDoubleParameterValue (int32 **param_value_pp, const double64 *new_value_p)
+static bool SetDoubleParameterValue (double64 **param_value_pp, const double64 *new_value_p)
 {
 	bool success_flag = true;
 
