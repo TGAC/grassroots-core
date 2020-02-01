@@ -70,7 +70,7 @@ extern "C" {
 GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p,
 																														const char * const name_s, const char * const display_name_s,
 																														const char * const description_s, LinkedList *options_p,
-																														struct tm *default_value_p, struct tm *current_value_p, ParameterBounds *bounds_p,
+																														struct tm *default_value_p, struct tm *current_value_p,
 																														ParameterLevel level,
 																														const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 

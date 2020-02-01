@@ -70,7 +70,7 @@ extern "C" {
 GRASSROOTS_PARAMS_API SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt,
 																																			const char * const name_s, const char * const display_name_s,
 																																			const char * const description_s, LinkedList *options_p,
-																																			int32 *default_value_p, int32 *current_value_p, ParameterBounds *bounds_p,
+																																			int32 *default_value_p, int32 *current_value_p,
 																																			ParameterLevel level,
 																																			const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 

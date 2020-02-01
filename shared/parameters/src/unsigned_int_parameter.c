@@ -43,7 +43,7 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
  * API DEFINITIONS
  */
 
-UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	UnsignedIntParameter *param_p = (UnsignedIntParameter *) AllocMemory (sizeof (UnsignedIntParameter));
 
@@ -93,7 +93,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, level, check_value_fn))
 						{
 							if (service_data_p)
 								{

@@ -60,7 +60,7 @@ extern "C" {
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof ResourceParameter
  */
-GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, bool *default_value_p, bool *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, bool *default_value_p, bool *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
 

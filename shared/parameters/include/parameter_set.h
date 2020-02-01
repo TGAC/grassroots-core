@@ -157,7 +157,7 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterSet (ParameterSet *params_p, P
  */
 GRASSROOTS_PARAMS_API Parameter *CreateAndAddParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type, bool multi_valued_flag,
 	const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
-	SharedType default_value, SharedType *current_value_p, ParameterBounds *bounds_p, uint8 level,
+	SharedType default_value, SharedType *current_value_p, uint8 level,
 	const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 

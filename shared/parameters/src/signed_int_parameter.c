@@ -43,7 +43,7 @@ static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json
  * API DEFINITIONS
  */
 
-SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, int32 *default_value_p, int32 *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, int32 *default_value_p, int32 *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	SignedIntParameter *param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
 
@@ -92,7 +92,7 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level, check_value_fn))
 						{
 							if (service_data_p)
 								{

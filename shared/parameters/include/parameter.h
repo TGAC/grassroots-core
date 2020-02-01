@@ -73,24 +73,6 @@ typedef enum
 } ParameterLevel;
 
 
-
-/**
- * A datatype used for numeric parameters that
- * have a finite range of values.
- *
- * @ingroup parameters_group
- */
-typedef struct ParameterBounds
-{
-	/** The minimum value that the Parameter can take. */
-	SharedType pb_lower;
-
-	/** The maximum value that the Parameter can take. */
-	SharedType pb_upper;
-} ParameterBounds;
-
-
-
 /**
  * This is a datatype that stores a read-only c-style string
  * along with a ParameterType.
@@ -165,11 +147,6 @@ struct Parameter
 	LinkedList *pa_options_p;
 
 	/**
-	 * Does the parameter have any upper or lower limits?
-	 */
-	ParameterBounds *pa_bounds_p;
-
-	/**
 	 * Callback function to check whether a particular value
 	 * is valid for the given parameter.
 	 *
@@ -233,7 +210,7 @@ struct Parameter
 	void (*pa_clear_fn) (struct Parameter *param_p);
 
 
-	bool (*pa_add_values_to_json_fn) (const struct Parameter *param_p, json_t *param_json_p, const bool current_value_only_flag);
+	bool (*pa_add_values_to_json_fn) (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 	bool (*pa_get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p);
 
@@ -335,7 +312,7 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
 
 
 
-GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,  ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
 GRASSROOTS_PARAMS_API bool AddParameterValuesToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
@@ -369,13 +346,6 @@ GRASSROOTS_PARAMS_API void FreeParameter (Parameter *param_p);
 GRASSROOTS_PARAMS_API void ClearParameter (Parameter *param_p);
 
 
-/**
- * Allocate a ParameterBounds.
- *
- * @return The ParameterBounds or <code>NULL</code> upon error.
- * @memberof ParameterBounds
- */
-GRASSROOTS_PARAMS_API ParameterBounds *AllocateParameterBounds (void);
 
 
 /**
@@ -387,26 +357,6 @@ GRASSROOTS_PARAMS_API ParameterBounds *AllocateParameterBounds (void);
  */
 GRASSROOTS_PARAMS_API bool CompareParameterLevels (const ParameterLevel param_level, const ParameterLevel threshold);
 
-
-/**
- * Make a copy of a ParameterBounds.
- *
- * @param src_p The ParameterBounds to copy.
- * @param pt The ParameterType that the given ParameterBounds refers to.
- * @return The newly-allocate ParameterBounds copy or <code>NULL</code> upon error.
- * @memberof ParameterBounds
- */
-GRASSROOTS_PARAMS_API ParameterBounds *CopyParameterBounds (const ParameterBounds * const src_p, const ParameterType pt);
-
-
-/**
- * Free a ParameterBounds.
- *
- * @param bounds_p The ParameterBounds to free.
- * @param pt The ParameterTye that the given ParameterBounds refers to.
- * @memberof ParameterBounds
- */
-GRASSROOTS_PARAMS_API void FreeParameterBounds (ParameterBounds *bounds_p, const ParameterType pt);
 
 
 /**

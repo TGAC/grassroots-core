@@ -45,7 +45,7 @@ static bool SetTimeValue (const json_t *param_json_p, const char *key_s, struct 
  * API DEFINITIONS
  */
 
-TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, struct tm *default_value_p, struct tm *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, struct tm *default_value_p, struct tm *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	TimeParameter *param_p = (TimeParameter *) AllocMemory (sizeof (TimeParameter));
 
@@ -94,7 +94,7 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, level, check_value_fn))
 						{
 							if (service_data_p)
 								{
@@ -149,31 +149,19 @@ bool SetTimeParameterDefaultValue (TimeParameter *param_p, const struct tm *valu
 }
 
 
-bool SetTimeParameterBounds (TimeParameter *param_p, const struct tm *min_value_s, const struct tm *max_value_s)
+bool SetTimeParameterBounds (TimeParameter *param_p, const struct tm *min_value_p, const struct tm *max_value_p)
 {
-	if (! (param_p -> sp_min_value_s))
-		{
-			param_p -> sp_min_value_s = EasyCopyToNewString (min_value_s);
+	bool success_flag = false;
 
-			if (! (param_p -> sp_min_value_s))
+	if (SetTimeParameterValue (& (param_p -> tp_min_value_p), min_value_p, max_value_p))
+		{
+			if (SetTimeParameterValue (& (param_p -> tp_min_value_p), min_value_p, max_value_p))
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
-					return false;
+					success_flag = true;
 				}
 		}
 
-	if (! (param_p -> sp_max_value_s))
-		{
-			param_p -> sp_max_value_s = EasyCopyToNewString (max_value_s);
-
-			if (! (param_p -> sp_max_value_s))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
-					return false;
-				}
-		}
-
-	return true;
+	return success_flag;
 }
 
 
@@ -304,9 +292,9 @@ static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 	bool success_flag = false;
 
 
-	if (SetTimeValue (param_json_p, PARAM_CURRENT_VALUE_S, & (time_param_p -> tp_current_value_p)))
+	if (SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, & (time_param_p -> tp_current_value_p)))
 		{
-			if (SetTimeValue (param_json_p, PARAM_DEFAULT_VALUE_S, & (time_param_p -> tp_default_value_p)))
+			if (SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, & (time_param_p -> tp_default_value_p)))
 				{
 					success_flag = true;
 				}
@@ -318,7 +306,7 @@ static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 
 
 
-static bool SetTimeValue (const json_t *param_json_p, const char *key_s, struct tm **time_pp)
+static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s, struct tm **time_pp)
 {
 	bool success_flag = false;
 	const char *value_s = GetJSONString (param_json_p, key_s);

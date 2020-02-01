@@ -44,7 +44,7 @@ static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t 
  * API DEFINITIONS
  */
 
-StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	StringParameter *param_p = (StringParameter *) AllocMemory (sizeof (StringParameter));
 
@@ -86,7 +86,7 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level, check_value_fn))
 						{
 							if (service_data_p)
 								{

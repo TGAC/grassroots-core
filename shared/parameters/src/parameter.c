@@ -168,7 +168,7 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 /******************************************************/
 
-bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,  ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	char *new_name_s = CopyToNewString (name_s, 0, true);
 
@@ -209,7 +209,6 @@ bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, Param
 											param_p -> pa_description_s = new_description_s;
 											param_p -> pa_options_p = options_p;
 											param_p -> pa_check_value_fn = check_value_fn;
-											param_p -> pa_bounds_p = bounds_p;
 											param_p -> pa_level = level;
 											param_p -> pa_store_p = store_p;
 											param_p -> pa_group_p = NULL;
@@ -449,20 +448,7 @@ Parameter *CloneParameter (const Parameter * const src_p)
 static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p)
 {
 	bool success_flag = true;
-	ParameterBounds *dest_bounds_p = NULL;
 	LinkedList *dest_options_p = NULL;
-
-	if (src_p -> pa_bounds_p)
-		{
-			dest_bounds_p = CopyParameterBounds (src_p -> pa_bounds_p, src_p -> pa_type);
-
-			if (!dest_bounds_p)
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to to clone parameter bounds for \"%s\"", src_p -> pa_name_s);
-					success_flag = false;
-				}
-		}
-
 
 	if (src_p -> pa_options_p)
 		{
@@ -511,7 +497,6 @@ static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p)
 													dest_p -> pa_display_name_s = dest_display_name_s;
 													dest_p -> pa_description_s = dest_description_s;
 													dest_p -> pa_options_p = dest_options_p;
-													dest_p -> pa_bounds_p = dest_bounds_p;
 													dest_p -> pa_check_value_fn = src_p -> pa_check_value_fn;
 													dest_p -> pa_level = src_p -> pa_level;
 													dest_p -> pa_visible_flag = src_p -> pa_visible_flag;
@@ -573,139 +558,6 @@ void FreeParameterNode (ListItem *node_p)
 
 	FreeMemory (param_node_p);
 }
-
-
-ParameterBounds *AllocateParameterBounds (void)
-{
-	ParameterBounds *bounds_p = (ParameterBounds *) AllocMemory (sizeof (ParameterBounds));
-
-	if (bounds_p)
-		{
-			memset (bounds_p, 0, sizeof (ParameterBounds));
-			return bounds_p;
-		}		/* if (bounds_p) */
-
-	return NULL;
-}
-
-
-ParameterBounds *CopyParameterBounds (const ParameterBounds * const src_p, const ParameterType pt)
-{
-	ParameterBounds *bounds_p = NULL;
-
-	if (src_p)
-		{
-
-		}
-	ParameterBounds *bounds_p = AllocateParameterBounds ();
-
-	if (bounds_p)
-		{
-			switch (pt)
-				{
-					case PT_DIRECTORY:
-					case PT_FILE_TO_READ:
-					case PT_FILE_TO_WRITE:
-						break;
-
-					case PT_STRING:
-					case PT_LARGE_STRING:
-					case PT_PASSWORD:
-					case PT_KEYWORD:
-						{
-							bounds_p -> pb_lower.st_string_value_s = EasyCopyToNewString (src_p -> pb_lower.st_string_value_s);
-							bounds_p -> pb_upper.st_string_value_s = EasyCopyToNewString (src_p -> pb_upper.st_string_value_s);
-
-							if (! ((bounds_p -> pb_lower.st_string_value_s) && (bounds_p -> pb_upper.st_string_value_s)))
-								{
-									FreeParameterBounds (bounds_p, pt);
-									bounds_p = NULL;
-								}
-						}
-						break;
-
-					case PT_CHAR:
-						{
-							bounds_p -> pb_lower.st_char_value  = src_p -> pb_lower.st_char_value;
-							bounds_p -> pb_upper.st_char_value  = src_p -> pb_upper.st_char_value;
-						}
-						break;
-
-					case PT_SIGNED_REAL:
-					case PT_UNSIGNED_REAL:
-						{
-							bounds_p -> pb_lower.st_data_value  = src_p -> pb_lower.st_data_value;
-							bounds_p -> pb_upper.st_data_value  = src_p -> pb_upper.st_data_value;
-						}
-						break;
-
-					case PT_SIGNED_INT:
-						{
-							bounds_p -> pb_lower.st_long_value  = src_p -> pb_lower.st_long_value;
-							bounds_p -> pb_upper.st_long_value  = src_p -> pb_upper.st_long_value;
-						}
-						break;
-
-					case PT_UNSIGNED_INT:
-						{
-							bounds_p -> pb_lower.st_ulong_value  = src_p -> pb_lower.st_ulong_value;
-							bounds_p -> pb_upper.st_ulong_value  = src_p -> pb_upper.st_ulong_value;
-						}
-						break;
-
-					case PT_NEGATIVE_INT:
-						{
-							bounds_p -> pb_lower.st_long_value  = src_p -> pb_lower.st_long_value;
-							bounds_p -> pb_upper.st_long_value  = src_p -> pb_upper.st_long_value;
-						}
-						break;
-
-					case PT_TIME:
-						{
-							CopyTime (src_p -> pb_lower.st_time_p, bounds_p -> pb_lower.st_time_p);
-							CopyTime (src_p -> pb_upper.st_time_p, bounds_p -> pb_upper.st_time_p);
-						}
-						break;
-
-					case PT_BOOLEAN:
-					case PT_FASTA:
-					case PT_JSON:
-					case PT_JSON_TABLE:
-					case PT_TABLE:
-						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Parameter type doesn't have ability to be ranged");
-						break;
-
-					case PT_NUM_TYPES:
-						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Invalid Parameter type");
-						break;
-				}
-
-			return bounds_p;
-		}
-
-	return NULL;
-}
-
-
-void FreeParameterBounds (ParameterBounds *bounds_p, const ParameterType pt)
-{
-	if ((pt == PT_STRING) || (pt == PT_LARGE_STRING) || (pt == PT_PASSWORD) || (pt == PT_FILE_TO_READ) || (pt == PT_FILE_TO_WRITE) || (pt == PT_DIRECTORY))
-		{
-			if (bounds_p -> pb_lower.st_string_value_s)
-				{
-					FreeCopiedString (bounds_p -> pb_lower.st_string_value_s);
-				}
-
-			if (bounds_p -> pb_lower.st_string_value_s)
-				{
-					FreeCopiedString (bounds_p -> pb_lower.st_string_value_s);
-				}
-		}
-
-	FreeMemory (bounds_p);
-}
-
-
 
 
 LinkedList *GetMultiOptions (Parameter *param_p)

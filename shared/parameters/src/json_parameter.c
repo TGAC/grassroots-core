@@ -45,7 +45,7 @@ static bool AddJSONValue (const json_t *value_to_add_p, const char *key_s, json_
  * API DEFINITIONS
  */
 
-JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, json_t *default_value_p, json_t *current_value_p, ParameterBounds *bounds_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, json_t *default_value_p, json_t *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
 {
 	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
 
@@ -87,7 +87,7 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, bounds_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level, check_value_fn))
 						{
 							if (service_data_p)
 								{
