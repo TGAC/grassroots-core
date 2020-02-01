@@ -36,6 +36,11 @@ typedef struct DoubleParameter
 	double64 *dp_current_value_p;
 
 	double64 *dp_default_value_p;
+
+	double64 *dp_min_value_p;
+
+	double64 *dp_max_value_p;
+
 } DoubleParameter;
 
 

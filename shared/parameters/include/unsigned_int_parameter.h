@@ -36,6 +36,11 @@ typedef struct UnsignedIntParameter
 	uint32 *uip_current_value_p;
 
 	uint32 *uip_default_value_p;
+
+	uint32 *uip_min_value_p;
+
+	uint32 *uip_max_value_p;
+
 } UnsignedIntParameter;
 
 
@@ -80,6 +85,14 @@ GRASSROOTS_PARAMS_API const uint32 *GetUnsignedIntParameterDefaultValue (const U
 
 GRASSROOTS_PARAMS_API bool SetUnsignedIntParameterDefaultValue (UnsignedIntParameter *param_p, const uint32 *value_p);
 
+
+GRASSROOTS_PARAMS_API bool SetUnsignedIntParameterBounds (UnsignedIntParameter *param_p, const uint32 min_value, const uint32 max_value);
+
+
+GRASSROOTS_PARAMS_API bool IsUnsignedIntParameterBounded (const UnsignedIntParameter *param_p);
+
+
+GRASSROOTS_PARAMS_API bool GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, uint32 *min_p, uint32 *max_p);
 
 
 #ifdef __cplusplus

@@ -33,8 +33,6 @@
  * STATIC DECLARATIONS
  */
 
-static bool SetStringParameterValue (char **param_value_pp, const char *new_value_p);
-
 static void ClearStringParameter (Parameter *param_p);
 
 static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
@@ -56,16 +54,16 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 
 			if (current_value_p)
 				{
-					param_p -> sp_current_value_p = EasyCopyToNewString (current_value_p);
+					param_p -> sp_current_value_s = EasyCopyToNewString (current_value_p);
 
-					if (! (param_p -> sp_current_value_p))
+					if (! (param_p -> sp_current_value_s))
 						{
 							success_flag = false;
 						}
 				}
 			else
 				{
-					param_p -> sp_current_value_p = NULL;
+					param_p -> sp_current_value_s = NULL;
 				}
 
 
@@ -73,16 +71,16 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 				{
 					if (default_value_p)
 						{
-							param_p -> sp_default_value_p = EasyCopyToNewString (default_value_p);
+							param_p -> sp_default_value_s = EasyCopyToNewString (default_value_p);
 
-							if (! (param_p -> sp_default_value_p))
+							if (! (param_p -> sp_default_value_s))
 								{
 									success_flag = false;
 								}
 						}
 					else
 						{
-							param_p -> sp_default_value_p = NULL;
+							param_p -> sp_default_value_s = NULL;
 						}
 				}
 
@@ -99,14 +97,14 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 						}
 				}
 
-			if (param_p -> sp_current_value_p)
+			if (param_p -> sp_current_value_s)
 				{
-					FreeCopiedString (param_p -> sp_current_value_p);
+					FreeCopiedString (param_p -> sp_current_value_s);
 				}
 
-			if (param_p -> sp_default_value_p)
+			if (param_p -> sp_default_value_s)
 				{
-					FreeCopiedString (param_p -> sp_default_value_p);
+					FreeCopiedString (param_p -> sp_default_value_s);
 				}
 
 			FreeMemory (param_p);
@@ -118,60 +116,102 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 
 const char *GetStringParameterCurrentValue (const StringParameter *param_p)
 {
-	return param_p -> sp_current_value_p;
+	return param_p -> sp_current_value_s;
 }
 
 
 bool SetStringParameterCurrentValue (StringParameter *param_p, const char *value_p)
 {
-	return SetStringParameterValue (& (param_p -> sp_current_value_p), value_p);
+	return SetStringParameterValue (& (param_p -> sp_current_value_s), value_p);
 }
 
 
 const char *GetStringParameterDefaultValue (const StringParameter *param_p)
 {
-	return param_p -> sp_default_value_p;
+	return param_p -> sp_default_value_s;
 }
 
 
 bool SetStringParameterDefaultValue (StringParameter *param_p, const char *value_p)
 {
-	return SetStringParameterValue (& (param_p -> sp_default_value_p), value_p);
+	return SetStringParameterValue (& (param_p -> sp_default_value_s), value_p);
 }
+
+
+bool SetStringParameterBounds (StringParameter *param_p, const char *min_value_s, const char *max_value_s)
+{
+	bool success_flag = false;
+
+	if (SetStringParameterValue (& (param_p -> sp_min_value_s), min_value_s))
+		{
+			if (SetStringParameterValue (& (param_p -> sp_max_value_s), max_value_s))
+				{
+					success_flag = true;
+				}
+		}
+
+
+	return success_flag;
+}
+
+
+bool IsStringParameterBounded (const StringParameter *param_p)
+{
+	return ((param_p -> sp_min_value_s) && (param_p -> sp_max_value_s));
+}
+
+
+bool GetStringParameterBounds (const StringParameter *param_p, const char *min_p, const char *max_p)
+{
+	bool success_flag = false;
+
+	if (IsStringParameterBounded (param_p))
+		{
+			*min_p = * (param_p -> sp_min_value_s);
+			*max_p = * (param_p -> sp_max_value_s);
+
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
 
 
 /*
  * STATIC DEFINITIONS
  */
 
-static bool SetStringParameterValue (char **param_value_pp, const char *new_value_p)
+static bool SetStringParameterValue (char **param_value_pp, const char *new_value_p);
+
+static bool SetStringParameterValue (char **param_value_ss, const char *new_value_s)
 {
-	bool success_flag = true;
+	bool success_flag = false;
 
-	if (new_value_p)
+	if (new_value_s)
 		{
-			if (! (*param_value_pp))
-				{
-					*param_value_pp = (char *) AllocMemory (sizeof (char ));
+			char *copied_value_s = EasyCopyToNewString (new_value_s);
 
-					if (! (*param_value_pp))
+			if (copied_value_s)
+				{
+					if (*param_value_ss)
 						{
-							success_flag = false;
+							FreeCopiedString (*param_value_ss);
 						}
-				}
 
-			if (success_flag)
-				{
-					**param_value_pp = *new_value_p;
+					*param_value_ss = copied_value_s;
+					success_flag = true;
 				}
 		}
 	else
 		{
-			if (*param_value_pp)
+			if (*param_value_ss)
 				{
-					FreeCopiedString (*param_value_pp);
-					*param_value_pp = NULL;
+					FreeCopiedString (*param_value_ss);
+					*param_value_ss = NULL;
 				}
+
+			success_flag = true;
 		}
 
 	return success_flag;
@@ -183,17 +223,30 @@ static void ClearStringParameter (Parameter *param_p)
 {
 	StringParameter *string_param_p = (StringParameter *) param_p;
 
-	if (string_param_p -> sp_current_value_p)
+	if (string_param_p -> sp_current_value_s)
 		{
-			FreeCopiedString (string_param_p -> sp_current_value_p);
-			string_param_p -> sp_current_value_p = NULL;
+			FreeCopiedString (string_param_p -> sp_current_value_s);
+			string_param_p -> sp_current_value_s = NULL;
 		}
 
-	if (string_param_p -> sp_default_value_p)
+	if (string_param_p -> sp_default_value_s)
 		{
-			FreeCopiedString (string_param_p -> sp_default_value_p);
-			string_param_p -> sp_default_value_p = NULL;
+			FreeCopiedString (string_param_p -> sp_default_value_s);
+			string_param_p -> sp_default_value_s = NULL;
 		}
+
+	if (string_param_p -> sp_min_value_s)
+		{
+			FreeCopiedString (string_param_p -> sp_min_value_s);
+			string_param_p -> sp_min_value_s = NULL;
+		}
+
+	if (string_param_p -> sp_max_value_s)
+		{
+			FreeCopiedString (string_param_p -> sp_max_value_s);
+			string_param_p -> sp_max_value_s = NULL;
+		}
+
 }
 
 
@@ -202,16 +255,16 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 	StringParameter *string_param_p = (StringParameter *) param_p;
 	bool success_flag = true;
 
-	if (string_param_p -> sp_current_value_p)
+	if (string_param_p -> sp_current_value_s)
 		{
-			success_flag = SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, string_param_p -> sp_current_value_p);
+			success_flag = SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, string_param_p -> sp_current_value_s);
 		}
 
 	if (success_flag)
 		{
-			if (string_param_p -> sp_default_value_p)
+			if (string_param_p -> sp_default_value_s)
 				{
-					success_flag = SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, string_param_p -> sp_default_value_p);
+					success_flag = SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, string_param_p -> sp_default_value_s);
 				}
 		}
 

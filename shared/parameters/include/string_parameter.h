@@ -32,9 +32,14 @@ typedef struct StringParameter
 {
 	Parameter sp_base_param;
 
-	char *sp_current_value_p;
+	char *sp_current_value_s;
 
-	char *sp_default_value_p;
+	char *sp_default_value_s;
+
+	char *sp_min_value_s;
+
+	char *sp_max_value_s;
+
 } StringParameter;
 
 
@@ -75,6 +80,15 @@ GRASSROOTS_PARAMS_API const char *GetStringParameterDefaultValue (const StringPa
 
 
 GRASSROOTS_PARAMS_API bool SetStringParameterDefaultValue (StringParameter *param_p, const char *value_p);
+
+
+GRASSROOTS_PARAMS_API bool SetStringParameterBounds (StringParameter *param_p, const char *min_value_s, const char *max_value_s);
+
+
+GRASSROOTS_PARAMS_API bool IsStringParameterBounded (const StringParameter *param_p);
+
+
+GRASSROOTS_PARAMS_API bool GetStringParameterBounds (const StringParameter *param_p, const char *min_p, const char *max_p);
 
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_STRING_PARAMETER_H_ */

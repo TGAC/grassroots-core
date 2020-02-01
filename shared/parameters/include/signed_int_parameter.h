@@ -36,6 +36,11 @@ typedef struct SignedIntParameter
 	int32 *sip_current_value_p;
 
 	int32 *sip_default_value_p;
+
+	int32 *sip_min_value_p;
+
+	int32 *sip_max_value_p;
+
 } SignedIntParameter;
 
 
@@ -84,6 +89,16 @@ GRASSROOTS_PARAMS_API const int32 *GetSignedIntParameterDefaultValue (const Sign
 
 
 GRASSROOTS_PARAMS_API bool SetSignedIntParameterDefaultValue (SignedIntParameter *param_p, const int32 *value_p);
+
+
+GRASSROOTS_PARAMS_API bool SetSignedIntParameterBounds (SignedIntParameter *param_p, const int32 min_value, const int32 max_value);
+
+
+GRASSROOTS_PARAMS_API bool IsSignedIntParameterBounded (const SignedIntParameter *param_p);
+
+
+GRASSROOTS_PARAMS_API bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p);
+
 
 
 #ifdef __cplusplus

@@ -222,7 +222,7 @@ bool SetCharParameterBounds (CharParameter *param_p, const char min_value, const
 
 bool IsCharParameterBounded (const CharParameter *param_p)
 {
-	return ((* (param_p -> cp_min_value_p)) && (* (param_p -> cp_max_value_p)));
+	return ((param_p -> cp_min_value_p) && (param_p -> cp_max_value_p));
 }
 
 

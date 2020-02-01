@@ -100,6 +100,9 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 								}
 
+							param_p -> uip_min_value_p = NULL;
+							param_p -> uip_max_value_p = NULL;
+
 							return param_p;
 						}
 				}
@@ -143,6 +146,60 @@ bool SetUnsignedIntParameterDefaultValue (UnsignedIntParameter *param_p, const u
 {
 	return SetUnsignedIntParameterValue (& (param_p -> uip_default_value_p), value_p);
 }
+
+
+bool SetUnsignedIntParameterBounds (UnsignedIntParameter *param_p, const uint32 min_value, const uint32 max_value)
+{
+	if (! (param_p -> uip_min_value_p))
+		{
+			param_p -> uip_min_value_p = (uint32 *) AllocMemory (sizeof (uint32));
+
+			if (! (param_p -> uip_min_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
+					return false;
+				}
+		}
+
+	if (! (param_p -> uip_max_value_p))
+		{
+			param_p -> uip_max_value_p = (uint32 *) AllocMemory (sizeof (uint32));
+
+			if (! (param_p -> uip_max_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
+					return false;
+				}
+		}
+
+	* (param_p -> uip_min_value_p) = min_value;
+	* (param_p -> uip_max_value_p) = max_value;
+
+	return true;
+}
+
+
+bool IsUnsignedIntParameterBounded (const UnsignedIntParameter *param_p)
+{
+	return ((param_p -> uip_min_value_p) && (param_p -> uip_max_value_p));
+}
+
+
+bool GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, uint32 *min_p, uint32 *max_p)
+{
+	bool success_flag = false;
+
+	if (IsUnsignedIntParameterBounded (param_p))
+		{
+			*min_p = * (param_p -> uip_min_value_p);
+			*max_p = * (param_p -> uip_max_value_p);
+
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
 
 
 /*
@@ -199,6 +256,19 @@ static void ClearUnsignedIntParameter (Parameter *param_p)
 			FreeMemory (int_param_p -> uip_default_value_p);
 			int_param_p -> uip_current_value_p = NULL;
 		}
+
+	if (int_param_p -> uip_min_value_p)
+		{
+			FreeMemory (int_param_p -> uip_min_value_p);
+			int_param_p -> uip_min_value_p = NULL;
+		}
+
+	if (int_param_p -> uip_max_value_p)
+		{
+			FreeMemory (int_param_p -> uip_max_value_p);
+			int_param_p -> uip_max_value_p = NULL;
+		}
+
 }
 
 

@@ -75,7 +75,7 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 				{
 					if (default_value_p)
 						{
-							param_p -> tp_current_value_p = AllocateTime ();
+							param_p -> tp_default_value_p = AllocateTime ();
 
 							if (param_p -> tp_default_value_p)
 								{
@@ -100,6 +100,9 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 								{
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 								}
+
+							param_p -> tp_min_value_p = NULL;
+							param_p -> tp_max_value_p = NULL;
 
 							return param_p;
 						}
@@ -143,6 +146,56 @@ const struct tm *GetTimeParameterDefaultValue (const TimeParameter *param_p)
 bool SetTimeParameterDefaultValue (TimeParameter *param_p, const struct tm *value_p)
 {
 	return SetTimeParameterValue (& (param_p -> tp_default_value_p), value_p);
+}
+
+
+bool SetTimeParameterBounds (TimeParameter *param_p, const struct tm *min_value_s, const struct tm *max_value_s)
+{
+	if (! (param_p -> sp_min_value_s))
+		{
+			param_p -> sp_min_value_s = EasyCopyToNewString (min_value_s);
+
+			if (! (param_p -> sp_min_value_s))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
+					return false;
+				}
+		}
+
+	if (! (param_p -> sp_max_value_s))
+		{
+			param_p -> sp_max_value_s = EasyCopyToNewString (max_value_s);
+
+			if (! (param_p -> sp_max_value_s))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
+					return false;
+				}
+		}
+
+	return true;
+}
+
+
+bool IsTimeParameterBounded (const TimeParameter *param_p)
+{
+	return ((param_p -> tp_min_value_p) && (param_p -> tp_max_value_p));
+}
+
+
+bool GetTimeParameterBounds (const TimeParameter *param_p, struct tm *min_p, struct tm *max_p)
+{
+	bool success_flag = false;
+
+	if (IsTimeParameterBounded (param_p))
+		{
+			CopyTime (param_p -> tp_min_value_p, min_p);
+			CopyTime (param_p -> tp_max_value_p, max_p);
+
+			success_flag = true;
+		}
+
+	return success_flag;
 }
 
 

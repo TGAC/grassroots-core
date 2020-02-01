@@ -100,6 +100,9 @@ DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 								}
 
+							param_p -> dp_min_value_p = NULL;
+							param_p -> dp_max_value_p = NULL;
+
 							return param_p;
 						}
 				}
@@ -142,6 +145,60 @@ const double64 *GetDoubleParameterDefaultValue (const DoubleParameter *param_p)
 bool SetDoubleParameterDefaultValue (DoubleParameter *param_p, const double64 *value_p)
 {
 	return SetDoubleParameterValue (& (param_p -> dp_default_value_p), value_p);
+}
+
+
+
+bool SetDoubleParameterBounds (DoubleParameter *param_p, const char min_value, const char max_value)
+{
+	if (! (param_p -> dp_min_value_p))
+		{
+			param_p -> dp_min_value_p = (double64 *) AllocMemory (sizeof (double64));
+
+			if (! (param_p -> dp_min_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
+					return false;
+				}
+		}
+
+	if (! (param_p -> dp_max_value_p))
+		{
+			param_p -> dp_max_value_p = (double64 *) AllocMemory (sizeof (double64));
+
+			if (! (param_p -> dp_max_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
+					return false;
+				}
+		}
+
+	* (param_p -> dp_min_value_p) = min_value;
+	* (param_p -> dp_max_value_p) = max_value;
+
+	return true;
+}
+
+
+bool IsDoubleParameterBounded (const DoubleParameter *param_p)
+{
+	return ((param_p -> dp_min_value_p) && (param_p -> dp_max_value_p));
+}
+
+
+bool GetDoubleParameterBounds (const DoubleParameter *param_p, char *min_p, char *max_p)
+{
+	bool success_flag = false;
+
+	if (IsDoubleParameterBounded (param_p))
+		{
+			*min_p = * (param_p -> dp_min_value_p);
+			*max_p = * (param_p -> dp_max_value_p);
+
+			success_flag = true;
+		}
+
+	return success_flag;
 }
 
 
@@ -199,6 +256,19 @@ static void ClearDoubleParameter (Parameter *param_p)
 			FreeMemory (double_param_p -> dp_default_value_p);
 			double_param_p -> dp_current_value_p = NULL;
 		}
+
+	if (double_param_p -> dp_min_value_p)
+		{
+			FreeMemory (double_param_p -> dp_min_value_p);
+			double_param_p -> dp_min_value_p = NULL;
+		}
+
+	if (double_param_p -> dp_max_value_p)
+		{
+			FreeMemory (double_param_p -> dp_max_value_p);
+			double_param_p -> dp_max_value_p = NULL;
+		}
+
 }
 
 

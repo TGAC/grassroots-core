@@ -36,6 +36,11 @@ typedef struct TimeParameter
 	struct tm *tp_current_value_p;
 
 	struct tm *tp_default_value_p;
+
+	struct tm *tp_min_value_p;
+
+	struct tm *tp_max_value_p;
+
 } TimeParameter;
 
 

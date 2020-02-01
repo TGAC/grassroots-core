@@ -99,6 +99,9 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 								}
 
+							param_p -> sip_min_value_p = NULL;
+							param_p -> sip_max_value_p = NULL;
+
 							return param_p;
 						}
 				}
@@ -142,6 +145,113 @@ bool SetSignedIntParameterDefaultValue (SignedIntParameter *param_p, const int32
 {
 	return SetSignedIntParameterValue (& (param_p -> sip_default_value_p), value_p);
 }
+
+
+bool SetSignedIntParameterBounds (SignedIntParameter *param_p, const int32 min_value, const int32 max_value)
+{
+	if (! (param_p -> sip_min_value_p))
+		{
+			param_p -> sip_min_value_p = (int32 *) AllocMemory (sizeof (int32));
+
+			if (! (param_p -> sip_min_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
+					return false;
+				}
+		}
+
+	if (! (param_p -> sip_max_value_p))
+		{
+			param_p -> sip_max_value_p = (int32 *) AllocMemory (sizeof (int32));
+
+			if (! (param_p -> sip_max_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
+					return false;
+				}
+		}
+
+	* (param_p -> sip_min_value_p) = min_value;
+	* (param_p -> sip_max_value_p) = max_value;
+
+	return true;
+}
+
+
+bool IsSignedIntParameterBounded (const SignedIntParameter *param_p)
+{
+	return ((param_p -> sip_min_value_p) && (param_p -> sip_max_value_p));
+}
+
+
+bool GetSignedIntParameterrBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p)
+{
+	bool success_flag = false;
+
+	if (IsDoubleParameterBounded (param_p))
+		{
+			*min_p = * (param_p -> sip_min_value_p);
+			*max_p = * (param_p -> sip_max_value_p);
+
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
+bool SetSignedIntParameterBounds (SignedIntParameter *param_p, const int32 min_value, const int32 max_value)
+{
+	if (! (param_p -> sip_min_value_p))
+		{
+			param_p -> sip_min_value_p = (uint32 *) AllocMemory (sizeof (uint32));
+
+			if (! (param_p -> sip_min_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
+					return false;
+				}
+		}
+
+	if (! (param_p -> sip_max_value_p))
+		{
+			param_p -> sip_max_value_p = (uint32 *) AllocMemory (sizeof (uint32));
+
+			if (! (param_p -> sip_max_value_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
+					return false;
+				}
+		}
+
+	* (param_p -> sip_min_value_p) = min_value;
+	* (param_p -> sip_max_value_p) = max_value;
+
+	return true;
+}
+
+
+bool IsSignedIntParameterBounded (const SignedIntParameter *param_p)
+{
+	return ((param_p -> sip_min_value_p) && (param_p -> sip_max_value_p));
+}
+
+
+bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p)
+{
+	bool success_flag = false;
+
+	if (IsSignedIntParameterBounded (param_p))
+		{
+			*min_p = * (param_p -> sip_min_value_p);
+			*max_p = * (param_p -> sip_max_value_p);
+
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
 
 
 /*
@@ -197,6 +307,18 @@ static void ClearSignedIntParameter (Parameter *param_p)
 		{
 			FreeMemory (int_param_p -> sip_default_value_p);
 			int_param_p -> sip_current_value_p = NULL;
+		}
+
+	if (int_param_p -> sip_min_value_p)
+		{
+			FreeMemory (int_param_p -> sip_min_value_p);
+			int_param_p -> sip_min_value_p = NULL;
+		}
+
+	if (int_param_p -> sip_max_value_p)
+		{
+			FreeMemory (int_param_p -> sip_max_value_p);
+			int_param_p -> sip_max_value_p = NULL;
 		}
 }
 
