@@ -291,7 +291,7 @@ json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * co
 }
 
 
-json_t *GetResourceAsJSON (Resource *resource_p)
+json_t *GetResourceAsJSON (const Resource *resource_p)
 {
 	return GetResourceAsJSONByParts (resource_p -> re_protocol_s, resource_p -> re_value_s, resource_p -> re_title_s, resource_p -> re_data_p);
 }

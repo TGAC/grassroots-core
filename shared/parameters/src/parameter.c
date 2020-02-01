@@ -39,6 +39,7 @@
 #include "resource_parameter.h"
 #include "signed_int_parameter.h"
 #include "string_parameter.h"
+#include "time_parameter.h"
 #include "unsigned_int_parameter.h"
 
 
@@ -98,10 +99,6 @@ static bool AddParameterRefreshToJSON (const Parameter * const param_p, json_t *
 
 
 static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
-
-
-
-static bool AddValueToJSON (json_t *root_p, const ParameterType pt, const SharedType *val_p, const char *key_s);
 
 
 static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
@@ -2908,7 +2905,6 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 							 */
 							const char *description_s = NULL;
 							const char *display_name_s = NULL;
-							bool multi_valued_flag = false;
 							LinkedList *options_p = NULL;
 							ParameterBounds *bounds_p = NULL;
 							ParameterLevel level = PL_ALL;
@@ -3102,7 +3098,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 			case PT_CHAR:
 				{
 					CharParameter *char_param_p = (CharParameter *) param_p;
-					const char *value_p = GeCharParameterCurrentValue (char_param_p);
+					const char *value_p = GetCharParameterCurrentValue (char_param_p);
 
 					if (value_p)
 						{
@@ -3163,7 +3159,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 			case PT_FILE_TO_WRITE:
 				{
 					ResourceParameter *resource_param_p = (ResourceParameter *) param_p;
-					const Resource *resource_p = GetUnsignedIntParameterCurrentValue (resource_param_p);
+					const Resource *resource_p = GetResourceParameterCurrentValue (resource_param_p);
 
 					if (resource_p)
 						{
@@ -3196,7 +3192,13 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 			case PT_FASTA:
 				{
 					StringParameter *string_param_p = (StringParameter *) param_p;
-					value_s = GetStringParameterCurrentValue (string_param_p);
+					const char *string_value_s = GetStringParameterCurrentValue (string_param_p);
+
+					if (string_value_s)
+						{
+							value_s = EasyCopyToNewString (string_value_s);
+							*alloc_flag_p = true;
+						}
 				}
 				break;
 

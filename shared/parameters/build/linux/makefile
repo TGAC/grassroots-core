@@ -34,7 +34,7 @@ SRCS 	= \
 	boolean_parameter.c \
 	char_parameter.c \
 	double_parameter.c \
-	json_paramteter.c \
+	json_parameter.c \
 	parameter.c \
 	parameter_group.c \
 	parameter_option.c \
@@ -43,7 +43,7 @@ SRCS 	= \
 	shared_type.c \
 	resource_paramteter.c \
 	signed_int_parameter.c \
-	time_paramteter.c \
+	time_parameter.c \
 	typed_value.c \
 	unsigned_int_parameter.c 
 	

@@ -314,7 +314,7 @@ GRASSROOTS_UTIL_API json_t *GetResourceAsJSONByParts (const char * const protoco
  * upon failure.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API json_t *GetResourceAsJSON (Resource *resource_p);
+GRASSROOTS_UTIL_API json_t *GetResourceAsJSON (const Resource *resource_p);
 
 
 /**
