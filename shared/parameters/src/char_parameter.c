@@ -37,16 +37,24 @@ static bool SetCharParameterValue (char **param_value_pp, const char *new_value_
 
 static void ClearCharParameter (Parameter *param_p);
 
-static bool AddCharParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddCharParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 static bool GetCharParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
+
+static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p);
 
 
 /*
  * API DEFINITIONS
  */
 
-CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+CharParameter *AllocateCharParameterFromJSON (const struct ServiceData *service_data_p, json_t *param_json_p)
+{
+
+}
+
+
+CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterLevel level)
 {
 	CharParameter *param_p = (CharParameter *) AllocMemory (sizeof (CharParameter));
 
@@ -96,7 +104,9 @@ CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, 
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> cp_base_param), service_data_p, PT_CHAR, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> cp_base_param), service_data_p, PT_CHAR, name_s, display_name_s, description_s, options_p, level,
+														 ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
@@ -274,29 +284,55 @@ static void ClearCharParameter (Parameter *param_p)
 }
 
 
-static bool AddCharParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+static bool AddCharParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	CharParameter *char_param_p = (CharParameter *) param_p;
-	bool success_flag = true;
-	char buffer_s [2];
+	bool success_flag = false;
 
-	* (buffer_s + 1) = '\0';
-
-	if (char_param_p -> cp_current_value_p)
+	if ((char_param_p -> cp_current_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_current_value_p, PARAM_CURRENT_VALUE_S, param_json_p)))
 		{
-			*buffer_s = * (char_param_p -> cp_current_value_p);
-
-			success_flag = SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, buffer_s);
+			if (full_definition_flag)
+				{
+					if ((char_param_p -> cp_default_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_default_value_p, PARAM_DEFAULT_VALUE_S, param_json_p)))
+						{
+							if ((char_param_p -> cp_min_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_min_value_p, PARAM_MIN_S, param_json_p)))
+								{
+									if ((char_param_p -> cp_max_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_max_value_p, PARAM_MAX_S, param_json_p)))
+										{
+											success_flag = true;
+										}
+								}
+						}
+				}
+			else
+				{
+					success_flag = true;
+				}
 		}
 
-	if (success_flag)
-		{
-			if (char_param_p -> cp_default_value_p)
-				{
-					*buffer_s = * (char_param_p -> cp_default_value_p);
+	return success_flag;
+}
 
-					success_flag = SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, buffer_s);
+
+static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p)
+{
+	bool success_flag = false;
+
+	if (c_p)
+		{
+			char buffer_s [2];
+
+			*buffer_s = *c_p;
+			* (buffer_s + 1) = '\0';
+
+			if (SetJSONString (dest_p, key_s, buffer_s))
+				{
+					success_flag = true;
 				}
+		}
+	else
+		{
+			success_flag = true;
 		}
 
 	return success_flag;

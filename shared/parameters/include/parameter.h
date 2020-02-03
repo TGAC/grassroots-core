@@ -112,6 +112,7 @@ struct ParameterGroup;
 typedef struct Parameter Parameter;
 
 
+
 /**
  * @brief The datatype that stores all of the information about a Parameter.
  *
@@ -145,17 +146,6 @@ struct Parameter
 	 * NULL, then any value can be taken.
 	 */
 	LinkedList *pa_options_p;
-
-	/**
-	 * Callback function to check whether a particular value
-	 * is valid for the given parameter.
-	 *
-	 * @param parameter_p The Parameter to check.
-	 * @param value_p Pointer to the potential value
-	 * to check for.
-	 * @return NULL if the value is valid or an error string if the value is invalid for this Parameter, .
-	 */
-	const char * (*pa_check_value_fn) (const struct Parameter * const parameter_p, const void *value_p);
 
 	/**
 	 * The level of the parameter.
@@ -212,7 +202,7 @@ struct Parameter
 
 	bool (*pa_add_values_to_json_fn) (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
-	bool (*pa_get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p);
+	bool (*pa_get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag);
 
 	struct Parameter (*pa_clone_fn) (const struct Parameter *param_p);
 };
@@ -312,7 +302,13 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
 
 
 
-GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
+																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level,
+																					void (*clear_fn) (struct Parameter *param_p),
+																					bool (*add_values_to_json_fn) (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
+																					bool (*get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
+																					struct Parameter (*clone_fn) (const struct Parameter *param_p)
+);
 
 
 GRASSROOTS_PARAMS_API bool AddParameterValuesToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);

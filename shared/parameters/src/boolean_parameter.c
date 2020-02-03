@@ -35,16 +35,37 @@ static bool SetBooleanParameterValue (bool **param_value_pp, const bool *new_val
 
 static void ClearBooleanParameter (Parameter *param_p);
 
-static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
-static bool GetBooleanParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
+static bool GetBooleanParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag);
+
+static bool SetValueFromJSON (bool **value_pp, const json_t *param_json_p, const char *key_s);
 
 
 /*
  * API DEFINITIONS
  */
 
-BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, bool *default_value_p, bool *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, const struct ServiceData *service_data_p)
+{
+	BooleanParameter *param_p = NULL;
+	bool *current_value_p = NULL;
+
+	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
+		{
+			bool *default_value_p = NULL;
+
+
+			if (current_value_p)
+				{
+					FreeMemory (current_value_p);
+				}
+		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
+
+}
+
+
+BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, bool *default_value_p, bool *current_value_p, ParameterLevel level)
 {
 	BooleanParameter *param_p = (BooleanParameter *) AllocMemory (sizeof (BooleanParameter));
 
@@ -94,7 +115,9 @@ BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_da
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> bp_base_param), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> bp_base_param), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, options_p, level,
+														 ClearBooleanParameter, AddBooleanParameterDetailsToJSON, GetBooleanParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
@@ -203,21 +226,46 @@ static void ClearBooleanParameter (Parameter *param_p)
 }
 
 
-static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
+{
+	BooleanParameter *boolean_param_p = (BooleanParameter *) param_p;
+	bool success_flag = false;
+
+	if ((boolean_param_p -> bp_current_value_p == NULL ) || (SetJSONBoolean (param_json_p, PARAM_CURRENT_VALUE_S, * (boolean_param_p -> bp_current_value_p))))
+		{
+			if (full_definition_flag)
+				{
+					if ((boolean_param_p -> bp_default_value_p == NULL ) || (SetJSONBoolean (param_json_p, PARAM_DEFAULT_VALUE_S, * (boolean_param_p -> bp_default_value_p))))
+						{
+							success_flag = true;
+						}
+
+				}
+			else
+				{
+					success_flag = true;
+				}
+		}
+
+
+	return success_flag;
+}
+
+
+static bool GetBooleanParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag)
 {
 	BooleanParameter *boolean_param_p = (BooleanParameter *) param_p;
 	bool success_flag = true;
+	bool b;
 
-	if (boolean_param_p -> bp_current_value_p)
+	if (SetValueFromJSON (& (boolean_param_p -> bp_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			success_flag = SetJSONBoolean (param_json_p, PARAM_CURRENT_VALUE_S, * (boolean_param_p -> bp_current_value_p));
-		}
-
-	if (success_flag)
-		{
-			if (boolean_param_p -> bp_default_value_p)
+			if (full_definition_flag)
 				{
-					success_flag = SetJSONBoolean (param_json_p, PARAM_DEFAULT_VALUE_S, * (boolean_param_p -> bp_current_value_p));
+					if (SetValueFromJSON (& (boolean_param_p -> bp_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
+						{
+							success_flag = true;
+						}
 				}
 		}
 
@@ -225,31 +273,19 @@ static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *
 }
 
 
-static bool GetBooleanParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
+
+static bool SetValueFromJSON (bool **value_pp, const json_t *param_json_p, const char *key_s)
 {
-	BooleanParameter *boolean_param_p = (BooleanParameter *) param_p;
-	bool success_flag = true;
+	bool success_flag = false;
 	bool b;
 
-	if (GetJSONBoolean (param_json_p, PARAM_CURRENT_VALUE_S, &b))
+	if (GetJSONBoolean (param_json_p, key_s, &b))
 		{
-			success_flag = SetBooleanParameterCurrentValue (boolean_param_p, &b);
+			success_flag = SetBooleanParameterValue (value_pp, &b);
 		}
 	else
 		{
-			success_flag = SetBooleanParameterCurrentValue (boolean_param_p, NULL);
-		}
-
-	if (success_flag)
-		{
-			if (GetJSONBoolean (param_json_p, PARAM_DEFAULT_VALUE_S, &b))
-				{
-					success_flag = SetBooleanParameterDefaultValue (boolean_param_p, &b);
-				}
-			else
-				{
-					success_flag = SetBooleanParameterDefaultValue (boolean_param_p, NULL);
-				}
+			success_flag = SetBooleanParameterValue (value_pp, NULL);
 		}
 
 	return success_flag;

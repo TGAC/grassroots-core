@@ -43,7 +43,7 @@ static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t 
  * API DEFINITIONS
  */
 
-DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, double64 *default_value_p, double64 *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, double64 *default_value_p, double64 *current_value_p, ParameterLevel level)
 {
 	DoubleParameter *param_p = (DoubleParameter *) AllocMemory (sizeof (DoubleParameter));
 
@@ -93,14 +93,15 @@ DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> dp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> dp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+														 ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 								}
 
-							param_p -> dp_base_param.pa_add_values_to_json_fn = AddDoubleParameterDetailsToJSON;
 							param_p -> dp_min_value_p = NULL;
 							param_p -> dp_max_value_p = NULL;
 
@@ -278,15 +279,15 @@ static bool AddDoubleParameterDetailsToJSON (const struct Parameter *param_p, js
 	DoubleParameter *double_param_p = (DoubleParameter *) param_p;
 	bool success_flag = false;
 
-	if ((double_param_p -> dp_current_value_p == NULL ) || (SetJSONDouble (param_json_p, PARAM_CURRENT_VALUE_S, * (double_param_p -> dp_current_value_p))))
+	if ((double_param_p -> dp_current_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_CURRENT_VALUE_S, * (double_param_p -> dp_current_value_p))))
 		{
 			if (full_definition_flag)
 				{
-					if ((double_param_p -> dp_default_value_p == NULL ) || (SetJSONDouble (param_json_p, PARAM_DEFAULT_VALUE_S, * (double_param_p -> dp_default_value_p))))
+					if ((double_param_p -> dp_default_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_DEFAULT_VALUE_S, * (double_param_p -> dp_default_value_p))))
 						{
-							if ((double_param_p -> dp_min_value_p == NULL ) || (SetJSONDouble (param_json_p, PARAM_MIN_S, * (double_param_p -> dp_min_value_p))))
+							if ((double_param_p -> dp_min_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_MIN_S, * (double_param_p -> dp_min_value_p))))
 								{
-									if ((double_param_p -> dp_max_value_p == NULL ) || (SetJSONDouble (param_json_p, PARAM_MAX_S, * (double_param_p -> dp_max_value_p))))
+									if ((double_param_p -> dp_max_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_MAX_S, * (double_param_p -> dp_max_value_p))))
 										{
 											success_flag = true;
 										}

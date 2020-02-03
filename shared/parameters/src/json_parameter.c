@@ -34,7 +34,7 @@ static bool SetJSONParameterValue (json_t **param_value_pp, const json_t *new_va
 
 static void ClearJSONParameter (Parameter *param_p);
 
-static bool AddJSONParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddJSONParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 static bool GetJSONParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
@@ -45,7 +45,7 @@ static bool AddJSONValue (const json_t *value_to_add_p, const char *key_s, json_
  * API DEFINITIONS
  */
 
-JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, json_t *default_value_p, json_t *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, json_t *default_value_p, json_t *current_value_p, ParameterLevel level)
 {
 	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
 
@@ -87,7 +87,9 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+														 ClearJSONParameter, AddJSONParameterDetailsToJSON, GetJSONParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
@@ -196,16 +198,19 @@ static void ClearJSONParameter (Parameter *param_p)
 }
 
 
-static bool AddJSONParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+static bool AddJSONParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	JSONParameter *json_param_p = (JSONParameter *) param_p;
 	bool success_flag = false;
 
 	if (AddJSONValue (json_param_p -> jp_current_value_p, PARAM_CURRENT_VALUE_S, param_json_p))
 		{
-			if (AddJSONValue (json_param_p -> jp_current_value_p, PARAM_CURRENT_VALUE_S, param_json_p))
+			if (full_definition_flag)
 				{
-					success_flag = true;
+					if (AddJSONValue (json_param_p -> jp_default_value_p, PARAM_DEFAULT_VALUE_S, param_json_p))
+						{
+							success_flag = true;
+						}
 				}
 		}
 
@@ -215,7 +220,7 @@ static bool AddJSONParameterDetailsToJSON (const Parameter *param_p, json_t *par
 
 static bool AddJSONValue (const json_t *value_to_add_p, const char *key_s, json_t *dest_p)
 {
-	bool success_flag = true;
+	bool success_flag = false;
 
 	if (value_to_add_p)
 		{
@@ -225,7 +230,7 @@ static bool AddJSONValue (const json_t *value_to_add_p, const char *key_s, json_
 				{
 					if (json_object_set_new (dest_p, key_s, value_p) == 0)
 						{
-							success_flag = false;
+							success_flag = true;
 						}
 				}
 		}

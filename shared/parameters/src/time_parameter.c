@@ -45,7 +45,7 @@ static bool SetTimeValue (const json_t *param_json_p, const char *key_s, struct 
  * API DEFINITIONS
  */
 
-TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, struct tm *default_value_p, struct tm *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, struct tm *default_value_p, struct tm *current_value_p, ParameterLevel level)
 {
 	TimeParameter *param_p = (TimeParameter *) AllocMemory (sizeof (TimeParameter));
 
@@ -94,7 +94,9 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, level,
+														 ClearTimeParameter, AddTimeParameterDetailsToJSON, GetTimeParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{

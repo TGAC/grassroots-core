@@ -34,7 +34,7 @@ static bool SetResourceParameterValue (uint32 **param_value_pp, const uint32 *ne
 
 static void ClearResourceParameter (Parameter *param_p);
 
-static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 static bool GetResourceParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
@@ -43,7 +43,7 @@ static bool GetResourceParameterDetailsFromJSON (Parameter *param_p, const json_
  * API DEFINITIONS
  */
 
-ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level)
 {
 	ResourceParameter *param_p = (ResourceParameter *) AllocMemory (sizeof (ResourceParameter));
 
@@ -85,7 +85,9 @@ ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> rp_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> rp_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, level,
+														 ClearResourceParameter, AddResourceParameterDetailsToJSON, GetResourceParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
@@ -194,7 +196,7 @@ static void ClearResourceParameter (Parameter *param_p)
 }
 
 
-static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	ResourceParameter *int_param_p = (ResourceParameter *) param_p;
 	bool success_flag = true;

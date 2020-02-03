@@ -34,7 +34,7 @@ static bool SetUnsignedIntParameterValue (uint32 **param_value_pp, const uint32 
 
 static void ClearUnsignedIntParameter (Parameter *param_p);
 
-static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
@@ -43,7 +43,7 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
  * API DEFINITIONS
  */
 
-UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level)
 {
 	UnsignedIntParameter *param_p = (UnsignedIntParameter *) AllocMemory (sizeof (UnsignedIntParameter));
 
@@ -93,7 +93,9 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, level,
+														 ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON, GetUnsignedIntParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
@@ -272,21 +274,30 @@ static void ClearUnsignedIntParameter (Parameter *param_p)
 }
 
 
-static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	UnsignedIntParameter *int_param_p = (UnsignedIntParameter *) param_p;
-	bool success_flag = true;
+	bool success_flag = false;
 
-	if (int_param_p -> uip_current_value_p)
+	if ((int_param_p -> uip_current_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> uip_current_value_p))))
 		{
-			success_flag = SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> uip_current_value_p));
-		}
-
-	if (success_flag)
-		{
-			if (int_param_p -> uip_default_value_p)
+			if (full_definition_flag)
 				{
-					success_flag = SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> uip_current_value_p));
+					if ((int_param_p -> uip_default_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> uip_default_value_p))))
+						{
+							if ((int_param_p -> uip_min_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (int_param_p -> uip_min_value_p))))
+								{
+									if ((int_param_p -> uip_max_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (int_param_p -> uip_max_value_p))))
+										{
+											success_flag = true;
+										}
+								}
+						}
+
+				}
+			else
+				{
+					success_flag = true;
 				}
 		}
 
@@ -294,7 +305,8 @@ static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json
 }
 
 
-static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
+
+static bool uetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
 {
 	UnsignedIntParameter *int_param_p = (UnsignedIntParameter *) param_p;
 	bool success_flag = true;

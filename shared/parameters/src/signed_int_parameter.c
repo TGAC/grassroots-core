@@ -43,7 +43,7 @@ static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json
  * API DEFINITIONS
  */
 
-SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, int32 *default_value_p, int32 *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, int32 *default_value_p, int32 *current_value_p, ParameterLevel level)
 {
 	SignedIntParameter *param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
 
@@ -92,7 +92,9 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+														 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
@@ -323,21 +325,33 @@ static void ClearSignedIntParameter (Parameter *param_p)
 }
 
 
-static bool AddSignedIntParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+
+
+
+static bool AddSignedIntParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	SignedIntParameter *int_param_p = (SignedIntParameter *) param_p;
-	bool success_flag = true;
+	bool success_flag = false;
 
-	if (int_param_p -> sip_current_value_p)
+	if ((int_param_p -> sip_current_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> sip_current_value_p))))
 		{
-			success_flag = SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> sip_current_value_p));
-		}
-
-	if (success_flag)
-		{
-			if (int_param_p -> sip_default_value_p)
+			if (full_definition_flag)
 				{
-					success_flag = SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> sip_current_value_p));
+					if ((int_param_p -> sip_default_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> sip_default_value_p))))
+						{
+							if ((int_param_p -> sip_min_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (int_param_p -> sip_min_value_p))))
+								{
+									if ((int_param_p -> sip_max_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (int_param_p -> sip_max_value_p))))
+										{
+											success_flag = true;
+										}
+								}
+						}
+
+				}
+			else
+				{
+					success_flag = true;
 				}
 		}
 

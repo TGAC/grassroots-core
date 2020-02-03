@@ -44,7 +44,7 @@ static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t 
  * API DEFINITIONS
  */
 
-StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterLevel level)
 {
 	StringParameter *param_p = (StringParameter *) AllocMemory (sizeof (StringParameter));
 
@@ -86,7 +86,9 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 
 			if (success_flag)
 				{
-					if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level, check_value_fn))
+					if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+														 ClearStringParameter, AddStringParameterDetailsToJSON, GetStringParameterDetailsFromJSON,
+														 NULL))
 						{
 							if (service_data_p)
 								{
@@ -250,21 +252,30 @@ static void ClearStringParameter (Parameter *param_p)
 }
 
 
-static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	StringParameter *string_param_p = (StringParameter *) param_p;
-	bool success_flag = true;
+	bool success_flag = false;
 
-	if (string_param_p -> sp_current_value_s)
+	if ((string_param_p -> sp_current_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (string_param_p -> sp_current_value_s))))
 		{
-			success_flag = SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, string_param_p -> sp_current_value_s);
-		}
-
-	if (success_flag)
-		{
-			if (string_param_p -> sp_default_value_s)
+			if (full_definition_flag)
 				{
-					success_flag = SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, string_param_p -> sp_default_value_s);
+					if ((string_param_p -> sp_default_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (string_param_p -> sp_default_value_s))))
+						{
+							if ((string_param_p -> sp_min_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (string_param_p -> sp_min_value_s))))
+								{
+									if ((string_param_p -> sp_max_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (string_param_p -> sp_max_value_s))))
+										{
+											success_flag = true;
+										}
+								}
+						}
+
+				}
+			else
+				{
+					success_flag = true;
 				}
 		}
 

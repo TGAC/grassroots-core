@@ -168,7 +168,209 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 /******************************************************/
 
-bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, ParameterType type, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
+
+
+bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, Service *service_p, const bool full_definition_flag)
+{
+	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
+
+#if SERVER_DEBUG >= STM_LEVEL_FINE
+	char *root_s = json_dumps (root_p, JSON_INDENT (2));
+#endif
+
+	if (name_s)
+		{
+			bool got_type_flag = false;
+			ParameterType pt = PT_NUM_TYPES;
+
+			if (service_p)
+				{
+					if (GetParameterTypeForNamedParameter (service_p, name_s, &pt))
+						{
+							got_type_flag = true;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterType for %s in %s", name_s, GetServiceName (service_p));
+						}
+
+				}		/* if (service_p) */
+			else
+				{
+					if (GetParameterTypeFromJSON (root_p, &pt))
+						{
+							got_type_flag = true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Failed to get ParameterType for %s from JSON", name_s);
+						}
+				}
+
+			if (got_type_flag)
+				{
+					SharedType current_value;
+
+					InitSharedType (&current_value);
+
+					if (GetValueFromJSON (root_p, PARAM_CURRENT_VALUE_S, pt, &current_value))
+						{
+							/*
+							 * The default, options, display name and bounds are optional
+							 */
+							const char *description_s = NULL;
+							const char *display_name_s = NULL;
+							LinkedList *options_p = NULL;
+							ParameterLevel level = PL_ALL;
+							bool success_flag = false;
+
+							if (GetParameterLevelFromJSON (root_p, &level))
+								{
+
+								}
+
+
+							if (full_definition_flag || (!IsJSONParameterConcise (root_p)))
+								{
+									description_s = GetJSONString (root_p, PARAM_DESCRIPTION_S);
+									display_name_s = GetJSONString (root_p, PARAM_DISPLAY_NAME_S);
+
+									if (GetParameterOptionsFromJSON (root_p, &options_p, pt))
+										{
+											success_flag = true;
+										}		/* if (GetParameterOptionsFromJSON (root_p, &options_p, pt)) */
+								}
+							else
+								{
+									success_flag = true;
+								}
+
+							if (success_flag)
+								{
+									switch (pt)
+										{
+											case PT_BOOLEAN:
+												{
+													bool *current_value_p = NULL;
+													bool *default_value_p = NULL;
+													bool b;
+
+													if (GetJSONBoolean (root_p, PARAM_CURRENT_VALUE_S, &b))
+														{
+															*current_value_p = b;
+														}
+
+													if (GetJSONBoolean (root_p, PARAM_DEFAULT_VALUE_S, &b))
+														{
+															*default_value_p = b;
+														}
+
+													param_p = AllocateBooleanParameter (NULL, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+												}
+											break;
+
+										case PT_CHAR:
+											break;
+
+										case PT_JSON:
+										case PT_JSON_TABLE:
+											break;
+
+										case PT_PASSWORD:
+										case PT_STRING:
+										case PT_KEYWORD:
+										case PT_LARGE_STRING:
+										case PT_TABLE:
+										case PT_FASTA:
+											break;
+
+										case PT_FILE_TO_WRITE:
+										case PT_FILE_TO_READ:
+										case PT_DIRECTORY:
+											break;
+
+										case PT_TIME:
+											break;
+
+										case PT_SIGNED_INT:
+										case PT_NEGATIVE_INT:
+											break;
+
+										case PT_UNSIGNED_INT:
+											break;
+
+										case PT_SIGNED_REAL:
+										case PT_UNSIGNED_REAL:
+											break;
+
+										case PT_NUM_TYPES:
+											break;
+										}
+
+
+									if (param_p)
+										{
+											bool flag = true;
+
+											if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &flag))
+												{
+													if (!flag)
+														{
+															param_p -> pa_visible_flag = flag;
+														}
+												}
+
+
+											flag = false;
+											if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
+												{
+													param_p -> pa_refresh_service_flag = flag;
+												}
+
+
+											/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
+
+											if (SetRemoteParameterDetailsFromJSON (param_p, root_p))
+												{
+													success_flag = InitParameterStoreFromJSON (root_p, param_p -> pa_store_p);
+												}
+											else
+												{
+													success_flag = false;
+												}
+
+											if (!success_flag)
+												{
+													FreeParameter (param_p);
+													param_p = NULL;
+												}
+										}
+
+								}		/* if (success_flag) */
+
+						}		/* if (GetValueFromJSON (root_p, PARAM_CURRENT_VALUE_S, pt, &current_value)) */
+
+				}		/* if (got_type_flag) */
+
+		}		/* if (name_s) */
+
+#if SERVER_DEBUG >= STM_LEVEL_FINE
+	if (root_s)
+		{
+			free (root_s);
+		}
+#endif
+
+	return param_p;
+}
+
+bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
+										const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level,
+										void (*clear_fn) (struct Parameter *param_p),
+										bool (*add_values_to_json_fn) (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
+										bool (*get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
+										struct Parameter (*clone_fn) (const struct Parameter *param_p)
+)
 {
 	char *new_name_s = CopyToNewString (name_s, 0, true);
 
@@ -208,7 +410,6 @@ bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, Param
 											param_p -> pa_display_name_s = new_display_name_s;
 											param_p -> pa_description_s = new_description_s;
 											param_p -> pa_options_p = options_p;
-											param_p -> pa_check_value_fn = check_value_fn;
 											param_p -> pa_level = level;
 											param_p -> pa_store_p = store_p;
 											param_p -> pa_group_p = NULL;
@@ -219,6 +420,11 @@ bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, Param
 											param_p -> pa_refresh_service_flag = false;
 
 											param_p -> pa_required_flag = true;
+
+											param_p -> pa_add_values_to_json_fn = add_values_to_json_fn;
+											param_p -> pa_get_values_from_json_fn = get_values_from_json_fn;
+											param_p -> pa_clear_fn = clear_fn;
+											param_p -> pa_clone_fn = clone_fn;
 
 											/*
 											 * Check for any values that have been overrode in
@@ -406,10 +612,6 @@ void ClearParameter (Parameter *param_p)
 			FreeLinkedList (param_p -> pa_options_p);
 		}
 
-	if (param_p -> pa_bounds_p)
-		{
-			FreeParameterBounds (param_p -> pa_bounds_p, param_p -> pa_type);
-		}
 
 	FreeHashTable (param_p -> pa_store_p);
 
@@ -497,7 +699,6 @@ static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p)
 													dest_p -> pa_display_name_s = dest_display_name_s;
 													dest_p -> pa_description_s = dest_description_s;
 													dest_p -> pa_options_p = dest_options_p;
-													dest_p -> pa_check_value_fn = src_p -> pa_check_value_fn;
 													dest_p -> pa_level = src_p -> pa_level;
 													dest_p -> pa_visible_flag = src_p -> pa_visible_flag;
 													dest_p -> pa_refresh_service_flag = src_p -> pa_refresh_service_flag;
@@ -2001,127 +2202,6 @@ static bool AddParameterOptionsToJSON (const Parameter * const param_p, json_t *
 }
 
 
-static bool AddParameterBoundsToJSON (const Parameter * const param_p, json_t *json_p, const SchemaVersion * const sv_p)
-{
-	bool success_flag = false;
-	const ParameterBounds * const bounds_p = param_p -> pa_bounds_p;
-
-	if (bounds_p)
-		{
-			json_t *min_p = NULL;
-			json_t *max_p = NULL;
-
-			switch (param_p -> pa_type)
-				{
-					case PT_BOOLEAN:
-						min_p = (bounds_p -> pb_lower.st_boolean_value == true) ? json_true () : json_false ();
-						max_p = (bounds_p -> pb_upper.st_boolean_value == true) ? json_true () : json_false ();
-						break;
-
-					case PT_SIGNED_INT:
-					case PT_NEGATIVE_INT:
-						min_p = json_integer (bounds_p -> pb_lower.st_long_value);
-						max_p = json_integer (bounds_p -> pb_upper.st_long_value);
-						break;
-
-					case PT_UNSIGNED_INT:
-						min_p = json_integer (bounds_p -> pb_lower.st_ulong_value);
-						max_p = json_integer (bounds_p -> pb_upper.st_ulong_value);
-						break;
-
-					case PT_SIGNED_REAL:
-					case PT_UNSIGNED_REAL:
-						min_p = json_real (bounds_p -> pb_lower.st_data_value);
-						max_p = json_real (bounds_p -> pb_upper.st_data_value);
-						break;
-
-
-					case PT_CHAR:
-						{
-							char buffer_s [2];
-
-							* (buffer_s + 1) = '\0';
-
-							*buffer_s = bounds_p -> pb_lower.st_char_value;
-							min_p = json_string (buffer_s);
-
-							*buffer_s = bounds_p -> pb_upper.st_char_value;
-							max_p = json_string (buffer_s);
-						}
-						break;
-
-					case PT_DIRECTORY:
-					case PT_FILE_TO_READ:
-					case PT_FILE_TO_WRITE:
-					case PT_FASTA:
-					case PT_JSON:
-					case PT_JSON_TABLE:
-					case PT_KEYWORD:
-					case PT_LARGE_STRING:
-					case PT_PASSWORD:
-					case PT_STRING:
-					case PT_TABLE:
-						PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "ParameterBounds for \"%s\" does not make sense", param_p -> pa_name_s);
-						break;
-
-					case PT_TIME:
-						{
-							char *time_s = GetTimeAsString (bounds_p -> pb_lower.st_time_p, true);
-
-							if (time_s)
-								{
-									min_p = json_string (time_s);
-									FreeCopiedString (time_s);
-
-									time_s = GetTimeAsString (bounds_p -> pb_upper.st_time_p, true);
-
-									if (time_s)
-										{
-											max_p = json_string (time_s);
-											FreeCopiedString (time_s);
-										}		/* if (time_s) */
-								}		/* if (time_s) */
-
-							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "ParameterBounds for \"%s\" does not make sense", param_p -> pa_name_s);
-						}
-						break;
-
-
-					case PT_NUM_TYPES:
-						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
-						break;
-				}		/* switch (param_p -> pa_type) */
-
-			if (min_p)
-				{
-					success_flag = (json_object_set_new (json_p, PARAM_MIN_S, min_p) == 0);
-				}
-
-			if (max_p)
-				{
-					if (success_flag)
-						{
-							success_flag = (json_object_set_new (json_p, PARAM_MAX_S, max_p) == 0);
-						}
-					else
-						{
-							json_decref (max_p);
-						}
-				}
-		}
-	else
-		{
-			/* nothing to do */
-			success_flag = true;
-		}
-
-#if SERVER_DEBUG >= STM_LEVEL_FINER
-	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, json_p, "AddParameterBoundsToJSON");
-#endif
-
-	return success_flag;
-}
-
 
 static bool InitParameterStoreFromJSON (const json_t *root_p, HashTable *store_p)
 {
@@ -2703,212 +2783,6 @@ bool IsJSONParameterConcise (const json_t * const json_p)
 
 	return concise_flag;
 }
-
-
-
-Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *service_p, const bool concise_flag)
-{
-	Parameter *param_p = NULL;
-	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
-
-#if SERVER_DEBUG >= STM_LEVEL_FINE
-	char *root_s = json_dumps (root_p, JSON_INDENT (2));
-#endif
-
-	if (name_s)
-		{
-			bool got_type_flag = false;
-			ParameterType pt = PT_NUM_TYPES;
-
-			if (service_p)
-				{
-					if (GetParameterTypeForNamedParameter (service_p, name_s, &pt))
-						{
-							got_type_flag = true;
-						}
-					else
-						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterType for %s in %s", name_s, GetServiceName (service_p));
-						}
-
-				}		/* if (service_p) */
-			else
-				{
-					if (GetParameterTypeFromJSON (root_p, &pt))
-						{
-							got_type_flag = true;
-						}
-					else
-						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Failed to get ParameterType for %s from JSON", name_s);
-						}
-				}
-
-			if (got_type_flag)
-				{
-					SharedType current_value;
-
-					InitSharedType (&current_value);
-
-					if (GetValueFromJSON (root_p, PARAM_CURRENT_VALUE_S, pt, &current_value))
-						{
-							/*
-							 * The default, options, display name and bounds are optional
-							 */
-							const char *description_s = NULL;
-							const char *display_name_s = NULL;
-							LinkedList *options_p = NULL;
-							ParameterBounds *bounds_p = NULL;
-							ParameterLevel level = PL_ALL;
-							bool success_flag = false;
-
-							if (GetParameterLevelFromJSON (root_p, &level))
-								{
-
-								}
-
-
-							if (! (concise_flag || IsJSONParameterConcise (root_p)))
-								{
-									description_s = GetJSONString (root_p, PARAM_DESCRIPTION_S);
-									display_name_s = GetJSONString (root_p, PARAM_DISPLAY_NAME_S);
-
-									if (GetParameterOptionsFromJSON (root_p, &options_p, pt))
-										{
-											if (GetParameterBoundsFromJSON (root_p, &bounds_p, pt))
-												{
-													success_flag = true;
-												}
-
-										}		/* if (GetParameterOptionsFromJSON (root_p, &options_p, pt)) */
-								}
-							else
-								{
-									success_flag = true;
-								}
-
-							if (success_flag)
-								{
-									switch (pt)
-										{
-											case PT_BOOLEAN:
-												{
-													bool *current_value_p = NULL;
-													bool *default_value_p = NULL;
-													bool b;
-
-													if (GetJSONBoolean (root_p, PARAM_CURRENT_VALUE_S, &b))
-														{
-															*current_value_p = b;
-														}
-
-													if (GetJSONBoolean (root_p, PARAM_DEFAULT_VALUE_S, &b))
-														{
-															*default_value_p = b;
-														}
-
-													param_p = AllocateBooleanParameter (NULL, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, bounds_p, level, NULL);
-												}
-											break;
-
-										case PT_CHAR:
-											break;
-
-										case PT_JSON:
-										case PT_JSON_TABLE:
-											break;
-
-										case PT_PASSWORD:
-										case PT_STRING:
-										case PT_KEYWORD:
-										case PT_LARGE_STRING:
-										case PT_TABLE:
-										case PT_FASTA:
-											break;
-
-										case PT_FILE_TO_WRITE:
-										case PT_FILE_TO_READ:
-										case PT_DIRECTORY:
-											break;
-
-										case PT_TIME:
-											break;
-
-										case PT_SIGNED_INT:
-										case PT_NEGATIVE_INT:
-											break;
-
-										case PT_UNSIGNED_INT:
-											break;
-
-										case PT_SIGNED_REAL:
-										case PT_UNSIGNED_REAL:
-											break;
-
-										case PT_NUM_TYPES:
-											break;
-										}
-
-
-									if (param_p)
-										{
-											bool flag = true;
-
-											if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &flag))
-												{
-													if (!flag)
-														{
-															param_p -> pa_visible_flag = flag;
-														}
-												}
-
-
-											flag = false;
-											if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
-												{
-													param_p -> pa_refresh_service_flag = flag;
-												}
-
-
-											/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
-
-											if (SetRemoteParameterDetailsFromJSON (param_p, root_p))
-												{
-													success_flag = InitParameterStoreFromJSON (root_p, param_p -> pa_store_p);
-												}
-											else
-												{
-													success_flag = false;
-												}
-
-											if (!success_flag)
-												{
-													FreeParameter (param_p);
-													param_p = NULL;
-												}
-										}
-								}
-
-
-						}		/* if (GetValueFromJSON (root_p, PARAM_CURRENT_VALUE_S, pt, &current_value)) */
-
-
-				}		/* if (got_type_flag) */
-
-		}		/* if (name_s) */
-
-
-#if SERVER_DEBUG >= STM_LEVEL_FINE
-	if (root_s)
-		{
-			free (root_s);
-		}
-#endif
-
-
-	return param_p;
-}
-
 
 
 const char *GetUIName (const Parameter * const parameter_p)
