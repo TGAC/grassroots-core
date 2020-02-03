@@ -55,12 +55,23 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 		{
 			bool *default_value_p = NULL;
 
+			if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+				{
+
+
+
+					if (default_value_p)
+						{
+							FreeMemory (default_value_p);
+						}
+				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
 
 			if (current_value_p)
 				{
 					FreeMemory (current_value_p);
 				}
 		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
+
 
 }
 
