@@ -71,6 +71,9 @@ GRASSROOTS_PARAMS_API DoubleParameter *AllocateDoubleParameter (const struct Ser
 
 
 
+GRASSROOTS_PARAMS_API DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
+
 GRASSROOTS_PARAMS_API void FreeDoubleParameter (DoubleParameter *param_p);
 
 

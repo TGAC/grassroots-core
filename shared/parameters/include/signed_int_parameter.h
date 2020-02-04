@@ -74,6 +74,9 @@ GRASSROOTS_PARAMS_API SignedIntParameter *AllocateSignedIntParameter (const stru
 																																			ParameterLevel level);
 
 
+GRASSROOTS_PARAMS_API SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
+
 
 GRASSROOTS_PARAMS_API void FreeSignedIntParameter (SignedIntParameter *param_p);
 

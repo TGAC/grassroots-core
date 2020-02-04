@@ -68,6 +68,10 @@ typedef struct StringParameter
 GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
+GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
+
+
 GRASSROOTS_PARAMS_API void FreeStringParameter (StringParameter *param_p);
 
 

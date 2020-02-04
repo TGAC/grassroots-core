@@ -74,6 +74,9 @@ GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameter (const struct Service
 																														ParameterLevel level);
 
 
+GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
+
 
 GRASSROOTS_PARAMS_API void FreeTimeParameter (TimeParameter *param_p);
 

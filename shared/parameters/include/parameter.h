@@ -304,14 +304,18 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
 
 GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
 																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level,
-																					void (*clear_fn) (struct Parameter *param_p),
-																					bool (*add_values_to_json_fn) (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-																					bool (*get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
-																					struct Parameter (*clone_fn) (const struct Parameter *param_p)
+																					void (*clear_fn) (Parameter *param_p),
+																					bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
+																					bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
+																					struct Parameter (*clone_fn) (const Parameter *param_p)
 );
 
 
-GRASSROOTS_PARAMS_API bool AddParameterValuesToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
+
+GRASSROOTS_PARAMS_API bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const struct Service *service_p, const bool full_definition_flag);
+
+
+GRASSROOTS_PARAMS_API bool AddParameterValuesToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 
 /**
@@ -479,7 +483,7 @@ GRASSROOTS_PARAMS_API json_t *GetParameterAsJSON (const Parameter * const parame
  * or <code>NULL</code> upon error.
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API Parameter *CreateParameterFromJSON (const json_t * const json_p, struct Service *service_p, const bool concise_flag);
+GRASSROOTS_PARAMS_API Parameter *CreateParameterFromJSON (const json_t * const json_p, struct Service *service_p);
 
 
 
@@ -792,6 +796,12 @@ GRASSROOTS_PARAMS_API bool GetValueFromJSON (const json_t * const root_p, const 
 
 GRASSROOTS_PARAMS_API bool AddParameterLevelToJSON (const ParameterLevel level, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p));
 
+
+
+GRASSROOTS_PARAMS_API void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *param_p),
+																									bool (*pa_add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
+																									bool (*pa_get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
+																									Parameter (*pa_clone_fn) (const Parameter *param_p));
 
 
 #ifdef __cplusplus

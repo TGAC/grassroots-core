@@ -64,6 +64,10 @@ GRASSROOTS_PARAMS_API JSONParameter *AllocateJSONParameter (const struct Service
 
 
 
+GRASSROOTS_PARAMS_API JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
+
+
 GRASSROOTS_PARAMS_API void FreeJSONParameter (JSONParameter *param_p);
 
 

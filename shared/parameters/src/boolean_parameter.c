@@ -26,6 +26,8 @@
 #include "service.h"
 #include "json_util.h"
 
+#include "parameter.h"
+
 
 /*
  * STATIC DECLARATIONS
@@ -46,7 +48,7 @@ static bool SetValueFromJSON (bool **value_pp, const json_t *param_json_p, const
  * API DEFINITIONS
  */
 
-BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, const struct ServiceData *service_data_p)
+BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, const Service *service_p)
 {
 	BooleanParameter *param_p = NULL;
 	bool *current_value_p = NULL;
@@ -54,10 +56,35 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
 			bool *default_value_p = NULL;
+			bool success_flag = true;
+			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-			if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+			if (full_definition_flag)
 				{
+					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+						{
+							success_flag = false;
+						}
+				}
 
+			if (success_flag)
+				{
+					param_p = (BooleanParameter *) AllocMemory (sizeof (BooleanParameter));
+
+					if (param_p)
+						{
+							if (InitParameterFromJSON (& (param_p -> bp_base_param), param_json_p, service_p, full_definition_flag))
+								{
+									SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON, GetBooleanParameterDetailsFromJSON, NULL);
+
+									param_p -> bp_current_value_p = current_value_p;
+									param_p -> bp_default_value_p = default_value_p;
+
+									return param_p;
+								}
+
+							FreeMemory (param_p);
+						}
 
 
 					if (default_value_p)
@@ -72,7 +99,7 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 				}
 		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
-
+	return NULL;
 }
 
 

@@ -70,6 +70,8 @@ extern "C" {
 GRASSROOTS_PARAMS_API UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
 
 
+GRASSROOTS_PARAMS_API UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
 
 GRASSROOTS_PARAMS_API void FreeUnsignedIntParameter (UnsignedIntParameter *param_p);
 

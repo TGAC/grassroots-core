@@ -48,9 +48,12 @@ static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p);
  * API DEFINITIONS
  */
 
-CharParameter *AllocateCharParameterFromJSON (const struct ServiceData *service_data_p, json_t *param_json_p)
+CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
 {
+	CharParameter *param_p = NULL;
 
+
+	return param_p;
 }
 
 

@@ -63,6 +63,8 @@ extern "C" {
 GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, bool *default_value_p, bool *current_value_p, ParameterLevel level);
 
 
+GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
 
 GRASSROOTS_PARAMS_API void FreeResourceParameter (ResourceParameter *param_p);
 
