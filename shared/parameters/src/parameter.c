@@ -89,8 +89,6 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 
 static bool AddParameterOptionsToJSON (const Parameter * const param_p, json_t *json_p, const SchemaVersion * const sv_p);
 
-static bool AddParameterBoundsToJSON (const Parameter * const param_p, json_t *json_p, const SchemaVersion * const sv_p);
-
 static bool AddParameterGroupToJSON (const Parameter * const param_p, json_t *json_p, const SchemaVersion * const sv_p);
 
 static bool AddParameterStoreToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
@@ -104,9 +102,6 @@ static bool AddRemoteParameterDetailsToJSON (const Parameter * const param_p, js
 static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p);
-
-
-static bool GetParameterBoundsFromJSON (const json_t * const json_p, ParameterBounds **bounds_pp, const ParameterType pt);
 
 
 static bool GetParameterTypeFromJSON (const json_t * const json_p, ParameterType *param_type_p);
@@ -166,6 +161,8 @@ static bool GetParameterTypeFromCompoundObject (const json_t *root_p, ParameterT
 static bool AddSeparateGrassrootsTypes (json_t *value_p, const ParameterType pt);
 
 static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, ParameterType *param_type_p);
+
+
 
 
 /******************************************************/
@@ -455,7 +452,7 @@ bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p
 										void (*clear_fn) (Parameter *param_p),
 										bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
 										bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
-										struct Parameter (*clone_fn) (struct Parameter *param_p))
+										struct Parameter (*clone_fn) (const Parameter *param_p))
 {
 	char *new_name_s = CopyToNewString (name_s, 0, true);
 
@@ -841,23 +838,6 @@ void FreeParameterNode (ListItem *node_p)
 
 	FreeMemory (param_node_p);
 }
-
-
-LinkedList *GetMultiOptions (Parameter *param_p)
-{
-	if (! (param_p -> pa_options_p))
-		{
-			param_p -> pa_options_p = AllocateLinkedList (FreeParameterOptionNode);
-
-			if (! (param_p -> pa_options_p))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate options list for parameter \"%s\"", param_p -> pa_name_s);
-				}
-		}
-
-	return (param_p -> pa_options_p);
-}
-
 
 
 bool CreateAndAddParameterOptionToParameter (Parameter *param_p, SharedType value, const char * const description_s)

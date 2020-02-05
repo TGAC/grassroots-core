@@ -809,21 +809,21 @@ ParameterSet *IsServiceMatch (Service *service_p, Resource *resource_p, Handler 
 
 
 /** Get the user-friendly name of the service. */
-const char *GetServiceName (Service *service_p)
+const char *GetServiceName (const Service *service_p)
 {
 	return service_p -> se_get_service_name_fn (service_p);
 }
 
 
 /** Get the user-friendly description of the service. */
-const char *GetServiceDescription (Service *service_p)
+const char *GetServiceDescription (const Service *service_p)
 {
 	return service_p -> se_get_service_description_fn (service_p);	
 }
 
 
 
-const char *GetServiceInformationURI (Service *service_p)
+const char *GetServiceInformationURI (const Service *service_p)
 {
 	const char *uri_s = NULL;
 
@@ -877,7 +877,7 @@ ParameterSet *GetServiceParameters (Service *service_p, Resource *resource_p, Us
 }
 
 
-bool GetParameterTypeForNamedParameter (struct Service *service_p, const char *param_name_s, ParameterType *pt_p)
+bool GetParameterTypeForNamedParameter (const struct Service *service_p, const char *param_name_s, ParameterType *pt_p)
 {
 	return service_p -> se_get_parameter_type_fn (service_p, param_name_s, pt_p);
 }

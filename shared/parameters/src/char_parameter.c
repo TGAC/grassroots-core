@@ -43,6 +43,8 @@ static bool GetCharParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 
 static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p);
 
+static bool SetValueFromJSON (char **value_pp, const json_t *param_json_p, const char *key_s);
+
 
 /*
  * API DEFINITIONS
@@ -51,9 +53,55 @@ static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p);
 CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
 {
 	CharParameter *param_p = NULL;
+	char *current_value_p = NULL;
+
+	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
+		{
+			char *default_value_p = NULL;
+			bool success_flag = true;
+			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+
+			if (full_definition_flag)
+				{
+					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					param_p = (CharParameter *) AllocMemory (sizeof (CharParameter));
+
+					if (param_p)
+						{
+							if (InitParameterFromJSON (& (param_p -> cp_base_param), param_json_p, service_p, full_definition_flag))
+								{
+									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON, NULL);
+
+									param_p -> cp_current_value_p = current_value_p;
+									param_p -> cp_default_value_p = default_value_p;
+
+									return param_p;
+								}
+
+							FreeMemory (param_p);
+						}
 
 
-	return param_p;
+					if (default_value_p)
+						{
+							FreeMemory (default_value_p);
+						}
+				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+
+			if (current_value_p)
+				{
+					FreeMemory (current_value_p);
+				}
+		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
+
+	return NULL;
 }
 
 
@@ -380,3 +428,30 @@ static bool GetCharParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 
 	return success_flag;
 }
+
+
+static bool SetValueFromJSON (char **value_pp, const json_t *param_json_p, const char *key_s)
+{
+	bool success_flag = false;
+	const char *value_s = GetJSONString (param_json_p, key_s);
+
+	if (value_s)
+		{
+			if (strlen (value_s) == 1)
+				{
+					char buffer_s [2];
+
+					*buffer_s = *value_s;
+					* (buffer_s + 1) = '\0';
+
+					success_flag = SetCharParameterValue (value_pp, buffer_s);
+				}
+		}
+	else
+		{
+			success_flag = SetCharParameterValue (value_pp, NULL);
+		}
+
+	return success_flag;
+}
+

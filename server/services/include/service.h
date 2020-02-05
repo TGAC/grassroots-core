@@ -300,7 +300,7 @@ typedef struct Service
 	 * @return <code>true</code> if the ParameterType was retrieved successfully,
 	 * <code>false</code> otherwise.
 	 */
-	bool (*se_get_parameter_type_fn) (struct Service *service_p, const char *param_name_s, ParameterType *pt_p);
+	bool (*se_get_parameter_type_fn) (const struct Service *service_p, const char *param_name_s, ParameterType *pt_p);
 
 
 	/**
@@ -569,7 +569,7 @@ GRASSROOTS_SERVICE_API ParameterSet *IsServiceMatch (Service *service_p, Resourc
  * @return The name of Service.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API const char *GetServiceName (Service *service_p);
+GRASSROOTS_SERVICE_API const char *GetServiceName (const Service *service_p);
 
 
 /**
@@ -579,7 +579,7 @@ GRASSROOTS_SERVICE_API const char *GetServiceName (Service *service_p);
  * @return The description of Service.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API const char *GetServiceDescription (Service *service_p);
+GRASSROOTS_SERVICE_API const char *GetServiceDescription (const Service *service_p);
 
 
 /**
@@ -600,7 +600,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceIndexingData (Service *service_p);
  * @return The address of the page or NULL if there isn't one.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API const char *GetServiceInformationURI (Service *service_p);
+GRASSROOTS_SERVICE_API const char *GetServiceInformationURI (const Service *service_p);
 
 /**
  * Get a newly-created ParameterSet describing the parameters for a given Service.
@@ -627,7 +627,7 @@ GRASSROOTS_SERVICE_API ParameterSet *GetServiceParameters (Service *service_p, R
  * <code>false</code> otherwise.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API bool GetParameterTypeForNamedParameter (struct Service *service_p, const char *param_name_s, ParameterType *pt_p);
+GRASSROOTS_SERVICE_API bool GetParameterTypeForNamedParameter (const struct Service *service_p, const char *param_name_s, ParameterType *pt_p);
 
 
 /**

@@ -38,6 +38,8 @@ static bool AddDoubleParameterDetailsToJSON (const struct Parameter *param_p, js
 
 static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
+static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, const char *key_s);
+
 
 /*
  * API DEFINITIONS
@@ -124,6 +126,62 @@ DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data
 
 	return NULL;
 }
+
+
+DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, const Service *service_p)
+{
+	DoubleParameter *param_p = NULL;
+	double *current_value_p = NULL;
+
+	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
+		{
+			double *default_value_p = NULL;
+			bool success_flag = true;
+			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+
+			if (full_definition_flag)
+				{
+					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					param_p = (DoubleParameter *) AllocMemory (sizeof (DoubleParameter));
+
+					if (param_p)
+						{
+							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, full_definition_flag))
+								{
+									SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON, NULL);
+
+									param_p -> dp_current_value_p = current_value_p;
+									param_p -> dp_default_value_p = default_value_p;
+
+									return param_p;
+								}
+
+							FreeMemory (param_p);
+						}
+
+
+					if (default_value_p)
+						{
+							FreeMemory (default_value_p);
+						}
+				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+
+			if (current_value_p)
+				{
+					FreeMemory (current_value_p);
+				}
+		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
+
+	return NULL;
+}
+
 
 
 const double64 *GetDoubleParameterCurrentValue (const DoubleParameter *param_p)
@@ -334,3 +392,23 @@ static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t 
 
 	return success_flag;
 }
+
+
+static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, const char *key_s)
+{
+	bool success_flag = false;
+	double d;
+
+	if (GetJSONReal (param_json_p, key_s, &d))
+		{
+			success_flag = SetDoubleParameterValue (value_pp, &d);
+		}
+	else
+		{
+			success_flag = SetDoubleParameterValue (value_pp, NULL);
+		}
+
+	return success_flag;
+}
+
+

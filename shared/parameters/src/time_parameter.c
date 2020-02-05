@@ -38,8 +38,6 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 
 static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
-static bool SetTimeValue (const json_t *param_json_p, const char *key_s, struct tm **time_pp);
-
 
 /*
  * API DEFINITIONS
@@ -125,6 +123,63 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 
 	return NULL;
 }
+
+
+
+TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const Service *service_p)
+{
+	TimeParameter *param_p = NULL;
+	struct tm *current_value_p = NULL;
+
+	if (SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, &current_value_p))
+		{
+			struct tm *default_value_p = NULL;
+			bool success_flag = true;
+			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+
+			if (full_definition_flag)
+				{
+					if (!SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &current_value_p))
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					param_p = (TimeParameter *) AllocMemory (sizeof (TimeParameter));
+
+					if (param_p)
+						{
+							if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, full_definition_flag))
+								{
+									SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON, GetTimeParameterDetailsFromJSON, NULL);
+
+									param_p -> tp_current_value_p = current_value_p;
+									param_p -> tp_default_value_p = default_value_p;
+
+									return param_p;
+								}
+
+							FreeMemory (param_p);
+						}
+
+
+					if (default_value_p)
+						{
+							FreeMemory (default_value_p);
+						}
+				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+
+			if (current_value_p)
+				{
+					FreeMemory (current_value_p);
+				}
+		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
+
+	return NULL;
+}
+
 
 
 const struct tm *GetTimeParameterCurrentValue (const TimeParameter *param_p)
@@ -292,7 +347,6 @@ static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 {
 	TimeParameter *time_param_p = (TimeParameter *) param_p;
 	bool success_flag = false;
-
 
 	if (SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, & (time_param_p -> tp_current_value_p)))
 		{

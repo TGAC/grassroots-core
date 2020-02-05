@@ -44,6 +44,25 @@ typedef struct StringParameter
 
 
 
+typedef struct StringParameterOption
+{
+	/** The internal value for this option */
+	char *spo_value_s;
+
+	/** The user-friendly description for this value */
+	char *spo_description_s;
+
+} StringParameterOption;
+
+
+typedef struct StringParameterOptionNode
+{
+	ListItem spon_node;
+
+	ParameterOption *spon_option_p;
+
+} StringParameterOptionNode;
+
 
 
 /*
@@ -94,6 +113,9 @@ GRASSROOTS_PARAMS_API bool IsStringParameterBounded (const StringParameter *para
 
 
 GRASSROOTS_PARAMS_API bool GetStringParameterBounds (const StringParameter *param_p, const char *min_p, const char *max_p);
+
+
+GRASSROOTS_PARAMS_API bool CreateAndAddStringParameterOption (const StringParameter *param_p, const char *value_s, const char *description_s);
 
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_STRING_PARAMETER_H_ */

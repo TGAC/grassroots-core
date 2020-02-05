@@ -38,6 +38,8 @@ static bool AddSignedIntParameterDetailsToJSON (const Parameter *param_p, json_t
 
 static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
+static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, const char *key_s);
+
 
 /*
  * API DEFINITIONS
@@ -124,6 +126,60 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 	return NULL;
 }
 
+
+SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
+{
+	SignedIntParameter *param_p = NULL;
+	uint32 *current_value_p = NULL;
+
+	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
+		{
+			uint32 *default_value_p = NULL;
+			bool success_flag = true;
+			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+
+			if (full_definition_flag)
+				{
+					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
+
+					if (param_p)
+						{
+							if (InitParameterFromJSON (& (param_p -> sip_base_param), param_json_p, service_p, full_definition_flag))
+								{
+									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON, NULL);
+
+									param_p -> sip_current_value_p = current_value_p;
+									param_p -> sip_default_value_p = default_value_p;
+
+									return param_p;
+								}
+
+							FreeMemory (param_p);
+						}
+
+
+					if (default_value_p)
+						{
+							FreeMemory (default_value_p);
+						}
+				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+
+			if (current_value_p)
+				{
+					FreeMemory (current_value_p);
+				}
+		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
+
+	return NULL;
+}
 
 const int32 *GetSignedIntParameterCurrentValue (const SignedIntParameter *param_p)
 {
@@ -388,3 +444,22 @@ static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json
 
 	return success_flag;
 }
+
+
+static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, const char *key_s)
+{
+	bool success_flag = false;
+	int32 i;
+
+	if (GetJSONInteger (param_json_p, key_s, &i))
+		{
+			success_flag = SetSignedIntParameterValue (value_pp, &i);
+		}
+	else
+		{
+			success_flag = SetSignedIntParameterValue (value_pp, NULL);
+		}
+
+	return success_flag;
+}
+

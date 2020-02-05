@@ -32,7 +32,6 @@
 #include "data_resource.h"
 #include "hash_table.h"
 #include "schema_version.h"
-#include "parameter_option.h"
 #include "parameter_type.h"
 #include "remote_parameter_details.h"
 //#include "shared_type.h"
@@ -309,7 +308,6 @@ GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct Servi
 																					bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
 																					struct Parameter (*clone_fn) (const Parameter *param_p)
 );
-
 
 
 GRASSROOTS_PARAMS_API bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const struct Service *service_p, const bool full_definition_flag);
