@@ -356,29 +356,6 @@ Parameter *GetParameterFromParameterSetByName (const ParameterSet * const params
 }
 
 
-bool GetCurrentParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p)
-{
-	InitSharedType (value_p);
-	return GetParameterValueFromParameterSet (params_p, name_s, value_p, true);
-}
-
-
-bool GetParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p, const bool current_value_flag)
-{
-	bool success_flag = false;
-	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
-
-	if (param_p)
-		{
-			*value_p = current_value_flag ? param_p -> pa_current_value : param_p -> pa_default;
-			success_flag = true;
-		}
-
-	return success_flag;
-
-}
-
-
 bool AddParameterGroupToParameterSet (ParameterSet *param_set_p, ParameterGroup *group_p)
 {
 	bool success_flag = false;

@@ -25,6 +25,7 @@
 
 #include "parameter.h"
 #include "grassroots_params_library.h"
+#include "parameter_set.h"
 
 
 typedef struct BooleanParameter
@@ -79,6 +80,12 @@ GRASSROOTS_PARAMS_API const bool *GetBooleanParameterDefaultValue (const Boolean
 
 
 GRASSROOTS_PARAMS_API bool SetBooleanParameterDefaultValue (BooleanParameter *param_p, const bool *value_p);
+
+
+GRASSROOTS_PARAMS_API bool IsBooleanParameter (Parameter *param_p);
+
+
+GRASSROOTS_PARAMS_API bool GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *value_p);
 
 
 #ifdef __cplusplus

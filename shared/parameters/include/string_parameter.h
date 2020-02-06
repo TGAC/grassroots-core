@@ -25,6 +25,7 @@
 
 
 #include "parameter.h"
+#include "parameter_set.h"
 #include "grassroots_params_library.h"
 
 
@@ -59,7 +60,7 @@ typedef struct StringParameterOptionNode
 {
 	ListItem spon_node;
 
-	ParameterOption *spon_option_p;
+	StringParameterOption *spon_option_p;
 
 } StringParameterOptionNode;
 
@@ -116,6 +117,22 @@ GRASSROOTS_PARAMS_API bool GetStringParameterBounds (const StringParameter *para
 
 
 GRASSROOTS_PARAMS_API bool CreateAndAddStringParameterOption (const StringParameter *param_p, const char *value_s, const char *description_s);
+
+
+GRASSROOTS_PARAMS_API bool IsStringParameter (Parameter *param_p);
+
+
+/**
+ * Get the value of a StringParameter within a ParameterSet
+ *
+ * @param params_p The ParameterSet to get the Parameter from.
+ * @param name_s The Parameter name to try and match.
+ * @param value_pp Where the StringParameter value will be stored upon success.
+ * @return <code>true</code> if the Parameter value was retrieved successfully, <code>false</code>
+ * otherwise.
+ * @memberof ParameterSet
+ */
+GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char **value_pp);
 
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_STRING_PARAMETER_H_ */

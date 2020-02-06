@@ -303,6 +303,49 @@ void FreeStringParameterOptionNode (ListItem *item_p)
 }
 
 
+bool IsStringParameter (Parameter *param_p)
+{
+	bool string_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_PASSWORD:
+			case PT_STRING:
+			case PT_KEYWORD:
+			case PT_LARGE_STRING:
+			case PT_TABLE:
+			case PT_FASTA:
+				string_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return string_param_flag;
+}
+
+
+bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char **value_pp)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsStringParameter (param_p))
+				{
+					const char *value_s = GetStringParameterCurrentValue ((const StringParameter *) param_p);
+
+					*value_pp = *value_s;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
@@ -390,6 +433,74 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 								{
 									if ((string_param_p -> sp_max_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (string_param_p -> sp_max_value_s))))
 										{
+											LinkedList *options_p = GetMultiOptions (param_p);
+
+											if ((options_p != NULL) && (options_p -> ll_size > 0))
+												{
+													json_t *json_options_p = json_array ();
+
+													if (json_options_p)
+														{
+															StringParameterOptionNode *node_p = (StringParameterOptionNode *) options_p -> ll_head_p);
+
+															while (node_p)
+																{
+																	StringParameterOption *option_p = node_p -> spon_option_p;
+																	json_t *value_p = json_string (option_p -> spo_value_s);
+
+																	if (value_p)
+																		{
+																			json_t *item_p = json_object ();
+
+																			success_flag = false;
+
+																			if (item_p)
+																				{
+																					bool res_flag = true;
+
+																					if (option_p -> spo_description_s)
+																						{
+																							if (!SetJSONString (item_p, SHARED_TYPE_DESCRIPTION_S, option_p -> spo_description_s))
+																								{
+																									res_flag = false;
+																								}
+																						}
+
+																					if (res_flag)
+																						{
+																							if (json_object_set_new (item_p, SHARED_TYPE_VALUE_S, value_p) == 0)
+																								{
+																									success_flag = (json_array_append_new (json_options_p, item_p) == 0);
+																								}
+																						}
+
+																					if (!success_flag)
+																						{
+																							json_object_clear (item_p);
+																							json_decref (item_p);
+																						}
+																				}
+																		}
+
+																	node_p = (StringParameterOptionNode *) (node_p -> spon_node.ln_next_p);
+																}		/* while (node_p) */
+
+															if (success_flag)
+																{
+																	if (json_object_set_new (param_json_p, PARAM_OPTIONS_S, json_options_p) == 0)
+																		{
+																			success_flag = true;
+																		}
+																	else
+																		{
+																			json_decref (json_options_p);
+																		}
+																}
+
+														}		/* if (json_options_p) */
+
+												}
+
 											success_flag = true;
 										}
 								}

@@ -311,6 +311,44 @@ bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_
 }
 
 
+bool IsSignedIntParameter (Parameter *param_p)
+{
+	bool signed_int_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_SIGNED_INT:
+			case PT_NEGATIVE_INT:
+				signed_int_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return signed_int_param_flag;
+}
+
+
+bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, int32 *value_p)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsSignedParameter (param_p))
+				{
+					const int32 *current_value_p = GetSignedIntParameterCurrentValue ((const SignedIntParameter *) param_p);
+
+					*value_p = *current_value_p;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
 
 /*
  * STATIC DEFINITIONS
@@ -418,27 +456,19 @@ static bool AddSignedIntParameterDetailsToJSON (const struct Parameter *param_p,
 static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
 {
 	SignedIntParameter *int_param_p = (SignedIntParameter *) param_p;
-	bool success_flag = true;
-	int32 i;
+	bool success_flag = false;
 
-	if (GetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, &i))
+	if (SetValueFromJSON (& (int_param_p -> sip_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			success_flag = SetSignedIntParameterCurrentValue (int_param_p, &i);
-		}
-	else
-		{
-			success_flag = SetSignedIntParameterCurrentValue (int_param_p, NULL);
-		}
-
-	if (success_flag)
-		{
-			if (GetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, &i))
+			if (SetValueFromJSON (& (int_param_p -> sip_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
 				{
-					success_flag = SetSignedIntParameterDefaultValue (int_param_p, &i);
-				}
-			else
-				{
-					success_flag = SetSignedIntParameterDefaultValue (int_param_p, NULL);
+					if (SetValueFromJSON (& (int_param_p -> sip_min_value_p), param_json_p, PARAM_MIN_S))
+						{
+							if (SetValueFromJSON (& (int_param_p -> sip_max_value_p), param_json_p, PARAM_MAX_S))
+								{
+									success_flag = true;
+								}
+						}
 				}
 		}
 

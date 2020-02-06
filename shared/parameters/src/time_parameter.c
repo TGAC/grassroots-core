@@ -244,6 +244,44 @@ bool GetTimeParameterBounds (const TimeParameter *param_p, struct tm *min_p, str
 }
 
 
+
+bool IsTimeParameter (Parameter *param_p)
+{
+	bool time_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_TIME:
+				time_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return time_param_flag;
+}
+
+
+bool GetCurrentTimeParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const struct tm **value_pp)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsTimeParameter (param_p))
+				{
+					const struct tm *current_value_p = GetTimeParameterCurrentValue ((const TimeParameter *) param_p);
+
+					*value_pp = current_value_p;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
 /*
  * STATIC DEFINITIONS
  */
@@ -352,9 +390,14 @@ static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 		{
 			if (SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, & (time_param_p -> tp_default_value_p)))
 				{
-					success_flag = true;
+					if (SetTimeValueFromJSON (param_json_p, PARAM_MIN_S, & (time_param_p -> tp_min_value_p)))
+						{
+							if (SetTimeValueFromJSON (param_json_p, PARAM_MAX_S, & (time_param_p -> tp_max_value_p)))
+								{
+									success_flag = true;
+								}
+						}
 				}
-
 		}
 
 	return success_flag;

@@ -262,6 +262,45 @@ bool GetDoubleParameterBounds (const DoubleParameter *param_p, char *min_p, char
 }
 
 
+bool IsDoubleParameter (Parameter *param_p)
+{
+	bool double_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_SIGNED_REAL:
+			case PT_UNSIGNED_REAL:
+				double_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return double_param_flag;
+}
+
+
+bool GetCurrentDoubleParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, double64 *value_p)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsDoubleParameter (param_p))
+				{
+					const double64 *current_value_p = GetDoubleParameterCurrentValue ((const DoubleParameter *) param_p);
+
+					*value_p = *current_value_p;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
@@ -366,27 +405,19 @@ static bool AddDoubleParameterDetailsToJSON (const struct Parameter *param_p, js
 static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
 {
 	DoubleParameter *double_param_p = (DoubleParameter *) param_p;
-	bool success_flag = true;
-	double64 d;
+	bool success_flag = false;
 
-	if (GetJSONReal (param_json_p, PARAM_CURRENT_VALUE_S, &d))
+	if (SetValueFromJSON (& (double_param_p -> dp_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			success_flag = SetDoubleParameterCurrentValue (double_param_p, &d);
-		}
-	else
-		{
-			success_flag = SetDoubleParameterCurrentValue (double_param_p, NULL);
-		}
-
-	if (success_flag)
-		{
-			if (GetJSONReal (param_json_p, PARAM_DEFAULT_VALUE_S, &d))
+			if (SetValueFromJSON (& (double_param_p -> dp_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
 				{
-					success_flag = SetDoubleParameterDefaultValue (double_param_p, &d);
-				}
-			else
-				{
-					success_flag = SetDoubleParameterDefaultValue (double_param_p, NULL);
+					if (SetValueFromJSON (& (double_param_p -> dp_min_value_p), param_json_p, PARAM_MIN_S))
+						{
+							if (SetValueFromJSON (& (double_param_p -> dp_max_value_p), param_json_p, PARAM_MAX_S))
+								{
+									success_flag = true;
+								}
+						}
 				}
 		}
 

@@ -34,7 +34,6 @@
 #include "schema_version.h"
 #include "parameter_type.h"
 #include "remote_parameter_details.h"
-//#include "shared_type.h"
 
 
 /******* FORWARD DECLARATION *******/
@@ -382,33 +381,6 @@ GRASSROOTS_PARAMS_API const char *CheckForNotNull (const Parameter * const param
 
 
 /**
- * Set the current value of a Parameter.
- *
- * @param parameter_p The Parameter to update.
- * @param value_p The value to update the Parameter to. It will be cast to the appropriate type based upon
- * the Parameter's type.
- * @param current_value_flag If this is <code>true</code> then the current parameter value is the one that will be set.
- * If this is <code>false</code>, then the Parameter's default value will be altered.
- * @return <code>true</code> if the Parameter was updated successfully, <code>false</code> otherwise.
- * @memberof Parameter
- */
-GRASSROOTS_PARAMS_API bool SetParameterValue (Parameter * const parameter_p, const void *value_p, const bool current_value_flag);
-
-
-/**
- * Set the current value of a Parameter from a SharedType.
- *
- * @param parameter_p The Parameter to update.
- * @param src_p The SharedType to update the Parameter from.
- * @param current_value_flag If this is <code>true</code> then the current parameter value is the one that will be set.
- * If this is <code>false</code>, then the Parameter's default value will be altered.
- * @return <code>true</code> if the Parameter was updated successfully, <code>false</code> otherwise.
- * @memberof Parameter
- */
-GRASSROOTS_PARAMS_API bool SetParameterValueFromSharedType (Parameter * const parameter_p, const SharedType * src_p, const bool current_value_flag);
-
-
-/**
  * Add a key value pair to a Parameter.
  *
  * @param parameter_p The Parameter to update.
@@ -551,23 +523,6 @@ GRASSROOTS_PARAMS_API bool SetParameterValueFromString (Parameter * const param_
 GRASSROOTS_PARAMS_API bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt, const char *value_s);
 
 
-/**
- * Allocate a SharedTypeNode set to the given value.
- *
- * @param value The value that will be copied to the SharedTypeNode.
- * @return The newly-allocated SharedTypeNode or <code>NULL</code> if there was an error.
- * @memberof SharedTypeNode
- */
-GRASSROOTS_PARAMS_API SharedTypeNode *AllocateSharedTypeNode (SharedType value);
-
-
-/**
- * Free a SharedTypeNode.
- *
- * @param node_p The SharedTypeNode to free.
- * @memberof SharedTypeNode
- */
-GRASSROOTS_PARAMS_API void FreeSharedTypeNode (ListItem *node_p);
 
 /**
  * Create a RemoteParameterDetails and add it to the given Parameter.

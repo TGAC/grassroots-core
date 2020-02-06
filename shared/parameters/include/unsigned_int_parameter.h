@@ -97,6 +97,8 @@ GRASSROOTS_PARAMS_API bool IsUnsignedIntParameterBounded (const UnsignedIntParam
 GRASSROOTS_PARAMS_API bool GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, uint32 *min_p, uint32 *max_p);
 
 
+GRASSROOTS_PARAMS_API bool IsUnsignedIntParameter (Parameter *param_p);
+
 #ifdef __cplusplus
 }
 #endif

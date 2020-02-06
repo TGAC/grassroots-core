@@ -207,6 +207,44 @@ bool SetBooleanParameterDefaultValue (BooleanParameter *param_p, const bool *val
 }
 
 
+bool IsBooleanParameter (Parameter *param_p)
+{
+	bool boolean_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_BOOLEAN:
+				boolean_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return boolean_param_flag;
+}
+
+
+bool GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *value_p)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsBooleanParameter (param_p))
+				{
+					const bool *current_value_p = GetBooleanParameterCurrentValue ((const BooleanParameter *) param_p);
+
+					*value_p = *current_value_p;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

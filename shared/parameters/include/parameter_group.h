@@ -333,21 +333,6 @@ GRASSROOTS_PARAMS_API Parameter *GetParameterFromParameterGroupByName (const Par
 
 
 /**
- * Get the ParameterNode for a Parameter with a given name from a ParameterGroup.
- *
- * @param group_p The ParameterSet to search.
- * @param name_s The Parameter name to try and match.
- * @param value_p If successful, the Parameter value will be stored here.
- * @param current_value_flag If <code>true</code> then the Parameter's current value
- * will be retrieved. If this is <code>false</code> then Parameter's default value will be
- * retrieved instead.
- * @return <code>true</code> if the Parameter was retrieved successfully, <code>false</code> otherwise.
- * @memberof ParameterGroup
- */
-GRASSROOTS_PARAMS_API bool GetParameterValueFromParameterGroup (const ParameterGroup * const group_p, const char * const name_s, SharedType *value_p, const bool current_value_flag);
-
-
-/**
  * Get the name to use for a child of a repeatable ParameterGroup.
  *
  * @param group_p The ParameterSet to get the name from.

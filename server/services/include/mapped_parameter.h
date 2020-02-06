@@ -161,11 +161,11 @@ GRASSROOTS_SERVICE_API void FreeMappedParameterNode (ListItem *node_p);
  *
  * @param mapped_param_p The MappedParameter to set the value for.
  * @param params_p The ParameterSet where the Parameter will be set.
- * @param value_p The value to use to set the Parameter.
+ * @param param_name_s The name of the Parameter within the ParamaterSet to set teh value for.
  * @return <code>true</code> if the Parameter was set successfully, <code>false</code> upon error.
  * @memberof MappedParameter
  */
-GRASSROOTS_SERVICE_API bool SetMappedParameterValue (MappedParameter *mapped_param_p, ParameterSet *params_p, const SharedType * const value_p);
+GRASSROOTS_SERVICE_API bool SetMappedStringParameterValue (MappedParameter *mapped_param_p, ParameterSet *params_p, const char *param_name_s);
 
 
 #ifdef __cplusplus

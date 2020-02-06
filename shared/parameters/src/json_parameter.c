@@ -141,6 +141,45 @@ bool SetJSONParameterDefaultValue (JSONParameter *param_p, const json_t *value_p
 }
 
 
+bool IsJSONParameter (Parameter *param_p)
+{
+	bool json_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_JSON:
+			case PT_JSON_TABLE:
+				json_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return json_param_flag;
+}
+
+
+bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const json_t **value_pp)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsJSONParameter (param_p))
+				{
+					const json_t *current_value_p = GetJSONParameterCurrentValue ((const JSONParameter *) param_p);
+
+					*value_pp = *current_value_p;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

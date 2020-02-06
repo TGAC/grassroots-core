@@ -1465,13 +1465,21 @@ static json_t *RunKeywordServices (GrassrootsServer *grassroots_p, const json_t 
 																					/* set the keyword parameter */
 																					if (param_p -> pa_type == PT_KEYWORD)
 																						{
-																							if (SetParameterValue (param_p, keyword_s, true))
+																							if (IsStringParameter (param_p))
 																								{
-																									param_flag = true;
+																									if (SetStringParameterCurrentValue ((StringParameter *) param_p, keyword_s))
+																										{
+																											param_flag = true;
+																										}
+																									else
+																										{
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set service param \"%s\" - \"%s\" to \"%s\"", GetServiceName (service_p), param_p -> pa_name_s, keyword_s);
+																											param_flag = false;
+																										}
 																								}
 																							else
 																								{
-																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set service param \"%s\" - \"%s\" to \"%s\"", GetServiceName (service_p), param_p -> pa_name_s, keyword_s);
+																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter is keyword but not a string param for service \"%s\" - \"%s\" to \"%s\"", GetServiceName (service_p), param_p -> pa_name_s, keyword_s);
 																									param_flag = false;
 																								}
 																						}

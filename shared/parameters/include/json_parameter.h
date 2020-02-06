@@ -83,5 +83,10 @@ GRASSROOTS_PARAMS_API const json_t *GetJSONParameterDefaultValue (const JSONPara
 GRASSROOTS_PARAMS_API bool SetJSONParameterDefaultValue (JSONParameter *param_p, const json_t *value_p);
 
 
+GRASSROOTS_PARAMS_API bool IsJSONParameter (Parameter *param_p);
+
+
+GRASSROOTS_PARAMS_API bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const json_t **value_pp);
+
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_JSON_PARAMETER_H_ */

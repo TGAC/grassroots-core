@@ -26,6 +26,7 @@
 
 #include "parameter.h"
 #include "grassroots_params_library.h"
+#include "parameter_set.h"
 
 
 typedef struct CharParameter
@@ -92,6 +93,12 @@ GRASSROOTS_PARAMS_API bool IsCharParameterBounded (const CharParameter *param_p)
 
 
 GRASSROOTS_PARAMS_API bool GetCharParameterBounds (const CharParameter *param_p, char *min_p, char *max_p);
+
+
+GRASSROOTS_PARAMS_API bool IsCharParameter (Parameter *param_p);
+
+
+GRASSROOTS_PARAMS_API bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char *value_p);
 
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_CHAR_PARAMETER_H_ */

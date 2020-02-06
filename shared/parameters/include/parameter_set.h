@@ -274,26 +274,6 @@ GRASSROOTS_PARAMS_API ParameterNode *GetParameterNodeFromParameterSetByName (con
 
 
 /**
- * Get the value of a Parameter within a ParameterSet
- *
- * @param params_p The ParameterSet to get the Parameter from.
- * @param name_s The Parameter name to try and match.
- * @param value_p Where the Parameter value will be stored upon success.
- * @param current_value_flag If this is <code>true</code> then the current value
- * of the Parameter will be retrieved. If this is <code>false</code> then the default
- * value of the Parameter will be retrieved instead.
- * @return <code>true</code> if the Parameter value was retrieved successfully, <code>false</code>
- * otherwise.
- * @memberof ParameterSet
- */
-GRASSROOTS_PARAMS_API bool GetParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p, const bool current_value_flag);
-
-
-
-GRASSROOTS_PARAMS_API bool GetCurrentParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, SharedType *value_p);
-
-
-/**
  *
  * Allocate a new ParameterSetNode to point to the given ParameterSet
  *

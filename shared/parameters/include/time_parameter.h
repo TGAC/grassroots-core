@@ -93,6 +93,9 @@ GRASSROOTS_PARAMS_API const struct tm *GetTimeParameterDefaultValue (const TimeP
 GRASSROOTS_PARAMS_API bool SetTimeParameterDefaultValue (TimeParameter *param_p, const struct tm *value_p);
 
 
+GRASSROOTS_PARAMS_API bool IsTimeParameter (Parameter *param_p);
+
+
 #ifdef __cplusplus
 }
 #endif

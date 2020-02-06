@@ -40,7 +40,6 @@ SRCS 	= \
 	parameter_option.c \
 	parameter_set.c \
 	remote_parameter_details.c \
-	shared_type.c \
 	resource_paramteter.c \
 	signed_int_parameter.c \
 	time_parameter.c \

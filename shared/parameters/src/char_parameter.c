@@ -303,6 +303,49 @@ bool GetCharParameterBounds (const CharParameter *param_p, char *min_p, char *ma
 }
 
 
+bool IsCharParameter (Parameter *param_p)
+{
+	bool char_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_CHAR:
+				char_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return char_param_flag;
+}
+
+
+bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char *value_p)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsCharParameter (param_p))
+				{
+					const char *current_value_p = GetCharParameterCurrentValue ((const CharParameter *) param_p);
+
+					*value_p = *current_value_p;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
+/*
+ * STATIC DEFINITIONS
+ */
+
+
 
 static void ClearCharParameter (Parameter *param_p)
 {
@@ -393,38 +436,21 @@ static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p)
 static bool GetCharParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
 {
 	CharParameter *char_param_p = (CharParameter *) param_p;
-	bool success_flag = true;
-	const char *value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
+	bool success_flag = false;
 
-	if (value_s)
+	if (SetValueFromJSON (& (char_param_p -> cp_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			if (strlen (value_s) == 1)
+			if (SetValueFromJSON (& (char_param_p -> cp_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
 				{
-					success_flag = SetCharParameterCurrentValue (char_param_p, value_s);
-				}
-		}
-	else
-		{
-			success_flag = SetCharParameterCurrentValue (char_param_p, NULL);
-		}
-
-	if (success_flag)
-		{
-			value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
-
-			if (value_s)
-				{
-					if (strlen (value_s) == 1)
+					if (SetValueFromJSON (& (char_param_p -> cp_min_value_p), param_json_p, PARAM_MIN_S))
 						{
-							success_flag = SetCharParameterCurrentValue (char_param_p, value_s);
+							if (SetValueFromJSON (& (char_param_p -> cp_max_value_p), param_json_p, PARAM_MAX_S))
+								{
+									success_flag = true;
+								}
 						}
 				}
 		}
-	else
-		{
-			success_flag = SetCharParameterDefaultValue (char_param_p, NULL);
-		}
-
 
 	return success_flag;
 }

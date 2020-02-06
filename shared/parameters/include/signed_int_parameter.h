@@ -102,6 +102,10 @@ GRASSROOTS_PARAMS_API bool IsSignedIntParameterBounded (const SignedIntParameter
 GRASSROOTS_PARAMS_API bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p);
 
 
+GRASSROOTS_PARAMS_API bool IsSignedIntParameter (Parameter *param_p);
+
+
+GRASSROOTS_PARAMS_API bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, int32 *value_p);
 
 #ifdef __cplusplus
 }

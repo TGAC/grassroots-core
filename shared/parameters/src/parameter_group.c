@@ -430,22 +430,6 @@ Parameter *GetParameterFromParameterGroupByName (const ParameterGroup * const gr
 }
 
 
-bool GetParameterValueFromParameterGroup (const ParameterGroup * const params_p, const char * const name_s, SharedType *value_p, const bool current_value_flag)
-{
-	bool success_flag = false;
-	Parameter *param_p = GetParameterFromParameterGroupByName (params_p, name_s);
-
-	if (param_p)
-		{
-			*value_p = current_value_flag ? param_p -> pa_current_value : param_p -> pa_default;
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-
 char *GetRepeatableParameterGroupRegularExpression (const ParameterGroup * const group_p)
 {
 	char *reg_ex_s = ConcatenateVarargsStrings (group_p -> pg_name_s, " ", S_REPEATABLE_GROUP_DELIMITER_PREFIX_ESCAPED_REGEX_S, ".*", S_REPEATABLE_GROUP_DELIMITER_SUFFIX_ESCAPED_REGEX_S, NULL);

@@ -196,6 +196,23 @@ bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const uint32 
 }
 
 
+bool IsResourceParameter (Parameter *param_p)
+{
+	bool resource_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_FILE_TO_READ:
+				resource_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return resource_param_flag;
+}
+
 /*
  * STATIC DEFINITIONS
  */

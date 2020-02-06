@@ -38,6 +38,7 @@ static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json
 
 static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
+static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, const char *key_s);
 
 /*
  * API DEFINITIONS
@@ -260,6 +261,43 @@ bool GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, uint32 
 }
 
 
+bool IsUnsignedIntParameter (Parameter *param_p)
+{
+	bool unsigned_int_param_flag = false;
+
+	switch (param_p -> pa_type)
+		{
+			case PT_UNSIGNED_INT:
+				unsigned_int_param_flag = true;
+				break;
+
+			default:
+				break;
+		}
+
+	return unsigned_int_param_flag;
+}
+
+
+
+bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, uint32 *value_p)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsUnsignedParameter (param_p))
+				{
+					const uint32 *current_value_p = GetUnsignedIntParameterCurrentValue ((const UnsignedIntParameter *) param_p);
+
+					*value_p = *current_value_p;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
 
 /*
  * STATIC DEFINITIONS
@@ -366,27 +404,19 @@ static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json
 static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
 {
 	UnsignedIntParameter *int_param_p = (UnsignedIntParameter *) param_p;
-	bool success_flag = true;
-	uint32 i;
+	bool success_flag = false;
 
-	if (GetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, &i))
+	if (SetValueFromJSON (& (int_param_p -> uip_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			success_flag = SetUnsignedIntParameterCurrentValue (int_param_p, &i);
-		}
-	else
-		{
-			success_flag = SetUnsignedIntParameterCurrentValue (int_param_p, NULL);
-		}
-
-	if (success_flag)
-		{
-			if (GetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, &i))
+			if (SetValueFromJSON (& (int_param_p -> uip_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
 				{
-					success_flag = SetUnsignedIntParameterDefaultValue (int_param_p, &i);
-				}
-			else
-				{
-					success_flag = SetUnsignedIntParameterDefaultValue (int_param_p, NULL);
+					if (SetValueFromJSON (& (int_param_p -> uip_min_value_p), param_json_p, PARAM_MIN_S))
+						{
+							if (SetValueFromJSON (& (int_param_p -> uip_max_value_p), param_json_p, PARAM_MAX_S))
+								{
+									success_flag = true;
+								}
+						}
 				}
 		}
 
@@ -394,7 +424,8 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 }
 
 
-static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, const char *key_s)
+
+static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
 	int32 i;
