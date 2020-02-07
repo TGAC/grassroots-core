@@ -37,13 +37,11 @@ SRCS 	= \
 	json_parameter.c \
 	parameter.c \
 	parameter_group.c \
-	parameter_option.c \
 	parameter_set.c \
 	remote_parameter_details.c \
-	resource_paramteter.c \
+	resource_parameter.c \
 	signed_int_parameter.c \
 	time_parameter.c \
-	typed_value.c \
 	unsigned_int_parameter.c 
 	
 	

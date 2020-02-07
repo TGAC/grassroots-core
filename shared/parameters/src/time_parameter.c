@@ -96,7 +96,7 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 				{
 					if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, level,
 														 ClearTimeParameter, AddTimeParameterDetailsToJSON, GetTimeParameterDetailsFromJSON,
-														 NULL))
+														 NULL, SetTimeParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -155,7 +155,8 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 						{
 							if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON, GetTimeParameterDetailsFromJSON, NULL);
+									SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON,
+																				 GetTimeParameterDetailsFromJSON, NULL, SetTimeParameterCurrentValueFromString);
 
 									param_p -> tp_current_value_p = current_value_p;
 									param_p -> tp_default_value_p = default_value_p;
@@ -446,6 +447,27 @@ static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s,
 
 static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
 {
+	bool success_flag = false;
+	TimeParameter *time_param_p = (TimeParameter *) param_p;
 
+	if (value_s)
+		{
+			struct tm t;
+
+			if (SetTimeFromString (&t, value_s))
+				{
+					if (SetTimeParameterCurrentValue (time_param_p, &t))
+						{
+							success_flag = true;
+						}
+				}
+		}
+	else
+		{
+			success_flag = SetTimeParameterCurrentValue (time_param_p, NULL);
+		}
+
+
+	return success_flag;
 }
 

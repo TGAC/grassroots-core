@@ -199,7 +199,7 @@ struct Parameter
 
 	bool (*pa_get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p);
 
-	struct Parameter (*pa_clone_fn) (const struct Parameter *param_p);
+	struct Parameter *(*pa_clone_fn) (const struct Parameter *param_p);
 
 	bool (*pa_set_value_from_string_fn) (struct Parameter *param_p, const char *value_s);
 };

@@ -40,6 +40,8 @@ static bool GetJSONParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 
 static bool AddJSONValue (const json_t *value_to_add_p, const char *key_s, json_t *dest_p);
 
+static bool SetJSONParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
+
 
 /*
  * API DEFINITIONS
@@ -89,7 +91,7 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 				{
 					if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
 														 ClearJSONParameter, AddJSONParameterDetailsToJSON,
-														 NULL, GetJSONParameterDetailsFromJSON))
+														 NULL, GetJSONParameterDetailsFromJSON, SetJSONParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -313,3 +315,28 @@ static bool GetJSONParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 
 	return success_flag;
 }
+
+
+static bool SetJSONParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
+{
+	JSONParameter *json_param_p = (JSONParameter *) param_p;
+	bool success_flag = false;
+
+	if (value_s)
+		{
+			json_error_t err;
+			json_t *value_p = json_loads (value_s, 0, &err);
+
+			if (value_p)
+				{
+					success_flag = SetJSONParameterCurrentValue (json_param_p, value_p);
+				}
+		}
+	else
+		{
+			success_flag = SetJSONParameterCurrentValue (json_param_p, NULL);
+		}
+
+	return success_flag;
+}
+

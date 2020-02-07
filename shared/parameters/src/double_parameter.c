@@ -491,7 +491,6 @@ static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, con
 }
 
 
-
 static bool SetDoubleParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
 {
 	DoubleParameter *double_param_p = (DoubleParameter *) param_p;
@@ -513,5 +512,3 @@ static bool SetDoubleParameterCurrentValueFromString (Parameter *param_p, const 
 
 	return success_flag;
 }
-
-

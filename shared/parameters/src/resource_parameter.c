@@ -30,7 +30,7 @@
  * STATIC DECLARATIONS
  */
 
-static bool SetResourceParameterValue (uint32 **param_value_pp, const uint32 *new_value_p);
+static bool SetResourceParameterValue (Resource **param_value_pp, const Resource *new_value_p);
 
 static void ClearResourceParameter (Parameter *param_p);
 
@@ -38,12 +38,13 @@ static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t 
 
 static bool GetResourceParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
+static bool AddResourceValueToJSON (const Resource *resource_p, json_t *param_json_p, const char *key_s);
 
 /*
  * API DEFINITIONS
  */
 
-ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level)
+ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, Resource *default_value_p, Resource *current_value_p, ParameterLevel level)
 {
 	ResourceParameter *param_p = (ResourceParameter *) AllocMemory (sizeof (ResourceParameter));
 
@@ -172,25 +173,25 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 
 
 
-const uint32 *GetResourceParameterCurrentValue (const ResourceParameter *param_p)
+const Resource *GetResourceParameterCurrentValue (const ResourceParameter *param_p)
 {
 	return param_p -> rp_current_value_p;
 }
 
 
-bool SetResourceParameterCurrentValue (ResourceParameter *param_p, const uint32 *value_p)
+bool SetResourceParameterCurrentValue (ResourceParameter *param_p, const Resource *value_p)
 {
 	return SetResourceParameterValue (& (param_p -> rp_current_value_p), value_p);
 }
 
 
-const uint32 *GetResourceParameterDefaultValue (const ResourceParameter *param_p)
+const Resource *GetResourceParameterDefaultValue (const ResourceParameter *param_p)
 {
 	return param_p -> rp_default_value_p;
 }
 
 
-bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const uint32 *value_p)
+bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const Resource *value_p)
 {
 	return SetResourceParameterValue (& (param_p -> rp_default_value_p), value_p);
 }
@@ -217,32 +218,31 @@ bool IsResourceParameter (Parameter *param_p)
  * STATIC DEFINITIONS
  */
 
-static bool SetResourceParameterValue (uint32 **param_value_pp, const uint32 *new_value_p)
+static bool SetResourceParameterValue (Resource **param_value_pp, const Resource *new_value_p)
 {
 	bool success_flag = true;
 
 	if (new_value_p)
 		{
-			if (! (*param_value_pp))
+			if (*param_value_pp)
 				{
-					*param_value_pp = (uint32 *) AllocMemory (sizeof (uint32));
+					success_flag = CopyResource (new_value_p, *param_value_pp);
+				}
+			else
+				{
+					*param_value_pp = CloneResource (new_value_p);
 
 					if (! (*param_value_pp))
 						{
 							success_flag = false;
 						}
 				}
-
-			if (success_flag)
-				{
-					**param_value_pp = *new_value_p;
-				}
 		}
 	else
 		{
 			if (*param_value_pp)
 				{
-					FreeMemory (*param_value_pp);
+					FreeReesource (*param_value_pp);
 					*param_value_pp = NULL;
 				}
 		}
@@ -270,21 +270,45 @@ static void ClearResourceParameter (Parameter *param_p)
 }
 
 
-static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
+static bool AddResourceValueToJSON (const Resource *resource_p, json_t *param_json_p, const char *key_s)
 {
-	ResourceParameter *int_param_p = (ResourceParameter *) param_p;
-	bool success_flag = true;
+	bool success_flag = false;
 
-	if (int_param_p -> rp_current_value_p)
+	if (resource_p)
 		{
-			success_flag = SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> rp_current_value_p));
+			json_t *res_json_p = GetResourceAsJSON (resource_p);
+
+			if (res_json_p)
+				{
+					if (json_object_set_new (param_json_p, key_s, res_json_p) == 0)
+						{
+							success_flag = true;
+						}
+					else
+						{
+							json_decref (res_json_p);
+						}
+				}
+		}
+	else
+		{
+			success_flag = true;
 		}
 
-	if (success_flag)
+	return success_flag;
+}
+
+
+static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
+{
+	ResourceParameter *res_param_p = (ResourceParameter *) param_p;
+	bool success_flag = false;
+
+	if (AddResourceValueToJSON (res_param_p -> rp_current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			if (int_param_p -> rp_default_value_p)
+			if (AddResourceValueToJSON (res_param_p -> rp_default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
 				{
-					success_flag = SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> rp_current_value_p));
+					success_flag = true;
 				}
 		}
 
@@ -325,6 +349,7 @@ static bool GetResourceParameterDetailsFromJSON (Parameter *param_p, const json_
 
 
 
+/*
 static bool GetResourceValueFromJSON (const json_t *param_json_p, const char *key_s, Resource **res_pp)
 {
 	bool success_flag = false;
@@ -348,7 +373,7 @@ static bool GetResourceValueFromJSON (const json_t *param_json_p, const char *ke
 							success_flag = true;
 						}
 				}
-		}		/* if (value_s) */
+		}		 if (value_s)
 	else
 		{
 			if (*res_param_p)
@@ -356,6 +381,31 @@ static bool GetResourceValueFromJSON (const json_t *param_json_p, const char *ke
 					FreeResource (*res_param_p);
 					*res_param_p = NULL;
 				}
+		}
+
+	return success_flag;
+}
+*/
+
+
+static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
+{
+	ResourceParameter *res_param_p = (ResourceParameter *) param_p;
+	bool success_flag = false;
+
+	if (value_s)
+		{
+			Resource *resource_p = ParseStringToResource (value_s);
+
+			if (resource_p)
+				{
+					success_flag = SetResourceParameterCurrentValue (res_param_p, resource_p);
+					FreeResource (resource_p);
+				}
+		}
+	else
+		{
+			success_flag = SetDoubleParameterCurrentValue (res_param_p, NULL);
 		}
 
 	return success_flag;

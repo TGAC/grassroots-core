@@ -1746,225 +1746,225 @@ bool AddColumnParameterHint (const char *name_s, const ParameterType param_type,
 
 
 
-bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p)
-{
-	bool success_flag = false;
-
-	/* Get the parameter's value */
-	json_t *json_value_p = json_object_get (root_p, key_s);
-
-	if (json_value_p)
-		{
-			bool value_as_text_flag = false;
-
-#if PARAMETER_DEBUG >= STM_LEVEL_FINE
-			PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, json_value_p, key_s);
-#endif
-
-			/*
-			 * Is the value set from a string? If so, we'll need to do
-			 * a type conversion
-			 */
-			GetJSONBoolean (root_p, PARAM_VALUE_SET_FROM_TEXT_S, &value_as_text_flag);
-
-			if (value_as_text_flag)
-				{
-					if (json_is_string (json_value_p))
-						{
-							const char *value_s = json_string_value (json_value_p);
-
-							if (SetSharedTypeFromString (value_p, param_type, value_s))
-								{
-									success_flag = true;
-								}
-
-						}
-
-				}		/* if (value_as_text_flag) */
-			else
-				{
-					switch (param_type)
-						{
-							case PT_BOOLEAN:
-								if (json_is_boolean (json_value_p))
-									{
-										value_p -> st_boolean_value = (json_is_true (json_value_p)) ? true : false;
-										success_flag = true;
-									}
-								break;
-
-							case PT_CHAR:
-								if (json_is_string (json_value_p))
-									{
-										const char *value_s = json_string_value (json_value_p);
-
-										if (value_s && (strlen (value_s) == 1))
-											{
-												value_p -> st_char_value = *value_s;
-												success_flag = true;
-											}
-									}
-								break;
-
-							case PT_SIGNED_INT:
-							case PT_NEGATIVE_INT:
-								if (json_is_integer (json_value_p))
-									{
-										value_p -> st_long_value = (int32) json_integer_value (json_value_p);
-										success_flag = true;
-									}
-								break;
-
-							case PT_UNSIGNED_INT:
-								if (json_is_integer (json_value_p))
-									{
-										value_p -> st_ulong_value = (uint32) json_integer_value (json_value_p);
-										success_flag = true;
-									}
-								break;
-
-							case PT_SIGNED_REAL:
-							case PT_UNSIGNED_REAL:
-								if (json_is_real (json_value_p))
-									{
-										value_p -> st_data_value = (double64) json_real_value (json_value_p);
-										success_flag = true;
-									}
-								else if (json_is_integer (json_value_p))
-									{
-										value_p -> st_data_value = (double64) json_integer_value (json_value_p);
-										success_flag = true;
-									}
-								break;
-
-
-							case PT_DIRECTORY:
-							case PT_FILE_TO_READ:
-							case PT_FILE_TO_WRITE:
-								{
-									json_t *protocol_p = json_object_get (json_value_p, RESOURCE_PROTOCOL_S);
-
-									if ((protocol_p) && (json_is_string (protocol_p)))
-										{
-											json_t *res_value_p = json_object_get (json_value_p, RESOURCE_VALUE_S);
-											if (res_value_p && json_is_string (res_value_p))
-												{
-													const char *protocol_s = json_string_value (protocol_p);
-													const char *value_s = json_string_value (res_value_p);
-
-													value_p -> st_resource_value_p = AllocateResource (protocol_s, value_s, NULL);
-
-													success_flag = (value_p -> st_resource_value_p != NULL);
-												}
-										}
-								}
-								break;
-
-							case PT_TABLE:
-							case PT_STRING:
-							case PT_LARGE_STRING:
-							case PT_PASSWORD:
-							case PT_KEYWORD:
-							case PT_FASTA:
-								if (json_is_string (json_value_p))
-									{
-										const char * const src_s = json_string_value (json_value_p);
-
-										if (strlen (src_s) > 0)
-											{
-												char *value_s = EasyCopyToNewString (src_s);
-
-												if (value_s)
-													{
-														if (value_p -> st_string_value_s)
-															{
-																FreeCopiedString (value_p -> st_string_value_s);
-															}
-
-														value_p -> st_string_value_s = value_s;
-														success_flag = true;
-													}
-											}
-										else
-											{
-												if (value_p -> st_string_value_s)
-													{
-														FreeCopiedString (value_p -> st_string_value_s);
-														value_p -> st_string_value_s = NULL;
-													}
-
-												success_flag = true;
-											}
-									}
-								break;
-
-							case PT_JSON:
-							case PT_JSON_TABLE:
-								{
-									if (json_value_p)
-										{
-											json_t *copied_value_p = json_deep_copy (json_value_p);
-
-											if (copied_value_p)
-												{
-													if (value_p -> st_json_p)
-														{
-															WipeJSON (value_p -> st_json_p);
-														}
-
-													value_p -> st_json_p = copied_value_p;
-													success_flag = true;
-												}
-										}
-									else
-										{
-											if (value_p -> st_json_p)
-												{
-													WipeJSON (value_p -> st_json_p);
-													value_p -> st_json_p = NULL;
-												}
-										}
-								}
-								break;
-
-							case PT_TIME:
-								if (json_is_string (json_value_p))
-									{
-										const char * const time_s = json_string_value (json_value_p);
-
-										if (value_p -> st_time_p)
-											{
-												success_flag = SetTimeFromString (value_p -> st_time_p, time_s);
-											}
-										else
-											{
-												value_p -> st_time_p = GetTimeFromString (time_s);
-												success_flag = (value_p -> st_time_p != NULL);
-											}
-									}
-
-								break;
-
-							case PT_NUM_TYPES:
-								PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type for key \"%s\"", key_s);
-								break;
-
-						}
-
-				}
-
-		}		/* if (json_value_p) */
-	else
-		{
-			/* json params are allowed to be NULL */
-			if ((param_type == PT_JSON) || (param_type == PT_JSON_TABLE))
-				{
-					success_flag = true;
-				}
-		}
-
-	return success_flag;
-}
+//bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p)
+//{
+//	bool success_flag = false;
+//
+//	/* Get the parameter's value */
+//	json_t *json_value_p = json_object_get (root_p, key_s);
+//
+//	if (json_value_p)
+//		{
+//			bool value_as_text_flag = false;
+//
+//#if PARAMETER_DEBUG >= STM_LEVEL_FINE
+//			PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, json_value_p, key_s);
+//#endif
+//
+//			/*
+//			 * Is the value set from a string? If so, we'll need to do
+//			 * a type conversion
+//			 */
+//			GetJSONBoolean (root_p, PARAM_VALUE_SET_FROM_TEXT_S, &value_as_text_flag);
+//
+//			if (value_as_text_flag)
+//				{
+//					if (json_is_string (json_value_p))
+//						{
+//							const char *value_s = json_string_value (json_value_p);
+//
+//							if (SetSharedTypeFromString (value_p, param_type, value_s))
+//								{
+//									success_flag = true;
+//								}
+//
+//						}
+//
+//				}		/* if (value_as_text_flag) */
+//			else
+//				{
+//					switch (param_type)
+//						{
+//							case PT_BOOLEAN:
+//								if (json_is_boolean (json_value_p))
+//									{
+//										value_p -> st_boolean_value = (json_is_true (json_value_p)) ? true : false;
+//										success_flag = true;
+//									}
+//								break;
+//
+//							case PT_CHAR:
+//								if (json_is_string (json_value_p))
+//									{
+//										const char *value_s = json_string_value (json_value_p);
+//
+//										if (value_s && (strlen (value_s) == 1))
+//											{
+//												value_p -> st_char_value = *value_s;
+//												success_flag = true;
+//											}
+//									}
+//								break;
+//
+//							case PT_SIGNED_INT:
+//							case PT_NEGATIVE_INT:
+//								if (json_is_integer (json_value_p))
+//									{
+//										value_p -> st_long_value = (int32) json_integer_value (json_value_p);
+//										success_flag = true;
+//									}
+//								break;
+//
+//							case PT_UNSIGNED_INT:
+//								if (json_is_integer (json_value_p))
+//									{
+//										value_p -> st_ulong_value = (uint32) json_integer_value (json_value_p);
+//										success_flag = true;
+//									}
+//								break;
+//
+//							case PT_SIGNED_REAL:
+//							case PT_UNSIGNED_REAL:
+//								if (json_is_real (json_value_p))
+//									{
+//										value_p -> st_data_value = (double64) json_real_value (json_value_p);
+//										success_flag = true;
+//									}
+//								else if (json_is_integer (json_value_p))
+//									{
+//										value_p -> st_data_value = (double64) json_integer_value (json_value_p);
+//										success_flag = true;
+//									}
+//								break;
+//
+//
+//							case PT_DIRECTORY:
+//							case PT_FILE_TO_READ:
+//							case PT_FILE_TO_WRITE:
+//								{
+//									json_t *protocol_p = json_object_get (json_value_p, RESOURCE_PROTOCOL_S);
+//
+//									if ((protocol_p) && (json_is_string (protocol_p)))
+//										{
+//											json_t *res_value_p = json_object_get (json_value_p, RESOURCE_VALUE_S);
+//											if (res_value_p && json_is_string (res_value_p))
+//												{
+//													const char *protocol_s = json_string_value (protocol_p);
+//													const char *value_s = json_string_value (res_value_p);
+//
+//													value_p -> st_resource_value_p = AllocateResource (protocol_s, value_s, NULL);
+//
+//													success_flag = (value_p -> st_resource_value_p != NULL);
+//												}
+//										}
+//								}
+//								break;
+//
+//							case PT_TABLE:
+//							case PT_STRING:
+//							case PT_LARGE_STRING:
+//							case PT_PASSWORD:
+//							case PT_KEYWORD:
+//							case PT_FASTA:
+//								if (json_is_string (json_value_p))
+//									{
+//										const char * const src_s = json_string_value (json_value_p);
+//
+//										if (strlen (src_s) > 0)
+//											{
+//												char *value_s = EasyCopyToNewString (src_s);
+//
+//												if (value_s)
+//													{
+//														if (value_p -> st_string_value_s)
+//															{
+//																FreeCopiedString (value_p -> st_string_value_s);
+//															}
+//
+//														value_p -> st_string_value_s = value_s;
+//														success_flag = true;
+//													}
+//											}
+//										else
+//											{
+//												if (value_p -> st_string_value_s)
+//													{
+//														FreeCopiedString (value_p -> st_string_value_s);
+//														value_p -> st_string_value_s = NULL;
+//													}
+//
+//												success_flag = true;
+//											}
+//									}
+//								break;
+//
+//							case PT_JSON:
+//							case PT_JSON_TABLE:
+//								{
+//									if (json_value_p)
+//										{
+//											json_t *copied_value_p = json_deep_copy (json_value_p);
+//
+//											if (copied_value_p)
+//												{
+//													if (value_p -> st_json_p)
+//														{
+//															WipeJSON (value_p -> st_json_p);
+//														}
+//
+//													value_p -> st_json_p = copied_value_p;
+//													success_flag = true;
+//												}
+//										}
+//									else
+//										{
+//											if (value_p -> st_json_p)
+//												{
+//													WipeJSON (value_p -> st_json_p);
+//													value_p -> st_json_p = NULL;
+//												}
+//										}
+//								}
+//								break;
+//
+//							case PT_TIME:
+//								if (json_is_string (json_value_p))
+//									{
+//										const char * const time_s = json_string_value (json_value_p);
+//
+//										if (value_p -> st_time_p)
+//											{
+//												success_flag = SetTimeFromString (value_p -> st_time_p, time_s);
+//											}
+//										else
+//											{
+//												value_p -> st_time_p = GetTimeFromString (time_s);
+//												success_flag = (value_p -> st_time_p != NULL);
+//											}
+//									}
+//
+//								break;
+//
+//							case PT_NUM_TYPES:
+//								PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type for key \"%s\"", key_s);
+//								break;
+//
+//						}
+//
+//				}
+//
+//		}		/* if (json_value_p) */
+//	else
+//		{
+//			/* json params are allowed to be NULL */
+//			if ((param_type == PT_JSON) || (param_type == PT_JSON_TABLE))
+//				{
+//					success_flag = true;
+//				}
+//		}
+//
+//	return success_flag;
+//}
 
 
 
@@ -2116,7 +2116,8 @@ void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *par
 	param_p -> pa_clear_fn = clear_fn;
 	param_p -> pa_clone_fn = clone_fn;
 	param_p -> pa_add_values_to_json_fn = add_values_to_json_fn;
-	param_p -> pa_get_values_from_json_fn = get_values_from_json_fn;
+
+
 	param_p -> pa_set_value_from_string_fn = set_value_from_string_fn;
 }
 
@@ -2308,57 +2309,6 @@ bool SetParameterValueFromString (Parameter * const param_p, const char *value_s
 }
 
 
-
-bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt, const char *value_s)
-{
-	bool success_flag = false;
-
-	switch (pt)
-		{
-			case PT_DIRECTORY:
-			case PT_FILE_TO_READ:
-			case PT_FILE_TO_WRITE:
-				{
-					Resource *resource_p = ParseStringToResource (value_s);
-
-					if (resource_p)
-						{
-							success_flag = SetSharedTypeResourceValue (value_p, resource_p);
-							FreeResource (resource_p);
-						}
-				}
-				break;
-
-			case PT_TABLE:
-			case PT_LARGE_STRING:
-			case PT_STRING:
-			case PT_PASSWORD:
-			case PT_KEYWORD:
-			case PT_FASTA:
-				success_flag = SetSharedTypeStringValue (value_p, value_s);
-				break;
-
-
-			case PT_CHAR:
-				success_flag = SetSharedTypeCharValue (value_p, *value_s);
-				break;
-
-			case PT_JSON:
-			case PT_JSON_TABLE:
-				break;
-
-			case PT_TIME:
-				break;
-
-			case PT_NUM_TYPES:
-				break;
-			//default:
-			//	break;
-		}		/* switch (param_p -> pa_type) */
-
-
-	return success_flag;
-}
 
 bool AddRemoteDetailsToParameter (Parameter *param_p, const char * const uri_s, const char * const name_s)
 {
