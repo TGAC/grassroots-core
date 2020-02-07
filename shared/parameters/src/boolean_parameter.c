@@ -265,26 +265,28 @@ Parameter *CreateAndAddBooleanParameterToParameterSet (const ServiceData *servic
 
 	if (bool_param_p)
 		{
+			Parameter *base_param_p = & (bool_param_p -> bp_base_param);
+
 			if (group_p)
 				{
 					/*
 					 * If the parameter fails to get added to the group, it's
 					 * not a terminal error so still carry on
 					 */
-					if (!AddParameterToParameterGroup (group_p, bool_param_p))
+					if (!AddParameterToParameterGroup (group_p, base_param_p))
 						{
 							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
 						}
 				}
 
-			if (AddParameterToParameterSet (params_p, & (bool_param_p -> bp_base_param)))
+			if (AddParameterToParameterSet (params_p, base_param_p))
 				{
-					return & (bool_param_p -> bp_base_param);
+					return base_param_p;
 				}
 			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
-					FreeParameter (bool_param_p);
+					FreeParameter (base_param_p);
 				}
 
 		}		/* if (bool_param_p) */
