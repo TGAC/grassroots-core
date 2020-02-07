@@ -14,7 +14,7 @@
 ** limitations under the License.
 */
 /*
- * doub;e_parameter.c
+ * double_parameter.c
  *
  *  Created on: 30 Jan 2020
  *      Author: billy
@@ -40,6 +40,7 @@ static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t 
 
 static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, const char *key_s);
 
+static bool SetDoubleParameterCurrentValueFromString (DoubleParameter *param_p, const char *value_s);
 
 /*
  * API DEFINITIONS
@@ -97,7 +98,7 @@ DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data
 				{
 					if (InitParameter (& (param_p -> dp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
 														 ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON,
-														 NULL))
+														 NULL, SetDoubleParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -301,6 +302,50 @@ bool GetCurrentDoubleParameterValueFromParameterSet (const ParameterSet * const 
 }
 
 
+
+Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								double64 *default_value_p, uint8 level)
+{
+	return CreateAndAddDoubleParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+}
+
+
+Parameter *CreateAndAddDoubleParameterToParameterSet (const ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								double64 *default_value_p, double64 *current_value_p, uint8 level)
+{
+	DoubleParameter *double_param_p = AllocateDoubleParameter (service_data_p, pt, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+
+	if (double_param_p)
+		{
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, double_param_p))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (AddParameterToParameterSet (params_p, & (double_param_p -> dp_base_param)))
+				{
+					return & (double_param_p -> dp_base_param);
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (double_param_p);
+				}
+
+		}		/* if (char_param_p) */
+
+	return NULL;
+}
+
 /*
  * STATIC DEFINITIONS
  */
@@ -437,6 +482,29 @@ static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, con
 	else
 		{
 			success_flag = SetDoubleParameterValue (value_pp, NULL);
+		}
+
+	return success_flag;
+}
+
+
+
+static bool SetDoubleParameterCurrentValueFromString (DoubleParameter *param_p, const char *value_s)
+{
+	bool success_flag = false;
+
+	if (value_s)
+		{
+			double64 value;
+
+			if (sscanf (value_s, DOUBLE64_FMT, &value) > 0)
+				{
+					success_flag = SetDoubleParameterCurrentValue (param_p, &value);
+				}
+		}
+	else
+		{
+			success_flag = SetDoubleParameterCurrentValue (param_p, NULL);
 		}
 
 	return success_flag;

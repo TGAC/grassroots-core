@@ -14,18 +14,18 @@
  ** limitations under the License.
  */
 
-#include <memory_allocations.h>
-#include <parameter_set.h>
-#include <parameter_type.h>
-#include <schema_keys.h>
-#include <schema_version.h>
-#include <service.h>
-#include <shared_type.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <streams.h>
 #include <string.h>
-#include <typedefs.h>
+
+#include "memory_allocations.h"
+#include "parameter_set.h"
+#include "parameter_type.h"
+#include "schema_keys.h"
+#include "schema_version.h"
+#include "service.h"
+#include "streams.h"
+#include "typedefs.h"
 
 #ifdef _DEBUG
 #define PARAMETER_SET_DEBUG	(STM_LEVEL_INFO)
@@ -95,51 +95,6 @@ void FreeParameterSet (ParameterSet *params_p)
 
 
 	FreeMemory (params_p);
-}
-
-
-
-
-Parameter *EasyCreateAndAddParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
-																										const char * const name_s, const char * const display_name_s, const char * const description_s,
-																										SharedType default_value, uint8 level)
-{
-	return CreateAndAddParameterToParameterSet (service_data_p, params_p, group_p, type, false, name_s, display_name_s, description_s, NULL, default_value, NULL, NULL, level, NULL);
-}
-
-
-
-Parameter *CreateAndAddParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type, bool multi_valued_flag,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
-																								SharedType default_value, SharedType *current_value_p, uint8 level,
-																								const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p))
-{
-	Parameter *param_p = AllocateParameter (service_data_p, type, multi_valued_flag, name_s, display_name_s, description_s, options_p, default_value, current_value_p, bounds_p, level, check_value_fn);
-
-	if (param_p)
-		{
-			if (group_p)
-				{
-					/*
-					 * If the parameter fails to get added to the group, it's
-					 * not a terminal error so still carry on
-					 */
-					if (!AddParameterToParameterGroup (group_p, param_p))
-						{
-							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", param_p -> pa_name_s, group_p -> pg_name_s);
-						}
-				}
-
-			if (!AddParameterToParameterSet (params_p, param_p))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", param_p -> pa_name_s, params_p -> ps_name_s);
-					FreeParameter (param_p);
-					param_p = NULL;
-				}
-
-		}		/* if (param_p) */
-
-	return param_p;
 }
 
 

@@ -104,9 +104,6 @@ typedef struct NamedParameterType
 #define SET_NAMED_PARAMETER_TYPE_TAGS(a,b) ({ .npt_name_s = a, .npt_type = b})
 
 /* forward declaration */
-struct ParameterGroup;
-
-
 typedef struct Parameter Parameter;
 
 
@@ -203,6 +200,8 @@ struct Parameter
 	bool (*pa_get_values_from_json_fn) (struct Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag);
 
 	struct Parameter (*pa_clone_fn) (const struct Parameter *param_p);
+
+	bool (*pa_set_value_from_string_fn) (struct Parameter *param_p, const char *value_s);
 };
 
 
@@ -305,7 +304,8 @@ GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct Servi
 																					void (*clear_fn) (Parameter *param_p),
 																					bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
 																					bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
-																					struct Parameter (*clone_fn) (const Parameter *param_p)
+																					struct Parameter (*clone_fn) (const Parameter *param_p),
+																					bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 );
 
 
@@ -512,19 +512,6 @@ GRASSROOTS_PARAMS_API bool SetParameterValueFromString (Parameter * const param_
 
 
 /**
- * Set the current value of a SharedType from a string.
- *
- * @param value_p The Parameter to set the current value for.
- * @param pt The ParameterType for the given SharedType.
- * @param value_s The Parameter value as a string.
- * @return <code>true</code> if the SharedType value was set successfully, <code>false</code> otherwise.
- * @memberof SharedType
- */
-GRASSROOTS_PARAMS_API bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt, const char *value_s);
-
-
-
-/**
  * Create a RemoteParameterDetails and add it to the given Parameter.
  *
  *
@@ -569,19 +556,6 @@ GRASSROOTS_PARAMS_API bool GetGrassrootsTypeFromString (const char *param_type_s
 
 
 /**
- * Set the value for a given SharedType object from a JSON fragment.
- *
- * @param value_p The SharedType object to update.
- * @param json_p The JSON fragment to read the value to update the SharedType object's value from.
- * @param pt The ParameterType of the SharedType object.
- * will be stored.
- * @return <code>true</code> if the SharedType object was updated successfully, <code>false</code> otherwise.
- * @memberof SharedType
- */
-GRASSROOTS_PARAMS_API bool SetSharedTypeFromJSON (SharedType *value_p, const json_t *json_p, const ParameterType pt);
-
-
-/**
  * Get the configured visibility value for a given ParameterGroup.
  *
  * @param service_data_p The ServiceData for the Service that the given ParameterGroup belongs to.
@@ -592,20 +566,6 @@ GRASSROOTS_PARAMS_API bool SetSharedTypeFromJSON (SharedType *value_p, const jso
  * @memberof ParameterGroup
  */
 GRASSROOTS_PARAMS_API bool GetParameterGroupVisibility (const struct ServiceData *service_data_p, const char *group_name_s, bool *visibility_p);
-
-
-/**
- * Get the configured default value for a given Parameter.
- *
- * @param service_data_p The ServiceData for the Service that the given ParameterGroup belongs to.
- * @param param_name_s The name of the Parameter to check.
- * @param pt The ParameterType of the given Parameter.
- * @param value_p Pointer to where the value for configured default value for the given Parameter
- * will be stored.
- * @return <code>true</code> if the default value was set successfully, <code>false</code> otherwise.
- * @memberof Parameter
- */
-GRASSROOTS_PARAMS_API bool GetParameterDefaultValueFromConfig (const struct ServiceData *service_data_p, const char *param_name_s, const ParameterType pt, SharedType *value_p);
 
 
 /**
@@ -713,22 +673,6 @@ GRASSROOTS_PARAMS_API void FreeParameterNode (ListItem *node_p);
 GRASSROOTS_PARAMS_API json_t *GetRunnableParameterAsJSON (const char * const name_s, const SharedType * const value_p, const ParameterType param_type, const SchemaVersion * const sv_p, const bool full_definition_flag);
 
 
-
-/**
- * This is a wrapper function to create and add a ParameterOption to a given Parameter.
- * It ensures that the options list exists for the Parameter before calling
- * CreateAndAddParameterOption().
- *
- * @param param_p The Parameter to add the ParameterOtion to.
- * @param value The value stored for this ParameterOption.
- * @param description_s The description to show for this ParameterOption.
- * @return <code>true</code> if the ParameterOption was created and added to the Parameter successfully,
- * <code>false</code> otherwise.
- * @memberof Parameter
- */
-GRASSROOTS_PARAMS_API bool CreateAndAddParameterOptionToParameter (Parameter *param_p, SharedType value, const char * const description_s);
-
-
 /**
  * Get the list of ParameterOptions for a given Parameter. If the list
  * does not currently exist, then an empty LinkedList will be created
@@ -752,10 +696,10 @@ GRASSROOTS_PARAMS_API bool AddParameterLevelToJSON (const ParameterLevel level, 
 
 
 GRASSROOTS_PARAMS_API void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *param_p),
-																									bool (*pa_add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-																									bool (*pa_get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
-																									Parameter (*pa_clone_fn) (const Parameter *param_p));
-
+														bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
+														bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
+														Parameter (*clone_fn) (const Parameter *param_p),
+														bool (*set_value_from_string_fn) (Parameter *param_p, const char *value_s));
 
 #ifdef __cplusplus
 }

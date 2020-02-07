@@ -94,6 +94,54 @@ GRASSROOTS_PARAMS_API bool IsDoubleParameter (Parameter *param_p);
 
 GRASSROOTS_PARAMS_API bool GetCurrentDoubleParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, double64 *value_p);
 
+
+/**
+ * Allocate a new Parameter and add it to a ParameterSet.
+ *
+ * @param service_data_p The ServiceData for the Service that is allocating this Parameter.
+ * @param params_p The ParameterSet to add the new Parameter to.
+ * @param group_p The ParameterGroup to add this Parameter to. This can be <code>NULL</code> in which case
+ * the Parameter will not be placed within any ParameterGroup.
+ * @param type The ParameterType for this Parameter.
+ * @param name_s The name of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * @param display_name_s An optional name to display for the Parameter for use in Clients. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * This can be <code>NULL</code>.
+ * @param description_s The description of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * @param default_value-p The default value for this Parameter.
+ * @param level The ParameterLevel for this Parameter. This determines when the Client should display this Parameter to the user.
+ * @return A newly-allocated Parameter or <code>NULL</code> upon error.
+ * @memberof ParameterSet
+ */
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								double64 *default_value_p, uint8 level);
+
+/**
+ * Allocate a new Parameter and add it to a ParameterSet.
+ *
+ * @param service_data_p The ServiceData for the Service that is allocating this Parameter.
+ * @param params_p The ParameterSet to add the new Parameter to.
+ * @param group_p The ParameterGroup to add this Parameter to. This can be <code>NULL</code> in which case
+ * the Parameter will not be placed within any ParameterGroup.
+ * @param type The ParameterType for this Parameter.
+ * @param name_s The name of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * @param display_name_s An optional name to display for the Parameter for use in Clients. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * This can be <code>NULL</code>.
+ * @param description_s The description of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
+ * @param options_p The options specifying the possible values that this Parameter can take. If <code>NULL</code> then it can take any valid
+ * values for its given ParameterType.
+ * @param default_value The default value for this Parameter.
+ * @param current_value_p If this is not <code>NULL</code>, then copy this value as the current value of the Parameter. If this is <code>NULL</code>, then current value for this Parameter
+ * will be set to be a copy of its default value.
+ * @param level The ParameterLevel for this Parameter. This determines when the Client should display this Parameter to the user.
+ * @return A newly-allocated Parameter or <code>NULL</code> upon error.
+ * @memberof ParameterSet
+ */
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddDoubleParameterToParameterSet (const ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								double64 *default_value_p, double64 *current_value_p, uint8 level);
+
+
 #ifdef __cplusplus
 }
 #endif

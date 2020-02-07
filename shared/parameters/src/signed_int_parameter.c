@@ -40,6 +40,7 @@ static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json
 
 static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, const char *key_s);
 
+static bool SetSignedIntParameterCurrentValueFromString (SignedIntParameter *param_p, const char *value_s);
 
 /*
  * API DEFINITIONS
@@ -96,7 +97,7 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 				{
 					if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
 														 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
-														 NULL))
+														 NULL, SetSignedIntParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -154,7 +155,8 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 						{
 							if (InitParameterFromJSON (& (param_p -> sip_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON, NULL);
+									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON, NULL,
+																				 SetSignedIntParameterCurrentValueFromString);
 
 									param_p -> sip_current_value_p = current_value_p;
 									param_p -> sip_default_value_p = default_value_p;
@@ -492,4 +494,27 @@ static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, cons
 
 	return success_flag;
 }
+
+
+static bool SetSignedIntParameterCurrentValueFromString (SignedIntParameter *param_p, const char *value_s)
+{
+	bool success_flag = false;
+
+	if (value_s)
+		{
+			int32 value = 0;
+
+			if (sscanf (value_s, INT32_FMT, &value) > 0)
+				{
+					success_flag = SetSignedIntParameterCurrentValue (param_p, &value);
+				}
+		}
+	else
+		{
+			success_flag = SetSignedIntParameterCurrentValue (param_p, NULL);
+		}
+
+	return success_flag;
+}
+
 

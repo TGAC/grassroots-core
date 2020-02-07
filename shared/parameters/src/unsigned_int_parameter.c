@@ -40,6 +40,11 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 
 static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, const char *key_s);
 
+
+static bool SetUnsignedIntParameterCurrentValueFromString (UnsignedIntParameter *param_p, const char *value_s);
+
+
+
 /*
  * API DEFINITIONS
  */
@@ -96,7 +101,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 				{
 					if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, level,
 														 ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON, GetUnsignedIntParameterDetailsFromJSON,
-														 NULL))
+														 NULL, SetUnsignedIntParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -155,7 +160,8 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 						{
 							if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON, GetUnsignedIntParameterDetailsFromJSON, NULL);
+									SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
+																				 GetUnsignedIntParameterDetailsFromJSON, NULL, SetUnsignedIntParameterCurrentValueFromString);
 
 									param_p -> uip_current_value_p = current_value_p;
 									param_p -> uip_default_value_p = default_value_p;
@@ -441,6 +447,28 @@ static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, con
 	else
 		{
 			success_flag = SetUnsignedIntParameterValue (value_pp, NULL);
+		}
+
+	return success_flag;
+}
+
+
+static bool SetUnsignedIntParameterCurrentValueFromString (UnsignedIntParameter *param_p, const char *value_s)
+{
+	bool success_flag = false;
+
+	if (value_s)
+		{
+			uint32 value = 0;
+
+			if (sscanf (value_s, UINT32_FMT, &value) > 0)
+				{
+					success_flag = SetUnsignedIntParameterCurrentValue (param_p, &value);
+				}
+		}
+	else
+		{
+			success_flag = SetUnsignedIntParameterCurrentValue (param_p, NULL);
 		}
 
 	return success_flag;

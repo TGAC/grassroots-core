@@ -38,6 +38,8 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 
 static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
+static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
+
 
 /*
  * API DEFINITIONS
@@ -440,3 +442,10 @@ static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s,
 
 	return success_flag;
 }
+
+
+static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
+{
+
+}
+

@@ -45,6 +45,7 @@ static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p);
 
 static bool SetValueFromJSON (char **value_pp, const json_t *param_json_p, const char *key_s);
 
+static bool SetCharParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
 /*
  * API DEFINITIONS
@@ -77,7 +78,8 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 						{
 							if (InitParameterFromJSON (& (param_p -> cp_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON, NULL);
+									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
+																				 NULL, SetCharParameterCurrentValueFromString);
 
 									param_p -> cp_current_value_p = current_value_p;
 									param_p -> cp_default_value_p = default_value_p;
@@ -157,7 +159,7 @@ CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, 
 				{
 					if (InitParameter (& (param_p -> cp_base_param), service_data_p, PT_CHAR, name_s, display_name_s, description_s, options_p, level,
 														 ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
-														 NULL))
+														 NULL, SetCharParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -341,6 +343,50 @@ bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const pa
 }
 
 
+Parameter *EasyCreateAndAddCharParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								char *default_value_p, uint8 level)
+{
+	return CreateAndAddCharParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+}
+
+
+Parameter *CreateAndAddCharParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								char *default_value_p, char *current_value_p, uint8 level)
+{
+	CharParameter *char_param_p = AllocateCharParameter (service_data_p, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+
+	if (char_param_p)
+		{
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, char_param_p))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (AddParameterToParameterSet (params_p, & (char_param_p -> cp_base_param)))
+				{
+					return & (char_param_p -> cp_base_param);
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (char_param_p);
+				}
+
+		}		/* if (char_param_p) */
+
+	return NULL;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
@@ -480,4 +526,26 @@ static bool SetValueFromJSON (char **value_pp, const json_t *param_json_p, const
 
 	return success_flag;
 }
+
+
+static bool SetCharParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
+{
+	CharParameter *char_param_p = (CharParameter *) param_p;
+	bool success_flag = false;
+
+	if (value_s)
+		{
+			if (strlen (value_s) == 1)
+				{
+					success_flag = SetCharParameterCurrentValue (char_param_p, *value_s);
+				}
+		}
+	else
+		{
+			success_flag = SetCharParameterCurrentValue (char_param_p, NULL);
+		}
+
+	return success_flag;
+}
+
 

@@ -130,60 +130,6 @@ GRASSROOTS_PARAMS_API void FreeParameterSet (ParameterSet *params_p);
 GRASSROOTS_PARAMS_API bool AddParameterToParameterSet (ParameterSet *params_p, Parameter *param_p);
 
 
-/**
- * Allocate a new Parameter and add it to a ParameterSet.
- *
- * @param service_data_p The ServiceData for the Service that is allocating this Parameter.
- * @param params_p The ParameterSet to add the new Parameter to.
- * @param group_p The ParameterGroup to add this Parameter to. This can be <code>NULL</code> in which case
- * the Parameter will not be placed within any ParameterGroup.
- * @param type The ParameterType for this Parameter.
- * @param multi_valued_flag If this is <code>true</code> then the Parameter can hold multiple values. For single value Parameters, set this to <code>false</code>.
- * @param name_s The name of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
- * @param display_name_s An optional name to display for the Parameter for use in Clients. The Parameter will store a copy of this string so this value does not need to remain in scope.
- * This can be <code>NULL</code>.
- * @param description_s The description of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
- * @param options_p The options specifying the possible values that this Parameter can take. If <code>NULL</code> then it can take any valid
- * values for its given ParameterType.
- * @param default_value The default value for this Parameter.
- * @param current_value_p If this is not <code>NULL</code>, then copy this value as the current value of the Parameter. If this is <code>NULL</code>, then current value for this Parameter
- * will be set to be a copy of its default value.
- * @param bounds_p If this is not <code>NULL</code>, then this will be used to specify the minimum and maximum values that this Parameter can take. If this is <code>NULL</code>,
- * then the Parameter can take any value.
- * @param level The ParameterLevel for this Parameter. This determines when the Client should display this Parameter to the user.
- * @param check_value_fn If this is not <code>NULL</code>, then this will be used to check whether the Parameter has been set to a valid value.
- * @return A newly-allocated Parameter or <code>NULL</code> upon error.
- * @memberof ParameterSet
- */
-GRASSROOTS_PARAMS_API Parameter *CreateAndAddParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type, bool multi_valued_flag,
-	const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
-	SharedType default_value, SharedType *current_value_p, uint8 level,
-	const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
-
-
-
-/**
- * Allocate a new Parameter and add it to a ParameterSet. This is suitable for most Parameters that are single-valued. For more
- * complex Parameters, use <code>CreateAndAddParameterToParameterSet</code>.
- *
- * @param service_data_p The ServiceData for the Service that is allocating this Parmeter.
- * @param params_p The ParameterSet to add the new Parameter to.
- * @param group_p The ParameterGroup to add this Parameter to. This can be <code>NULL</code> in which case
- * the Parameter will not be placed within any ParameterGroup.
- * @param type The ParameterType for this Parameter.
- * @param name_s The name of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
- * @param display_name_s An optional name to display for the Parameter for use in Clients. The Parameter will store a copy of this string so this value does not need to remain in scope.
- * This can be <code>NULL</code>.
- * @param description_s The description of the Parameter. The Parameter will store a copy of this string so this value does not need to remain in scope.
- * @param default_value The default value for this Parameter.
- * @param level The ParameterLevel for this Parameter. This determines when the Client should display this Parameter to the user.
- * @return A newly-allocated Parameter or <code>NULL</code> upon error.
- * @see CreateAndAddParameterToParameterSet
- * @memberof ParameterSet
- */
-GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
-	const char * const name_s, const char * const display_name_s, const char * const description_s, SharedType default_value, uint8 level);
-
 
 
 /**

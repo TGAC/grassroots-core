@@ -43,6 +43,8 @@ static bool GetBooleanParameterDetailsFromJSON (Parameter *param_p, const json_t
 
 static bool SetValueFromJSON (bool **value_pp, const json_t *param_json_p, const char *key_s);
 
+static bool SetBooleanParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
+
 
 /*
  * API DEFINITIONS
@@ -75,7 +77,8 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 						{
 							if (InitParameterFromJSON (& (param_p -> bp_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON, GetBooleanParameterDetailsFromJSON, NULL);
+									SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON,
+																				 GetBooleanParameterDetailsFromJSON, NULL, SetBooleanParameterCurrentValueFromString);
 
 									param_p -> bp_current_value_p = current_value_p;
 									param_p -> bp_default_value_p = default_value_p;
@@ -155,7 +158,7 @@ BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_da
 				{
 					if (InitParameter (& (param_p -> bp_base_param), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, options_p, level,
 														 ClearBooleanParameter, AddBooleanParameterDetailsToJSON, GetBooleanParameterDetailsFromJSON,
-														 NULL))
+														 NULL, SetBooleanParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -242,6 +245,51 @@ bool GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const
 		}
 
 	return success_flag;
+}
+
+
+
+Parameter *EasyCreateAndAddBooleanParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								bool *default_value_p, uint8 level)
+{
+	return CreateAndAddBooleanParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+}
+
+
+Parameter *CreateAndAddBooleanParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								bool *default_value_p, bool *current_value_p, uint8 level)
+{
+	BooleanParameter *bool_param_p = AllocateBooleanParameter (service_data_p, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+
+	if (bool_param_p)
+		{
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, bool_param_p))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (AddParameterToParameterSet (params_p, & (bool_param_p -> bp_base_param)))
+				{
+					return & (bool_param_p -> bp_base_param);
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (bool_param_p);
+				}
+
+		}		/* if (bool_param_p) */
+
+	return NULL;
 }
 
 
@@ -332,7 +380,6 @@ static bool GetBooleanParameterDetailsFromJSON (Parameter *param_p, const json_t
 {
 	BooleanParameter *boolean_param_p = (BooleanParameter *) param_p;
 	bool success_flag = true;
-	bool b;
 
 	if (SetValueFromJSON (& (boolean_param_p -> bp_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
 		{
@@ -344,6 +391,33 @@ static bool GetBooleanParameterDetailsFromJSON (Parameter *param_p, const json_t
 						}
 				}
 		}
+
+	return success_flag;
+}
+
+
+static bool SetBooleanParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
+{
+	BooleanParameter *bool_param_p = (BooleanParameter *) param_p;
+	bool success_flag = false;
+	bool *b_p = NULL;
+	bool b;
+
+	if (value_s)
+		{
+			if (Stricmp (value_s, "true") == 0)
+				{
+					b = true;
+					b_p = &b;
+				}
+			else if (Stricmp (value_s, "false") == 0)
+				{
+					b = false;
+					b_p = &b;
+				}
+		}
+
+	success_flag = SetBooleanParameterCurrentValue (bool_param_p, b_p);
 
 	return success_flag;
 }

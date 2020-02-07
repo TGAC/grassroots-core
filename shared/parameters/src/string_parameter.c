@@ -41,6 +41,9 @@ static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t 
 
 static LinkedList *GetStringParameterMultiOptions (StringParameter *param_p);
 
+static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const json_t * const json_p);
+
+
 
 /*
  * API DEFINITIONS
@@ -441,7 +444,7 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 
 													if (json_options_p)
 														{
-															StringParameterOptionNode *node_p = (StringParameterOptionNode *) options_p -> ll_head_p);
+															StringParameterOptionNode *node_p = (StringParameterOptionNode *) (options_p -> ll_head_p);
 
 															while (node_p)
 																{
@@ -517,6 +520,40 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 }
 
 
+/**
+ * Get the configured default value for a given Parameter.
+ *
+ * @param service_data_p The ServiceData for the Service that the given ParameterGroup belongs to.
+ * @param param_name_s The name of the Parameter to check.
+ * @param pt The ParameterType of the given Parameter.
+ * @param value_p Pointer to where the value for configured default value for the given Parameter
+ * will be stored.
+ * @return <code>true</code> if the default value was set successfully, <code>false</code> otherwise.
+ * @memberof Parameter
+ */
+bool GetStringParameterDefaultValueFromConfig (StringParameter *param_p, const ServiceData *service_data_p )
+{
+	bool found_flag = false;
+
+	const json_t *param_config_p = GetParameterFromConfig (service_data_p -> sd_config_p, param_p -> sp_base_param.pa_name_s);
+
+	if (param_config_p)
+		{
+			const char *default_value_s = GetJSONString (param_config_p, PARAM_DEFAULT_VALUE_S);
+
+			if (default_value_s)
+				{
+					if (SetStringParameterDefaultValue (param_p, default_value_s))
+						{
+							found_flag = true;
+						}
+				}
+		}
+
+	return found_flag;
+}
+
+
 static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
 {
 	StringParameter *string_param_p = (StringParameter *) param_p;
@@ -547,6 +584,11 @@ static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t 
 		}
 
 
+	if (success_flag)
+		{
+			success_flag = GetStringParameterOptionsFromJSON (param_p, param_json_p);
+		}
+
 	return success_flag;
 }
 
@@ -566,5 +608,56 @@ static LinkedList *GetStringParameterMultiOptions (StringParameter *param_p)
 		}
 
 	return (base_param_p -> pa_options_p);
+}
+
+
+
+
+static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const json_t * const json_p)
+{
+	bool success_flag = true;
+	json_t *options_json_p = json_object_get (json_p, PARAM_OPTIONS_S);
+
+	if (options_json_p)
+		{
+			success_flag = false;
+
+			if (json_is_array (options_json_p))
+				{
+					const size_t num_options = json_array_size (options_json_p);
+					size_t i = 0;
+
+					success_flag = true;
+
+					while (success_flag && (i < num_options))
+						{
+							json_t *json_value_p = json_array_get (options_json_p, i);
+
+							if (json_value_p)
+								{
+									const char *value_s = GetJSONString (json_value_p, SHARED_TYPE_VALUE_S);
+
+									if (value_s)
+										{
+											const char *desc_s = GetJSONString (json_value_p, SHARED_TYPE_DESCRIPTION_S);
+
+											if (!CreateAndAddStringParameterOption (param_p, value_s, desc_s))
+												{
+													success_flag = false;
+												}
+										}
+								}
+
+							if (success_flag)
+								{
+									++ i;
+								}
+
+						}		/* while (success_flag && (i < num_options)) */
+
+				}
+		}
+
+	return success_flag;
 }
 
