@@ -25,6 +25,8 @@
 
 #include "parameter.h"
 #include "grassroots_params_library.h"
+#include "parameter_set.h"
+
 
 
 typedef struct JSONParameter

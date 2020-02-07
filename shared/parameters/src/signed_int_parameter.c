@@ -40,7 +40,7 @@ static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json
 
 static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, const char *key_s);
 
-static bool SetSignedIntParameterCurrentValueFromString (SignedIntParameter *param_p, const char *value_s);
+static bool SetSignedIntParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
 /*
  * API DEFINITIONS
@@ -496,25 +496,23 @@ static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, cons
 }
 
 
-static bool SetSignedIntParameterCurrentValueFromString (SignedIntParameter *param_p, const char *value_s)
+static bool SetSignedIntParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
 {
 	bool success_flag = false;
+	SignedIntParameter *int_param_p = (SignedIntParameter *) param_p;
+	int32 *value_p = NULL;
+	int32 value = 0;
 
 	if (value_s)
 		{
-			int32 value = 0;
-
-			if (sscanf (value_s, INT32_FMT, &value) > 0)
+			if (sscanf (value_s, UINT32_FMT, &value) > 0)
 				{
-					success_flag = SetSignedIntParameterCurrentValue (param_p, &value);
+					value_p = &value;
 				}
 		}
-	else
-		{
-			success_flag = SetSignedIntParameterCurrentValue (param_p, NULL);
-		}
+
+	success_flag = SetSignedIntParameterCurrentValue (int_param_p, value_p);
 
 	return success_flag;
 }
-
 

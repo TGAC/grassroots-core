@@ -43,6 +43,7 @@ static LinkedList *GetStringParameterMultiOptions (StringParameter *param_p);
 
 static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const json_t * const json_p);
 
+static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
 
 /*
@@ -93,7 +94,7 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 				{
 					if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
 														 ClearStringParameter, AddStringParameterDetailsToJSON, GetStringParameterDetailsFromJSON,
-														 NULL))
+														 NULL, SetStringParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{
@@ -659,5 +660,13 @@ static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const j
 		}
 
 	return success_flag;
+}
+
+
+static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
+{
+	StringParameter *string_param_p = (StringParameter *) param_p;
+
+	return SetStringParameterCurrentValue (string_param_p, value_s);
 }
 

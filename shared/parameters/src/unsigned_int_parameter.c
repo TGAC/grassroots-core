@@ -41,7 +41,7 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, const char *key_s);
 
 
-static bool SetUnsignedIntParameterCurrentValueFromString (UnsignedIntParameter *param_p, const char *value_s);
+static bool SetUnsignedIntParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
 
 
@@ -453,23 +453,22 @@ static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, con
 }
 
 
-static bool SetUnsignedIntParameterCurrentValueFromString (UnsignedIntParameter *param_p, const char *value_s)
+static bool SetUnsignedIntParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
 {
 	bool success_flag = false;
+	UnsignedIntParameter *int_param_p = (UnsignedIntParameter *) param_p;
+	uint32 *value_p = NULL;
+	uint32 value = 0;
 
 	if (value_s)
 		{
-			uint32 value = 0;
-
 			if (sscanf (value_s, UINT32_FMT, &value) > 0)
 				{
-					success_flag = SetUnsignedIntParameterCurrentValue (param_p, &value);
+					value_p = &value;
 				}
 		}
-	else
-		{
-			success_flag = SetUnsignedIntParameterCurrentValue (param_p, NULL);
-		}
+
+	success_flag = SetUnsignedIntParameterCurrentValue (int_param_p, value_p);
 
 	return success_flag;
 }

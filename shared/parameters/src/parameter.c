@@ -2315,42 +2315,6 @@ bool SetSharedTypeFromString (SharedType * const value_p, const ParameterType pt
 
 	switch (pt)
 		{
-
-			case PT_SIGNED_INT:
-			case PT_NEGATIVE_INT:
-				{
-					int32 value = 0;
-
-					if (sscanf (value_s, INT32_FMT, &value) > 0)
-						{
-							success_flag = SetSharedTypeSignedIntValue (value_p, value, NULL);
-						}
-				}
-				break;
-
-			case PT_UNSIGNED_INT:
-				{
-					uint32 value;
-
-					if (sscanf (value_s, UINT32_FMT, &value) > 0)
-						{
-							success_flag = SetSharedTypeUnsignedIntValue (value_p, value, NULL);
-						}
-				}
-				break;
-
-			case PT_SIGNED_REAL:
-			case PT_UNSIGNED_REAL:
-				{
-					double64 value;
-
-					if (sscanf (value_s, DOUBLE64_FMT, &value) > 0)
-						{
-							success_flag = SetSharedTypeRealValue (value_p, value, NULL);
-						}
-				}
-				break;
-
 			case PT_DIRECTORY:
 			case PT_FILE_TO_READ:
 			case PT_FILE_TO_WRITE:
