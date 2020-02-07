@@ -28,6 +28,9 @@
 #include "parameter_set.h"
 
 
+/* forward declaration */
+struct ServiceData;
+
 
 typedef struct DoubleParameter
 {
@@ -112,7 +115,7 @@ GRASSROOTS_PARAMS_API bool GetCurrentDoubleParameterValueFromParameterSet (const
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof ParameterSet
  */
-GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								double64 *default_value_p, uint8 level);
 
@@ -137,7 +140,7 @@ GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof ParameterSet
  */
-GRASSROOTS_PARAMS_API Parameter *CreateAndAddDoubleParameterToParameterSet (const ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
 																								double64 *default_value_p, double64 *current_value_p, uint8 level);
 

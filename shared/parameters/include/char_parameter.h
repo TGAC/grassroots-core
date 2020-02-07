@@ -29,6 +29,10 @@
 #include "parameter_set.h"
 
 
+/* forward declaration */
+struct ServiceData;
+
+
 typedef struct CharParameter
 {
 	Parameter cp_base_param;
@@ -101,12 +105,14 @@ GRASSROOTS_PARAMS_API bool IsCharParameter (Parameter *param_p);
 GRASSROOTS_PARAMS_API bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char *value_p);
 
 
-GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddCharParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+
+
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddCharParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								char *default_value_p, uint8 level);
 
 
-GRASSROOTS_PARAMS_API Parameter *CreateAndAddCharParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddCharParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
 																								char *default_value_p, char *current_value_p, uint8 level);
 

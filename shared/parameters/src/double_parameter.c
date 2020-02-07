@@ -40,7 +40,7 @@ static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t 
 
 static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, const char *key_s);
 
-static bool SetDoubleParameterCurrentValueFromString (DoubleParameter *param_p, const char *value_s);
+static bool SetDoubleParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
 /*
  * API DEFINITIONS
@@ -156,7 +156,8 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 						{
 							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON, NULL);
+									SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON, NULL,
+																				 SetDoubleParameterCurrentValueFromString);
 
 									param_p -> dp_current_value_p = current_value_p;
 									param_p -> dp_default_value_p = default_value_p;
@@ -307,7 +308,7 @@ Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const ServiceData *ser
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								double64 *default_value_p, uint8 level)
 {
-	return CreateAndAddDoubleParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+	return CreateAndAddDoubleParameterToParameterSet (service_data_p, pt, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
 }
 
 
@@ -319,26 +320,28 @@ Parameter *CreateAndAddDoubleParameterToParameterSet (const ServiceData *service
 
 	if (double_param_p)
 		{
+			Parameter *base_param_p = & (double_param_p -> dp_base_param);
+
 			if (group_p)
 				{
 					/*
 					 * If the parameter fails to get added to the group, it's
 					 * not a terminal error so still carry on
 					 */
-					if (!AddParameterToParameterGroup (group_p, double_param_p))
+					if (!AddParameterToParameterGroup (group_p, base_param_p))
 						{
 							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
 						}
 				}
 
-			if (AddParameterToParameterSet (params_p, & (double_param_p -> dp_base_param)))
+			if (AddParameterToParameterSet (params_p, base_param_p))
 				{
-					return & (double_param_p -> dp_base_param);
+					return base_param_p;
 				}
 			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
-					FreeParameter (double_param_p);
+					FreeParameter (base_param_p);
 				}
 
 		}		/* if (char_param_p) */
@@ -489,8 +492,9 @@ static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, con
 
 
 
-static bool SetDoubleParameterCurrentValueFromString (DoubleParameter *param_p, const char *value_s)
+static bool SetDoubleParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
 {
+	DoubleParameter *double_param_p = (DoubleParameter *) param_p;
 	bool success_flag = false;
 
 	if (value_s)
@@ -499,12 +503,12 @@ static bool SetDoubleParameterCurrentValueFromString (DoubleParameter *param_p, 
 
 			if (sscanf (value_s, DOUBLE64_FMT, &value) > 0)
 				{
-					success_flag = SetDoubleParameterCurrentValue (param_p, &value);
+					success_flag = SetDoubleParameterCurrentValue (double_param_p, &value);
 				}
 		}
 	else
 		{
-			success_flag = SetDoubleParameterCurrentValue (param_p, NULL);
+			success_flag = SetDoubleParameterCurrentValue (double_param_p, NULL);
 		}
 
 	return success_flag;

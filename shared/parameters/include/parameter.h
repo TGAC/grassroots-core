@@ -670,8 +670,7 @@ GRASSROOTS_PARAMS_API void FreeParameterNode (ListItem *node_p);
  * @see GetParameterAsJSON
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API json_t *GetRunnableParameterAsJSON (const char * const name_s, const SharedType * const value_p, const ParameterType param_type, const SchemaVersion * const sv_p, const bool full_definition_flag);
-
+GRASSROOTS_PARAMS_API json_t *GetRunnableParameterAsJSON (const Parameter *param_p, const SchemaVersion * const sv_p, const bool full_definition_flag);
 
 /**
  * Get the list of ParameterOptions for a given Parameter. If the list
@@ -686,9 +685,6 @@ GRASSROOTS_PARAMS_API json_t *GetRunnableParameterAsJSON (const char * const nam
  */
 GRASSROOTS_PARAMS_API LinkedList *GetMultiOptions (Parameter *param_p);
 
-
-
-GRASSROOTS_PARAMS_API bool GetValueFromJSON (const json_t * const root_p, const char *key_s, const ParameterType param_type, SharedType *value_p);
 
 
 GRASSROOTS_PARAMS_API bool AddParameterLevelToJSON (const ParameterLevel level, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p));
