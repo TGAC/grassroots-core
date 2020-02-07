@@ -2109,7 +2109,7 @@ const char *GetUIName (const Parameter * const parameter_p)
 void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *param_p),
 														bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
 														bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
-														Parameter (*clone_fn) (const Parameter *param_p),
+														Parameter *(*clone_fn) (const Parameter *param_p),
 														bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
 {

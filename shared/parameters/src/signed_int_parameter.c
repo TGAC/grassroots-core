@@ -34,7 +34,7 @@ static bool SetSignedIntParameterValue (int32 **param_value_pp, const int32 *new
 
 static void ClearSignedIntParameter (Parameter *param_p);
 
-static bool AddSignedIntParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddSignedIntParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
@@ -46,7 +46,11 @@ static bool SetSignedIntParameterCurrentValueFromString (Parameter *param_p, con
  * API DEFINITIONS
  */
 
-SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, int32 *default_value_p, int32 *current_value_p, ParameterLevel level)
+SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt,
+																																			const char * const name_s, const char * const display_name_s,
+																																			const char * const description_s, LinkedList *options_p,
+																																			int32 *default_value_p, int32 *current_value_p,
+																																			ParameterLevel level)
 {
 	SignedIntParameter *param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
 
@@ -131,11 +135,11 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
 {
 	SignedIntParameter *param_p = NULL;
-	uint32 *current_value_p = NULL;
+	int32 *current_value_p = NULL;
 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			uint32 *default_value_p = NULL;
+			int32 *default_value_p = NULL;
 			bool success_flag = true;
 			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
@@ -155,7 +159,8 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 						{
 							if (InitParameterFromJSON (& (param_p -> sip_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON, NULL,
+									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
+																				 NULL,
 																				 SetSignedIntParameterCurrentValueFromString);
 
 									param_p -> sip_current_value_p = current_value_p;
@@ -244,57 +249,7 @@ bool IsSignedIntParameterBounded (const SignedIntParameter *param_p)
 }
 
 
-bool GetSignedIntParameterrBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p)
-{
-	bool success_flag = false;
 
-	if (IsDoubleParameterBounded (param_p))
-		{
-			*min_p = * (param_p -> sip_min_value_p);
-			*max_p = * (param_p -> sip_max_value_p);
-
-			success_flag = true;
-		}
-
-	return success_flag;
-}
-
-
-bool SetSignedIntParameterBounds (SignedIntParameter *param_p, const int32 min_value, const int32 max_value)
-{
-	if (! (param_p -> sip_min_value_p))
-		{
-			param_p -> sip_min_value_p = (uint32 *) AllocMemory (sizeof (uint32));
-
-			if (! (param_p -> sip_min_value_p))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
-					return false;
-				}
-		}
-
-	if (! (param_p -> sip_max_value_p))
-		{
-			param_p -> sip_max_value_p = (uint32 *) AllocMemory (sizeof (uint32));
-
-			if (! (param_p -> sip_max_value_p))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
-					return false;
-				}
-		}
-
-	* (param_p -> sip_min_value_p) = min_value;
-	* (param_p -> sip_max_value_p) = max_value;
-
-	return true;
-}
-
-
-bool IsSignedIntParameterBounded (const SignedIntParameter *param_p)
-{
-	return ((param_p -> sip_min_value_p) && (param_p -> sip_max_value_p));
-}
 
 
 bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p)
@@ -339,7 +294,7 @@ bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * con
 
 	if (param_p)
 		{
-			if (IsSignedParameter (param_p))
+			if (IsSignedIntParameter (param_p))
 				{
 					const int32 *current_value_p = GetSignedIntParameterCurrentValue ((const SignedIntParameter *) param_p);
 
@@ -419,9 +374,6 @@ static void ClearSignedIntParameter (Parameter *param_p)
 			int_param_p -> sip_max_value_p = NULL;
 		}
 }
-
-
-
 
 
 static bool AddSignedIntParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)

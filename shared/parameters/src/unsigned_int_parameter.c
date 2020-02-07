@@ -293,7 +293,7 @@ bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * c
 
 	if (param_p)
 		{
-			if (IsUnsignedParameter (param_p))
+			if (IsUnsignedIntParameter (param_p))
 				{
 					const uint32 *current_value_p = GetUnsignedIntParameterCurrentValue ((const UnsignedIntParameter *) param_p);
 

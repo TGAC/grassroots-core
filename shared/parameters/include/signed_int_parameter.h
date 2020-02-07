@@ -27,6 +27,7 @@
 
 #include "parameter.h"
 #include "grassroots_params_library.h"
+#include "parameter_set.h"
 
 
 typedef struct SignedIntParameter
@@ -105,7 +106,7 @@ GRASSROOTS_PARAMS_API bool GetSignedIntParameterBounds (const SignedIntParameter
 GRASSROOTS_PARAMS_API bool IsSignedIntParameter (Parameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, int32 *value_p);
+GRASSROOTS_PARAMS_API bool GetCurrentSignedIntParameterValueFromParameterSet (const struct ParameterSet * const params_p, const char * const name_s, int32 *value_p);
 
 #ifdef __cplusplus
 }

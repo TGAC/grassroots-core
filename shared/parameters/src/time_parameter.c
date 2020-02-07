@@ -40,6 +40,7 @@ static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 
 static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s, struct tm **time_pp);
 
 /*
  * API DEFINITIONS
@@ -213,9 +214,9 @@ bool SetTimeParameterBounds (TimeParameter *param_p, const struct tm *min_value_
 {
 	bool success_flag = false;
 
-	if (SetTimeParameterValue (& (param_p -> tp_min_value_p), min_value_p, max_value_p))
+	if (SetTimeParameterValue (& (param_p -> tp_min_value_p), min_value_p))
 		{
-			if (SetTimeParameterValue (& (param_p -> tp_min_value_p), min_value_p, max_value_p))
+			if (SetTimeParameterValue (& (param_p -> tp_max_value_p), max_value_p))
 				{
 					success_flag = true;
 				}
