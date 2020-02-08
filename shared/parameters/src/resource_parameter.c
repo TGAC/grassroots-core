@@ -117,76 +117,50 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 {
 	ResourceParameter *param_p = NULL;
 	Resource *current_value_p = NULL;
-	const json_t *value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
 	bool success_flag = true;
 
-	if (value_p)
-		{
-			current_value_p = GetResourceFromJSON (value_p);
-
-			if (!current_value_p)
-				{
-					success_flag = false;
-				}
-		}
-
-	if (success_flag)
+	if (SetResourceParameterValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
 			Resource *default_value_p = NULL;
-			value_p = json_object_get (param_json_p, PARAM_DEFAULT_VALUE_S);
+			const bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-			if (value_p)
+			if (full_definition_flag)
 				{
-					default_value_p = GetResourceFromJSON (value_p);
-
-					if (!default_value_p)
+					if (!SetResourceParameterValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
 							success_flag = false;
 						}
 				}
 
-
 			if (success_flag)
 				{
-					bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-					if (full_definition_flag)
+					param_p = (ResourceParameter *) AllocMemory (sizeof (ResourceParameter));
+
+					if (param_p)
 						{
-							if (!SetResourceValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &current_value_p))
+							if (InitParameterFromJSON (& (param_p -> rp_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									success_flag = false;
+									SetParameterCallbacks (& (param_p -> rp_base_param), ClearResourceParameter, AddResourceParameterDetailsToJSON,
+																				 GetResourceParameterDetailsFromJSON, NULL, SetResourceParameterCurrentValueFromString);
+
+									param_p -> rp_current_value_p = current_value_p;
+									param_p -> rp_default_value_p = default_value_p;
+
+									return param_p;
 								}
+
+							FreeMemory (param_p);
 						}
 
-					if (success_flag)
-						{
-							param_p = (ResourceParameter *) AllocMemory (sizeof (ResourceParameter));
-
-							if (param_p)
-								{
-									if (InitParameterFromJSON (& (param_p -> rp_base_param), param_json_p, service_p, full_definition_flag))
-										{
-											SetParameterCallbacks (& (param_p -> rp_base_param), ClearResourceParameter, AddResourceParameterDetailsToJSON,
-																						 GetResourceParameterDetailsFromJSON, NULL, SetResourceParameterCurrentValueFromString);
-
-											param_p -> rp_current_value_p = current_value_p;
-											param_p -> rp_default_value_p = default_value_p;
-
-											return param_p;
-										}
-
-									FreeMemory (param_p);
-								}
 
 
-							if (default_value_p)
-								{
-									FreeResource (default_value_p);
-								}
-						}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+				}
 
-				}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
-
+			if (default_value_p)
+				{
+					FreeResource (default_value_p);
+				}
 		}
 
 	if (current_value_p)

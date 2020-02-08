@@ -692,18 +692,6 @@ static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p)
 	bool success_flag = true;
 	LinkedList *dest_options_p = NULL;
 
-	if (src_p -> pa_options_p)
-		{
-			dest_options_p = CloneProgramOptionsList (src_p -> pa_options_p);
-
-			if (!dest_options_p)
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to to clone parameter options for\"%s\"", src_p -> pa_name_s);
-					success_flag = false;
-				}
-		}
-
-
 	if (success_flag)
 		{
 			if (CopyRemoteParameterDetails (src_p, dest_p))
@@ -2108,7 +2096,7 @@ void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *par
 	param_p -> pa_clear_fn = clear_fn;
 	param_p -> pa_clone_fn = clone_fn;
 	param_p -> pa_add_values_to_json_fn = add_values_to_json_fn;
-
+	param_p -> pa_get_values_from_json_fn = get_values_from_json_fn;
 
 	param_p -> pa_set_value_from_string_fn = set_value_from_string_fn;
 }

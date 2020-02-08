@@ -34,7 +34,7 @@ static bool SetTimeParameterValue (struct tm **param_value_pp, const struct tm *
 
 static void ClearTimeParameter (Parameter *param_p);
 
-static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
@@ -343,7 +343,7 @@ static void ClearTimeParameter (Parameter *param_p)
 }
 
 
-static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p)
+static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	TimeParameter *time_param_p = (TimeParameter *) param_p;
 	bool success_flag = true;

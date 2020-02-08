@@ -670,3 +670,20 @@ static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const 
 	return SetStringParameterCurrentValue (string_param_p, value_s);
 }
 
+
+
+static bool CopyStringParameterOptions (const StringParameter *src_p, StringParameter *dest_p)
+{
+	bool success_flag = false;
+	const LinkedList *src_options_p = src_p -> sp_base_param.pa_options_p;
+
+	if (src_options_p && (src_options_p -> ll_size > 0))
+		{
+			LinkedList *dest_options_p = GetMultiOptions (& (dest_p -> sp_base_param));
+
+
+		}
+
+
+	return success_flag;
+}
