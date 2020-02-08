@@ -365,7 +365,7 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 
 	if (success_flag)
 		{
-			if (!IsJSONParameterConcise (param_json_p))
+			if (full_definition_flag)
 				{
 					if (time_param_p -> tp_default_value_p)
 						{

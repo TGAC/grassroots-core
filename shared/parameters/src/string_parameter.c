@@ -122,6 +122,50 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 }
 
 
+Parameter *EasyCreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s,
+																											const char *default_value_s, uint8 level)
+{
+	return CreateAndAddStringParameterToParameterSet (service_data_p, params_p, group_p, type,
+																										name_s, display_name_s, description_s, NULL,
+																										default_value_s, NULL, level);
+}
+
+Parameter *CreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const char *default_value_s, const char *current_value_s, uint8 level)
+{
+	StringParameter *string_param_p = AllocateStringParameter (service_data_p, type, name_s, display_name_s, description_s, options_p, default_value_s, current_value_s, level);
+
+	if (string_param_p)
+		{
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, & (string_param_p -> sp_base_param)))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (!AddParameterToParameterSet (params_p, & (string_param_p -> sp_base_param)))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (& (string_param_p -> sp_base_param));
+					string_param_p = NULL;
+				}
+
+		}		/* if (param_p) */
+
+	return string_param_p;
+}
+
+
+
+
 const char *GetStringParameterCurrentValue (const StringParameter *param_p)
 {
 	return param_p -> sp_current_value_s;
@@ -330,7 +374,7 @@ bool IsStringParameter (Parameter *param_p)
 }
 
 
-bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char **value_pp)
+bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const char **value_pp)
 {
 	bool success_flag = false;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);

@@ -264,15 +264,11 @@ bool AddParametersToGetWebService (WebServiceData *data_p, ParameterSet *param_s
 bool AddMatchTypeParameter (WebServiceData *data_p, ParameterSet *param_set_p)
 {
 	bool success_flag = false;
-	SharedType def;
 	Parameter *param_p = NULL;
 
-	def.st_string_value_s = (char *) (*S_MATCH_TYPE_VALUES_SS);
-
-
-	if ((param_p = EasyCreateAndAddParameterToParameterSet(& (data_p -> wsd_base_data), param_set_p, NULL, PT_STRING, "Query matching", NULL,
+	if ((param_p = EasyCreateAndAddStringParameterToParameterSet (& (data_p -> wsd_base_data), param_set_p, NULL, PT_STRING, "Query matching", NULL,
 		"How the query will be interpreted by the service.",
-		def, PL_ADVANCED)) != NULL)
+		*S_MATCH_TYPE_VALUES_SS, PL_ADVANCED)) != NULL)
 		{
 			uint32 i;
 
@@ -280,9 +276,7 @@ bool AddMatchTypeParameter (WebServiceData *data_p, ParameterSet *param_set_p)
 
 			for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i)
 				{
-					def.st_string_value_s = (char *) (* (S_MATCH_TYPE_VALUES_SS + i));
-
-					if (!CreateAndAddParameterOptionToParameter (param_p, def, NULL))
+					if (!CreateAndAddStringParameterOption (param_p, * (S_MATCH_TYPE_VALUES_SS + i), NULL))
 						{
 							i = MT_NUM_MATCH_TYPES;
 							success_flag = false;
@@ -308,7 +302,7 @@ MatchType GetMatchTypeParameterValue (ParameterSet * const param_set_p)
 	if (param_p)
 		{
 			uint32 i;
-			const char * const value_s = param_p -> pa_current_value.st_string_value_s;
+			const char *value_s = GetStringParameterCurrentValue (param_p);
 
 			for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i)
 				{
@@ -519,74 +513,22 @@ bool AddParametersToBodyWebService (WebServiceData *data_p, ParameterSet *param_
 static bool AppendParameterValue (ByteBuffer *buffer_p, const Parameter *param_p, CurlTool *curl_tool_p)
 {
 	bool success_flag = false;
-	char *value_s = NULL;
-	const SharedType * const value_p = & (param_p -> pa_current_value);
-	enum alloc_type { AT_NONE, AT_STANDARD, AT_URL_ENCODED_STRING };
-	enum alloc_type alloc_value = AT_NONE;
-
-
-	switch (param_p -> pa_type)
-		{
-			case PT_BOOLEAN:
-				value_s = (char *) ((value_p -> st_boolean_value == true) ? "true" : "false");
-				break;
-
-			case PT_SIGNED_INT:
-			case PT_NEGATIVE_INT:
-				value_s = ConvertIntegerToString (value_p -> st_long_value);
-				alloc_value = AT_STANDARD;
-				break;
-
-			case PT_UNSIGNED_INT:
-				value_s = ConvertUnsignedIntegerToString (value_p -> st_ulong_value);
-				alloc_value = AT_STANDARD;
-				break;
-
-			case PT_SIGNED_REAL:
-			case PT_UNSIGNED_REAL:
-				value_s = ConvertDoubleToString (value_p -> st_data_value);
-				alloc_value = AT_STANDARD;
-				break;
-
-			case PT_DIRECTORY:
-			case PT_FILE_TO_READ:
-			case PT_FILE_TO_WRITE:
-				{
-					value_s = GetURLEscapedString (curl_tool_p, value_p -> st_resource_value_p -> re_value_s);
-					alloc_value = AT_URL_ENCODED_STRING;
-				}
-				break;
-
-			case PT_STRING:
-			case PT_PASSWORD:
-			case PT_KEYWORD:
-				{
-					value_s = GetURLEscapedString (curl_tool_p, value_p -> st_string_value_s);
-					alloc_value = AT_URL_ENCODED_STRING;
-				}
-				break;
-
-			default:
-				break;
-		}		/* switch (param_p -> pa_type) */
+	bool alloc_flag = false;
+	char *value_s = GetParameterValueAsString (param_p, alloc_flag);
 
 	if (value_s)
 		{
-			success_flag = AppendToByteBuffer (buffer_p, value_s, strlen (value_s));
+			char *escaped_value_s = GetURLEscapedString (curl_tool_p, value_s);
 
-			switch (alloc_value)
+			if (escaped_value_s)
 				{
-					case AT_STANDARD:
-						FreeCopiedString (value_s);
-						break;
+					success_flag = AppendStringToByteBuffer (buffer_p, escaped_value_s);
+					FreeURLEscapedString (escaped_value_s);
+				}
 
-					case AT_URL_ENCODED_STRING:
-						FreeURLEscapedString (value_s);
-						break;
-
-					case AT_NONE:
-						break;
-
+			if (alloc_flag)
+				{
+					FreeCopiedString (value_s);
 				}
 		}
 

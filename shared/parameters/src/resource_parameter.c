@@ -306,7 +306,14 @@ static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t 
 
 	if (AddResourceValueToJSON (res_param_p -> rp_current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			if (AddResourceValueToJSON (res_param_p -> rp_default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+			if (full_definition_flag)
+				{
+					if (AddResourceValueToJSON (res_param_p -> rp_default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
+						{
+							success_flag = true;
+						}
+				}
+			else
 				{
 					success_flag = true;
 				}

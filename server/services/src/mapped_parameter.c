@@ -22,6 +22,8 @@
 
 #include <string.h>
 
+#include "boolean_parameter.h"
+#include "string_parameter.h"
 #include "mapped_parameter.h"
 #include "memory_allocations.h"
 #include "streams.h"

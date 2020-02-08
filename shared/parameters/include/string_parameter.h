@@ -91,6 +91,16 @@ GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameter (const struct Ser
 GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
 
 
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s,
+																											const char *default_value_s, uint8 level);
+
+
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const char *default_value_s, const char *current_value_s, uint8 level);
+
+
 
 GRASSROOTS_PARAMS_API void FreeStringParameter (StringParameter *param_p);
 
@@ -132,7 +142,7 @@ GRASSROOTS_PARAMS_API bool IsStringParameter (Parameter *param_p);
  * otherwise.
  * @memberof ParameterSet
  */
-GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char **value_pp);
+GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const char **value_pp);
 
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_STRING_PARAMETER_H_ */

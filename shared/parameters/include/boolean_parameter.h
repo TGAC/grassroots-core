@@ -70,6 +70,17 @@ GRASSROOTS_PARAMS_API BooleanParameter *AllocateBooleanParameter (const struct S
 GRASSROOTS_PARAMS_API BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
 
 
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddBooleanParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+											      													const char * const name_s, const char * const display_name_s, const char * const description_s,
+														      										const bool *default_value_p, uint8 level);
+
+
+
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddBooleanParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const bool *default_value_p, const bool *current_value_p, uint8 level);
+
+
 GRASSROOTS_PARAMS_API void FreeBooleanParameter (BooleanParameter *param_p);
 
 
@@ -89,16 +100,6 @@ GRASSROOTS_PARAMS_API bool IsBooleanParameter (Parameter *param_p);
 
 
 GRASSROOTS_PARAMS_API bool GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *value_p);
-
-
-GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddBooleanParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								bool *default_value_p, uint8 level);
-
-
-GRASSROOTS_PARAMS_API Parameter *CreateAndAddBooleanParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
-																								bool *default_value_p, bool *current_value_p, uint8 level);
 
 
 #ifdef __cplusplus
