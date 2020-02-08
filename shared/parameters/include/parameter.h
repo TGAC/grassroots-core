@@ -304,7 +304,7 @@ GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct Servi
 																					void (*clear_fn) (Parameter *param_p),
 																					bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
 																					bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p),
-																					struct Parameter (*clone_fn) (const Parameter *param_p),
+																					struct Parameter *(*clone_fn) (const Parameter *param_p),
 																					bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 );
 
