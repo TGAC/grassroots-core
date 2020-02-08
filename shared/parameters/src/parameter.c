@@ -405,11 +405,12 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 }
 
 
+
 bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
 										const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level,
 										void (*clear_fn) (Parameter *param_p),
 										bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-										bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
+										bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p),
 										struct Parameter (*clone_fn) (const Parameter *param_p),
 										bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
@@ -984,31 +985,22 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 																{
 																	if (AddParameterDisplayNameToJSON (param_p, root_p, sv_p))
 																		{
-																			if (AddParameterOptionsToJSON (param_p, root_p, sv_p))
+																			if (AddParameterVisibilityToJSON (param_p, root_p, sv_p))
 																				{
-																					if (AddParameterVisibilityToJSON (param_p, root_p, sv_p))
+																					if (AddParameterRefreshToJSON (param_p, root_p, sv_p))
 																						{
-																							if (AddParameterRefreshToJSON (param_p, root_p, sv_p))
-																								{
-																									success_flag = true;
-																								}		/* if (AddParameterRefreshToJSON (param_p, root_p, sv_p)) */
-																							else
-																								{
-																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterRefreshToJSON for \"%s\"", param_p -> pa_name_s);
-																								}
-
-																						}		/* if (AddParameterVisibilityToJSON (param_p, root_p, sv_p)) */
+																							success_flag = true;
+																						}		/* if (AddParameterRefreshToJSON (param_p, root_p, sv_p)) */
 																					else
 																						{
-																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterVisibilityToJSON for \"%s\"", param_p -> pa_name_s);
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterRefreshToJSON for \"%s\"", param_p -> pa_name_s);
 																						}
 
-																				}		/* if (AddParameterOptionsToJSON (param_p, root_p)) */
+																				}		/* if (AddParameterVisibilityToJSON (param_p, root_p, sv_p)) */
 																			else
 																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterOptionsToJSON for \"%s\"", param_p -> pa_name_s);
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterVisibilityToJSON for \"%s\"", param_p -> pa_name_s);
 																				}
-
 																		}		/* if (AddParameterDisplayNameToJSON (param_p, root_p)) */
 																	else
 																		{
@@ -2108,7 +2100,7 @@ const char *GetUIName (const Parameter * const parameter_p)
 
 void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *param_p),
 														bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-														bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p, const bool full_definition_flag),
+														bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p),
 														Parameter *(*clone_fn) (const Parameter *param_p),
 														bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )

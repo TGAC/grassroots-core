@@ -365,18 +365,21 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 
 	if (success_flag)
 		{
-			if (time_param_p -> tp_default_value_p)
+			if (!IsJSONParameterConcise (param_json_p))
 				{
-					char *time_s = GetTimeAsString (time_param_p -> tp_default_value_p, true);
+					if (time_param_p -> tp_default_value_p)
+						{
+							char *time_s = GetTimeAsString (time_param_p -> tp_default_value_p, true);
 
-					if (time_s)
-						{
-							success_flag = SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, time_s);
-							FreeCopiedString (time_s);
-						}
-					else
-						{
-							success_flag = false;
+							if (time_s)
+								{
+									success_flag = SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, time_s);
+									FreeCopiedString (time_s);
+								}
+							else
+								{
+									success_flag = false;
+								}
 						}
 				}
 		}

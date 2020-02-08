@@ -539,7 +539,7 @@ static bool SetCharParameterCurrentValueFromString (Parameter *param_p, const ch
 		{
 			if (strlen (value_s) == 1)
 				{
-					success_flag = SetCharParameterCurrentValue (char_param_p, *value_s);
+					success_flag = SetCharParameterCurrentValue (char_param_p, value_s);
 				}
 		}
 	else

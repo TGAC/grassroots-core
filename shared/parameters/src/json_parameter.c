@@ -91,7 +91,7 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 				{
 					if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
 														 ClearJSONParameter, AddJSONParameterDetailsToJSON,
-														 NULL, GetJSONParameterDetailsFromJSON, SetJSONParameterCurrentValueFromString))
+														 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString))
 						{
 							if (service_data_p)
 								{

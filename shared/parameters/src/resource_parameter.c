@@ -42,6 +42,8 @@ static bool AddResourceValueToJSON (const Resource *resource_p, json_t *param_js
 
 static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *param_json_p, const char *key_s);
+
 /*
  * API DEFINITIONS
  */
@@ -150,7 +152,7 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 
 					if (full_definition_flag)
 						{
-							if (!SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &current_value_p))
+							if (!SetResourceValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &current_value_p))
 								{
 									success_flag = false;
 								}
@@ -266,7 +268,7 @@ static bool SetResourceParameterValue (Resource **param_value_pp, const Resource
 		{
 			if (*param_value_pp)
 				{
-					FreeReesource (*param_value_pp);
+					FreeResource (*param_value_pp);
 					*param_value_pp = NULL;
 				}
 		}
@@ -343,27 +345,13 @@ static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t 
 static bool GetResourceParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
 {
 	ResourceParameter *res_param_p = (ResourceParameter *) param_p;
-	bool success_flag = true;
-	uint32 i;
+	bool success_flag = false;
 
-	if (GetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, &i))
+	if (SetResourceParameterValueFromJSON (& (res_param_p -> rp_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			success_flag = SetResourceParameterCurrentValue (res_param_p, &i);
-		}
-	else
-		{
-			success_flag = SetResourceParameterCurrentValue (res_param_p, NULL);
-		}
-
-	if (success_flag)
-		{
-			if (GetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, &i))
+			if (SetResourceParameterValueFromJSON (& (res_param_p -> rp_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
 				{
-					success_flag = SetResourceParameterDefaultValue (res_param_p, &i);
-				}
-			else
-				{
-					success_flag = SetResourceParameterDefaultValue (res_param_p, NULL);
+					success_flag = true;
 				}
 		}
 
@@ -429,9 +417,42 @@ static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, cons
 		}
 	else
 		{
-			success_flag = SetDoubleParameterCurrentValue (res_param_p, NULL);
+			success_flag = SetResourceParameterCurrentValue (res_param_p, NULL);
 		}
 
 	return success_flag;
 }
 
+
+static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *param_json_p, const char *key_s)
+{
+	bool success_flag = false;
+	const json_t *param_value_p = json_object_get (param_json_p, key_s);
+
+	if (param_value_p)
+		{
+			Resource *res_p = GetResourceFromJSON (param_value_p);
+
+			if (res_p)
+				{
+					if (*res_pp)
+						{
+							success_flag = CopyResource (res_p, *res_pp);
+						}
+					else
+						{
+							*res_pp = CloneResource (res_p);
+
+							success_flag = (*res_pp != NULL);
+						}
+
+					FreeResource (res_p);
+				}
+		}
+	else
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
