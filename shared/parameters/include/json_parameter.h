@@ -62,12 +62,21 @@ extern "C" {
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof JSONParameter
  */
-GRASSROOTS_PARAMS_API JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, json_t *default_value_p, json_t *current_value_p, ParameterLevel level);
+GRASSROOTS_PARAMS_API JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level);
 
 
 
 GRASSROOTS_PARAMS_API JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
 
+
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddJSONParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s,
+																											const json_t *default_value_p, uint8 level);
+
+
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddJSONParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const json_t *default_value_p, const json_t *current_value_p, uint8 level);
 
 
 GRASSROOTS_PARAMS_API void FreeJSONParameter (JSONParameter *param_p);
@@ -89,6 +98,8 @@ GRASSROOTS_PARAMS_API bool IsJSONParameter (Parameter *param_p);
 
 
 GRASSROOTS_PARAMS_API bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const json_t **value_pp);
+
+
 
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_JSON_PARAMETER_H_ */

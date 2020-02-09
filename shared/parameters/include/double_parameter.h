@@ -70,7 +70,7 @@ extern "C" {
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof DoubleParameter
  */
-GRASSROOTS_PARAMS_API DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, double64 *default_value_p, double64 *current_value_p, ParameterLevel level);
+GRASSROOTS_PARAMS_API DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const double64 *default_value_p, const double64 *current_value_p, ParameterLevel level);
 
 
 
@@ -115,9 +115,9 @@ GRASSROOTS_PARAMS_API bool GetCurrentDoubleParameterValueFromParameterSet (const
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof ParameterSet
  */
-GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, const ParameterType pt,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								double64 *default_value_p, uint8 level);
+																								const double64 *default_value_p, uint8 level);
 
 /**
  * Allocate a new Parameter and add it to a ParameterSet.
@@ -140,9 +140,11 @@ GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof ParameterSet
  */
-GRASSROOTS_PARAMS_API Parameter *CreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, const ParameterType pt, ParameterSet *params_p, ParameterGroup *group_p,
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, const ParameterType pt,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
-																								double64 *default_value_p, double64 *current_value_p, uint8 level);
+																								const double64 *default_value_p, const double64 *current_value_p, uint8 level);
+
+
 
 
 #ifdef __cplusplus

@@ -47,7 +47,7 @@ static bool SetJSONParameterCurrentValueFromString (Parameter *param_p, const ch
  * API DEFINITIONS
  */
 
-JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, json_t *default_value_p, json_t *current_value_p, ParameterLevel level)
+JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level)
 {
 	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
 
@@ -116,6 +116,50 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 		}		/* if (param_p) */
 
 	return NULL;
+}
+
+
+Parameter *EasyCreateAndAddJSONParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s,
+																											const json_t *default_value_p, uint8 level)
+{
+	return CreateAndAddJSONParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+}
+
+
+Parameter *CreateAndAddJSONParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const json_t *default_value_p, const json_t *current_value_p, uint8 level)
+{
+	JSONParameter *json_param_p = AllocateJSONParameter (service_data_p, type, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+	Parameter *base_param_p = NULL;
+
+	if (json_param_p)
+		{
+			base_param_p = & (json_param_p -> jp_base_param);
+
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, base_param_p))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (!AddParameterToParameterSet (params_p, base_param_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (base_param_p);
+					base_param_p = NULL;
+				}
+
+		}		/* if (param_p) */
+
+	return base_param_p;
 }
 
 

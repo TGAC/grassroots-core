@@ -64,7 +64,7 @@ extern "C" {
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof BooleanParameter
  */
-GRASSROOTS_PARAMS_API BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, bool *default_value_p, bool *current_value_p, ParameterLevel level);
+GRASSROOTS_PARAMS_API BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const bool *default_value_p, const bool *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_PARAMS_API BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
