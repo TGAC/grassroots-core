@@ -53,54 +53,26 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 
 	if (param_p)
 		{
-			bool success_flag = true;
-
-			if (current_value_p)
+			if (SetJSONParameterValue (& (param_p -> jp_current_value_p), current_value_p))
 				{
-					param_p -> jp_current_value_p = json_deep_copy (current_value_p);
-
-					if (! (param_p -> jp_current_value_p))
+					if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p))
 						{
-							success_flag = false;
-						}
-				}
-			else
-				{
-					param_p -> jp_current_value_p = NULL;
-				}
-
-
-			if (success_flag)
-				{
-					if (default_value_p)
-						{
-							param_p -> jp_default_value_p = json_deep_copy (default_value_p);
-
-							if (! (param_p -> jp_default_value_p))
+							if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+																 ClearJSONParameter, AddJSONParameterDetailsToJSON,
+																 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString))
 								{
-									success_flag = false;
-								}
-						}
-					else
-						{
-							param_p -> jp_default_value_p = NULL;
-						}
-				}
+									if (service_data_p)
+										{
+		//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+										}
 
-			if (success_flag)
-				{
-					if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
-														 ClearJSONParameter, AddJSONParameterDetailsToJSON,
-														 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString))
-						{
-							if (service_data_p)
-								{
-//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+									return param_p;
 								}
 
-							return param_p;
-						}
-				}
+						}		/* if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p)) */
+
+				}		/* if (SetJSONParameterValue (& (param_p -> jp_current_value_p), current_value_p)) */
+
 
 			if (param_p -> jp_current_value_p)
 				{
@@ -232,23 +204,21 @@ bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const pa
 
 static bool SetJSONParameterValue (json_t **param_value_pp, const json_t *new_value_p)
 {
-	bool success_flag = true;
+	bool success_flag = false;
 
 	if (new_value_p)
 		{
-			if (! (*param_value_pp))
-				{
-					*param_value_pp = new_value_p;
+			json_t *copied_value_p = json_deep_copy (new_value_p);
 
-					if (! (*param_value_pp))
+			if (copied_value_p)
+				{
+					if (*param_value_pp)
 						{
-							success_flag = false;
+							json_decref (*param_value_pp);
 						}
-				}
 
-			if (success_flag)
-				{
-					**param_value_pp = *new_value_p;
+					*param_value_pp = copied_value_p;
+					success_flag = true;
 				}
 		}
 	else
@@ -256,8 +226,10 @@ static bool SetJSONParameterValue (json_t **param_value_pp, const json_t *new_va
 			if (*param_value_pp)
 				{
 					json_decref (*param_value_pp);
-					*param_value_pp = NULL;
 				}
+
+			*param_value_pp = NULL;
+			success_flag = true;
 		}
 
 	return success_flag;
