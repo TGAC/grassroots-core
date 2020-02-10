@@ -228,7 +228,7 @@ bool IsBooleanParameter (Parameter *param_p)
 }
 
 
-bool GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *value_p)
+const bool *GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_p)
 {
 	bool success_flag = false;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
