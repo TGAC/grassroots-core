@@ -27,6 +27,8 @@
 #include "parameter.h"
 #include "grassroots_params_library.h"
 #include "time.h"
+#include "parameter_set.h"
+
 
 
 typedef struct TimeParameter
@@ -70,12 +72,20 @@ extern "C" {
 GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p,
 																														const char * const name_s, const char * const display_name_s,
 																														const char * const description_s, LinkedList *options_p,
-																														struct tm *default_value_p, struct tm *current_value_p,
+																														const struct tm *default_value_p, const struct tm *current_value_p,
 																														ParameterLevel level);
 
 
 GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
 
+
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddTimeParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								const struct tm *default_value_p, uint8 level);
+
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddTimeParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const struct tm *default_value_p, const struct tm *current_value_p, uint8 level);
 
 
 GRASSROOTS_PARAMS_API void FreeTimeParameter (TimeParameter *param_p);

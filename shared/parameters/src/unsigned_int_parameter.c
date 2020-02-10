@@ -49,7 +49,7 @@ static bool SetUnsignedIntParameterCurrentValueFromString (Parameter *param_p, c
  * API DEFINITIONS
  */
 
-UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level)
+UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const uint32 *default_value_p, const uint32 *current_value_p, ParameterLevel level)
 {
 	UnsignedIntParameter *param_p = (UnsignedIntParameter *) AllocMemory (sizeof (UnsignedIntParameter));
 
@@ -184,6 +184,52 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 					FreeMemory (current_value_p);
 				}
 		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
+
+	return NULL;
+}
+
+
+Parameter *EasyCreateAndAddUnsignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								const uint32 *default_value_p, uint8 level)
+{
+	return CreateAndAddUnsignedIntParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+}
+
+
+Parameter *CreateAndAddUnsignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const uint32 *default_value_p, const uint32 *current_value_p, uint8 level)
+{
+	UnsignedIntParameter *int_param_p = AllocateUnsignedIntParameter (service_data_p, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+
+	if (int_param_p)
+		{
+			Parameter *base_param_p = & (int_param_p -> uip_base_param);
+
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, base_param_p))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (AddParameterToParameterSet (params_p, base_param_p))
+				{
+					return base_param_p;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (base_param_p);
+				}
+
+		}		/* if (bool_param_p) */
 
 	return NULL;
 }

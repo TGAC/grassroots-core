@@ -46,7 +46,7 @@ static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s,
  * API DEFINITIONS
  */
 
-TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, struct tm *default_value_p, struct tm *current_value_p, ParameterLevel level)
+TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const struct tm *default_value_p, const struct tm *current_value_p, ParameterLevel level)
 {
 	TimeParameter *param_p = (TimeParameter *) AllocMemory (sizeof (TimeParameter));
 
@@ -183,6 +183,53 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 
 	return NULL;
 }
+
+
+Parameter *EasyCreateAndAddTimeParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								const struct tm *default_value_p, uint8 level)
+{
+	return CreateAndAddTimeParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+}
+
+
+Parameter *CreateAndAddTimeParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const struct tm *default_value_p, const struct tm *current_value_p, uint8 level)
+{
+	TimeParameter *time_param_p = AllocateTimeParameter (service_data_p, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+
+	if (time_param_p)
+		{
+			Parameter *base_param_p = & (time_param_p -> tp_base_param);
+
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, base_param_p))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (AddParameterToParameterSet (params_p, base_param_p))
+				{
+					return base_param_p;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (base_param_p);
+				}
+
+		}		/* if (time_param_p) */
+
+	return NULL;
+}
+
 
 
 

@@ -27,6 +27,7 @@
 
 #include "parameter.h"
 #include "grassroots_params_library.h"
+#include "parameter_set.h"
 
 
 typedef struct UnsignedIntParameter
@@ -67,10 +68,21 @@ extern "C" {
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof UnsignedIntParameter
  */
-GRASSROOTS_PARAMS_API UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, uint32 *default_value_p, uint32 *current_value_p, ParameterLevel level);
+GRASSROOTS_PARAMS_API UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const uint32 *default_value_p, const uint32 *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_PARAMS_API UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+
+
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddUnsignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+											      													const char * const name_s, const char * const display_name_s, const char * const description_s,
+														      										const uint32 *default_value_p, uint8 level);
+
+
+
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddUnsignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const uint32 *default_value_p, const uint32 *current_value_p, uint8 level);
 
 
 GRASSROOTS_PARAMS_API void FreeUnsignedIntParameter (UnsignedIntParameter *param_p);

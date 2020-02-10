@@ -95,8 +95,7 @@ GRASSROOTS_PARAMS_API bool SetDoubleParameterDefaultValue (DoubleParameter *para
 GRASSROOTS_PARAMS_API bool IsDoubleParameter (Parameter *param_p);
 
 
-GRASSROOTS_PARAMS_API const double64 *GetCurrentDoubleParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_p);
-
+GRASSROOTS_PARAMS_API bool GetCurrentDoubleParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const double64 **value_pp);
 
 /**
  * Allocate a new Parameter and add it to a ParameterSet.
