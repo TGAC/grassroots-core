@@ -34,6 +34,7 @@
 #include "schema_version.h"
 #include "parameter_type.h"
 #include "remote_parameter_details.h"
+#include "jansson.h"
 
 
 /******* FORWARD DECLARATION *******/

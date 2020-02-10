@@ -228,23 +228,25 @@ bool IsBooleanParameter (Parameter *param_p)
 }
 
 
-bool GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *value_p)
+const bool *GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_flag_p)
 {
-	bool success_flag = false;
+	const bool *current_value_p = NULL;
+	bool error_flag = true;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
 
 	if (param_p)
 		{
 			if (IsBooleanParameter (param_p))
 				{
-					const bool *current_value_p = GetBooleanParameterCurrentValue ((const BooleanParameter *) param_p);
+					current_value_p = GetBooleanParameterCurrentValue ((const BooleanParameter *) param_p);
 
-					*value_p = *current_value_p;
-					success_flag = true;
+					error_flag = false;
 				}
 		}
 
-	return success_flag;
+	*error_flag_p = error_flag_p;
+
+	return current_value_p;
 }
 
 
