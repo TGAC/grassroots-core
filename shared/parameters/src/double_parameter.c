@@ -282,7 +282,7 @@ bool IsDoubleParameter (Parameter *param_p)
 }
 
 
-bool GetCurrentDoubleParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, double64 **value_pp)
+const double64 *GetCurrentDoubleParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_p)
 {
 	bool success_flag = false;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);

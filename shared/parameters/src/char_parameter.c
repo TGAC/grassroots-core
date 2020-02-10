@@ -288,7 +288,7 @@ bool IsCharParameter (Parameter *param_p)
 }
 
 
-bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char *value_p)
+const char *GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_p)
 {
 	bool success_flag = false;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);

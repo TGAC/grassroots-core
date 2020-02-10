@@ -99,7 +99,7 @@ GRASSROOTS_PARAMS_API bool SetBooleanParameterDefaultValue (BooleanParameter *pa
 GRASSROOTS_PARAMS_API bool IsBooleanParameter (Parameter *param_p);
 
 
-GRASSROOTS_PARAMS_API const bool *GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_flag_p)
+GRASSROOTS_PARAMS_API const bool *GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_p);
 
 #ifdef __cplusplus
 }
