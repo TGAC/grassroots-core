@@ -290,21 +290,23 @@ bool IsCharParameter (Parameter *param_p)
 
 const char *GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, bool *error_p)
 {
-	bool success_flag = false;
+	const char *current_value_p = NULL;
+	bool error_flag = true;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
 
 	if (param_p)
 		{
 			if (IsCharParameter (param_p))
 				{
-					const char *current_value_p = GetCharParameterCurrentValue ((const CharParameter *) param_p);
-
-					*value_p = *current_value_p;
-					success_flag = true;
+					current_value_p = GetCharParameterCurrentValue ((const CharParameter *) param_p);
+					error_flag = false;
 				}
 		}
 
-	return success_flag;
+
+	*error_p = error_flag;
+
+	return current_value_p;
 }
 
 
