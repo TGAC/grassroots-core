@@ -332,7 +332,7 @@ bool IsUnsignedIntParameter (Parameter *param_p)
 
 
 
-bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, uint32 *value_p)
+bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const uint32 **value_pp)
 {
 	bool success_flag = false;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
@@ -341,9 +341,7 @@ bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * c
 		{
 			if (IsUnsignedIntParameter (param_p))
 				{
-					const uint32 *current_value_p = GetUnsignedIntParameterCurrentValue ((const UnsignedIntParameter *) param_p);
-
-					*value_p = *current_value_p;
+					*value_pp = GetUnsignedIntParameterCurrentValue ((const UnsignedIntParameter *) param_p);
 					success_flag = true;
 				}
 		}

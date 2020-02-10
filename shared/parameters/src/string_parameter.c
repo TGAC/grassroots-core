@@ -385,7 +385,7 @@ bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const 
 				{
 					const char *value_s = GetStringParameterCurrentValue ((const StringParameter *) param_p);
 
-					*value_pp = *value_s;
+					*value_pp = value_s;
 					success_flag = true;
 				}
 		}

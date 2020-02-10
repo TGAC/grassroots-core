@@ -214,6 +214,25 @@ bool IsResourceParameter (Parameter *param_p)
 	return resource_param_flag;
 }
 
+
+bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const Resource **value_pp)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsResourceParameter (param_p))
+				{
+					*value_pp = GetResourceParameterCurrentValue ((const ResourceParameter *) param_p);
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

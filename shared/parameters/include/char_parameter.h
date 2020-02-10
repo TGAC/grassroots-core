@@ -102,8 +102,7 @@ GRASSROOTS_PARAMS_API bool GetCharParameterBounds (const CharParameter *param_p,
 GRASSROOTS_PARAMS_API bool IsCharParameter (Parameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, char *value_p);
-
+GRASSROOTS_PARAMS_API bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const char **value_pp);
 
 
 

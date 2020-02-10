@@ -287,7 +287,7 @@ bool IsSignedIntParameter (Parameter *param_p)
 }
 
 
-bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, int32 *value_p)
+bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const int32 **value_pp)
 {
 	bool success_flag = false;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
@@ -296,9 +296,7 @@ bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * con
 		{
 			if (IsSignedIntParameter (param_p))
 				{
-					const int32 *current_value_p = GetSignedIntParameterCurrentValue ((const SignedIntParameter *) param_p);
-
-					*value_p = *current_value_p;
+					*value_pp = GetSignedIntParameterCurrentValue ((const SignedIntParameter *) param_p);
 					success_flag = true;
 				}
 		}

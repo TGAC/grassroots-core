@@ -25,6 +25,7 @@
 
 #include "parameter.h"
 #include "grassroots_params_library.h"
+#include "parameter_set.h"
 
 
 typedef struct ResourceParameter
@@ -80,5 +81,7 @@ GRASSROOTS_PARAMS_API const Resource *GetResourceParameterDefaultValue (const Re
 
 GRASSROOTS_PARAMS_API bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const Resource *value_p);
 
+
+GRASSROOTS_PARAMS_API bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const Resource **value_pp);
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_RESOURCE_PARAMETER_H_ */

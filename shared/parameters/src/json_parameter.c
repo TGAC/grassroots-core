@@ -187,9 +187,7 @@ bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const pa
 		{
 			if (IsJSONParameter (param_p))
 				{
-					const json_t *current_value_p = GetJSONParameterCurrentValue ((const JSONParameter *) param_p);
-
-					*value_pp = current_value_p;
+					*value_pp = GetJSONParameterCurrentValue ((const JSONParameter *) param_p);
 					success_flag = true;
 				}
 		}
