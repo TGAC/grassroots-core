@@ -145,4 +145,8 @@ GRASSROOTS_PARAMS_API bool IsStringParameter (Parameter *param_p);
 GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const char **value_pp);
 
 
+
+GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterGroup (const ParameterGroup * const params_p, const char * const name_s, const char **value_pp);
+
+
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_STRING_PARAMETER_H_ */

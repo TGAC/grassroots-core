@@ -394,6 +394,27 @@ bool GetCurrentStringParameterValueFromParameterSet (const ParameterSet * const 
 }
 
 
+bool GetCurrentStringParameterValueFromParameterGroup (const ParameterGroup * const params_p, const char * const name_s, const char **value_pp)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterGroupByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsStringParameter (param_p))
+				{
+					const char *value_s = GetStringParameterCurrentValue ((const StringParameter *) param_p);
+
+					*value_pp = value_s;
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
