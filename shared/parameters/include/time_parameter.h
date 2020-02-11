@@ -106,6 +106,8 @@ GRASSROOTS_PARAMS_API bool SetTimeParameterDefaultValue (TimeParameter *param_p,
 GRASSROOTS_PARAMS_API bool IsTimeParameter (Parameter *param_p);
 
 
+GRASSROOTS_PARAMS_API bool GetCurrentTimeParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const struct tm **value_pp);
+
 #ifdef __cplusplus
 }
 #endif

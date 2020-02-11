@@ -145,6 +145,7 @@ GRASSROOTS_PARAMS_API Parameter *CreateAndAddDoubleParameterToParameterSet (cons
 
 
 
+GRASSROOTS_PARAMS_API bool SetDoubleParameterBounds (DoubleParameter *param_p, const double64 min_value, const double64 max_value);
 
 #ifdef __cplusplus
 }

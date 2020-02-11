@@ -210,7 +210,7 @@ bool SetDoubleParameterDefaultValue (DoubleParameter *param_p, const double64 *v
 
 
 
-bool SetDoubleParameterBounds (DoubleParameter *param_p, const char min_value, const char max_value)
+bool SetDoubleParameterBounds (DoubleParameter *param_p, const double64 min_value, const double64 max_value)
 {
 	if (! (param_p -> dp_min_value_p))
 		{
