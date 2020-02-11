@@ -111,6 +111,10 @@ GRASSROOTS_PARAMS_API bool GetUnsignedIntParameterBounds (const UnsignedIntParam
 
 GRASSROOTS_PARAMS_API bool IsUnsignedIntParameter (Parameter *param_p);
 
+
+GRASSROOTS_PARAMS_API bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const uint32 **value_pp);
+
+
 #ifdef __cplusplus
 }
 #endif
