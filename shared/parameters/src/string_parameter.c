@@ -257,8 +257,6 @@ bool CreateAndAddStringParameterOption (const StringParameter *param_p, const ch
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate option with value \"%s \" and description \"%s\"", value_s, description_s);
 				}
-
-
 		}
 	else
 		{
@@ -348,10 +346,11 @@ void FreeStringParameterOptionNode (ListItem *item_p)
 	StringParameterOptionNode *node_p = (StringParameterOptionNode *) item_p;
 
 	FreeStringParameterOption (node_p -> spon_option_p);
+	FreeMemory (node_p);
 }
 
 
-bool IsStringParameter (Parameter *param_p)
+bool IsStringParameter (const Parameter *param_p)
 {
 	bool string_param_flag = false;
 

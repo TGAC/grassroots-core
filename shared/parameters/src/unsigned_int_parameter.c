@@ -41,6 +41,9 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, const char *key_s);
 
 
+static LinkedList *GetUnsignedIntParameterMultiOptions (UnsignedIntParameter *param_p);
+
+
 static bool SetUnsignedIntParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
 
@@ -313,7 +316,7 @@ bool GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, uint32 
 }
 
 
-bool IsUnsignedIntParameter (Parameter *param_p)
+bool IsUnsignedIntParameter (const Parameter *param_p)
 {
 	bool unsigned_int_param_flag = false;
 
@@ -347,6 +350,113 @@ bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * c
 		}
 
 	return success_flag;
+}
+
+
+
+
+bool CreateAndAddUnsignedIntParameterOption (UnsignedIntParameter *param_p, const uint32 value, const char *description_s)
+{
+	bool success_flag = false;
+	LinkedList *options_p = GetUnsignedIntParameterMultiOptions (param_p);
+
+	if (options_p)
+		{
+			UnsignedIntParameterOption *option_p = AllocateUnsignedIntParameterOption (value, description_s);
+
+			if (option_p)
+				{
+					UnsignedIntParameterOptionNode *node_p = AllocateUnsignedIntParameterOptionNode (option_p);
+
+					if (node_p)
+						{
+							LinkedListAddTail (options_p, & (node_p -> uipon_node));
+							success_flag = true;
+						}
+					else
+						{
+							FreeUnsignedIntParameterOption (option_p);
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate option node with value " UINT32_FMT " and description \"%s\"", value, description_s);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate option with value " UINT32_FMT "and description \"%s\"", value, description_s);
+				}
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get options list for parameter \"%s\"", param_p -> uip_base_param.pa_name_s);
+		}
+
+
+	return success_flag;
+}
+
+
+
+UnsignedIntParameterOption *AllocateUnsignedIntParameterOption (const uint32 value, const char *description_s)
+{
+	char *new_description_s  = NULL;
+
+	if (CloneValidString (description_s, &new_description_s))
+		{
+			UnsignedIntParameterOption *option_p = (UnsignedIntParameterOption *) AllocMemory (sizeof (UnsignedIntParameterOption));
+
+			if (option_p)
+				{
+					option_p -> uipo_value = value;
+					option_p -> uipo_description_s = new_description_s;
+
+					return option_p;
+				}
+
+			if (new_description_s)
+				{
+					FreeCopiedString (new_description_s);
+				}
+		}
+
+	return NULL;
+}
+
+
+void FreeUnsignedIntParameterOption (UnsignedIntParameterOption *option_p)
+{
+	if (option_p -> uipo_description_s)
+		{
+			FreeCopiedString (option_p -> uipo_description_s);
+		}
+
+	FreeMemory (option_p);
+}
+
+
+UnsignedIntParameterOptionNode *AllocateUnsignedIntParameterOptionNode (UnsignedIntParameterOption *option_p)
+{
+	UnsignedIntParameterOptionNode *node_p = (UnsignedIntParameterOptionNode *) AllocMemory (sizeof (UnsignedIntParameterOptionNode));
+
+	if (node_p)
+		{
+			InitListItem (& (node_p -> uipon_node));
+
+			node_p -> uipon_option_p = option_p;
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate UnsignedIntParameterOptionNode with value " UINT32_FMT " and description \"%s\"", option_p -> uipo_value, option_p -> uipo_description_s);
+		}
+
+	return node_p;
+}
+
+
+void FreeUnsignedIntParameterOptionNode (ListItem *item_p)
+{
+	UnsignedIntParameterOptionNode *node_p = (UnsignedIntParameterOptionNode *) item_p;
+
+	FreeUnsignedIntParameterOption (node_p -> uipon_option_p);
+	FreeMemory (node_p);
 }
 
 /*
@@ -516,4 +626,24 @@ static bool SetUnsignedIntParameterCurrentValueFromString (Parameter *param_p, c
 
 	return success_flag;
 }
+
+
+static LinkedList *GetUnsignedIntParameterMultiOptions (UnsignedIntParameter *param_p)
+{
+	Parameter *base_param_p = & (param_p -> uip_base_param);
+
+	if (! (base_param_p -> pa_options_p))
+		{
+			base_param_p -> pa_options_p = AllocateLinkedList (FreeUnsignedIntParameterOptionNode);
+
+			if (! (base_param_p -> pa_options_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate options list for parameter \"%s\"", base_param_p -> pa_name_s);
+				}
+		}
+
+	return (base_param_p -> pa_options_p);
+}
+
+
 

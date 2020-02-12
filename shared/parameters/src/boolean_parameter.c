@@ -210,7 +210,7 @@ bool SetBooleanParameterDefaultValue (BooleanParameter *param_p, const bool *val
 }
 
 
-bool IsBooleanParameter (Parameter *param_p)
+bool IsBooleanParameter (const Parameter *param_p)
 {
 	bool boolean_param_flag = false;
 

@@ -208,17 +208,17 @@ typedef struct Service
  	/**
  	 * Function to get the user-friendly name of the service.
  	 */
-	const char *(*se_get_service_name_fn) (struct Service *service_p);
+	const char *(*se_get_service_name_fn) (const struct Service *service_p);
 
 	/**
 	 * Function to get the user-friendly description of the service.
 	 */
-	const char *(*se_get_service_description_fn) (struct Service *service_p);
+	const char *(*se_get_service_description_fn) (const struct Service *service_p);
 
 	/**
 	 * Function to get a web address for more information about the service
 	 */
-	const char *(*se_get_service_info_uri_fn) (struct Service *service_p);
+	const char *(*se_get_service_info_uri_fn) (const struct Service *service_p);
 
 
 	/**
@@ -462,21 +462,21 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
  * @memberof Service
  */
 GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
-	const char *(*get_service_name_fn) (Service *service_p),
-	const char *(*get_service_description_fn) (Service *service_p),
-	const char *(*get_service_info_uri_fn) (struct Service *service_p),
+	const char *(*get_service_name_fn) (const Service *service_p),
+	const char *(*get_service_description_fn) (const Service *service_p),
+	const char *(*get_service_info_uri_fn) (const Service *service_p),
 	struct ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
 	ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
 	ParameterSet *(*get_parameters_fn) (Service *service_p, Resource *resource_p, UserDetails *user_p),
-	bool (*get_parameter_type_fn) (struct Service *service_p, const char *param_name_s, ParameterType *pt_p),
+	bool (*get_parameter_type_fn) (const Service *service_p, const char *param_name_s, ParameterType *pt_p),
 	void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
-	bool (*close_fn) (struct Service *service_p),
+	bool (*close_fn) (Service *service_p),
 	void (*customise_service_job_fn) (Service *service_p, struct ServiceJob *job_p),
  	bool specific_flag,
 	Synchronicity synchronous,
 	ServiceData *data_p,
-	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p),
-	json_t *(*get_indexing_data_fn) (struct Service *service_p),
+	ServiceMetadata *(*get_metadata_fn) (Service *service_p),
+	json_t *(*get_indexing_data_fn) (Service *service_p),
 	GrassrootsServer *grassroots_p
 );
 

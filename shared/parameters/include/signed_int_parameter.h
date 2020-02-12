@@ -71,7 +71,7 @@ extern "C" {
 GRASSROOTS_PARAMS_API SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt,
 																																			const char * const name_s, const char * const display_name_s,
 																																			const char * const description_s, LinkedList *options_p,
-																																			int32 *default_value_p, int32 *current_value_p,
+																																			const int32 *default_value_p, const int32 *current_value_p,
 																																			ParameterLevel level);
 
 
@@ -80,6 +80,16 @@ GRASSROOTS_PARAMS_API SignedIntParameter *AllocateSignedIntParameterFromJSON (co
 
 
 GRASSROOTS_PARAMS_API void FreeSignedIntParameter (SignedIntParameter *param_p);
+
+
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddSignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								const int32 *default_value_p, uint8 level);
+
+
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddSignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,  ParameterType type,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const int32 *default_value_p, const int32 *current_value_p, uint8 level);
 
 
 GRASSROOTS_PARAMS_API const int32 *GetSignedIntParameterCurrentValue (const SignedIntParameter *param_p);
@@ -103,7 +113,7 @@ GRASSROOTS_PARAMS_API bool IsSignedIntParameterBounded (const SignedIntParameter
 GRASSROOTS_PARAMS_API bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p);
 
 
-GRASSROOTS_PARAMS_API bool IsSignedIntParameter (Parameter *param_p);
+GRASSROOTS_PARAMS_API bool IsSignedIntParameter (const Parameter *param_p);
 
 
 GRASSROOTS_PARAMS_API bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const int32 **value_pp);

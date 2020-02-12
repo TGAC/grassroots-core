@@ -49,7 +49,7 @@ static bool SetSignedIntParameterCurrentValueFromString (Parameter *param_p, con
 SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt,
 																																			const char * const name_s, const char * const display_name_s,
 																																			const char * const description_s, LinkedList *options_p,
-																																			int32 *default_value_p, int32 *current_value_p,
+																																			const int32 *default_value_p, const int32 *current_value_p,
 																																			ParameterLevel level)
 {
 	SignedIntParameter *param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
@@ -188,6 +188,55 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 	return NULL;
 }
 
+
+Parameter *EasyCreateAndAddSignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
+																								const int32 *default_value_p, uint8 level)
+{
+	return CreateAndAddSignedIntParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+}
+
+
+Parameter *CreateAndAddSignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,  ParameterType type,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const int32 *default_value_p, const int32 *current_value_p, uint8 level)
+{
+	SignedIntParameter *int_param_p = AllocateSignedIntParameter (service_data_p, type, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+
+	if (int_param_p)
+		{
+			Parameter *base_param_p = & (int_param_p -> sip_base_param);
+
+			if (group_p)
+				{
+					/*
+					 * If the parameter fails to get added to the group, it's
+					 * not a terminal error so still carry on
+					 */
+					if (!AddParameterToParameterGroup (group_p, base_param_p))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
+						}
+				}
+
+			if (AddParameterToParameterSet (params_p, base_param_p))
+				{
+					return base_param_p;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
+					FreeParameter (base_param_p);
+				}
+
+		}		/* if (bool_param_p) */
+
+	return NULL;
+}
+
+
+
+
 const int32 *GetSignedIntParameterCurrentValue (const SignedIntParameter *param_p)
 {
 	return param_p -> sip_current_value_p;
@@ -268,7 +317,7 @@ bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_
 }
 
 
-bool IsSignedIntParameter (Parameter *param_p)
+bool IsSignedIntParameter (const Parameter *param_p)
 {
 	bool signed_int_param_flag = false;
 

@@ -319,7 +319,7 @@ GRASSROOTS_MONGODB_API bool RemoveMongoDocuments (MongoTool *tool_p, const json_
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss, bson_t *extra_opts_p, const bson_oid_t *last_id_p, const uint32 page_size);
+GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_json_p, const char **fields_ss, bson_t *extra_opts_p);
 
 
 /**
@@ -335,7 +335,7 @@ GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByJSON (MongoTool *tool_p,
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss, bson_t *extra_opts_p, const bson_oid_t *last_id_p, const uint32 page_size);
+GRASSROOTS_MONGODB_API bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const char **fields_ss, bson_t *extra_opts_p);
 
 
 /**
@@ -373,7 +373,7 @@ GRASSROOTS_MONGODB_API bool HasMongoQueryResults (MongoTool *tool_p);
  * @return A json_t array with all of the results from the search or <code>NULL</code> upon error.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, const bson_oid_t *last_id_p, const uint32 page_size);
+GRASSROOTS_MONGODB_API json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p);
 
 
 /**

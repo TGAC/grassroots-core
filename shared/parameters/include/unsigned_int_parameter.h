@@ -45,6 +45,28 @@ typedef struct UnsignedIntParameter
 } UnsignedIntParameter;
 
 
+typedef struct UnsignedIntParameterOption
+{
+	/** The internal value for this option */
+	uint32 uipo_value;
+
+	/** The user-friendly description for this value */
+	char *uipo_description_s;
+
+} UnsignedIntParameterOption;
+
+
+typedef struct UnsignedIntParameterOptionNode
+{
+	ListItem uipon_node;
+
+	UnsignedIntParameterOption *uipon_option_p;
+
+} UnsignedIntParameterOptionNode;
+
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -109,10 +131,25 @@ GRASSROOTS_PARAMS_API bool IsUnsignedIntParameterBounded (const UnsignedIntParam
 GRASSROOTS_PARAMS_API bool GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, uint32 *min_p, uint32 *max_p);
 
 
-GRASSROOTS_PARAMS_API bool IsUnsignedIntParameter (Parameter *param_p);
+GRASSROOTS_PARAMS_API bool IsUnsignedIntParameter (const Parameter *param_p);
 
 
 GRASSROOTS_PARAMS_API bool GetCurrentUnsignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const uint32 **value_pp);
+
+
+GRASSROOTS_PARAMS_API bool CreateAndAddUnsignedIntParameterOption (UnsignedIntParameter *param_p, const uint32 value, const char *description_s);
+
+
+GRASSROOTS_PARAMS_API UnsignedIntParameterOption *AllocateUnsignedIntParameterOption (const uint32 value, const char *description_s);
+
+
+GRASSROOTS_PARAMS_API void FreeUnsignedIntParameterOption (UnsignedIntParameterOption *option_p);
+
+
+GRASSROOTS_PARAMS_API UnsignedIntParameterOptionNode *AllocateUnsignedIntParameterOptionNode (UnsignedIntParameterOption *option_p);
+
+
+GRASSROOTS_PARAMS_API void FreeStringParameterOptionNode (ListItem *item_p);
 
 
 #ifdef __cplusplus

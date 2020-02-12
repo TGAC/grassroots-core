@@ -27,6 +27,7 @@
 #include "math_utils.h"
 #include "schema_keys.h"
 
+#include "string_parameter.h"
 
 #ifdef _DEBUG
 	#define WEB_SERVICE_UTIL_DEBUG	(STM_LEVEL_FINE)
@@ -276,7 +277,7 @@ bool AddMatchTypeParameter (WebServiceData *data_p, ParameterSet *param_set_p)
 
 			for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i)
 				{
-					if (!CreateAndAddStringParameterOption (param_p, * (S_MATCH_TYPE_VALUES_SS + i), NULL))
+					if (!CreateAndAddStringParameterOption ((StringParameter *) param_p, * (S_MATCH_TYPE_VALUES_SS + i), NULL))
 						{
 							i = MT_NUM_MATCH_TYPES;
 							success_flag = false;
@@ -302,17 +303,22 @@ MatchType GetMatchTypeParameterValue (ParameterSet * const param_set_p)
 	if (param_p)
 		{
 			uint32 i;
-			const char *value_s = GetStringParameterCurrentValue (param_p);
 
-			for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i)
+			if (IsStringParameter (param_p))
 				{
-					if (strcmp (value_s, * (S_MATCH_TYPE_VALUES_SS + i)) == 0)
-						{
-							mt = (MatchType) i;
-							i = MT_NUM_MATCH_TYPES; 	/* force exit from loop */
-						}
+					const char *value_s = GetStringParameterCurrentValue ((StringParameter *) param_p);
 
-				}		/* for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i) */
+					for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i)
+						{
+							if (strcmp (value_s, * (S_MATCH_TYPE_VALUES_SS + i)) == 0)
+								{
+									mt = (MatchType) i;
+									i = MT_NUM_MATCH_TYPES; 	/* force exit from loop */
+								}
+
+						}		/* for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i) */
+
+				}
 
 			FreeParameter (param_p);
 		}		/* if (param_p) */
@@ -514,7 +520,7 @@ static bool AppendParameterValue (ByteBuffer *buffer_p, const Parameter *param_p
 {
 	bool success_flag = false;
 	bool alloc_flag = false;
-	char *value_s = GetParameterValueAsString (param_p, alloc_flag);
+	char *value_s = GetParameterValueAsString (param_p, &alloc_flag);
 
 	if (value_s)
 		{

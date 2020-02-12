@@ -129,7 +129,7 @@ GRASSROOTS_PARAMS_API bool GetStringParameterBounds (const StringParameter *para
 GRASSROOTS_PARAMS_API bool CreateAndAddStringParameterOption (const StringParameter *param_p, const char *value_s, const char *description_s);
 
 
-GRASSROOTS_PARAMS_API bool IsStringParameter (Parameter *param_p);
+GRASSROOTS_PARAMS_API bool IsStringParameter (const Parameter *param_p);
 
 
 /**

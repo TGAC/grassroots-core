@@ -263,7 +263,7 @@ bool GetDoubleParameterBounds (const DoubleParameter *param_p, char *min_p, char
 }
 
 
-bool IsDoubleParameter (Parameter *param_p)
+bool IsDoubleParameter (const Parameter *param_p)
 {
 	bool double_param_flag = false;
 
