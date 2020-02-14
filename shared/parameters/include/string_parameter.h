@@ -85,7 +85,7 @@ typedef struct StringParameterOptionNode
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof BooleanParameter
  */
-GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_p, ParameterLevel level, const char *(*check_value_fn) (const Parameter * const parameter_p, const void *value_p));
+GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const char *default_value_p, const char *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
@@ -123,10 +123,19 @@ GRASSROOTS_PARAMS_API bool SetStringParameterBounds (StringParameter *param_p, c
 GRASSROOTS_PARAMS_API bool IsStringParameterBounded (const StringParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool GetStringParameterBounds (const StringParameter *param_p, const char *min_p, const char *max_p);
+GRASSROOTS_PARAMS_API bool GetStringParameterBounds (const StringParameter *param_p, const char **min_pp, const char **max_pp);
 
 
-GRASSROOTS_PARAMS_API bool CreateAndAddStringParameterOption (const StringParameter *param_p, const char *value_s, const char *description_s);
+GRASSROOTS_PARAMS_API bool CreateAndAddStringParameterOption (StringParameter *param_p, const char *value_s, const char *description_s);
+
+
+GRASSROOTS_PARAMS_API StringParameterOption *AllocateStringParameterOption (const char *value_s, const char *description_s);
+
+
+GRASSROOTS_PARAMS_API StringParameterOptionNode *AllocateStringParameterOptionNode (StringParameterOption *option_p);
+
+
+GRASSROOTS_PARAMS_API void FreeStringParameterOption (StringParameterOption *option_p);
 
 
 GRASSROOTS_PARAMS_API bool IsStringParameter (const Parameter *param_p);

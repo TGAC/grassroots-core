@@ -110,8 +110,6 @@ static bool InitParameterStoreFromJSON (const json_t *root_p, HashTable *store_p
 static bool SetRemoteParameterDetailsFromJSON (Parameter *param_p, const json_t * json_p);
 
 
-static const json_t *GetParameterFromConfig (const json_t *service_config_p, const char * const param_name_s);
-
 static bool GetParameterStringFromConfig (const json_t *service_config_p, const char * const param_name_s, const char * const key_s, char **value_ss);
 
 
@@ -2408,9 +2406,7 @@ bool GetParameterDisplayNameFromConfig (const ServiceData *service_data_p, const
 }
 
 
-
-
-static const json_t *GetParameterFromConfig (const json_t *service_config_p, const char * const param_name_s)
+const json_t *GetParameterFromConfig (const json_t *service_config_p, const char * const param_name_s)
 {
 	if (service_config_p)
 		{

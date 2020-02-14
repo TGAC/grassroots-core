@@ -35,7 +35,7 @@
 
 static void ClearStringParameter (Parameter *param_p);
 
-static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p);
+static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
 static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
@@ -45,12 +45,13 @@ static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const j
 
 static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static bool SetStringParameterValue (char **param_value_pp, const char *new_value_p);
 
 /*
  * API DEFINITIONS
  */
 
-StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, char *default_value_p, char *current_value_s, ParameterLevel level)
+StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const char *default_value_p, const char *current_value_s, ParameterLevel level)
 {
 	StringParameter *param_p = (StringParameter *) AllocMemory (sizeof (StringParameter));
 
@@ -135,32 +136,35 @@ Parameter *CreateAndAddStringParameterToParameterSet (const ServiceData *service
 																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
 																											const char *default_value_s, const char *current_value_s, uint8 level)
 {
+	Parameter *base_param_p = NULL;
 	StringParameter *string_param_p = AllocateStringParameter (service_data_p, type, name_s, display_name_s, description_s, options_p, default_value_s, current_value_s, level);
 
 	if (string_param_p)
 		{
+			base_param_p = & (string_param_p -> sp_base_param);
+
 			if (group_p)
 				{
 					/*
 					 * If the parameter fails to get added to the group, it's
 					 * not a terminal error so still carry on
 					 */
-					if (!AddParameterToParameterGroup (group_p, & (string_param_p -> sp_base_param)))
+					if (!AddParameterToParameterGroup (group_p, base_param_p))
 						{
 							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add param \"%s\" to group \"%s\"", name_s, group_p -> pg_name_s);
 						}
 				}
 
-			if (!AddParameterToParameterSet (params_p, & (string_param_p -> sp_base_param)))
+			if (!AddParameterToParameterSet (params_p, base_param_p))
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add param \"%s\" to set \"%s\"", name_s, params_p -> ps_name_s);
-					FreeParameter (& (string_param_p -> sp_base_param));
-					string_param_p = NULL;
+					FreeParameter (base_param_p);
+					base_param_p = NULL;
 				}
 
 		}		/* if (param_p) */
 
-	return string_param_p;
+	return base_param_p;
 }
 
 
@@ -213,14 +217,14 @@ bool IsStringParameterBounded (const StringParameter *param_p)
 }
 
 
-bool GetStringParameterBounds (const StringParameter *param_p, const char *min_p, const char *max_p)
+bool GetStringParameterBounds (const StringParameter *param_p, const char **min_pp, const char **max_pp)
 {
 	bool success_flag = false;
 
 	if (IsStringParameterBounded (param_p))
 		{
-			*min_p = * (param_p -> sp_min_value_s);
-			*max_p = * (param_p -> sp_max_value_s);
+			*min_pp = param_p -> sp_min_value_s;
+			*max_pp = param_p -> sp_max_value_s;
 
 			success_flag = true;
 		}
@@ -229,7 +233,7 @@ bool GetStringParameterBounds (const StringParameter *param_p, const char *min_p
 }
 
 
-bool CreateAndAddStringParameterOption (const StringParameter *param_p, const char *value_s, const char *description_s)
+bool CreateAndAddStringParameterOption (StringParameter *param_p, const char *value_s, const char *description_s)
 {
 	bool success_flag = false;
 	LinkedList *options_p = GetStringParameterMultiOptions (param_p);
@@ -249,7 +253,7 @@ bool CreateAndAddStringParameterOption (const StringParameter *param_p, const ch
 						}
 					else
 						{
-							FreeParameterOption (option_p);
+							FreeStringParameterOption (option_p);
 							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate option node with value \"%s \" and description \"%s\"", value_s, description_s);
 						}
 				}
@@ -418,7 +422,6 @@ bool GetCurrentStringParameterValueFromParameterGroup (const ParameterGroup * co
  * STATIC DEFINITIONS
  */
 
-static bool SetStringParameterValue (char **param_value_pp, const char *new_value_p);
 
 static bool SetStringParameterValue (char **param_value_ss, const char *new_value_s)
 {
@@ -501,7 +504,7 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 								{
 									if ((string_param_p -> sp_max_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (string_param_p -> sp_max_value_s))))
 										{
-											LinkedList *options_p = GetMultiOptions (param_p);
+											LinkedList *options_p = param_p -> pa_options_p;
 
 											if ((options_p != NULL) && (options_p -> ll_size > 0))
 												{
@@ -651,7 +654,7 @@ static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t 
 
 	if (success_flag)
 		{
-			success_flag = GetStringParameterOptionsFromJSON (param_p, param_json_p);
+			success_flag = GetStringParameterOptionsFromJSON (string_param_p, param_json_p);
 		}
 
 	return success_flag;

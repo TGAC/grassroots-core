@@ -41,6 +41,7 @@ SRCS 	= \
 	remote_parameter_details.c \
 	resource_parameter.c \
 	signed_int_parameter.c \
+	string_parameter.c \
 	time_parameter.c \
 	unsigned_int_parameter.c 
 	

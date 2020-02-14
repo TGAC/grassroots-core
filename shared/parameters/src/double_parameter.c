@@ -247,14 +247,14 @@ bool IsDoubleParameterBounded (const DoubleParameter *param_p)
 }
 
 
-bool GetDoubleParameterBounds (const DoubleParameter *param_p, char *min_p, char *max_p)
+bool GetDoubleParameterBounds (const DoubleParameter *param_p, double64 *min_value_p,  double64 *max_value_p)
 {
 	bool success_flag = false;
 
 	if (IsDoubleParameterBounded (param_p))
 		{
-			*min_p = * (param_p -> dp_min_value_p);
-			*max_p = * (param_p -> dp_max_value_p);
+			*min_value_p = * (param_p -> dp_min_value_p);
+			*max_value_p = * (param_p -> dp_max_value_p);
 
 			success_flag = true;
 		}
