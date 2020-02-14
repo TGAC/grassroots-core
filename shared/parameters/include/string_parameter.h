@@ -65,6 +65,10 @@ typedef struct StringParameterOptionNode
 } StringParameterOptionNode;
 
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /*
  * Allocate a StringParameter
@@ -157,5 +161,8 @@ GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterSet (const
 
 GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterGroup (const ParameterGroup * const params_p, const char * const name_s, const char **value_pp);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_STRING_PARAMETER_H_ */

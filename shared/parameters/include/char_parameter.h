@@ -48,6 +48,10 @@ typedef struct CharParameter
 } CharParameter;
 
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 /*
@@ -115,5 +119,9 @@ GRASSROOTS_PARAMS_API Parameter *CreateAndAddCharParameterToParameterSet (const 
 																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
 																								const char *default_value_p, const char *current_value_p, uint8 level);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CORE_SHARED_PARAMETERS_INCLUDE_CHAR_PARAMETER_H_ */
