@@ -476,6 +476,8 @@ bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p
 
 													GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
 												}
+
+											return true;
 										}
 
 									FreeLinkedList (remote_params_p);

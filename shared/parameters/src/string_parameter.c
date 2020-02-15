@@ -102,6 +102,9 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 								}
 
+							param_p -> sp_min_value_s = NULL;
+							param_p -> sp_max_value_s = NULL;
+
 							return param_p;
 						}
 				}
@@ -551,15 +554,15 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 	StringParameter *string_param_p = (StringParameter *) param_p;
 	bool success_flag = false;
 
-	if ((string_param_p -> sp_current_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (string_param_p -> sp_current_value_s))))
+	if ((string_param_p -> sp_current_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, string_param_p -> sp_current_value_s)))
 		{
 			if (full_definition_flag)
 				{
-					if ((string_param_p -> sp_default_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (string_param_p -> sp_default_value_s))))
+					if ((string_param_p -> sp_default_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, string_param_p -> sp_default_value_s)))
 						{
-							if ((string_param_p -> sp_min_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (string_param_p -> sp_min_value_s))))
+							if ((string_param_p -> sp_min_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_MIN_S, string_param_p -> sp_min_value_s)))
 								{
-									if ((string_param_p -> sp_max_value_s == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (string_param_p -> sp_max_value_s))))
+									if ((string_param_p -> sp_max_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_MAX_S, string_param_p -> sp_max_value_s)))
 										{
 											LinkedList *options_p = param_p -> pa_options_p;
 

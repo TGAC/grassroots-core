@@ -53,6 +53,9 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 
 	if (param_p)
 		{
+			param_p -> jp_current_value_p = NULL;
+			param_p -> jp_default_value_p = NULL;
+
 			if (SetJSONParameterValue (& (param_p -> jp_current_value_p), current_value_p))
 				{
 					if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p))

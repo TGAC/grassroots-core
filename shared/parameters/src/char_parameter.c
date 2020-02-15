@@ -115,6 +115,9 @@ CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, 
 		{
 			bool success_flag = true;
 
+			param_p -> cp_current_value_p = NULL;
+			param_p -> cp_default_value_p = NULL;
+
 			if (SetCharParameterValue (& (param_p -> cp_current_value_p), current_value_p))
 				{
 					if (SetCharParameterValue (& (param_p -> cp_default_value_p), default_value_p))
