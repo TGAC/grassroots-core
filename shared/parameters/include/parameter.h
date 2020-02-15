@@ -673,20 +673,6 @@ GRASSROOTS_PARAMS_API void FreeParameterNode (ListItem *node_p);
  */
 GRASSROOTS_PARAMS_API json_t *GetRunnableParameterAsJSON (const Parameter *param_p, const SchemaVersion * const sv_p, const bool full_definition_flag);
 
-/**
- * Get the list of ParameterOptions for a given Parameter. If the list
- * does not currently exist, then an empty LinkedList will be created
- * and added to the Parameter prior to this function returning.
- *
- * @param param_p The Parameter to get the ParameterOptions list from.
- * @return The LinkedList of ParameterOptionNodes or <code>NULL</code>
- * upon error.
- * @memberof Parameter
- *
- */
-GRASSROOTS_PARAMS_API LinkedList *GetMultiOptions (Parameter *param_p);
-
-
 
 GRASSROOTS_PARAMS_API bool AddParameterLevelToJSON (const ParameterLevel level, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p));
 
