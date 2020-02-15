@@ -294,7 +294,6 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const Service *service_p, const bool full_definition_flag)
 {
-	bool init_flag = false;
 	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
 
 	#if SERVER_DEBUG >= STM_LEVEL_FINE
@@ -350,6 +349,12 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 					if (full_definition_flag || (!IsJSONParameterConcise (root_p)))
 						{
 							description_s = GetJSONString (root_p, PARAM_DESCRIPTION_S);
+
+							if (description_s)
+								{
+									success_flag = true;
+								}
+
 							display_name_s = GetJSONString (root_p, PARAM_DISPLAY_NAME_S);
 						}
 					else
@@ -388,7 +393,11 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 									success_flag = false;
 								}
 
-							if (!success_flag)
+							if (success_flag)
+								{
+									return true;
+								}
+							else
 								{
 									FreeParameter (param_p);
 									param_p = NULL;
@@ -399,7 +408,7 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 
 		}		/* if (name_s) */
 
-	return init_flag;
+	return false;
 }
 
 
