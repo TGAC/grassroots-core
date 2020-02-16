@@ -197,13 +197,15 @@ bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const Resourc
 }
 
 
-bool IsResourceParameter (Parameter *param_p)
+bool IsResourceParameter (const Parameter *param_p)
 {
 	bool resource_param_flag = false;
 
 	switch (param_p -> pa_type)
 		{
 			case PT_FILE_TO_READ:
+			case PT_FILE_TO_WRITE:
+			case PT_DIRECTORY:
 				resource_param_flag = true;
 				break;
 

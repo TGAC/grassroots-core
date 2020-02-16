@@ -75,6 +75,8 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 };
 
 
+static bool InitParameterWithoutCallbacks (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
+																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level);
 
 
 static bool AddParameterNameToJSON (const char *name_s, json_t *root_p, const SchemaVersion * const sv_p);
@@ -292,6 +294,12 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 }
 
 
+/*
+ bool InitParameterWithoutCallbacks (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
+																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level)
+*/
+
+
 bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const Service *service_p, const bool full_definition_flag)
 {
 	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
@@ -364,44 +372,46 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 
 					if (success_flag)
 						{
-							bool flag = true;
+							ServiceData *service_data_p = service_p ? service_p -> se_data_p : NULL;
 
-							if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &flag))
+							if (InitParameterWithoutCallbacks (param_p, service_data_p, pt, name_s, display_name_s, description_s, options_p, level))
 								{
-									if (!flag)
+									bool flag = true;
+
+									if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &flag))
 										{
-											param_p -> pa_visible_flag = flag;
+											if (!flag)
+												{
+													param_p -> pa_visible_flag = flag;
+												}
+										}
+
+
+									flag = false;
+									if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
+										{
+											param_p -> pa_refresh_service_flag = flag;
+										}
+
+
+									/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
+
+									if (SetRemoteParameterDetailsFromJSON (param_p, root_p))
+										{
+											success_flag = InitParameterStoreFromJSON (root_p, param_p -> pa_store_p);
+										}
+									else
+										{
+											success_flag = false;
+										}
+
+									if (success_flag)
+										{
+											return true;
 										}
 								}
 
 
-							flag = false;
-							if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
-								{
-									param_p -> pa_refresh_service_flag = flag;
-								}
-
-
-							/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
-
-							if (SetRemoteParameterDetailsFromJSON (param_p, root_p))
-								{
-									success_flag = InitParameterStoreFromJSON (root_p, param_p -> pa_store_p);
-								}
-							else
-								{
-									success_flag = false;
-								}
-
-							if (success_flag)
-								{
-									return true;
-								}
-							else
-								{
-									FreeParameter (param_p);
-									param_p = NULL;
-								}
 						}
 
 				}		/* if (got_type_flag) */
@@ -422,95 +432,13 @@ bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p
 										bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
 {
-	char *new_name_s = CopyToNewString (name_s, 0, true);
-
-	if (new_name_s)
+	if (InitParameterWithoutCallbacks (param_p, service_data_p, type, name_s, display_name_s, description_s, options_p, level))
 		{
-			bool success_flag = true;
-			char *new_description_s = NULL;
+			SetParameterCallbacks (param_p, clear_fn, add_values_to_json_fn, get_values_from_json_fn, clone_fn, set_value_from_string_fn);
 
-			if (description_s)
-				{
-					new_description_s = CopyToNewString (description_s, 0, true);
-					success_flag = (new_description_s != NULL);
-				}
+			return true;
+		}
 
-			if (success_flag)
-				{
-					char *new_display_name_s = NULL;
-
-					if (display_name_s)
-						{
-							new_display_name_s = CopyToNewString (display_name_s, 0, true);
-							success_flag = (new_display_name_s != NULL);
-						}
-
-					if (success_flag)
-						{
-							HashTable *store_p = GetHashTableOfStrings (8, 75);
-
-							if (store_p)
-								{
-									LinkedList *remote_params_p = AllocateLinkedList (FreeRemoteParameterDetailsNode);
-
-									if (remote_params_p)
-										{
-											param_p -> pa_type = type;
-											param_p -> pa_name_s = new_name_s;
-											param_p -> pa_display_name_s = new_display_name_s;
-											param_p -> pa_description_s = new_description_s;
-											param_p -> pa_options_p = options_p;
-											param_p -> pa_level = level;
-											param_p -> pa_store_p = store_p;
-											param_p -> pa_group_p = NULL;
-
-											param_p -> pa_remote_parameter_details_p = remote_params_p;
-
-											param_p -> pa_visible_flag = true;
-											param_p -> pa_refresh_service_flag = false;
-
-											param_p -> pa_required_flag = true;
-
-											SetParameterCallbacks (param_p, clear_fn, add_values_to_json_fn, get_values_from_json_fn, clone_fn, set_value_from_string_fn);
-
-											/*
-											 * Check for any values that have been overrode in
-											 * the service configuration.
-											 */
-											if (service_data_p)
-												{
-													//GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-
-													GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
-
-													GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
-												}
-
-											return true;
-										}
-
-									FreeLinkedList (remote_params_p);
-								}		/* if (remote_params_p) */
-
-							FreeHashTable (store_p);
-						}		/* if (store_p) */
-
-
-					if (new_display_name_s)
-						{
-							FreeCopiedString (new_display_name_s);
-						}		/* if (new_description_s) */
-
-
-					if (new_description_s)
-						{
-							FreeCopiedString (new_description_s);
-						}		/* if (new_description_s) */
-
-				}		/* if (success_flag) */
-
-			FreeCopiedString (new_name_s);
-		}		/* if (new_name_s) */
 
 	return false;
 }
@@ -2472,3 +2400,100 @@ static bool GetParameterStringFromConfig (const json_t *service_config_p, const 
 
 	return found_flag;
 }
+
+
+static bool InitParameterWithoutCallbacks (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
+																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level)
+{
+	char *new_name_s = CopyToNewString (name_s, 0, true);
+
+	if (new_name_s)
+		{
+			bool success_flag = true;
+			char *new_description_s = NULL;
+
+			if (description_s)
+				{
+					new_description_s = CopyToNewString (description_s, 0, true);
+					success_flag = (new_description_s != NULL);
+				}
+
+			if (success_flag)
+				{
+					char *new_display_name_s = NULL;
+
+					if (display_name_s)
+						{
+							new_display_name_s = CopyToNewString (display_name_s, 0, true);
+							success_flag = (new_display_name_s != NULL);
+						}
+
+					if (success_flag)
+						{
+							HashTable *store_p = GetHashTableOfStrings (8, 75);
+
+							if (store_p)
+								{
+									LinkedList *remote_params_p = AllocateLinkedList (FreeRemoteParameterDetailsNode);
+
+									if (remote_params_p)
+										{
+											param_p -> pa_type = type;
+											param_p -> pa_name_s = new_name_s;
+											param_p -> pa_display_name_s = new_display_name_s;
+											param_p -> pa_description_s = new_description_s;
+											param_p -> pa_options_p = options_p;
+											param_p -> pa_level = level;
+											param_p -> pa_store_p = store_p;
+											param_p -> pa_group_p = NULL;
+
+											param_p -> pa_remote_parameter_details_p = remote_params_p;
+
+											param_p -> pa_visible_flag = true;
+											param_p -> pa_refresh_service_flag = false;
+
+											param_p -> pa_required_flag = true;
+
+											/*
+											 * Check for any values that have been overrode in
+											 * the service configuration.
+											 */
+											if (service_data_p)
+												{
+													//GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+
+													GetParameterLevelFromConfig (service_data_p, name_s, & (param_p -> pa_level));
+
+													GetParameterDescriptionFromConfig (service_data_p, name_s, & (param_p -> pa_description_s));
+												}
+
+											return true;
+										}
+
+									FreeLinkedList (remote_params_p);
+								}		/* if (remote_params_p) */
+
+							FreeHashTable (store_p);
+						}		/* if (store_p) */
+
+
+					if (new_display_name_s)
+						{
+							FreeCopiedString (new_display_name_s);
+						}		/* if (new_description_s) */
+
+
+					if (new_description_s)
+						{
+							FreeCopiedString (new_description_s);
+						}		/* if (new_description_s) */
+
+				}		/* if (success_flag) */
+
+			FreeCopiedString (new_name_s);
+		}		/* if (new_name_s) */
+
+	return false;
+}
+
+

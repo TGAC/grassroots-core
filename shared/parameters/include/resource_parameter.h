@@ -85,6 +85,9 @@ GRASSROOTS_PARAMS_API bool SetResourceParameterDefaultValue (ResourceParameter *
 GRASSROOTS_PARAMS_API bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const Resource **value_pp);
 
 
+GRASSROOTS_PARAMS_API bool IsResourceParameter (const Parameter *param_p);
+
+
 #ifdef __cplusplus
 }
 #endif

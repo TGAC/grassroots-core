@@ -96,53 +96,47 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 
 JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
 {
-	JSONParameter *param_p = NULL;
-	const json_t *current_value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
-	const json_t *default_value_p = NULL;
-	bool success_flag = true;
-	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
 
-	if (full_definition_flag)
+	if (param_p)
 		{
-			default_value_p = json_object_get (param_json_p, PARAM_DEFAULT_VALUE_S);
-
-			if (!default_value_p)
-				{
-					success_flag = false;
-				}
-		}
-
-	if (success_flag)
-		{
-			param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
+			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
 			param_p -> jp_current_value_p = NULL;
 			param_p -> jp_default_value_p = NULL;
 
-			if (param_p)
+			if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, full_definition_flag))
 				{
-					if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, full_definition_flag))
-						{
-							SetParameterCallbacks (& (param_p -> jp_base_param), ClearJSONParameter, AddJSONParameterDetailsToJSON,
-																		 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString);
+					const json_t *current_value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
+					const json_t *default_value_p = NULL;
+					bool success_flag = true;
 
-							if (SetJSONParameterCurrentValue (param_p, current_value_p))
+					SetParameterCallbacks (& (param_p -> jp_base_param), ClearJSONParameter, AddJSONParameterDetailsToJSON,
+																 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString);
+
+					if (SetJSONParameterCurrentValue (param_p, current_value_p))
+						{
+							if (full_definition_flag)
+								{
+									default_value_p = json_object_get (param_json_p, PARAM_DEFAULT_VALUE_S);
+								}
+
+							if (success_flag)
 								{
 									if (SetJSONParameterDefaultValue (param_p, default_value_p))
 										{
 											return param_p;
 										}
 								}
+						}
 
-							FreeParameter (& (param_p -> jp_base_param));
-						}
-					else
-						{
-							FreeMemory (param_p);
-						}
+					FreeParameter (& (param_p -> jp_base_param));
 				}
-
-		}		/* if if (success_flag) */
+			else
+				{
+					FreeMemory (param_p);
+				}
+		}
 
 
 	return NULL;
