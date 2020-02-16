@@ -47,80 +47,70 @@ static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const 
 
 static bool SetStringParameterValue (char **param_value_pp, const char *new_value_p);
 
+static StringParameter *GetNewStringParameter (const char *current_value_s, const char *default_value_s);
+
+
 /*
  * API DEFINITIONS
  */
 
-StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const char *default_value_p, const char *current_value_s, ParameterLevel level)
+static StringParameter *GetNewStringParameter (const char *current_value_s, const char *default_value_s)
 {
 	StringParameter *param_p = (StringParameter *) AllocMemory (sizeof (StringParameter));
 
 	if (param_p)
 		{
-			bool success_flag = true;
+			param_p -> sp_current_value_s = NULL;
+			param_p -> sp_default_value_s = NULL;
+			param_p -> sp_min_value_s = NULL;
+			param_p -> sp_max_value_s = NULL;
 
-			if (current_value_s)
+			if (SetStringParameterValue (& (param_p -> sp_current_value_s), current_value_s))
 				{
-					param_p -> sp_current_value_s = EasyCopyToNewString (current_value_s);
-
-					if (! (param_p -> sp_current_value_s))
+					if (SetStringParameterValue (& (param_p -> sp_default_value_s), default_value_s))
 						{
-							success_flag = false;
-						}
-				}
-			else
-				{
-					param_p -> sp_current_value_s = NULL;
-				}
-
-
-			if (success_flag)
-				{
-					if (default_value_p)
-						{
-							param_p -> sp_default_value_s = EasyCopyToNewString (default_value_p);
-
-							if (! (param_p -> sp_default_value_s))
-								{
-									success_flag = false;
-								}
-						}
-					else
-						{
-							param_p -> sp_default_value_s = NULL;
-						}
-				}
-
-			if (success_flag)
-				{
-					if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
-														 ClearStringParameter, AddStringParameterDetailsToJSON, GetStringParameterDetailsFromJSON,
-														 NULL, SetStringParameterCurrentValueFromString))
-						{
-							if (service_data_p)
-								{
-//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-								}
-
-							param_p -> sp_min_value_s = NULL;
-							param_p -> sp_max_value_s = NULL;
-
 							return param_p;
 						}
-				}
 
-			if (param_p -> sp_current_value_s)
-				{
-					FreeCopiedString (param_p -> sp_current_value_s);
-				}
-
-			if (param_p -> sp_default_value_s)
-				{
-					FreeCopiedString (param_p -> sp_default_value_s);
+					if (param_p -> sp_current_value_s)
+						{
+							FreeCopiedString (param_p -> sp_current_value_s);
+						}
 				}
 
 			FreeMemory (param_p);
-		}		/* if (param_p) */
+		}
+
+	return NULL;
+}
+
+
+
+
+StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt,
+																					const char * const name_s, const char * const display_name_s,
+																					const char * const description_s, LinkedList *options_p,
+																					const char *default_value_s, const char *current_value_s,
+																					ParameterLevel level)
+{
+	StringParameter *param_p = GetNewStringParameter (current_value_s, default_value_s);
+
+	if (param_p)
+		{
+			if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+												 ClearStringParameter, AddStringParameterDetailsToJSON, GetStringParameterDetailsFromJSON,
+												 NULL, SetStringParameterCurrentValueFromString))
+				{
+					if (service_data_p)
+						{
+//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+						}
+
+					return param_p;
+				}
+
+			FreeParameter (& (param_p -> sp_base_param));
+		}
 
 	return NULL;
 }

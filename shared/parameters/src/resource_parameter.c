@@ -44,72 +44,66 @@ static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, cons
 
 static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *param_json_p, const char *key_s);
 
+static ResourceParameter *GetNewResourceParameter (const Resource *current_value_p, const Resource *default_value_p);
+
 /*
  * API DEFINITIONS
  */
 
-ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, Resource *default_value_p, Resource *current_value_p, ParameterLevel level)
+
+static ResourceParameter *GetNewResourceParameter (const Resource *current_value_p, const Resource *default_value_p)
 {
 	ResourceParameter *param_p = (ResourceParameter *) AllocMemory (sizeof (ResourceParameter));
 
 	if (param_p)
 		{
-			bool success_flag = true;
+			param_p -> rp_current_value_p = NULL;
+			param_p -> rp_default_value_p = NULL;
 
-			if (current_value_p)
+			if (SetResourceParameterValue (& (param_p -> rp_current_value_p), current_value_p))
 				{
-					param_p -> rp_current_value_p = CloneResource (current_value_p);
-
-					if (!param_p -> rp_current_value_p)
+					if (SetResourceParameterValue (& (param_p -> rp_default_value_p), default_value_p))
 						{
-							success_flag = false;
-						}
-				}
-
-
-			if (success_flag)
-				{
-					if (default_value_p)
-						{
-							param_p -> rp_default_value_p = CloneResource (default_value_p);
-
-							if (!param_p -> rp_default_value_p)
-								{
-									success_flag = false;
-								}
-						}
-				}
-
-			if (success_flag)
-				{
-					if (InitParameter (& (param_p -> rp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
-														 ClearResourceParameter, AddResourceParameterDetailsToJSON, GetResourceParameterDetailsFromJSON,
-														 NULL, SetResourceParameterCurrentValueFromString))
-						{
-							if (service_data_p)
-								{
-//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-								}
-
 							return param_p;
 						}
-				}
 
-			if (param_p -> rp_current_value_p)
-				{
-					FreeResource (param_p -> rp_current_value_p);
-				}
-
-			if (param_p -> rp_default_value_p)
-				{
-					FreeResource (param_p -> rp_default_value_p);
+					if (param_p -> rp_current_value_p)
+						{
+							FreeResource (param_p -> rp_current_value_p);
+						}
 				}
 
 			FreeMemory (param_p);
-		}		/* if (param_p) */
+		}
 
 	return NULL;
 }
+
+
+ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, Resource *default_value_p, Resource *current_value_p, ParameterLevel level)
+{
+	ResourceParameter *param_p = GetNewResourceParameter (current_value_p, default_value_p);
+
+	if (param_p)
+		{
+			if (InitParameter (& (param_p -> rp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+												 ClearResourceParameter, AddResourceParameterDetailsToJSON, GetResourceParameterDetailsFromJSON,
+												 NULL, SetResourceParameterCurrentValueFromString))
+				{
+					if (service_data_p)
+						{
+//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+						}
+
+					return param_p;
+				}
+
+			FreeParameter (& (param_p -> rp_base_param));
+		}
+
+	return NULL;
+}
+
 
 
 

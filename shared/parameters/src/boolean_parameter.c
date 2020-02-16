@@ -50,6 +50,41 @@ static bool SetBooleanParameterCurrentValueFromString (Parameter *param_p, const
  * API DEFINITIONS
  */
 
+
+
+
+static BooleanParameter *GetNewBooleanParameter (const bool *current_value_p, const bool *default_value_p)
+{
+	BooleanParameter *param_p = (BooleanParameter *) AllocMemory (sizeof (BooleanParameter));
+
+	if (param_p)
+		{
+			param_p -> bp_current_value_p = NULL;
+			param_p -> bp_default_value_p = NULL;
+
+			if (SetBooleanParameterValue (& (param_p -> bp_current_value_p), current_value_p))
+				{
+					if (SetBooleanParameterValue (& (param_p -> bp_default_value_p), default_value_p))
+						{
+							return param_p;
+						}
+
+					if (param_p -> bp_current_value_p)
+						{
+							FreeMemory (param_p -> bp_current_value_p);
+						}
+				}
+
+			FreeMemory (param_p);
+		}
+
+	return NULL;
+}
+
+
+
+
+
 BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, const Service *service_p)
 {
 	BooleanParameter *param_p = NULL;
@@ -108,79 +143,24 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 
 BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const bool *default_value_p, const bool *current_value_p, ParameterLevel level)
 {
-	BooleanParameter *param_p = (BooleanParameter *) AllocMemory (sizeof (BooleanParameter));
+	BooleanParameter *param_p = GetNewBooleanParameter (current_value_p, default_value_p);
 
 	if (param_p)
 		{
-			bool success_flag = true;
-
-			if (current_value_p)
+			if (InitParameter (& (param_p -> bp_base_param), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, options_p, level,
+												 ClearBooleanParameter, AddBooleanParameterDetailsToJSON, GetBooleanParameterDetailsFromJSON,
+												 NULL, SetBooleanParameterCurrentValueFromString))
 				{
-					param_p -> bp_current_value_p = (bool *) AllocMemory (sizeof (bool));
-
-					if (param_p -> bp_current_value_p)
+					if (service_data_p)
 						{
-							* (param_p -> bp_current_value_p) = *current_value_p;
-						}
-					else
-						{
-							success_flag = false;
-						}
-				}
-			else
-				{
-					param_p -> bp_current_value_p = NULL;
-				}
-
-
-			if (success_flag)
-				{
-					if (default_value_p)
-						{
-							param_p -> bp_default_value_p = (bool *) AllocMemory (sizeof (bool));
-
-							if (param_p -> bp_default_value_p)
-								{
-									* (param_p -> bp_default_value_p) = *default_value_p;
-								}
-							else
-								{
-									success_flag = false;
-								}
-						}
-					else
-						{
-							param_p -> bp_default_value_p = NULL;
-						}
-				}
-
-			if (success_flag)
-				{
-					if (InitParameter (& (param_p -> bp_base_param), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, options_p, level,
-														 ClearBooleanParameter, AddBooleanParameterDetailsToJSON, GetBooleanParameterDetailsFromJSON,
-														 NULL, SetBooleanParameterCurrentValueFromString))
-						{
-							if (service_data_p)
-								{
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-								}
-
-							return param_p;
 						}
+
+					return param_p;
 				}
 
-			if (param_p -> bp_current_value_p)
-				{
-					FreeMemory (param_p -> bp_current_value_p);
-				}
-
-			if (param_p -> bp_default_value_p)
-				{
-					FreeMemory (param_p -> bp_default_value_p);
-				}
-
-			FreeMemory (param_p);
-		}		/* if (param_p) */
+			FreeParameter (& (param_p -> bp_base_param));
+		}
 
 	return NULL;
 }

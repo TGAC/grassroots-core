@@ -42,90 +42,67 @@ static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const ch
 
 static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s, struct tm **time_pp);
 
+static TimeParameter *GetNewTimeParameter (const struct tm *current_value_p, const struct tm *default_value_p);
+
+
 /*
  * API DEFINITIONS
  */
 
-TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const struct tm *default_value_p, const struct tm *current_value_p, ParameterLevel level)
+static TimeParameter *GetNewTimeParameter (const struct tm *current_value_p, const struct tm *default_value_p)
 {
 	TimeParameter *param_p = (TimeParameter *) AllocMemory (sizeof (TimeParameter));
 
 	if (param_p)
 		{
-			bool success_flag = true;
+			param_p -> tp_current_value_p = NULL;
+			param_p -> tp_default_value_p = NULL;
 
-			if (current_value_p)
+			if (SetTimeParameterValue (& (param_p -> tp_current_value_p), current_value_p))
 				{
-					param_p -> tp_current_value_p = AllocateTime ();
+					if (SetTimeParameterValue (& (param_p -> tp_default_value_p), default_value_p))
+						{
+							return param_p;
+						}
 
 					if (param_p -> tp_current_value_p)
 						{
-							CopyTime (current_value_p, param_p -> tp_current_value_p);
+							FreeTime (param_p -> tp_current_value_p);
 						}
-					else
-						{
-							success_flag = false;
-						}
-				}
-			else
-				{
-					param_p -> tp_current_value_p = NULL;
-				}
-
-			if (success_flag)
-				{
-					if (default_value_p)
-						{
-							param_p -> tp_default_value_p = AllocateTime ();
-
-							if (param_p -> tp_default_value_p)
-								{
-									CopyTime (default_value_p, param_p -> tp_default_value_p);
-								}
-							else
-								{
-									success_flag = false;
-								}
-						}
-					else
-						{
-							param_p -> tp_default_value_p = NULL;
-						}
-				}
-
-			if (success_flag)
-				{
-					if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, level,
-														 ClearTimeParameter, AddTimeParameterDetailsToJSON, GetTimeParameterDetailsFromJSON,
-														 NULL, SetTimeParameterCurrentValueFromString))
-						{
-							if (service_data_p)
-								{
-//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-								}
-
-							param_p -> tp_min_value_p = NULL;
-							param_p -> tp_max_value_p = NULL;
-
-							return param_p;
-						}
-				}
-
-			if (param_p -> tp_current_value_p)
-				{
-					FreeTime (param_p -> tp_current_value_p);
-				}
-
-			if (param_p -> tp_default_value_p)
-				{
-					FreeTime (param_p -> tp_default_value_p);
 				}
 
 			FreeMemory (param_p);
-		}		/* if (param_p) */
+		}
 
 	return NULL;
 }
+
+
+
+TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const struct tm *default_value_p, const struct tm *current_value_p, ParameterLevel level)
+{
+	TimeParameter *param_p = GetNewTimeParameter (current_value_p, default_value_p);
+
+	if (param_p)
+		{
+			if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, level,
+												 ClearTimeParameter, AddTimeParameterDetailsToJSON, GetTimeParameterDetailsFromJSON,
+												 NULL, SetTimeParameterCurrentValueFromString))
+				{
+					if (service_data_p)
+						{
+//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+						}
+
+					return param_p;
+				}
+
+			FreeParameter (& (param_p -> tp_base_param));
+		}
+
+	return NULL;
+}
+
 
 
 

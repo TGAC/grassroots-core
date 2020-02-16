@@ -47,13 +47,48 @@ static bool SetValueFromJSON (char **value_pp, const json_t *param_json_p, const
 
 static bool SetCharParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static CharParameter *GetNewCharParameter (const char *current_value_p, const char *default_value_p);
+
+
 /*
  * API DEFINITIONS
  */
 
+
+static CharParameter *GetNewCharParameter (const char *current_value_p, const char *default_value_p)
+{
+	CharParameter *param_p = (CharParameter *) AllocMemory (sizeof (CharParameter));
+
+	if (param_p)
+		{
+			param_p -> cp_current_value_p = NULL;
+			param_p -> cp_default_value_p = NULL;
+
+			if (SetCharParameterValue (& (param_p -> cp_current_value_p), current_value_p))
+				{
+					if (SetCharParameterValue (& (param_p -> cp_default_value_p), default_value_p))
+						{
+							param_p -> cp_max_value_p = NULL;
+							param_p -> cp_max_value_p = NULL;
+
+							return param_p;
+						}
+
+					if (param_p -> cp_current_value_p)
+						{
+							FreeMemory (param_p -> cp_current_value_p);
+						}
+				}
+
+			FreeMemory (param_p);
+		}
+
+	return NULL;
+}
+
+
 CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
 {
-	CharParameter *param_p = NULL;
 	char *current_value_p = NULL;
 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
@@ -72,7 +107,7 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 
 			if (success_flag)
 				{
-					param_p = (CharParameter *) AllocMemory (sizeof (CharParameter));
+					CharParameter *param_p = GetNewCharParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
@@ -80,9 +115,6 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 								{
 									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
 																				 NULL, SetCharParameterCurrentValueFromString);
-
-									param_p -> cp_current_value_p = current_value_p;
-									param_p -> cp_default_value_p = default_value_p;
 
 									return param_p;
 								}
@@ -109,50 +141,24 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 
 CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const char *default_value_p, const char *current_value_p, ParameterLevel level)
 {
-	CharParameter *param_p = (CharParameter *) AllocMemory (sizeof (CharParameter));
+	CharParameter *param_p = GetNewCharParameter (current_value_p, default_value_p);
 
 	if (param_p)
 		{
-			bool success_flag = true;
-
-			param_p -> cp_current_value_p = NULL;
-			param_p -> cp_default_value_p = NULL;
-
-			if (SetCharParameterValue (& (param_p -> cp_current_value_p), current_value_p))
+			if (InitParameter (& (param_p -> cp_base_param), service_data_p, PT_CHAR, name_s, display_name_s, description_s, options_p, level,
+												 ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
+												 NULL, SetCharParameterCurrentValueFromString))
 				{
-					if (SetCharParameterValue (& (param_p -> cp_default_value_p), default_value_p))
+					if (service_data_p)
 						{
-							if (InitParameter (& (param_p -> cp_base_param), service_data_p, PT_CHAR, name_s, display_name_s, description_s, options_p, level,
-																 ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
-																 NULL, SetCharParameterCurrentValueFromString))
-								{
-									if (service_data_p)
-										{
-		//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-										}
+//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+						}
 
-									param_p -> cp_min_value_p = NULL;
-									param_p -> cp_max_value_p = NULL;
-
-									return param_p;
-								}
-
-						}		/* if (SetCharParameterValue (& (param_p -> cp_default_value_p), default_value_p)) */
-
-				}		/* if (SetCharParameterValue (& (param_p -> cp_current_value_p), current_value_p)) */
-
-			if (param_p -> cp_current_value_p)
-				{
-					FreeMemory (param_p -> cp_current_value_p);
+					return param_p;
 				}
 
-			if (param_p -> cp_default_value_p)
-				{
-					FreeMemory (param_p -> cp_default_value_p);
-				}
-
-			FreeMemory (param_p);
-		}		/* if (param_p) */
+			FreeParameter (& (param_p -> cp_base_param));
+		}
 
 	return NULL;
 }

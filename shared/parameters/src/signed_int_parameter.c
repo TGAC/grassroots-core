@@ -42,9 +42,43 @@ static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, cons
 
 static bool SetSignedIntParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static SignedIntParameter *GetNewSignedIntParameter (const int32 *current_value_p, const int32 *default_value_p);
+
 /*
  * API DEFINITIONS
  */
+
+static SignedIntParameter *GetNewSignedIntParameter (const int32 *current_value_p, const int32 *default_value_p)
+{
+	SignedIntParameter *param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
+
+	if (param_p)
+		{
+			param_p -> sip_current_value_p = NULL;
+			param_p -> sip_default_value_p = NULL;
+			param_p -> sip_min_value_p = NULL;
+			param_p -> sip_max_value_p = NULL;
+
+
+			if (SetSignedIntParameterValue (& (param_p -> sip_current_value_p), current_value_p))
+				{
+					if (SetSignedIntParameterValue (& (param_p -> sip_default_value_p), default_value_p))
+						{
+							return param_p;
+						}
+
+					if (param_p -> sip_current_value_p)
+						{
+							FreeMemory (param_p -> sip_current_value_p);
+						}
+				}
+
+			FreeMemory (param_p);
+		}
+
+	return NULL;
+}
+
 
 SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt,
 																																			const char * const name_s, const char * const display_name_s,
@@ -52,84 +86,28 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 																																			const int32 *default_value_p, const int32 *current_value_p,
 																																			ParameterLevel level)
 {
-	SignedIntParameter *param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
+	SignedIntParameter *param_p = GetNewSignedIntParameter (current_value_p, default_value_p);
 
 	if (param_p)
 		{
-			bool success_flag = true;
-
-			if (current_value_p)
+			if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+												 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
+												 NULL, SetSignedIntParameterCurrentValueFromString))
 				{
-					param_p -> sip_current_value_p = (int32 *) AllocMemory (sizeof (int32));
-
-					if (param_p -> sip_current_value_p)
+					if (service_data_p)
 						{
-							* (param_p -> sip_current_value_p) = *current_value_p;
-						}
-					else
-						{
-							success_flag = false;
-						}
-				}
-			else
-				{
-					param_p -> sip_current_value_p = NULL;
-				}
-
-			if (success_flag)
-				{
-					if (default_value_p)
-						{
-							param_p -> sip_default_value_p = (int32 *) AllocMemory (sizeof (int32));
-
-							if (param_p -> sip_default_value_p)
-								{
-									* (param_p -> sip_default_value_p) = *default_value_p;
-								}
-							else
-								{
-									success_flag = false;
-								}
-						}
-					else
-						{
-							param_p -> sip_default_value_p = NULL;
-						}
-				}
-
-			if (success_flag)
-				{
-					if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
-														 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
-														 NULL, SetSignedIntParameterCurrentValueFromString))
-						{
-							if (service_data_p)
-								{
 //									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-								}
-
-							param_p -> sip_min_value_p = NULL;
-							param_p -> sip_max_value_p = NULL;
-
-							return param_p;
 						}
+
+					return param_p;
 				}
 
-			if (param_p -> sip_current_value_p)
-				{
-					FreeMemory (param_p -> sip_current_value_p);
-				}
-
-			if (param_p -> sip_default_value_p)
-				{
-					FreeMemory (param_p -> sip_default_value_p);
-				}
-
-			FreeMemory (param_p);
-		}		/* if (param_p) */
+			FreeParameter (& (param_p -> sip_base_param));
+		}
 
 	return NULL;
 }
+
 
 
 SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)

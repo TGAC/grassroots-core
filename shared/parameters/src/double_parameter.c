@@ -42,101 +42,81 @@ static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, con
 
 static bool SetDoubleParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static DoubleParameter *GetNewDoubleParameter (const double64 *current_value_p, const double64 *default_value_p);
+
+
 /*
  * API DEFINITIONS
  */
 
-DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const double64 *default_value_p, const double64 *current_value_p, ParameterLevel level)
+
+static DoubleParameter *GetNewDoubleParameter (const double64 *current_value_p, const double64 *default_value_p)
 {
 	DoubleParameter *param_p = (DoubleParameter *) AllocMemory (sizeof (DoubleParameter));
 
 	if (param_p)
 		{
-			bool success_flag = true;
+			param_p -> dp_current_value_p = NULL;
+			param_p -> dp_default_value_p = NULL;
 
-			if (current_value_p)
+			if (SetDoubleParameterValue (& (param_p -> dp_current_value_p), current_value_p))
 				{
-					param_p -> dp_current_value_p = (double64 *) AllocMemory (sizeof (double64));
-
-					if (param_p -> dp_current_value_p)
+					if (SetDoubleParameterValue (& (param_p -> dp_default_value_p), default_value_p))
 						{
-							* (param_p -> dp_current_value_p) = *current_value_p;
-						}
-					else
-						{
-							success_flag = false;
-						}
-				}
-			else
-				{
-					param_p -> dp_current_value_p = NULL;
-				}
-
-
-			if (success_flag)
-				{
-					if (default_value_p)
-						{
-							param_p -> dp_default_value_p = (double64 *) AllocMemory (sizeof (double64));
-
-							if (param_p -> dp_default_value_p)
-								{
-									* (param_p -> dp_default_value_p) = *default_value_p;
-								}
-							else
-								{
-									success_flag = false;
-								}
-						}
-					else
-						{
-							param_p -> dp_default_value_p = NULL;
-						}
-				}
-
-			if (success_flag)
-				{
-					if (InitParameter (& (param_p -> dp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
-														 ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON,
-														 NULL, SetDoubleParameterCurrentValueFromString))
-						{
-							if (service_data_p)
-								{
-//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-								}
-
 							param_p -> dp_min_value_p = NULL;
 							param_p -> dp_max_value_p = NULL;
 
 							return param_p;
 						}
-				}
 
-			if (param_p -> dp_current_value_p)
-				{
-					FreeMemory (param_p -> dp_current_value_p);
-				}
-
-			if (param_p -> dp_default_value_p)
-				{
-					FreeMemory (param_p -> dp_default_value_p);
+					if (param_p -> dp_current_value_p)
+						{
+							FreeMemory (param_p -> dp_current_value_p);
+						}
 				}
 
 			FreeMemory (param_p);
-		}		/* if (param_p) */
+		}
 
 	return NULL;
 }
 
 
-DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, const Service *service_p)
+
+DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const double64 *default_value_p, const double64 *current_value_p, ParameterLevel level)
 {
-	DoubleParameter *param_p = NULL;
-	double *current_value_p = NULL;
+	DoubleParameter *param_p = GetNewDoubleParameter (current_value_p, default_value_p);
+
+	if (param_p)
+		{
+			if (InitParameter (& (param_p -> dp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+												 ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON,
+												 NULL, SetDoubleParameterCurrentValueFromString))
+				{
+					if (service_data_p)
+						{
+//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+						}
+
+					return param_p;
+				}
+
+			FreeParameter (& (param_p -> dp_base_param));
+		}
+
+	return NULL;
+}
+
+
+
+
+DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
+{
+	double64 *current_value_p = NULL;
 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			double *default_value_p = NULL;
+			double64 *default_value_p = NULL;
 			bool success_flag = true;
 			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
@@ -150,17 +130,26 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 
 			if (success_flag)
 				{
-					param_p = (DoubleParameter *) AllocMemory (sizeof (DoubleParameter));
+					DoubleParameter *param_p = GetNewDoubleParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
 							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, full_definition_flag))
 								{
+									double64 *bound_p = NULL;
+
 									SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON, NULL,
 																				 SetDoubleParameterCurrentValueFromString);
 
-									param_p -> dp_current_value_p = current_value_p;
-									param_p -> dp_default_value_p = default_value_p;
+									if (GetJSONReal (param_json_p, PARAM_MIN_S, bound_p))
+										{
+											SetDoubleParameterMinimumValue (param_p, bound_p);
+										}
+
+									if (GetJSONReal (param_json_p, PARAM_MAX_S, bound_p))
+										{
+											SetDoubleParameterMaximumValue (param_p, bound_p);
+										}
 
 									return param_p;
 								}
@@ -183,6 +172,8 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 
 	return NULL;
 }
+
+
 
 
 const double64 *GetDoubleParameterCurrentValue (const DoubleParameter *param_p)
@@ -209,35 +200,30 @@ bool SetDoubleParameterDefaultValue (DoubleParameter *param_p, const double64 *v
 }
 
 
-
-bool SetDoubleParameterBounds (DoubleParameter *param_p, const double64 min_value, const double64 max_value)
+bool SetDoubleParameterMinimumValue (DoubleParameter *param_p, const double64 *min_value_p)
 {
-	if (! (param_p -> dp_min_value_p))
-		{
-			param_p -> dp_min_value_p = (double64 *) AllocMemory (sizeof (double64));
+	return SetDoubleParameterValue (& (param_p -> dp_min_value_p), min_value_p);
+}
 
-			if (! (param_p -> dp_min_value_p))
+
+bool SetDoubleParameterMaximumValue (DoubleParameter *param_p, const double64 *max_value_p)
+{
+	return SetDoubleParameterValue (& (param_p -> dp_max_value_p), max_value_p);
+}
+
+
+
+bool SetDoubleParameterBounds (DoubleParameter *param_p, const double64 *min_value_p, const double64 *max_value_p)
+{
+	if (SetDoubleParameterMinimumValue (param_p, min_value_p))
+		{
+			if (SetDoubleParameterMinimumValue (param_p, max_value_p))
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate min value");
-					return false;
+					return true;
 				}
 		}
 
-	if (! (param_p -> dp_max_value_p))
-		{
-			param_p -> dp_max_value_p = (double64 *) AllocMemory (sizeof (double64));
-
-			if (! (param_p -> dp_max_value_p))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate max value");
-					return false;
-				}
-		}
-
-	* (param_p -> dp_min_value_p) = min_value;
-	* (param_p -> dp_max_value_p) = max_value;
-
-	return true;
+	return false;
 }
 
 

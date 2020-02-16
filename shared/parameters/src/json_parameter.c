@@ -42,12 +42,13 @@ static bool AddJSONValue (const json_t *value_to_add_p, const char *key_s, json_
 
 static bool SetJSONParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static JSONParameter *GetNewJSONParameter (const json_t *current_value_p, const json_t *default_value_p);
+
 
 /*
  * API DEFINITIONS
  */
-
-JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level)
+static JSONParameter *GetNewJSONParameter (const json_t *current_value_p, const json_t *default_value_p)
 {
 	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
 
@@ -60,38 +61,46 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 				{
 					if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p))
 						{
-							if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
-																 ClearJSONParameter, AddJSONParameterDetailsToJSON,
-																 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString))
-								{
-									if (service_data_p)
-										{
-		//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
-										}
+							return param_p;
+						}
 
-									return param_p;
-								}
-
-						}		/* if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p)) */
-
-				}		/* if (SetJSONParameterValue (& (param_p -> jp_current_value_p), current_value_p)) */
-
-
-			if (param_p -> jp_current_value_p)
-				{
-					json_decref (param_p -> jp_current_value_p);
-				}
-
-			if (param_p -> jp_default_value_p)
-				{
-					json_decref (param_p -> jp_default_value_p);
+					if (param_p -> jp_current_value_p)
+						{
+							json_decref (param_p -> jp_current_value_p);
+						}
 				}
 
 			FreeMemory (param_p);
-		}		/* if (param_p) */
+		}
 
 	return NULL;
 }
+
+
+JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level)
+{
+	JSONParameter *param_p = GetNewJSONParameter (current_value_p, default_value_p);
+
+	if (param_p)
+		{
+			if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+												 ClearJSONParameter, AddJSONParameterDetailsToJSON,
+												 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString))
+				{
+					if (service_data_p)
+						{
+//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+						}
+
+					return param_p;
+				}
+
+			FreeParameter (& (param_p -> jp_base_param));
+		}
+
+	return NULL;
+}
+
 
 
 JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
