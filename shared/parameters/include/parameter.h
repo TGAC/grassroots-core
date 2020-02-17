@@ -301,7 +301,7 @@ PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_
 
 
 GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
-																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level,
+																					const char * const display_name_s, const char * const description_s, ParameterLevel level,
 																					void (*clear_fn) (Parameter *param_p),
 																					bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
 																					bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p),

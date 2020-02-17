@@ -62,7 +62,7 @@ extern "C" {
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof JSONParameter
  */
-GRASSROOTS_PARAMS_API JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level);
+GRASSROOTS_PARAMS_API JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level);
 
 
 
@@ -75,7 +75,7 @@ GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddJSONParameterToParameterSet (co
 
 
 GRASSROOTS_PARAMS_API Parameter *CreateAndAddJSONParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
-																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s,
 																											const json_t *default_value_p, const json_t *current_value_p, uint8 level);
 
 

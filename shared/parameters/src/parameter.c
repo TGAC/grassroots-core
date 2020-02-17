@@ -76,7 +76,7 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 
 
 static bool InitParameterWithoutCallbacks (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
-																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level);
+																					const char * const display_name_s, const char * const description_s, ParameterLevel level);
 
 
 static bool AddParameterNameToJSON (const char *name_s, json_t *root_p, const SchemaVersion * const sv_p);
@@ -344,7 +344,6 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 					 */
 					const char *description_s = NULL;
 					const char *display_name_s = NULL;
-					LinkedList *options_p = NULL;
 					ParameterLevel level = PL_ALL;
 					bool success_flag = false;
 
@@ -374,7 +373,7 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 						{
 							ServiceData *service_data_p = service_p ? service_p -> se_data_p : NULL;
 
-							if (InitParameterWithoutCallbacks (param_p, service_data_p, pt, name_s, display_name_s, description_s, options_p, level))
+							if (InitParameterWithoutCallbacks (param_p, service_data_p, pt, name_s, display_name_s, description_s, level))
 								{
 									bool flag = true;
 
@@ -424,7 +423,7 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 
 
 bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
-										const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level,
+										const char * const display_name_s, const char * const description_s, ParameterLevel level,
 										void (*clear_fn) (Parameter *param_p),
 										bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
 										bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p),
@@ -432,7 +431,7 @@ bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p
 										bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
 {
-	if (InitParameterWithoutCallbacks (param_p, service_data_p, type, name_s, display_name_s, description_s, options_p, level))
+	if (InitParameterWithoutCallbacks (param_p, service_data_p, type, name_s, display_name_s, description_s, level))
 		{
 			SetParameterCallbacks (param_p, clear_fn, add_values_to_json_fn, get_values_from_json_fn, clone_fn, set_value_from_string_fn);
 
@@ -2403,7 +2402,7 @@ static bool GetParameterStringFromConfig (const json_t *service_config_p, const 
 
 
 static bool InitParameterWithoutCallbacks (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
-																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level)
+																					const char * const display_name_s, const char * const description_s, ParameterLevel level)
 {
 	char *new_name_s = CopyToNewString (name_s, 0, true);
 
@@ -2442,10 +2441,10 @@ static bool InitParameterWithoutCallbacks (Parameter *param_p, const struct Serv
 											param_p -> pa_name_s = new_name_s;
 											param_p -> pa_display_name_s = new_display_name_s;
 											param_p -> pa_description_s = new_description_s;
-											param_p -> pa_options_p = options_p;
 											param_p -> pa_level = level;
 											param_p -> pa_store_p = store_p;
 											param_p -> pa_group_p = NULL;
+											param_p -> pa_options_p = NULL;
 
 											param_p -> pa_remote_parameter_details_p = remote_params_p;
 

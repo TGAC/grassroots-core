@@ -71,7 +71,7 @@ extern "C" {
  */
 GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p,
 																														const char * const name_s, const char * const display_name_s,
-																														const char * const description_s, LinkedList *options_p,
+																														const char * const description_s,
 																														const struct tm *default_value_p, const struct tm *current_value_p,
 																														ParameterLevel level);
 
@@ -84,7 +84,7 @@ GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddTimeParameterToParameterSet (co
 																								const struct tm *default_value_p, uint8 level);
 
 GRASSROOTS_PARAMS_API Parameter *CreateAndAddTimeParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const struct tm *default_value_p, const struct tm *current_value_p, uint8 level);
 
 

@@ -82,7 +82,7 @@ static SignedIntParameter *GetNewSignedIntParameter (const int32 *current_value_
 
 SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *service_data_p, const ParameterType pt,
 																																			const char * const name_s, const char * const display_name_s,
-																																			const char * const description_s, LinkedList *options_p,
+																																			const char * const description_s,
 																																			const int32 *default_value_p, const int32 *current_value_p,
 																																			ParameterLevel level)
 {
@@ -90,7 +90,7 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 
 	if (param_p)
 		{
-			if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+			if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
 												 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
 												 NULL, SetSignedIntParameterCurrentValueFromString))
 				{
@@ -131,7 +131,7 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 
 			if (success_flag)
 				{
-					param_p = (SignedIntParameter *) AllocMemory (sizeof (SignedIntParameter));
+					param_p = GetNewSignedIntParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
@@ -141,12 +141,10 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 																				 NULL,
 																				 SetSignedIntParameterCurrentValueFromString);
 
-									param_p -> sip_current_value_p = current_value_p;
-									param_p -> sip_default_value_p = default_value_p;
-
 									return param_p;
 								}
 
+							ClearSignedIntParameter (& (param_p -> sip_base_param));
 							FreeMemory (param_p);
 						}
 
@@ -171,15 +169,15 @@ Parameter *EasyCreateAndAddSignedIntParameterToParameterSet (const ServiceData *
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const int32 *default_value_p, uint8 level)
 {
-	return CreateAndAddSignedIntParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+	return CreateAndAddSignedIntParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, default_value_p, NULL, level);
 }
 
 
 Parameter *CreateAndAddSignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,  ParameterType type,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const int32 *default_value_p, const int32 *current_value_p, uint8 level)
 {
-	SignedIntParameter *int_param_p = AllocateSignedIntParameter (service_data_p, type, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+	SignedIntParameter *int_param_p = AllocateSignedIntParameter (service_data_p, type, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 
 	if (int_param_p)
 		{

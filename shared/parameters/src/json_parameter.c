@@ -48,42 +48,15 @@ static JSONParameter *GetNewJSONParameter (const json_t *current_value_p, const 
 /*
  * API DEFINITIONS
  */
-static JSONParameter *GetNewJSONParameter (const json_t *current_value_p, const json_t *default_value_p)
-{
-	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
-
-	if (param_p)
-		{
-			param_p -> jp_current_value_p = NULL;
-			param_p -> jp_default_value_p = NULL;
-
-			if (SetJSONParameterValue (& (param_p -> jp_current_value_p), current_value_p))
-				{
-					if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p))
-						{
-							return param_p;
-						}
-
-					if (param_p -> jp_current_value_p)
-						{
-							json_decref (param_p -> jp_current_value_p);
-						}
-				}
-
-			FreeMemory (param_p);
-		}
-
-	return NULL;
-}
 
 
-JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level)
+JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level)
 {
 	JSONParameter *param_p = GetNewJSONParameter (current_value_p, default_value_p);
 
 	if (param_p)
 		{
-			if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+			if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
 												 ClearJSONParameter, AddJSONParameterDetailsToJSON,
 												 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString))
 				{
@@ -105,44 +78,31 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 
 JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
 {
-	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
+	JSONParameter *param_p = NULL;
+	const json_t *current_value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
+	const json_t *default_value_p = NULL;
+	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+
+	if (full_definition_flag)
+		{
+			default_value_p = json_object_get (param_json_p, PARAM_DEFAULT_VALUE_S);
+		}
+
+	param_p = GetNewJSONParameter (current_value_p, default_value_p);
 
 	if (param_p)
 		{
-			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
-
-			param_p -> jp_current_value_p = NULL;
-			param_p -> jp_default_value_p = NULL;
-
 			if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, full_definition_flag))
 				{
-					const json_t *current_value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
-					const json_t *default_value_p = NULL;
-					bool success_flag = true;
-
 					SetParameterCallbacks (& (param_p -> jp_base_param), ClearJSONParameter, AddJSONParameterDetailsToJSON,
 																 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString);
 
-					if (SetJSONParameterCurrentValue (param_p, current_value_p))
-						{
-							if (full_definition_flag)
-								{
-									default_value_p = json_object_get (param_json_p, PARAM_DEFAULT_VALUE_S);
-								}
+					return param_p;
 
-							if (success_flag)
-								{
-									if (SetJSONParameterDefaultValue (param_p, default_value_p))
-										{
-											return param_p;
-										}
-								}
-						}
-
-					FreeParameter (& (param_p -> jp_base_param));
 				}
 			else
 				{
+					ClearJSONParameter (& (param_p -> jp_base_param));
 					FreeMemory (param_p);
 				}
 		}
@@ -156,15 +116,15 @@ Parameter *EasyCreateAndAddJSONParameterToParameterSet (const ServiceData *servi
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
 																											const json_t *default_value_p, uint8 level)
 {
-	return CreateAndAddJSONParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+	return CreateAndAddJSONParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, default_value_p, NULL, level);
 }
 
 
 Parameter *CreateAndAddJSONParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
-																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s,
 																											const json_t *default_value_p, const json_t *current_value_p, uint8 level)
 {
-	JSONParameter *json_param_p = AllocateJSONParameter (service_data_p, type, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+	JSONParameter *json_param_p = AllocateJSONParameter (service_data_p, type, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 	Parameter *base_param_p = NULL;
 
 	if (json_param_p)
@@ -413,5 +373,34 @@ static bool SetJSONParameterCurrentValueFromString (Parameter *param_p, const ch
 		}
 
 	return success_flag;
+}
+
+
+static JSONParameter *GetNewJSONParameter (const json_t *current_value_p, const json_t *default_value_p)
+{
+	JSONParameter *param_p = (JSONParameter *) AllocMemory (sizeof (JSONParameter));
+
+	if (param_p)
+		{
+			param_p -> jp_current_value_p = NULL;
+			param_p -> jp_default_value_p = NULL;
+
+			if (SetJSONParameterValue (& (param_p -> jp_current_value_p), current_value_p))
+				{
+					if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p))
+						{
+							return param_p;
+						}
+
+					if (param_p -> jp_current_value_p)
+						{
+							json_decref (param_p -> jp_current_value_p);
+						}
+				}
+
+			FreeMemory (param_p);
+		}
+
+	return NULL;
 }
 

@@ -79,13 +79,13 @@ static TimeParameter *GetNewTimeParameter (const struct tm *current_value_p, con
 
 
 
-TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, const struct tm *default_value_p, const struct tm *current_value_p, ParameterLevel level)
+TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, const struct tm *default_value_p, const struct tm *current_value_p, ParameterLevel level)
 {
 	TimeParameter *param_p = GetNewTimeParameter (current_value_p, default_value_p);
 
 	if (param_p)
 		{
-			if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, options_p, level,
+			if (InitParameter (& (param_p -> tp_base_param), service_data_p, PT_TIME, name_s, display_name_s, description_s, level,
 												 ClearTimeParameter, AddTimeParameterDetailsToJSON, GetTimeParameterDetailsFromJSON,
 												 NULL, SetTimeParameterCurrentValueFromString))
 				{
@@ -110,55 +110,52 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 {
 	TimeParameter *param_p = NULL;
 	struct tm *current_value_p = NULL;
+	struct tm *default_value_p = NULL;
+	bool success_flag = true;
+	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-	if (SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, &current_value_p))
+	SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, &current_value_p);
+
+	if (full_definition_flag)
 		{
-			struct tm *default_value_p = NULL;
-			bool success_flag = true;
-			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
-
-			if (full_definition_flag)
+			if (!SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &default_value_p))
 				{
-					if (!SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &current_value_p))
-						{
-							success_flag = false;
-						}
+					success_flag = false;
 				}
+		}
 
-			if (success_flag)
+	if (success_flag)
+		{
+			param_p = GetNewTimeParameter (current_value_p, default_value_p);
+
+			if (param_p)
 				{
-					param_p = (TimeParameter *) AllocMemory (sizeof (TimeParameter));
-
-					if (param_p)
+					if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, full_definition_flag))
 						{
-							if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, full_definition_flag))
-								{
-									SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON,
-																				 GetTimeParameterDetailsFromJSON, NULL, SetTimeParameterCurrentValueFromString);
-
-									param_p -> tp_current_value_p = current_value_p;
-									param_p -> tp_default_value_p = default_value_p;
-
-									return param_p;
-								}
-
+							SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON,
+																		 GetTimeParameterDetailsFromJSON, NULL, SetTimeParameterCurrentValueFromString);
+						}
+					else
+						{
+							ClearTimeParameter (& (param_p -> tp_base_param));
 							FreeMemory (param_p);
+							param_p = NULL;
 						}
-
-
-					if (default_value_p)
-						{
-							FreeMemory (default_value_p);
-						}
-				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
-
-			if (current_value_p)
-				{
-					FreeMemory (current_value_p);
 				}
-		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
-	return NULL;
+
+			if (default_value_p)
+				{
+					FreeMemory (default_value_p);
+				}
+		}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+
+	if (current_value_p)
+		{
+			FreeMemory (current_value_p);
+		}
+
+	return param_p;
 }
 
 
@@ -166,15 +163,15 @@ Parameter *EasyCreateAndAddTimeParameterToParameterSet (const ServiceData *servi
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const struct tm *default_value_p, uint8 level)
 {
-	return CreateAndAddTimeParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+	return CreateAndAddTimeParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, default_value_p, NULL, level);
 }
 
 
 Parameter *CreateAndAddTimeParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const struct tm *default_value_p, const struct tm *current_value_p, uint8 level)
 {
-	TimeParameter *time_param_p = AllocateTimeParameter (service_data_p, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+	TimeParameter *time_param_p = AllocateTimeParameter (service_data_p, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 
 	if (time_param_p)
 		{

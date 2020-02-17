@@ -89,7 +89,7 @@ static UnsignedIntParameter *GetNewUnsignedIntParameter (const uint32 *current_v
 
 UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *service_data_p,
 																										const char * const name_s, const char * const display_name_s,
-																										const char * const description_s, LinkedList *options_p,
+																										const char * const description_s,
 																										const uint32 *default_value_p, const uint32 *current_value_p,
 																										ParameterLevel level)
 {
@@ -97,7 +97,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 
 	if (param_p)
 		{
-			if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, options_p, level,
+			if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, level,
 												 ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON, GetUnsignedIntParameterDetailsFromJSON,
 												 NULL, SetUnsignedIntParameterCurrentValueFromString))
 				{
@@ -121,57 +121,53 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 {
 	UnsignedIntParameter *param_p = NULL;
 	uint32 *current_value_p = NULL;
+	uint32 *default_value_p = NULL;
+	bool success_flag = true;
+	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
+	if (full_definition_flag)
 		{
-			uint32 *default_value_p = NULL;
-			bool success_flag = true;
-			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
-
-			if (full_definition_flag)
+			if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
 				{
-					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
-						{
-							success_flag = false;
-						}
+					success_flag = false;
 				}
+		}
 
-			if (success_flag)
+
+	if (success_flag)
+		{
+			param_p = GetNewUnsignedIntParameter (current_value_p, default_value_p);
+
+			if (param_p)
 				{
-					param_p = (UnsignedIntParameter *) AllocMemory (sizeof (UnsignedIntParameter));
-
-					if (param_p)
+					if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, full_definition_flag))
 						{
-							if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, full_definition_flag))
-								{
-									SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
-																				 GetUnsignedIntParameterDetailsFromJSON, NULL, SetUnsignedIntParameterCurrentValueFromString);
+							SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
+																		 GetUnsignedIntParameterDetailsFromJSON, NULL, SetUnsignedIntParameterCurrentValueFromString);
 
-									param_p -> uip_current_value_p = current_value_p;
-									param_p -> uip_default_value_p = default_value_p;
-									param_p -> uip_min_value_p = NULL;
-									param_p -> uip_max_value_p = NULL;
-
-									return param_p;
-								}
-
+							return param_p;
+						}
+					else
+						{
+							ClearUnsignedIntParameter (& (param_p -> uip_base_param));
 							FreeMemory (param_p);
+							param_p = NULL;
 						}
-
-
-					if (default_value_p)
-						{
-							FreeMemory (default_value_p);
-						}
-				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
-
-			if (current_value_p)
-				{
-					FreeMemory (current_value_p);
 				}
-		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
-	return NULL;
+
+			if (default_value_p)
+				{
+					FreeMemory (default_value_p);
+				}
+		}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+
+	if (current_value_p)
+		{
+			FreeMemory (current_value_p);
+		}
+
+	return param_p;
 }
 
 
@@ -179,15 +175,15 @@ Parameter *EasyCreateAndAddUnsignedIntParameterToParameterSet (const ServiceData
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const uint32 *default_value_p, uint8 level)
 {
-	return CreateAndAddUnsignedIntParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, NULL, default_value_p, NULL, level);
+	return CreateAndAddUnsignedIntParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, default_value_p, NULL, level);
 }
 
 
 Parameter *CreateAndAddUnsignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const uint32 *default_value_p, const uint32 *current_value_p, uint8 level)
 {
-	UnsignedIntParameter *int_param_p = AllocateUnsignedIntParameter (service_data_p, name_s, display_name_s, description_s, options_p, default_value_p, current_value_p, level);
+	UnsignedIntParameter *int_param_p = AllocateUnsignedIntParameter (service_data_p, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 
 	if (int_param_p)
 		{

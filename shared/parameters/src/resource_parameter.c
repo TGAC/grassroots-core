@@ -80,13 +80,13 @@ static ResourceParameter *GetNewResourceParameter (const Resource *current_value
 }
 
 
-ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p, Resource *default_value_p, Resource *current_value_p, ParameterLevel level)
+ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, Resource *default_value_p, Resource *current_value_p, ParameterLevel level)
 {
 	ResourceParameter *param_p = GetNewResourceParameter (current_value_p, default_value_p);
 
 	if (param_p)
 		{
-			if (InitParameter (& (param_p -> rp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+			if (InitParameter (& (param_p -> rp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
 												 ClearResourceParameter, AddResourceParameterDetailsToJSON, GetResourceParameterDetailsFromJSON,
 												 NULL, SetResourceParameterCurrentValueFromString))
 				{
@@ -128,8 +128,7 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 
 			if (success_flag)
 				{
-
-					param_p = (ResourceParameter *) AllocMemory (sizeof (ResourceParameter));
+					param_p = GetNewResourceParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
@@ -138,17 +137,12 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 									SetParameterCallbacks (& (param_p -> rp_base_param), ClearResourceParameter, AddResourceParameterDetailsToJSON,
 																				 GetResourceParameterDetailsFromJSON, NULL, SetResourceParameterCurrentValueFromString);
 
-									param_p -> rp_current_value_p = current_value_p;
-									param_p -> rp_default_value_p = default_value_p;
-
 									return param_p;
 								}
 
+							ClearResourceParameter (& (param_p -> rp_base_param));
 							FreeMemory (param_p);
 						}
-
-
-
 				}
 
 			if (default_value_p)

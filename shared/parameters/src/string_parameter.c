@@ -89,7 +89,7 @@ static StringParameter *GetNewStringParameter (const char *current_value_s, cons
 
 StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt,
 																					const char * const name_s, const char * const display_name_s,
-																					const char * const description_s, LinkedList *options_p,
+																					const char * const description_s,
 																					const char *default_value_s, const char *current_value_s,
 																					ParameterLevel level)
 {
@@ -97,7 +97,7 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 
 	if (param_p)
 		{
-			if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, options_p, level,
+			if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
 												 ClearStringParameter, AddStringParameterDetailsToJSON, GetStringParameterDetailsFromJSON,
 												 NULL, SetStringParameterCurrentValueFromString))
 				{
@@ -118,46 +118,31 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 
 StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
 {
-	StringParameter *param_p = (StringParameter *) AllocMemory (sizeof (StringParameter));
+	StringParameter *param_p = NULL;
+	const char *current_value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
+	const char *default_value_s = NULL;
+	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+
+	if (full_definition_flag)
+		{
+			default_value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
+		}
+
+	param_p = GetNewStringParameter (current_value_s, default_value_s);
 
 	if (param_p)
 		{
-			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
-
-			param_p -> sp_current_value_s = NULL;
-			param_p -> sp_default_value_s = NULL;
-			param_p -> sp_min_value_s = NULL;
-			param_p -> sp_max_value_s = NULL;
-
 			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, full_definition_flag))
 				{
-					const char *current_value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
-					const char *default_value_s = NULL;
-
-					if (full_definition_flag)
-						{
-							default_value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
-						}
 
 					SetParameterCallbacks (& (param_p -> sp_base_param), ClearStringParameter, AddStringParameterDetailsToJSON,
 																 GetStringParameterDetailsFromJSON, NULL, SetStringParameterCurrentValueFromString);
 
-
-
-					if (SetStringParameterCurrentValue (param_p, current_value_s))
-						{
-							if (SetStringParameterDefaultValue (param_p, default_value_s))
-								{
-									return param_p;
-								}
-						}
-
-					FreeParameter (& (param_p -> sp_base_param));
+					return param_p;
 				}
-			else
-				{
-					FreeMemory (param_p);
-				}
+
+			ClearStringParameter (& (param_p -> sp_base_param));
+			FreeMemory (param_p);
 		}
 
 	return NULL;
@@ -170,16 +155,16 @@ Parameter *EasyCreateAndAddStringParameterToParameterSet (const ServiceData *ser
 																											const char *default_value_s, uint8 level)
 {
 	return CreateAndAddStringParameterToParameterSet (service_data_p, params_p, group_p, type,
-																										name_s, display_name_s, description_s, NULL,
+																										name_s, display_name_s, description_s,
 																										default_value_s, NULL, level);
 }
 
 Parameter *CreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
-																											const char * const name_s, const char * const display_name_s, const char * const description_s, LinkedList *options_p,
+																											const char * const name_s, const char * const display_name_s, const char * const description_s,
 																											const char *default_value_s, const char *current_value_s, uint8 level)
 {
 	Parameter *base_param_p = NULL;
-	StringParameter *string_param_p = AllocateStringParameter (service_data_p, type, name_s, display_name_s, description_s, options_p, default_value_s, current_value_s, level);
+	StringParameter *string_param_p = AllocateStringParameter (service_data_p, type, name_s, display_name_s, description_s, default_value_s, current_value_s, level);
 
 	if (string_param_p)
 		{
@@ -317,7 +302,6 @@ bool CreateAndAddStringParameterOption (StringParameter *param_p, const char *va
 
 StringParameterOption *AllocateStringParameterOption (const char *value_s, const char *description_s)
 {
-	bool success_flag = true;
 	char *new_value_s  = NULL;
 
 	if (CloneValidString (value_s, &new_value_s))
