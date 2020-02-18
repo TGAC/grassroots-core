@@ -128,21 +128,33 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 			default_value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
 		}
 
+
 	param_p = GetNewStringParameter (current_value_s, default_value_s);
 
 	if (param_p)
 		{
+			Parameter *base_param_p = & (param_p -> sp_base_param);
+
 			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, full_definition_flag))
 				{
+					if (GetStringParameterDetailsFromJSON (base_param_p, param_json_p))
+						{
 
-					SetParameterCallbacks (& (param_p -> sp_base_param), ClearStringParameter, AddStringParameterDetailsToJSON,
-																 GetStringParameterDetailsFromJSON, NULL, SetStringParameterCurrentValueFromString);
+							SetParameterCallbacks (& (param_p -> sp_base_param), ClearStringParameter, AddStringParameterDetailsToJSON,
+																		 GetStringParameterDetailsFromJSON, NULL, SetStringParameterCurrentValueFromString);
 
-					return param_p;
+							return param_p;
+						}
+					else
+						{
+							FreeParameter (base_param_p);
+						}
 				}
-
-			ClearStringParameter (& (param_p -> sp_base_param));
-			FreeMemory (param_p);
+			else
+				{
+					ClearStringParameter (& (param_p -> sp_base_param));
+					FreeMemory (param_p);
+				}
 		}
 
 	return NULL;
@@ -652,6 +664,7 @@ static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t 
 {
 	StringParameter *string_param_p = (StringParameter *) param_p;
 	bool success_flag = true;
+/*
 	const char *value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
 
 	if (value_s)
@@ -676,7 +689,7 @@ static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t 
 					success_flag = SetStringParameterDefaultValue (string_param_p, NULL);
 				}
 		}
-
+*/
 	if (success_flag)
 		{
 			success_flag = GetStringParameterOptionsFromJSON (string_param_p, param_json_p);

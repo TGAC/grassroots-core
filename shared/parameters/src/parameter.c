@@ -342,6 +342,7 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 					/*
 					 * The default, options, display name and bounds are optional
 					 */
+					ServiceData *service_data_p = service_p ? service_p -> se_data_p : NULL;
 					const char *description_s = NULL;
 					const char *display_name_s = NULL;
 					ParameterLevel level = PL_ALL;
@@ -356,61 +357,44 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 					if (full_definition_flag || (!IsJSONParameterConcise (root_p)))
 						{
 							description_s = GetJSONString (root_p, PARAM_DESCRIPTION_S);
-
-							if (description_s)
-								{
-									success_flag = true;
-								}
-
 							display_name_s = GetJSONString (root_p, PARAM_DISPLAY_NAME_S);
 						}
-					else
-						{
-							success_flag = true;
-						}
 
-					if (success_flag)
+					if (InitParameterWithoutCallbacks (param_p, service_data_p, pt, name_s, display_name_s, description_s, level))
 						{
-							ServiceData *service_data_p = service_p ? service_p -> se_data_p : NULL;
+							bool flag = true;
 
-							if (InitParameterWithoutCallbacks (param_p, service_data_p, pt, name_s, display_name_s, description_s, level))
+							if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &flag))
 								{
-									bool flag = true;
-
-									if (GetJSONBoolean (root_p, PARAM_VISIBLE_S, &flag))
+									if (!flag)
 										{
-											if (!flag)
-												{
-													param_p -> pa_visible_flag = flag;
-												}
-										}
-
-
-									flag = false;
-									if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
-										{
-											param_p -> pa_refresh_service_flag = flag;
-										}
-
-
-									/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
-
-									if (SetRemoteParameterDetailsFromJSON (param_p, root_p))
-										{
-											success_flag = InitParameterStoreFromJSON (root_p, param_p -> pa_store_p);
-										}
-									else
-										{
-											success_flag = false;
-										}
-
-									if (success_flag)
-										{
-											return true;
+											param_p -> pa_visible_flag = flag;
 										}
 								}
 
 
+							flag = false;
+							if (GetJSONBoolean (root_p, PARAM_REFRESH_S, &flag))
+								{
+									param_p -> pa_refresh_service_flag = flag;
+								}
+
+
+							/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
+
+							if (SetRemoteParameterDetailsFromJSON (param_p, root_p))
+								{
+									success_flag = InitParameterStoreFromJSON (root_p, param_p -> pa_store_p);
+								}
+							else
+								{
+									success_flag = false;
+								}
+
+							if (success_flag)
+								{
+									return true;
+								}
 						}
 
 				}		/* if (got_type_flag) */
