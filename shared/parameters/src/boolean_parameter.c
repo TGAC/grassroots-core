@@ -59,16 +59,13 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 	bool success_flag = true;
 	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-
-	SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S);
-
-
-	if (full_definition_flag)
+	if (IsJSONParameterConcise (param_json_p))
 		{
-			if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
-				{
-					success_flag = false;
-				}
+			success_flag = SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S);
+		}
+	else
+		{
+			success_flag = SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S);
 		}
 
 	if (success_flag)

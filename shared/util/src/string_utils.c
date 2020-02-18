@@ -136,7 +136,7 @@ bool CloneValidString (const char *src_s, char **dest_ss)
 
 	if (!IsStringEmpty (src_s))
 		{
-			char *dest_s = CopyToNewString (src_s, 0, false);
+			char *dest_s = EasyCopyToNewString (src_s);
 
 			if (dest_s)
 				{

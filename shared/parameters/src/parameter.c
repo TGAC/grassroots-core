@@ -567,6 +567,11 @@ void ClearParameter (Parameter *param_p)
 	PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Clearing parameter %s", param_p -> pa_name_s);
 #endif
 
+	if (param_p -> pa_clear_fn)
+		{
+			param_p -> pa_clear_fn (param_p);
+		}
+
 
 	if (param_p -> pa_description_s)
 		{
