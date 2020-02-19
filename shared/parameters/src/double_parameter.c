@@ -58,7 +58,7 @@ DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data
 	if (param_p)
 		{
 			if (InitParameter (& (param_p -> dp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
-												 ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON,
+												 ClearDoubleParameter, AddDoubleParameterDetailsToJSON,
 												 NULL, SetDoubleParameterCurrentValueFromString))
 				{
 					if (service_data_p)
@@ -87,65 +87,33 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 			double64 *default_value_p = NULL;
 			bool success_flag = true;
 			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
+			DoubleParameter *param_p = GetNewDoubleParameter (current_value_p, default_value_p);
 
-			if (full_definition_flag)
+			if (param_p)
 				{
-					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
-						{
-							success_flag = false;
-						}
-				}
+					Parameter *base_param_p = & (param_p -> dp_base_param);
 
-			if (success_flag)
-				{
-					DoubleParameter *param_p = GetNewDoubleParameter (current_value_p, default_value_p);
-
-					if (param_p)
+					if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, full_definition_flag))
 						{
-							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, full_definition_flag))
+							if (GetDoubleParameterDetailsFromJSON (param_p, param_json_p))
 								{
-									double64 *bound_p = NULL;
-									double64 bound = 0.0f;
-
-									SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, GetDoubleParameterDetailsFromJSON, NULL,
-																				 SetDoubleParameterCurrentValueFromString);
-
-									if (GetJSONReal (param_json_p, PARAM_MIN_S, &bound))
-										{
-											bound_p = &bound;
-										}
-									SetDoubleParameterMinimumValue (param_p, bound_p);
-
-
-									if (GetJSONReal (param_json_p, PARAM_MAX_S, &bound))
-										{
-											bound_p = &bound;
-										}
-									else
-										{
-											bound_p = NULL;
-										}
-
-									SetDoubleParameterMaximumValue (param_p, bound_p);
+									SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, NULL,
+																							 SetDoubleParameterCurrentValueFromString);
 
 									return param_p;
 								}
-
+							else
+								{
+									FreeParameter (base_param_p);
+								}
+						}
+					else
+						{
 							ClearDoubleParameter (& (param_p -> dp_base_param));
 							FreeMemory (param_p);
 						}
-
-
-					if (default_value_p)
-						{
-							FreeMemory (default_value_p);
-						}
-				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
-
-			if (current_value_p)
-				{
-					FreeMemory (current_value_p);
 				}
+
 		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
 	return NULL;

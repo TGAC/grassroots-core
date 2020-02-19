@@ -58,7 +58,7 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 		{
 			if (InitParameter (& (param_p -> jp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
 												 ClearJSONParameter, AddJSONParameterDetailsToJSON,
-												 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString))
+												 NULL, SetJSONParameterCurrentValueFromString))
 				{
 					if (service_data_p)
 						{
@@ -95,7 +95,7 @@ JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const 
 			if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, full_definition_flag))
 				{
 					SetParameterCallbacks (& (param_p -> jp_base_param), ClearJSONParameter, AddJSONParameterDetailsToJSON,
-																 GetJSONParameterDetailsFromJSON, NULL, SetJSONParameterCurrentValueFromString);
+																 NULL, SetJSONParameterCurrentValueFromString);
 
 					return param_p;
 

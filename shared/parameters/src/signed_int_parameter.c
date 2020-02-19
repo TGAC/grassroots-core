@@ -91,7 +91,7 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 	if (param_p)
 		{
 			if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
-												 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
+												 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON,
 												 NULL, SetSignedIntParameterCurrentValueFromString))
 				{
 					if (service_data_p)
@@ -137,7 +137,7 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 						{
 							if (InitParameterFromJSON (& (param_p -> sip_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON, GetSignedIntParameterDetailsFromJSON,
+									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON,
 																				 NULL,
 																				 SetSignedIntParameterCurrentValueFromString);
 

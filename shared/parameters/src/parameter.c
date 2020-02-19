@@ -410,14 +410,13 @@ bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p
 										const char * const display_name_s, const char * const description_s, ParameterLevel level,
 										void (*clear_fn) (Parameter *param_p),
 										bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-										bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p),
 										struct Parameter *(*clone_fn) (const Parameter *param_p),
 										bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
 {
 	if (InitParameterWithoutCallbacks (param_p, service_data_p, type, name_s, display_name_s, description_s, level))
 		{
-			SetParameterCallbacks (param_p, clear_fn, add_values_to_json_fn, get_values_from_json_fn, clone_fn, set_value_from_string_fn);
+			SetParameterCallbacks (param_p, clear_fn, add_values_to_json_fn, clone_fn, set_value_from_string_fn);
 
 			return true;
 		}
@@ -659,7 +658,6 @@ static bool CopyBaseParamaeter (const Parameter *src_p, Parameter *dest_p)
 
 													dest_p -> pa_clear_fn = src_p -> pa_clear_fn;
 													dest_p -> pa_add_values_to_json_fn = src_p -> pa_add_values_to_json_fn;
-													dest_p -> pa_get_values_from_json_fn = src_p -> pa_get_values_from_json_fn;
 													dest_p -> pa_clone_fn = src_p -> pa_clone_fn;
 
 
@@ -2013,7 +2011,6 @@ const char *GetUIName (const Parameter * const parameter_p)
 
 void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *param_p),
 														bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-														bool (*get_values_from_json_fn) (Parameter *param_p, const json_t *param_json_p),
 														Parameter *(*clone_fn) (const Parameter *param_p),
 														bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
@@ -2021,8 +2018,6 @@ void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *par
 	param_p -> pa_clear_fn = clear_fn;
 	param_p -> pa_clone_fn = clone_fn;
 	param_p -> pa_add_values_to_json_fn = add_values_to_json_fn;
-	param_p -> pa_get_values_from_json_fn = get_values_from_json_fn;
-
 	param_p -> pa_set_value_from_string_fn = set_value_from_string_fn;
 }
 

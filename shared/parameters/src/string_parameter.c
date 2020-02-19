@@ -37,7 +37,7 @@ static void ClearStringParameter (Parameter *param_p);
 
 static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
-static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
+static bool GetStringParameterDetailsFromJSON (StringParameter *param_p, const json_t *param_json_p);
 
 static LinkedList *GetStringParameterMultiOptions (StringParameter *param_p);
 
@@ -98,7 +98,7 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 	if (param_p)
 		{
 			if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
-												 ClearStringParameter, AddStringParameterDetailsToJSON, GetStringParameterDetailsFromJSON,
+												 ClearStringParameter, AddStringParameterDetailsToJSON,
 												 NULL, SetStringParameterCurrentValueFromString))
 				{
 					if (service_data_p)
@@ -128,7 +128,6 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 			default_value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
 		}
 
-
 	param_p = GetNewStringParameter (current_value_s, default_value_s);
 
 	if (param_p)
@@ -137,11 +136,10 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 
 			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, full_definition_flag))
 				{
-					if (GetStringParameterDetailsFromJSON (base_param_p, param_json_p))
+					if (GetStringParameterDetailsFromJSON (param_p, param_json_p))
 						{
-
 							SetParameterCallbacks (& (param_p -> sp_base_param), ClearStringParameter, AddStringParameterDetailsToJSON,
-																		 GetStringParameterDetailsFromJSON, NULL, SetStringParameterCurrentValueFromString);
+																		 NULL, SetStringParameterCurrentValueFromString);
 
 							return param_p;
 						}
@@ -660,42 +658,35 @@ bool GetStringParameterDefaultValueFromConfig (StringParameter *param_p, const S
 }
 
 
-static bool GetStringParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
+static bool GetStringParameterDetailsFromJSON (StringParameter *param_p, const json_t *param_json_p)
 {
-	StringParameter *string_param_p = (StringParameter *) param_p;
-	bool success_flag = true;
-/*
-	const char *value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
+	const char *current_value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
+	const char *default_value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
 
-	if (value_s)
+	if (SetStringParameterCurrentValue (param_p, current_value_s))
 		{
-			success_flag = SetStringParameterCurrentValue (string_param_p, value_s);
-		}
-	else
-		{
-			success_flag = SetStringParameterCurrentValue (string_param_p, NULL);
-		}
-
-	if (success_flag)
-		{
-			value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
-
-			if (value_s)
+			if (SetStringParameterDefaultValue (param_p, default_value_s))
 				{
-					success_flag = SetStringParameterCurrentValue (string_param_p, value_s);
+					if (GetStringParameterOptionsFromJSON (param_p, param_json_p))
+						{
+							return true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to set param \"%s\" options from JSON", param_p -> sp_base_param.pa_name_s);
+						}
 				}
 			else
 				{
-					success_flag = SetStringParameterDefaultValue (string_param_p, NULL);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param \"%s\" default value \"%s\"", param_p -> sp_base_param.pa_name_s, default_value_s);
 				}
 		}
-*/
-	if (success_flag)
+	else
 		{
-			success_flag = GetStringParameterOptionsFromJSON (string_param_p, param_json_p);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set param \"%s\" current value \"%s\"", param_p -> sp_base_param.pa_name_s, current_value_s);
 		}
 
-	return success_flag;
+	return false;
 }
 
 

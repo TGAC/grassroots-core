@@ -87,7 +87,7 @@ ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_
 	if (param_p)
 		{
 			if (InitParameter (& (param_p -> rp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
-												 ClearResourceParameter, AddResourceParameterDetailsToJSON, GetResourceParameterDetailsFromJSON,
+												 ClearResourceParameter, AddResourceParameterDetailsToJSON,
 												 NULL, SetResourceParameterCurrentValueFromString))
 				{
 					if (service_data_p)
@@ -135,7 +135,7 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 							if (InitParameterFromJSON (& (param_p -> rp_base_param), param_json_p, service_p, full_definition_flag))
 								{
 									SetParameterCallbacks (& (param_p -> rp_base_param), ClearResourceParameter, AddResourceParameterDetailsToJSON,
-																				 GetResourceParameterDetailsFromJSON, NULL, SetResourceParameterCurrentValueFromString);
+																				 NULL, SetResourceParameterCurrentValueFromString);
 
 									return param_p;
 								}

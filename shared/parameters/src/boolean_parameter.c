@@ -77,7 +77,7 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 					if (InitParameterFromJSON (& (param_p -> bp_base_param), param_json_p, service_p, full_definition_flag))
 						{
 							SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON,
-																		 GetBooleanParameterDetailsFromJSON, NULL, SetBooleanParameterCurrentValueFromString);
+																		 NULL, SetBooleanParameterCurrentValueFromString);
 
 							return param_p;
 						}
@@ -113,7 +113,7 @@ BooleanParameter *AllocateBooleanParameter (const struct ServiceData *service_da
 	if (param_p)
 		{
 			if (InitParameter (& (param_p -> bp_base_param), service_data_p, PT_BOOLEAN, name_s, display_name_s, description_s, level,
-												 ClearBooleanParameter, AddBooleanParameterDetailsToJSON, GetBooleanParameterDetailsFromJSON,
+												 ClearBooleanParameter, AddBooleanParameterDetailsToJSON,
 												 NULL, SetBooleanParameterCurrentValueFromString))
 				{
 					if (service_data_p)

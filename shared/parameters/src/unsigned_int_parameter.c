@@ -98,7 +98,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 	if (param_p)
 		{
 			if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, level,
-												 ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON, GetUnsignedIntParameterDetailsFromJSON,
+												 ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
 												 NULL, SetUnsignedIntParameterCurrentValueFromString))
 				{
 					if (service_data_p)
@@ -143,7 +143,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 					if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, full_definition_flag))
 						{
 							SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
-																		 GetUnsignedIntParameterDetailsFromJSON, NULL, SetUnsignedIntParameterCurrentValueFromString);
+																		 NULL, SetUnsignedIntParameterCurrentValueFromString);
 
 							return param_p;
 						}

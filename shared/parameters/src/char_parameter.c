@@ -81,7 +81,7 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 						{
 							if (InitParameterFromJSON (& (param_p -> cp_base_param), param_json_p, service_p, full_definition_flag))
 								{
-									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
+									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON,
 																				 NULL, SetCharParameterCurrentValueFromString);
 
 									return param_p;
@@ -115,7 +115,7 @@ CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, 
 	if (param_p)
 		{
 			if (InitParameter (& (param_p -> cp_base_param), service_data_p, PT_CHAR, name_s, display_name_s, description_s, level,
-												 ClearCharParameter, AddCharParameterDetailsToJSON, GetCharParameterDetailsFromJSON,
+												 ClearCharParameter, AddCharParameterDetailsToJSON,
 												 NULL, SetCharParameterCurrentValueFromString))
 				{
 					if (service_data_p)
