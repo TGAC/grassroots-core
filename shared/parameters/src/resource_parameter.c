@@ -417,11 +417,21 @@ static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, cons
 static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
-	const json_t *param_value_p = json_object_get (param_json_p, key_s);
+	const json_t *value_p = json_object_get (param_json_p, key_s);
 
-	if (param_value_p)
+	if ((value_p == NULL) && (json_is_null (value_p)))
 		{
-			Resource *res_p = GetResourceFromJSON (param_value_p);
+			if (*res_pp)
+				{
+					FreeResource (*res_pp);
+				}
+
+			*res_pp = NULL;
+			success_flag = true;
+		}
+	else
+		{
+			Resource *res_p = GetResourceFromJSON (value_p);
 
 			if (res_p)
 				{
@@ -438,10 +448,6 @@ static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *
 
 					FreeResource (res_p);
 				}
-		}
-	else
-		{
-			success_flag = true;
 		}
 
 	return success_flag;

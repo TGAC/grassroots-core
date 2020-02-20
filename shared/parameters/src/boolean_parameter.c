@@ -373,16 +373,29 @@ static bool SetBooleanParameterCurrentValueFromString (Parameter *param_p, const
 static bool SetValueFromJSON (bool **value_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
-	bool b;
+	const json_t *value_p = json_object_get (param_json_p, key_s);
 
-	if (GetJSONBoolean (param_json_p, key_s, &b))
+	if (value_p)
 		{
-			success_flag = SetBooleanParameterValue (value_pp, &b);
+			if (json_is_boolean (value_p))
+				{
+					bool b = json_boolean_value (value_p);
+					success_flag = SetBooleanParameterValue (value_pp, &b);
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetBooleanParameterValue (value_pp, NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not boolean", value_p -> type);
+				}
 		}
 	else
 		{
 			success_flag = SetBooleanParameterValue (value_pp, NULL);
 		}
+
 
 	return success_flag;
 }

@@ -567,14 +567,31 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
-	int32 i;
+	const json_t *value_p = json_object_get (param_json_p, key_s);
 
-	if (GetJSONInteger (param_json_p, key_s, &i))
+	if (value_p)
 		{
-			if (i >= 0)
+			if (json_is_integer (value_p))
 				{
-					uint32 u = (uint32) i;
-					success_flag = SetUnsignedIntParameterValue (value_pp, &u);
+					json_int_t i = json_integer_value (value_p);
+
+					if (i >= 0)
+						{
+							uint32 u = (uint32) i;
+							success_flag = SetUnsignedIntParameterValue (value_pp, &u);
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is less than zero, %d not an unisgned integer", value_p -> type);
+						}
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetUnsignedIntParameterValue (value_pp, NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not integer", value_p -> type);
 				}
 		}
 	else

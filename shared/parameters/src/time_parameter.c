@@ -436,10 +436,22 @@ static bool GetTimeParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s, struct tm **time_pp)
 {
 	bool success_flag = false;
-	const char *value_s = GetJSONString (param_json_p, key_s);
+	const json_t *value_p = json_object_get (param_json_p, key_s);
 
-	if (value_s)
+	if ((value_p == NULL) || (json_is_null (value_p)))
 		{
+			if (*time_pp)
+				{
+					FreeTime (*time_pp);
+				}
+
+			*time_pp = NULL;
+			success_flag = true;
+		}
+	else if (json_is_string (value_p))
+		{
+			const char *value_s = json_string_value (value_p);
+
 			if (*time_pp)
 				{
 					if (SetTimeFromString (*time_pp, value_s))
@@ -456,15 +468,7 @@ static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s,
 							success_flag = true;
 						}
 				}
-		}		/* if (value_s) */
-	else
-		{
-			if (*time_pp)
-				{
-					FreeTime (*time_pp);
-					*time_pp = NULL;
-				}
-		}
+		}		/* else if (json_is_string (value_p)) */
 
 	return success_flag;
 }

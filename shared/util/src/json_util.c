@@ -33,7 +33,7 @@
 
 static void PrintJSONRefCountsWithIndent (const json_t * const value_p, const uint32 log_level, const char * key_s, ByteBuffer *buffer_p, const char * const filename_s, const int line_number);
 
-static bool SetJSONValue (const json_t *json_p, const char * const key_s, json_t *value_p);
+static bool SetJSONValue (json_t *json_p, const char * const key_s, json_t *value_p);
 
 
 
@@ -158,7 +158,7 @@ const char *GetJSONString (const json_t *json_p, const char * const key_s)
 }
 
 
-bool SetJSONString (const json_t *json_p, const char * const key_s, const char * const value_s)
+bool SetJSONString (json_t *json_p, const char * const key_s, const char * const value_s)
 {
 	return SetJSONValue (json_p, key_s, json_string (value_s));
 }
@@ -233,9 +233,26 @@ bool GetJSONInteger (const json_t *json_p, const char * const key_s, int *value_
 }
 
 
-bool SetJSONInteger (const json_t *json_p, const char * const key_s, const int value)
+bool SetJSONInteger (json_t *json_p, const char * const key_s, const int value)
 {
 	return SetJSONValue (json_p, key_s, json_integer (value));
+}
+
+
+bool SetJSONNull (json_t *json_p, const char * const key_s)
+{
+	bool success_flag = false;
+	json_t *null_p = json_null ();
+
+	if (null_p)
+		{
+			if (json_object_set (json_p, key_s, null_p) == 0)
+				{
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
 }
 
 
@@ -272,7 +289,7 @@ bool GetJSONReal (const json_t *json_p, const char * const key_s, double *value_
 
 
 
-bool SetJSONReal (const json_t *json_p, const char * const key_s, const double value)
+bool SetJSONReal (json_t *json_p, const char * const key_s, const double value)
 {
 	return SetJSONValue (json_p, key_s, json_real (value));
 }
@@ -293,7 +310,7 @@ bool GetJSONBoolean (const json_t *json_p, const char * const key_s, bool *value
 }
 
 
-bool SetJSONBoolean (const json_t *json_p, const char * const key_s, const bool value)
+bool SetJSONBoolean (json_t *json_p, const char * const key_s, const bool value)
 {
 	return SetJSONValue (json_p, key_s, json_boolean (value));
 }
@@ -1330,7 +1347,6 @@ bool AddOntologyContextTerm (json_t *root_p, const char *key_s, const char *term
 
 json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move)
 {
-	bool success_flag = true;
 	json_t *dest_p = json_object ();
 
 	if (dest_p)
@@ -1419,7 +1435,7 @@ bool GetJSONStringAsDouble (const json_t *json_p, const char * const key_s, doub
 
 
 
-static bool SetJSONValue (const json_t *json_p, const char * const key_s, json_t *value_p)
+static bool SetJSONValue (json_t *json_p, const char * const key_s, json_t *value_p)
 {
 	if (value_p)
 		{

@@ -44,6 +44,7 @@ static bool SetDoubleParameterCurrentValueFromString (Parameter *param_p, const 
 
 static DoubleParameter *GetNewDoubleParameter (const double64 *current_value_p, const double64 *default_value_p);
 
+static bool AddDoubleValueToJSON (json_t *param_json_p, const char *key_s, const double64 *value_p);
 
 /*
  * API DEFINITIONS
@@ -353,15 +354,15 @@ static bool AddDoubleParameterDetailsToJSON (const struct Parameter *param_p, js
 	DoubleParameter *double_param_p = (DoubleParameter *) param_p;
 	bool success_flag = false;
 
-	if ((double_param_p -> dp_current_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_CURRENT_VALUE_S, * (double_param_p -> dp_current_value_p))))
+	if (AddDoubleValueToJSON (param_json_p, PARAM_CURRENT_VALUE_S, double_param_p -> dp_current_value_p))
 		{
 			if (full_definition_flag)
 				{
-					if ((double_param_p -> dp_default_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_DEFAULT_VALUE_S, * (double_param_p -> dp_default_value_p))))
+					if (AddDoubleValueToJSON (param_json_p, PARAM_DEFAULT_VALUE_S, double_param_p -> dp_default_value_p))
 						{
-							if ((double_param_p -> dp_min_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_MIN_S, * (double_param_p -> dp_min_value_p))))
+							if (AddDoubleValueToJSON (param_json_p, PARAM_MIN_S, double_param_p -> dp_min_value_p))
 								{
-									if ((double_param_p -> dp_max_value_p == NULL ) || (SetJSONReal (param_json_p, PARAM_MAX_S, * (double_param_p -> dp_max_value_p))))
+									if (AddDoubleValueToJSON (param_json_p, PARAM_MAX_S, double_param_p -> dp_max_value_p))
 										{
 											success_flag = true;
 										}
@@ -370,6 +371,28 @@ static bool AddDoubleParameterDetailsToJSON (const struct Parameter *param_p, js
 
 				}
 			else
+				{
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
+static bool AddDoubleValueToJSON (json_t *param_json_p, const char *key_s, const double64 *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			success_flag = SetJSONReal (param_json_p, key_s, *value_p);
+		}
+	else
+		{
+			json_t *null_p = json_null ();
+
+			if (json_object_set (param_json_p, key_s, null_p) == 0)
 				{
 					success_flag = true;
 				}
@@ -405,11 +428,23 @@ static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t 
 static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
-	double d;
+	const json_t *value_p = json_object_get (param_json_p, key_s);
 
-	if (GetJSONReal (param_json_p, key_s, &d))
+	if (value_p)
 		{
-			success_flag = SetDoubleParameterValue (value_pp, &d);
+			if (json_is_number (value_p))
+				{
+					double d = json_number_value (value_p);
+					success_flag = SetDoubleParameterValue (value_pp, &d);
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetDoubleParameterValue (value_pp, NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not double", value_p -> type);
+				}
 		}
 	else
 		{

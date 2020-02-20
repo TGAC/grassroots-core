@@ -404,26 +404,30 @@ static bool AddSignedIntParameterDetailsToJSON (const struct Parameter *param_p,
 	SignedIntParameter *int_param_p = (SignedIntParameter *) param_p;
 	bool success_flag = false;
 
-	if ((int_param_p -> sip_current_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> sip_current_value_p))))
+	if (int_param_p -> sip_current_value_p != NULL)
 		{
-			if (full_definition_flag)
+			success_flag = SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> sip_current_value_p));
+		}
+	else
+		{
+			success_flag = SetJSONNull (param_json_p, PARAM_CURRENT_VALUE_S);
+		}
+
+	if (full_definition_flag)
+		{
+			success_flag = false;
+
+			if ((int_param_p -> sip_default_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> sip_default_value_p))))
 				{
-					if ((int_param_p -> sip_default_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> sip_default_value_p))))
+					if ((int_param_p -> sip_min_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (int_param_p -> sip_min_value_p))))
 						{
-							if ((int_param_p -> sip_min_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (int_param_p -> sip_min_value_p))))
+							if ((int_param_p -> sip_max_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (int_param_p -> sip_max_value_p))))
 								{
-									if ((int_param_p -> sip_max_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (int_param_p -> sip_max_value_p))))
-										{
-											success_flag = true;
-										}
+									success_flag = true;
 								}
 						}
+				}
 
-				}
-			else
-				{
-					success_flag = true;
-				}
 		}
 
 	return success_flag;
@@ -456,11 +460,23 @@ static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json
 static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
-	int32 i;
+	const json_t *value_p = json_object_get (param_json_p, key_s);
 
-	if (GetJSONInteger (param_json_p, key_s, &i))
+	if (value_p)
 		{
-			success_flag = SetSignedIntParameterValue (value_pp, &i);
+			if (json_is_integer (value_p))
+				{
+					int32 i = json_integer_value (value_p);
+					success_flag = SetSignedIntParameterValue (value_pp, &i);
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetSignedIntParameterValue (value_pp, NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not integer", value_p -> type);
+				}
 		}
 	else
 		{

@@ -448,24 +448,42 @@ static bool GetCharParameterDetailsFromJSON (Parameter *param_p, const json_t *p
 static bool SetValueFromJSON (char **value_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
-	const char *value_s = GetJSONString (param_json_p, key_s);
+	const json_t *value_p = json_object_get (param_json_p, key_s);
 
-	if (value_s)
+	if (value_p)
 		{
-			if (strlen (value_s) == 1)
+			if (json_is_string (value_p))
 				{
-					char buffer_s [2];
+					const char *value_s = json_string_value (value_p);
 
-					*buffer_s = *value_s;
-					* (buffer_s + 1) = '\0';
+					if (value_s)
+						{
+							if (strlen (value_s) == 1)
+								{
+									char buffer_s [2];
 
-					success_flag = SetCharParameterValue (value_pp, buffer_s);
+									*buffer_s = *value_s;
+									* (buffer_s + 1) = '\0';
+
+									success_flag = SetCharParameterValue (value_pp, buffer_s);
+								}
+						}
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetCharParameterValue (value_pp, NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not string", value_p -> type);
 				}
 		}
 	else
 		{
 			success_flag = SetCharParameterValue (value_pp, NULL);
 		}
+
+
 
 	return success_flag;
 }

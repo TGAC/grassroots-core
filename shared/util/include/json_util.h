@@ -112,7 +112,7 @@ GRASSROOTS_UTIL_API const char *GetJSONString (const json_t *json_p, const char 
 
 
 
-GRASSROOTS_UTIL_API bool SetJSONString (const json_t *json_p, const char * const key_s, const char * const value_s);
+GRASSROOTS_UTIL_API bool SetJSONString (json_t *json_p, const char * const key_s, const char * const value_s);
 
 
 /**
@@ -141,7 +141,7 @@ GRASSROOTS_UTIL_API char *GetCopiedJSONString (const json_t *json_p, const char 
 GRASSROOTS_UTIL_API bool GetJSONInteger (const json_t *json_p, const char * const key_s, int *value_p);
 
 
-GRASSROOTS_UTIL_API bool SetJSONInteger (const json_t *json_p, const char * const key_s, const int value);
+GRASSROOTS_UTIL_API bool SetJSONInteger (json_t *json_p, const char * const key_s, const int value);
 
 /**
  * Get the long value for a given key in a json_t object.
@@ -169,7 +169,7 @@ GRASSROOTS_UTIL_API bool GetJSONLong (const json_t *json_p, const char * const k
 GRASSROOTS_UTIL_API bool GetJSONReal (const json_t *json_p, const char * const key_s, double *value_p);
 
 
-GRASSROOTS_UTIL_API bool SetJSONReal (const json_t *json_p, const char * const key_s, const double value);
+GRASSROOTS_UTIL_API bool SetJSONReal ( json_t *json_p, const char * const key_s, const double value);
 
 
 /**
@@ -185,7 +185,7 @@ GRASSROOTS_UTIL_API bool SetJSONReal (const json_t *json_p, const char * const k
 GRASSROOTS_UTIL_API bool GetJSONBoolean (const json_t *json_p, const char * const key_s, bool *value_p);
 
 
-GRASSROOTS_UTIL_API bool SetJSONBoolean (const json_t *json_p, const char * const key_s, const bool value);
+GRASSROOTS_UTIL_API bool SetJSONBoolean (json_t *json_p, const char * const key_s, const bool value);
 
 
 /**
@@ -520,6 +520,19 @@ GRASSROOTS_UTIL_API bool SetLongFromJSON (const json_t *json_p, int64 *value_p);
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API bool SetStringFromJSON (const json_t *json_p, char **value_ss);
+
+
+
+/**
+ * Add a child key to a JSON object where the value is null.
+ *
+ * @param json_p The JSON object to add the vaue to.
+ * @param key_s The key for the child object.
+ * @return <code>true</code> if the value was successfully added, <code>false</code>
+ * otherwise.
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API bool SetJSONNull (json_t *json_p, const char * const key_s);
 
 
 /**
