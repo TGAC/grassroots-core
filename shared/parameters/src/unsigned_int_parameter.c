@@ -50,6 +50,8 @@ static bool SetUnsignedIntParameterCurrentValueFromString (Parameter *param_p, c
 static UnsignedIntParameter *GetNewUnsignedIntParameter (const uint32 *current_value_p, const uint32 *default_value_p);
 
 
+static bool AddUnsignedIntValueToJSON (json_t *param_json_p, const char *key_s, const uint32 *value_p);
+
 /*
  * API DEFINITIONS
  */
@@ -513,15 +515,15 @@ static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json
 	UnsignedIntParameter *int_param_p = (UnsignedIntParameter *) param_p;
 	bool success_flag = false;
 
-	if ((int_param_p -> uip_current_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> uip_current_value_p))))
+	if (AddUnsignedIntValueToJSON (param_json_p, PARAM_CURRENT_VALUE_S, int_param_p -> uip_current_value_p))
 		{
-			if (full_definition_flag)
+ 			if (full_definition_flag)
 				{
-					if ((int_param_p -> uip_default_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> uip_default_value_p))))
+ 					if (AddUnsignedIntValueToJSON (param_json_p, PARAM_DEFAULT_VALUE_S, int_param_p -> uip_default_value_p))
 						{
-							if ((int_param_p -> uip_min_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (int_param_p -> uip_min_value_p))))
+							if (AddUnsignedIntValueToJSON (param_json_p, PARAM_MIN_S, int_param_p -> uip_min_value_p))
 								{
-									if ((int_param_p -> uip_max_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (int_param_p -> uip_max_value_p))))
+									if (AddUnsignedIntValueToJSON (param_json_p, PARAM_MAX_S, int_param_p -> uip_max_value_p))
 										{
 											success_flag = true;
 										}
@@ -537,7 +539,6 @@ static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json
 
 	return success_flag;
 }
-
 
 
 static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
@@ -556,6 +557,30 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 									success_flag = true;
 								}
 						}
+				}
+		}
+
+	return success_flag;
+}
+
+
+
+static bool AddUnsignedIntValueToJSON (json_t *param_json_p, const char *key_s, const uint32 *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			int i = (int) *value_p;
+			success_flag = SetJSONInteger  (param_json_p, key_s, i);
+		}
+	else
+		{
+			json_t *null_p = json_null ();
+
+			if (json_object_set (param_json_p, key_s, null_p) == 0)
+				{
+					success_flag = true;
 				}
 		}
 
