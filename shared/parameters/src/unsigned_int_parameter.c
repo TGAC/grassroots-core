@@ -127,6 +127,8 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 	bool success_flag = true;
 	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
+	SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S);
+
 	if (full_definition_flag)
 		{
 			if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
@@ -134,7 +136,6 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 					success_flag = false;
 				}
 		}
-
 
 	if (success_flag)
 		{
