@@ -651,6 +651,9 @@ GRASSROOTS_UTIL_API bool GetJSONStringAsInteger (const json_t *json_p, const cha
 GRASSROOTS_UTIL_API bool GetJSONStringAsDouble (const json_t *json_p, const char * const key_s, double *answer_p);
 
 
+GRASSROOTS_UTIL_API bool GetJSONUnsignedInteger (const json_t *json_p, const char * const key_s, uint32 *value_p);
+
+
 #ifdef __cplusplus
 }
 #endif

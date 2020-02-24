@@ -233,6 +233,29 @@ bool GetJSONInteger (const json_t *json_p, const char * const key_s, int *value_
 }
 
 
+bool GetJSONUnsignedInteger (const json_t *json_p, const char * const key_s, uint32 *value_p)
+{
+	bool success_flag = false;
+	json_t *json_value_p = json_object_get (json_p, key_s);
+
+	if (json_value_p)
+		{
+			if (json_is_integer (json_value_p))
+				{
+					json_int_t i = json_integer_value (json_value_p);
+
+					if (i >= 0)
+						{
+							*value_p = (uint32) i;
+						}
+				}
+		}
+
+	return success_flag;
+}
+
+
+
 bool SetJSONInteger (json_t *json_p, const char * const key_s, const int value)
 {
 	return SetJSONValue (json_p, key_s, json_integer (value));
