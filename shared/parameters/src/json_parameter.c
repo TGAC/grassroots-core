@@ -288,6 +288,10 @@ static bool AddJSONParameterDetailsToJSON (const Parameter *param_p, json_t *par
 							success_flag = true;
 						}
 				}
+			else
+				{
+					success_flag = true;
+				}
 		}
 
 	return success_flag;

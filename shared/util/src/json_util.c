@@ -247,6 +247,7 @@ bool GetJSONUnsignedInteger (const json_t *json_p, const char * const key_s, uin
 					if (i >= 0)
 						{
 							*value_p = (uint32) i;
+							success_flag = true;
 						}
 				}
 		}
