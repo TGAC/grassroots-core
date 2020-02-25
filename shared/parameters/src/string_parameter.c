@@ -166,7 +166,7 @@ Parameter *EasyCreateAndAddStringParameterToParameterSet (const ServiceData *ser
 {
 	return CreateAndAddStringParameterToParameterSet (service_data_p, params_p, group_p, type,
 																										name_s, display_name_s, description_s,
-																										default_value_s, NULL, level);
+																										default_value_s, default_value_s, level);
 }
 
 Parameter *CreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,

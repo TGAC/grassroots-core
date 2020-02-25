@@ -238,7 +238,7 @@ Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const struct ServiceDa
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const double64 *default_value_p, uint8 level)
 {
-	return CreateAndAddDoubleParameterToParameterSet (service_data_p, params_p, group_p, pt, name_s, display_name_s, description_s, default_value_p, NULL, level);
+	return CreateAndAddDoubleParameterToParameterSet (service_data_p, params_p, group_p, pt, name_s, display_name_s, description_s, default_value_p, default_value_p, level);
 }
 
 

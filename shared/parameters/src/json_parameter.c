@@ -116,7 +116,7 @@ Parameter *EasyCreateAndAddJSONParameterToParameterSet (const ServiceData *servi
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
 																											const json_t *default_value_p, uint8 level)
 {
-	return CreateAndAddJSONParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, default_value_p, NULL, level);
+	return CreateAndAddJSONParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, default_value_p, default_value_p, level);
 }
 
 

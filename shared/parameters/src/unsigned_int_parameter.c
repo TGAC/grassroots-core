@@ -178,7 +178,7 @@ Parameter *EasyCreateAndAddUnsignedIntParameterToParameterSet (const ServiceData
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
 																								const uint32 *default_value_p, uint8 level)
 {
-	return CreateAndAddUnsignedIntParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, default_value_p, NULL, level);
+	return CreateAndAddUnsignedIntParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, default_value_p, default_value_p, level);
 }
 
 
