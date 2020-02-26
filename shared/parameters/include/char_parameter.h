@@ -76,7 +76,7 @@ extern "C"
 GRASSROOTS_PARAMS_API CharParameter *AllocateCharParameter (const struct ServiceData *service_data_p, const char * const name_s, const char * const display_name_s, const char * const description_s, const char *default_value_p, const char *current_value_p, ParameterLevel level);
 
 
-GRASSROOTS_PARAMS_API CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+GRASSROOTS_PARAMS_API CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag);
 
 
 GRASSROOTS_PARAMS_API void FreeCharParameter (CharParameter *param_p);

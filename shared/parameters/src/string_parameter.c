@@ -116,14 +116,13 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 }
 
 
-StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
+StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
 	StringParameter *param_p = NULL;
 	const char *current_value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
 	const char *default_value_s = NULL;
-	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-	if (full_definition_flag)
+	if (!concise_flag)
 		{
 			default_value_s = GetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S);
 		}
@@ -134,7 +133,7 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 		{
 			Parameter *base_param_p = & (param_p -> sp_base_param);
 
-			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, full_definition_flag))
+			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, concise_flag))
 				{
 					if (GetStringParameterDetailsFromJSON (param_p, param_json_p))
 						{

@@ -36,7 +36,7 @@ static void ClearDoubleParameter (Parameter *param_p);
 
 static bool AddDoubleParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
-static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
+static bool GetDoubleParameterDetailsFromJSON (DoubleParameter *param_p, const json_t *param_json_p);
 
 static bool SetValueFromJSON (double **value_pp, const json_t *param_json_p, const char *key_s);
 
@@ -79,7 +79,7 @@ DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data
 
 
 
-DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
+DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
 	double64 *current_value_p = NULL;
 
@@ -87,33 +87,46 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 		{
 			double64 *default_value_p = NULL;
 			bool success_flag = true;
-			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
-			DoubleParameter *param_p = GetNewDoubleParameter (current_value_p, default_value_p);
 
-			if (param_p)
+			if (!concise_flag)
 				{
-					Parameter *base_param_p = & (param_p -> dp_base_param);
-
-					if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, full_definition_flag))
+					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
-							if (GetDoubleParameterDetailsFromJSON (param_p, param_json_p))
-								{
-									SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, NULL,
-																							 SetDoubleParameterCurrentValueFromString);
+							success_flag = false;
+						}
+				}
 
-									return param_p;
+			if (success_flag)
+				{
+					DoubleParameter *param_p = GetNewDoubleParameter (current_value_p, default_value_p);
+					if (param_p)
+						{
+							Parameter *base_param_p = & (param_p -> dp_base_param);
+
+							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, concise_flag))
+								{
+									if (GetDoubleParameterDetailsFromJSON (param_p, param_json_p))
+										{
+											SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, NULL,
+																									 SetDoubleParameterCurrentValueFromString);
+
+											return param_p;
+										}
+									else
+										{
+											FreeParameter (base_param_p);
+										}
 								}
 							else
 								{
-									FreeParameter (base_param_p);
+									ClearDoubleParameter (& (param_p -> dp_base_param));
+									FreeMemory (param_p);
 								}
 						}
-					else
-						{
-							ClearDoubleParameter (& (param_p -> dp_base_param));
-							FreeMemory (param_p);
-						}
+
 				}
+
+
 
 		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
@@ -402,9 +415,8 @@ static bool AddDoubleValueToJSON (json_t *param_json_p, const char *key_s, const
 }
 
 
-static bool GetDoubleParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
+static bool GetDoubleParameterDetailsFromJSON (DoubleParameter *double_param_p, const json_t *param_json_p)
 {
-	DoubleParameter *double_param_p = (DoubleParameter *) param_p;
 	bool success_flag = false;
 
 	if (SetValueFromJSON (& (double_param_p -> dp_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))

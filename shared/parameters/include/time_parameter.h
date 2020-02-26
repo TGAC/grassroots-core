@@ -76,7 +76,7 @@ GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameter (const struct Service
 																														ParameterLevel level);
 
 
-GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const struct Service *service_p);
+GRASSROOTS_PARAMS_API TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag);
 
 
 GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddTimeParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,

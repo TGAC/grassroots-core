@@ -110,18 +110,16 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 
 
 
-SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
+SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
-	SignedIntParameter *param_p = NULL;
 	int32 *current_value_p = NULL;
 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
 			int32 *default_value_p = NULL;
 			bool success_flag = true;
-			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-			if (full_definition_flag)
+			if (!concise_flag)
 				{
 					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
@@ -131,11 +129,11 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 
 			if (success_flag)
 				{
-					param_p = GetNewSignedIntParameter (current_value_p, default_value_p);
+					SignedIntParameter *param_p = GetNewSignedIntParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
-							if (InitParameterFromJSON (& (param_p -> sip_base_param), param_json_p, service_p, full_definition_flag))
+							if (InitParameterFromJSON (& (param_p -> sip_base_param), param_json_p, service_p, concise_flag))
 								{
 									SetParameterCallbacks (& (param_p -> sip_base_param), ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON,
 																				 NULL,

@@ -307,7 +307,7 @@ GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct Servi
 );
 
 
-GRASSROOTS_PARAMS_API bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const struct Service *service_p, const bool full_definition_flag);
+GRASSROOTS_PARAMS_API bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const struct Service *service_p, const bool concise_flag);
 
 
 GRASSROOTS_PARAMS_API bool AddParameterValuesToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
@@ -451,7 +451,7 @@ GRASSROOTS_PARAMS_API json_t *GetParameterAsJSON (const Parameter * const parame
  * or <code>NULL</code> upon error.
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API Parameter *CreateParameterFromJSON (const json_t * const json_p, struct Service *service_p);
+GRASSROOTS_PARAMS_API Parameter *CreateParameterFromJSON (const json_t * const root_p, struct Service *service_p, const bool concise_flag);
 
 
 

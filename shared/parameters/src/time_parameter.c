@@ -1,18 +1,18 @@
 /*
-** Copyright 2014-2020 The Earlham Institute
-** 
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-** 
-**     http://www.apache.org/licenses/LICENSE-2.0
-** 
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ ** Copyright 2014-2020 The Earlham Institute
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ **     http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
 /*
  * time_parameter.c
  *
@@ -91,7 +91,7 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 				{
 					if (service_data_p)
 						{
-//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
+							//									GetParameterDefaultValueFromConfig (service_data_p, name_s, param_p -> pa_type, &default_value);
 						}
 
 					return param_p;
@@ -106,70 +106,69 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 
 
 
-TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const Service *service_p)
+TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const Service *service_p, const bool concise_flag)
 {
-	TimeParameter *param_p = NULL;
 	struct tm *current_value_p = NULL;
-	struct tm *default_value_p = NULL;
-	bool success_flag = true;
-	bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-	SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, &current_value_p);
-
-	if (full_definition_flag)
+	if (SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, &current_value_p))
 		{
-			if (!SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &default_value_p))
-				{
-					success_flag = false;
-				}
-		}
+			struct tm *default_value_p = NULL;
+			bool success_flag = true;
 
-	if (success_flag)
-		{
-			param_p = GetNewTimeParameter (current_value_p, default_value_p);
-
-			if (param_p)
+			if (!concise_flag)
 				{
-					if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, full_definition_flag))
+					if (!SetTimeValueFromJSON (param_json_p, PARAM_DEFAULT_VALUE_S, &default_value_p))
 						{
-							SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON,
-																		NULL, SetTimeParameterCurrentValueFromString);
-						}
-					else
-						{
-							ClearTimeParameter (& (param_p -> tp_base_param));
-							FreeMemory (param_p);
-							param_p = NULL;
+							success_flag = false;
 						}
 				}
 
-
-			if (default_value_p)
+			if (success_flag)
 				{
-					FreeMemory (default_value_p);
-				}
-		}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+					TimeParameter *param_p = GetNewTimeParameter (current_value_p, default_value_p);
 
-	if (current_value_p)
-		{
-			FreeMemory (current_value_p);
+					if (param_p)
+						{
+							if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, concise_flag))
+								{
+									SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON,
+																				 NULL, SetTimeParameterCurrentValueFromString);
+								}
+							else
+								{
+									ClearTimeParameter (& (param_p -> tp_base_param));
+									FreeMemory (param_p);
+									param_p = NULL;
+								}
+						}
+
+					if (default_value_p)
+						{
+							FreeMemory (default_value_p);
+						}
+				}		/* if (SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S)) */
+
+			if (current_value_p)
+				{
+					FreeMemory (current_value_p);
+				}
 		}
 
-	return param_p;
+	return NULL;
 }
 
 
 Parameter *EasyCreateAndAddTimeParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const struct tm *default_value_p, uint8 level)
+																												const char * const name_s, const char * const display_name_s, const char * const description_s,
+																												const struct tm *default_value_p, uint8 level)
 {
 	return CreateAndAddTimeParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, default_value_p, default_value_p, level);
 }
 
 
 Parameter *CreateAndAddTimeParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
-																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const struct tm *default_value_p, const struct tm *current_value_p, uint8 level)
+																										const char * const name_s, const char * const display_name_s, const char * const description_s,
+																										const struct tm *default_value_p, const struct tm *current_value_p, uint8 level)
 {
 	TimeParameter *time_param_p = AllocateTimeParameter (service_data_p, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 
@@ -275,14 +274,14 @@ bool IsTimeParameter (Parameter *param_p)
 	bool time_param_flag = false;
 
 	switch (param_p -> pa_type)
-		{
-			case PT_TIME:
-				time_param_flag = true;
-				break;
+	{
+		case PT_TIME:
+			time_param_flag = true;
+			break;
 
-			default:
-				break;
-		}
+		default:
+			break;
+	}
 
 	return time_param_flag;
 }
@@ -495,7 +494,6 @@ static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const ch
 		{
 			success_flag = SetTimeParameterCurrentValue (time_param_p, NULL);
 		}
-
 
 	return success_flag;
 }

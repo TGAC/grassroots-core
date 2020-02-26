@@ -131,7 +131,7 @@ static bool AddParameterRequiredToJSON (const Parameter * const param_p, json_t 
 /******************************************************/
 
 
-Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *service_p)
+Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *service_p, const bool concise_flag)
 {
 	Parameter *param_p = NULL;
 	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
@@ -175,7 +175,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						{
 							case PT_BOOLEAN:
 								{
-									BooleanParameter *bool_param_p = AllocateBooleanParameterFromJSON (root_p, service_p);
+									BooleanParameter *bool_param_p = AllocateBooleanParameterFromJSON (root_p, service_p, concise_flag);
 
 									if (bool_param_p)
 										{
@@ -186,7 +186,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 						case PT_CHAR:
 							{
-								CharParameter *char_param_p = AllocateCharParameterFromJSON (root_p, service_p);
+								CharParameter *char_param_p = AllocateCharParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (char_param_p)
 									{
@@ -198,7 +198,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_JSON:
 						case PT_JSON_TABLE:
 							{
-								JSONParameter *json_param_p = AllocateJSONParameterFromJSON (root_p, service_p);
+								JSONParameter *json_param_p = AllocateJSONParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (json_param_p)
 									{
@@ -214,7 +214,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_TABLE:
 						case PT_FASTA:
 							{
-								StringParameter *string_param_p = AllocateStringParameterFromJSON (root_p, service_p);
+								StringParameter *string_param_p = AllocateStringParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (string_param_p)
 									{
@@ -227,7 +227,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_FILE_TO_READ:
 						case PT_DIRECTORY:
 							{
-								ResourceParameter *res_param_p = AllocateResourceParameterFromJSON (root_p, service_p);
+								ResourceParameter *res_param_p = AllocateResourceParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (res_param_p)
 									{
@@ -238,7 +238,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 						case PT_TIME:
 							{
-								TimeParameter *time_param_p = AllocateTimeParameterFromJSON (root_p, service_p);
+								TimeParameter *time_param_p = AllocateTimeParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (time_param_p)
 									{
@@ -250,7 +250,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_SIGNED_INT:
 						case PT_NEGATIVE_INT:
 							{
-								SignedIntParameter *int_param_p = AllocateSignedIntParameterFromJSON (root_p, service_p);
+								SignedIntParameter *int_param_p = AllocateSignedIntParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (int_param_p)
 									{
@@ -261,7 +261,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 						case PT_UNSIGNED_INT:
 							{
-								UnsignedIntParameter *int_param_p = AllocateUnsignedIntParameterFromJSON (root_p, service_p);
+								UnsignedIntParameter *int_param_p = AllocateUnsignedIntParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (int_param_p)
 									{
@@ -273,7 +273,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_SIGNED_REAL:
 						case PT_UNSIGNED_REAL:
 							{
-								DoubleParameter *double_param_p = AllocateDoubleParameterFromJSON (root_p, service_p);
+								DoubleParameter *double_param_p = AllocateDoubleParameterFromJSON (root_p, service_p, concise_flag);
 
 								if (double_param_p)
 									{
@@ -300,7 +300,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 */
 
 
-bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const Service *service_p, const bool full_definition_flag)
+bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const Service *service_p, const bool concise_flag)
 {
 	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
 
@@ -354,7 +354,7 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 						}
 
 
-					if (full_definition_flag || (!IsJSONParameterConcise (root_p)))
+					if (! (concise_flag || (IsJSONParameterConcise (root_p))))
 						{
 							description_s = GetJSONString (root_p, PARAM_DESCRIPTION_S);
 							display_name_s = GetJSONString (root_p, PARAM_DISPLAY_NAME_S);
@@ -2014,6 +2014,13 @@ bool IsJSONParameterConcise (const json_t * const json_p)
 	json_t *value_p = json_object_get (json_p, PARAM_CONCISE_DEFINITION_S);
 
 	concise_flag = (value_p && json_is_true (value_p));
+
+	if (!concise_flag)
+		{
+			/*
+			 * Check for how many fields
+			 */
+		}
 
 	return concise_flag;
 }

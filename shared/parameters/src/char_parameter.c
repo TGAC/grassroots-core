@@ -55,7 +55,7 @@ static CharParameter *GetNewCharParameter (const char *current_value_p, const ch
  */
 
 
-CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p)
+CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
 	char *current_value_p = NULL;
 
@@ -63,9 +63,8 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 		{
 			char *default_value_p = NULL;
 			bool success_flag = true;
-			bool full_definition_flag = ! (IsJSONParameterConcise (param_json_p));
 
-			if (full_definition_flag)
+			if (!concise_flag)
 				{
 					if (!SetValueFromJSON (&default_value_p, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
@@ -79,7 +78,7 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 
 					if (param_p)
 						{
-							if (InitParameterFromJSON (& (param_p -> cp_base_param), param_json_p, service_p, full_definition_flag))
+							if (InitParameterFromJSON (& (param_p -> cp_base_param), param_json_p, service_p, concise_flag))
 								{
 									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON,
 																				 NULL, SetCharParameterCurrentValueFromString);
