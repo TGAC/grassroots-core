@@ -52,6 +52,9 @@ static UnsignedIntParameter *GetNewUnsignedIntParameter (const uint32 *current_v
 
 static bool AddUnsignedIntValueToJSON (json_t *param_json_p, const char *key_s, const uint32 *value_p);
 
+
+static bool GetUnsignedIntParameterOptionsFromJSON (UnsignedIntParameter *param_p, const json_t * const json_p);
+
 /*
  * API DEFINITIONS
  */
@@ -144,10 +147,13 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 						{
 							if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, concise_flag))
 								{
-									SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
-																				 NULL, SetUnsignedIntParameterCurrentValueFromString);
+									if (GetUnsignedIntParameterDetailsFromJSON (param_p, param_json_p))
+										{
+											SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
+																						 NULL, SetUnsignedIntParameterCurrentValueFromString);
 
-									return param_p;
+											return param_p;
+										}
 								}
 							else
 								{
@@ -525,11 +531,78 @@ static bool AddUnsignedIntParameterDetailsToJSON (const Parameter *param_p, json
 								{
 									if (AddUnsignedIntValueToJSON (param_json_p, PARAM_MAX_S, int_param_p -> uip_max_value_p))
 										{
+											LinkedList *options_p = param_p -> pa_options_p;
+
+											if ((options_p != NULL) && (options_p -> ll_size > 0))
+												{
+													json_t *json_options_p = json_array ();
+
+													if (json_options_p)
+														{
+															UnsignedIntParameterOptionNode *node_p = (UnsignedIntParameterOptionNode *) (options_p -> ll_head_p);
+
+															while (node_p)
+																{
+																	UnsignedIntParameterOption *option_p = node_p -> uipon_option_p;
+																	json_t *value_p = json_integer (option_p -> uipo_value);
+
+																	if (value_p)
+																		{
+																			json_t *item_p = json_object ();
+
+																			success_flag = false;
+
+																			if (item_p)
+																				{
+																					bool res_flag = true;
+
+																					if (option_p -> uipo_description_s)
+																						{
+																							if (!SetJSONString (item_p, SHARED_TYPE_DESCRIPTION_S, option_p -> uipo_description_s))
+																								{
+																									res_flag = false;
+																								}
+																						}
+
+																					if (res_flag)
+																						{
+																							if (json_object_set_new (item_p, SHARED_TYPE_VALUE_S, value_p) == 0)
+																								{
+																									success_flag = (json_array_append_new (json_options_p, item_p) == 0);
+																								}
+																						}
+
+																					if (!success_flag)
+																						{
+																							json_object_clear (item_p);
+																							json_decref (item_p);
+																						}
+																				}
+																		}
+
+																	node_p = (UnsignedIntParameterOptionNode *) (node_p -> uipon_node.ln_next_p);
+																}		/* while (node_p) */
+
+															if (success_flag)
+																{
+																	if (json_object_set_new (param_json_p, PARAM_OPTIONS_S, json_options_p) == 0)
+																		{
+																			success_flag = true;
+																		}
+																	else
+																		{
+																			json_decref (json_options_p);
+																		}
+																}
+
+														}		/* if (json_options_p) */
+
+												}
+
 											success_flag = true;
 										}
 								}
 						}
-
 				}
 			else
 				{
@@ -554,7 +627,14 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 						{
 							if (SetValueFromJSON (& (int_param_p -> uip_max_value_p), param_json_p, PARAM_MAX_S))
 								{
-									success_flag = true;
+									if (GetUnsignedIntParameterOptionsFromJSON (int_param_p, param_json_p))
+										{
+											success_flag = true;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to set param \"%s\" options from JSON", param_p -> pa_name_s);
+										}
 								}
 						}
 				}
@@ -562,6 +642,62 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 
 	return success_flag;
 }
+
+
+
+static bool GetUnsignedIntParameterOptionsFromJSON (UnsignedIntParameter *param_p, const json_t * const json_p)
+{
+	bool success_flag = true;
+	json_t *options_json_p = json_object_get (json_p, PARAM_OPTIONS_S);
+
+	if (options_json_p)
+		{
+			success_flag = false;
+
+			if (json_is_array (options_json_p))
+				{
+					const size_t num_options = json_array_size (options_json_p);
+					size_t i = 0;
+
+					success_flag = true;
+
+					while (success_flag && (i < num_options))
+						{
+							json_t *json_value_p = json_array_get (options_json_p, i);
+
+							if (json_value_p)
+								{
+									uint32 u;
+
+									if (GetJSONUnsignedInteger (json_value_p, SHARED_TYPE_VALUE_S, &u))
+										{
+											const char *desc_s = GetJSONString (json_value_p, SHARED_TYPE_DESCRIPTION_S);
+
+											if (!CreateAndAddUnsignedIntParameterOption (param_p, u, desc_s))
+												{
+													success_flag = false;
+												}
+										}
+									else
+										{
+											success_flag = false;
+										}
+								}
+
+							if (success_flag)
+								{
+									++ i;
+								}
+
+						}		/* while (success_flag && (i < num_options)) */
+
+				}
+		}
+
+	return success_flag;
+}
+
+
 
 
 
