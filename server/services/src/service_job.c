@@ -42,6 +42,8 @@ static bool AddLinkedServicesToServiceJobJSON (ServiceJob *job_p, json_t *value_
 
 static bool AddResultEntryToServiceJob (ServiceJob *job_p, json_t **results_pp, json_t *result_to_add_p);
 
+static bool CreateAndAddServiceJobError (ServiceJob *job_p, const char *param_s, json_t *error_details_p);
+
 
 
 ServiceJob *AllocateEmptyServiceJob (void)
@@ -141,7 +143,7 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 
 	SetServiceJobStatus (job_p, OS_IDLE);
 
-	job_p -> sj_errors_p = json_object ();
+	job_p -> sj_errors_p = json_array ();
 
 	if (job_p -> sj_errors_p)
 		{
@@ -1727,16 +1729,49 @@ ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, Service *s
 }
 
 
-bool AddErrorToServiceJob (ServiceJob *job_p, const char * const key_s, const char * const value_s)
+bool AddErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const char * const value_s)
 {
-	if (json_object_set_new (job_p -> sj_errors_p, key_s, json_string (value_s)) == 0)
+	json_t *value_p = json_string (value_s);
+
+	if (value_p)
 		{
-			return true;
+			if (CreateAndAddServiceJobError (job_p, param_s, value_p))
+				{
+					return true;
+				}
+
+			json_decref (value_p);
 		}
 
 	return false;
 }
 
+
+bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char * const param_s, json_t *compound_error_p)
+{
+	return CreateAndAddServiceJobError (job_p, param_s, compound_error_p);
+}
+
+
+static bool CreateAndAddServiceJobError (ServiceJob *job_p, const char *param_s, json_t *error_details_p)
+{
+	json_t *error_p = json_object ();
+
+	if (error_p)
+		{
+			if (SetJSONString (error_p, PARAM_NAME_S, param_s))
+				{
+					if (json_object_set (error_p, PARAM_ERRORS_S, error_details_p) == 0)
+						{
+							return true;
+						}
+				}
+
+			json_decref (error_p);
+		}
+
+	return false;
+}
 
 
 bool UpdateServiceJob (ServiceJob *job_p)
