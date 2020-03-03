@@ -143,7 +143,7 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 
 	SetServiceJobStatus (job_p, OS_IDLE);
 
-	job_p -> sj_errors_p = json_array ();
+	job_p -> sj_errors_p = json_object ();
 
 	if (job_p -> sj_errors_p)
 		{
@@ -1755,38 +1755,49 @@ bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char * const param_s
 
 static bool CreateAndAddServiceJobError (ServiceJob *job_p, const char *param_s, json_t *error_details_p)
 {
-	json_t *error_p = json_object ();
+	json_t *param_errors_p;
 
-	if (error_p)
+	if (!param_s)
 		{
-			if (SetJSONString (error_p, PARAM_NAME_S, param_s))
+			param_s = JOB_RUNTIME_ERRORS_S;
+		}
+
+	param_errors_p = json_object_get (job_p -> sj_errors_p, param_s);
+
+	/*
+	 * If it doesn't exist, create it
+	 */
+	if (!param_errors_p)
+		{
+			param_errors_p = json_array ();
+
+			if (param_errors_p)
 				{
-					if (json_object_set (error_p, PARAM_ERRORS_S, error_details_p) == 0)
+					if (json_object_set_new (job_p -> sj_errors_p, param_s, param_errors_p) != 0)
 						{
-							if (json_array_append_new (job_p -> sj_errors_p, error_p) == 0)
-								{
-									return true;
-								}
-							else
-								{
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_p, "Failed to add error message to service job \"%s\"", job_p -> sj_name_s);
-								}
+							json_decref (param_errors_p);
 						}
 					else
 						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_details_p, "Failed to add error details to JSON with key \"%s\"", PARAM_ERRORS_S);
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_p -> sj_errors_p, "Failed to add errors array for \"%s\"in job \"%s\"", param_s, job_p -> sj_name_s);
 						}
 				}
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add \"%s\": \"%s\" to error JSON", PARAM_NAME_S, param_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create errors array for \"%s\"in job \"%s\"", param_s, job_p -> sj_name_s);
 				}
-
-			json_decref (error_p);
 		}
-	else
+
+	if (param_errors_p)
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create error object");
+			if (json_array_append_new (param_errors_p, error_details_p) == 0)
+				{
+					return true;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_details_p, "Failed to add error message to service job \"%s\"", job_p -> sj_name_s);
+				}
 		}
 
 	return false;
