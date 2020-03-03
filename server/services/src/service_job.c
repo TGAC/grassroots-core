@@ -1763,11 +1763,30 @@ static bool CreateAndAddServiceJobError (ServiceJob *job_p, const char *param_s,
 				{
 					if (json_object_set (error_p, PARAM_ERRORS_S, error_details_p) == 0)
 						{
-							return true;
+							if (json_array_append_new (job_p -> sj_errors_p, error_p) == 0)
+								{
+									return true;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_p, "Failed to add error message to service job \"%s\"", job_p -> sj_name_s);
+								}
 						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_details_p, "Failed to add error details to JSON with key \"%s\"", PARAM_ERRORS_S);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add \"%s\": \"%s\" to error JSON", PARAM_NAME_S, param_s);
 				}
 
 			json_decref (error_p);
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create error object");
 		}
 
 	return false;
