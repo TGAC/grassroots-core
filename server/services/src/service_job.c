@@ -1775,11 +1775,9 @@ static bool CreateAndAddServiceJobError (ServiceJob *job_p, const char *param_s,
 				{
 					if (json_object_set_new (job_p -> sj_errors_p, param_s, param_errors_p) != 0)
 						{
-							json_decref (param_errors_p);
-						}
-					else
-						{
 							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_p -> sj_errors_p, "Failed to add errors array for \"%s\"in job \"%s\"", param_s, job_p -> sj_name_s);
+							json_decref (param_errors_p);
+							param_errors_p = NULL;
 						}
 				}
 			else
