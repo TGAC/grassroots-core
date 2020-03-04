@@ -20,6 +20,7 @@
  *      Author: billy
  */
 
+#define ALLOCATE_JSON_PARAMETER_TAGS (1)
 #include "json_parameter.h"
 #include "memory_allocations.h"
 #include "service.h"
