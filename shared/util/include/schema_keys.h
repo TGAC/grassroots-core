@@ -691,6 +691,10 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *WEB_SERVICE_URL_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
 
 
+	PREFIX const char *KVP_KEY_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *KVP_VALUE_S VAL("value");
+
+
 /**
  * Expand a context ontology term to its fully qualified version. For instance
  * "so:name"  will become "http://schema.org/name" since "so:" is a shortcut

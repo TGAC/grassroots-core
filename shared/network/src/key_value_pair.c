@@ -13,9 +13,13 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-#include "memory_allocations.h"
+
+#define ALLOCATE_KEY_VALUE_PAIR_TAGS (1)
 #include "key_value_pair.h"
+#include "memory_allocations.h"
 #include "string_utils.h"
+#include "streams.h"
+#include "json_util.h"
 
 
 KeyValuePair *AllocateKeyValuePair (const char *key_s, const char *value_s)
@@ -89,3 +93,70 @@ void FreeKeyValuePairNode (ListItem *node_p)
 }
 
 
+json_t *GetKeyValuePairAsJSON (const KeyValuePair *kvp_p)
+{
+	json_t *kvp_json_p = json_object ();
+
+	if (kvp_json_p)
+		{
+			if (SetJSONString (kvp_json_p, KVP_KEY_S, kvp_p -> kvp_key_s))
+				{
+					if (SetJSONString (kvp_json_p, KVP_VALUE_S, kvp_p -> kvp_value_s))
+						{
+							return kvp_json_p;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, kvp_json_p, "Failed to add \"%s\": \"%s\"",KVP_VALUE_S, kvp_p -> kvp_value_s);
+						}
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, kvp_json_p, "Failed to add \"%s\": \"%s\"", KVP_KEY_S, kvp_p -> kvp_key_s);
+				}
+
+			json_decref (kvp_json_p);
+		}		/* if (kvp_json_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate JSON for KeyValuePair");
+		}
+
+	return NULL;
+}
+
+
+KeyValuePair *GetKeyValuePairFromJSON (const json_t *json_p)
+{
+	const char *key_s = GetJSONString (json_p, KVP_KEY_S);
+
+	if (key_s)
+		{
+			const char *value_s = GetJSONString (json_p, KVP_VALUE_S);
+
+			if (value_s)
+				{
+					KeyValuePair *kvp_p = AllocateKeyValuePair (key_s, value_s);
+
+					if (kvp_p)
+						{
+							return kvp_p;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create KeyValuePair for \"%s\": \"%s\"", key_s, value_s);
+						}
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to find \"%s\"", KVP_VALUE_S);
+				}
+
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "Failed to find \"%s\"", KVP_KEY_S);
+		}
+
+	return NULL;
+}

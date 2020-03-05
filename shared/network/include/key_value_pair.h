@@ -1,3 +1,4 @@
+
 /*
 ** Copyright 2014-2016 The Earlham Institute
 ** 
@@ -30,6 +31,8 @@
 
 #include "network_library.h"
 #include "linked_list.h"
+#include "jansson.h"
+
 
 /**
  * A pair of strings.
@@ -109,6 +112,28 @@ GRASSROOTS_NETWORK_API KeyValuePairNode *AllocateKeyValuePairNode (const char *k
  */
 GRASSROOTS_NETWORK_API void FreeKeyValuePairNode (ListItem *node_p);
 
+
+
+/**
+ * Get the JSON representation of a KeyValuePair.
+ *
+ * @param kvp_p The KeyValuePair to get the JSON representation of.
+ * @return The newly-allocated JSON representation fof the given KeyValuePair
+ * or <code>NULL</code> upon error.
+ * @memberof KeyValuePair
+ */
+GRASSROOTS_NETWORK_API json_t *GetKeyValuePairAsJSON (const KeyValuePair *kvp_p);
+
+
+/**
+ * Create a KeyValuePair from its JSON representation.
+ *
+ * @param json_p The JSON representation to get the KeyValuePair from..
+ * @return The newly-allocated KeyValuePair
+ * or <code>NULL</code> upon error.
+ * @memberof KeyValuePair
+ */
+GRASSROOTS_NETWORK_API KeyValuePair *GetKeyValuePairFromJSON (const json_t *json_p);
 
 
 #ifdef __cplusplus
