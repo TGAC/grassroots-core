@@ -842,7 +842,7 @@ static bool AddPairedServiceFromJSON (ExternalServer *server_p, json_t *paired_s
 
 			if (remote_s)
 				{
-					KeyValuePairNode *node_p = AllocateKeyValuePairNode (local_s, remote_s);
+					KeyValuePairNode *node_p = AllocateKeyValuePairNodeByParts (local_s, remote_s);
 
 					if (node_p)
 						{

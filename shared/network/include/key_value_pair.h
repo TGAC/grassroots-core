@@ -101,7 +101,18 @@ GRASSROOTS_NETWORK_API void FreeKeyValuePair (KeyValuePair *kvp_p);
  * @return A newly-allocated KeyValuePairNode containing the KeyValuePair or <code>NULL</code> upon error.
  * @memberof KeyValuePair
  */
-GRASSROOTS_NETWORK_API KeyValuePairNode *AllocateKeyValuePairNode (const char *key_s, const char *value_s);
+GRASSROOTS_NETWORK_API KeyValuePairNode *AllocateKeyValuePairNodeByParts (const char *key_s, const char *value_s);
+
+
+/**
+ * Allocate a KeyValuePairNode.
+ *
+ * @param kvp_p The KeyValuePair to store in the new KeyValuePairNode.
+ * @return A newly-allocated KeyValuePairNode containing the KeyValuePair or <code>NULL</code> upon error.
+ * @memberof KeyValuePair
+ */
+GRASSROOTS_NETWORK_API KeyValuePairNode *AllocateKeyValuePairNode (KeyValuePair *kvp_p);
+
 
 
 /**

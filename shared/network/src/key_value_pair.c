@@ -61,24 +61,37 @@ void FreeKeyValuePair (KeyValuePair *kvp_p)
 
 
 
-KeyValuePairNode *AllocateKeyValuePairNode (const char *key_s, const char *value_s)
+KeyValuePairNode *AllocateKeyValuePairNodeByParts (const char *key_s, const char *value_s)
+{
+	KeyValuePair *pair_p = AllocateKeyValuePair (key_s, value_s);
+
+	if (pair_p)
+		{
+			KeyValuePairNode *node_p = AllocateKeyValuePairNode (pair_p);
+
+			if (node_p)
+				{
+					return node_p;
+				}
+
+			FreeKeyValuePair (pair_p);
+		}
+
+	return NULL;
+}
+
+
+KeyValuePairNode *AllocateKeyValuePairNode (KeyValuePair *kvp_p)
 {
 	KeyValuePairNode *node_p = (KeyValuePairNode *) AllocMemory (sizeof (KeyValuePairNode));
 
 	if (node_p)
 		{
-			node_p -> kvpn_pair_p = AllocateKeyValuePair (key_s, value_s);
+			InitListItem (& (node_p -> kvpn_node));
+			node_p -> kvpn_pair_p = kvp_p;
 
-			if (node_p -> kvpn_pair_p)
-				{
-					node_p -> kvpn_node.ln_prev_p = NULL;
-					node_p -> kvpn_node.ln_next_p = NULL;
-
-					return node_p;
-				}
-
-			FreeMemory (node_p);
-		}		/* if (node_p) */
+			return node_p;
+		}
 
 	return NULL;
 }
