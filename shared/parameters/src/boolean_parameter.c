@@ -45,6 +45,9 @@ static bool SetBooleanParameterCurrentValueFromString (Parameter *param_p, const
 
 static BooleanParameter *GetNewBooleanParameter (const bool *current_value_p, const bool *default_value_p);
 
+static Parameter *CloneBooleanParameter (const Parameter *param_p, const ServiceData *service_data_p);
+
+
 /*
  * API DEFINITIONS
  */
@@ -80,7 +83,7 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 					if (InitParameterFromJSON (& (param_p -> bp_base_param), param_json_p, service_p, concise_flag))
 						{
 							SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON,
-																		 NULL, SetBooleanParameterCurrentValueFromString);
+																		 CloneBooleanParameter, SetBooleanParameterCurrentValueFromString);
 
 							return param_p;
 						}
@@ -277,6 +280,27 @@ static bool SetBooleanParameterValue (bool **param_value_pp, const bool *new_val
 		}
 
 	return success_flag;
+}
+
+
+
+static Parameter *CloneBooleanParameter (const Parameter *param_p, const ServiceData *service_data_p)
+{
+	const BooleanParameter *src_p = (const BooleanParameter *) param_p;
+	const bool *default_value_p = GetBooleanParameterDefaultValue (src_p);
+	const bool *current_value_p = GetBooleanParameterCurrentValue (src_p);
+	BooleanParameter *dest_param_p = AllocateBooleanParameter (service_data_p, param_p -> pa_name_s, param_p -> pa_display_name_s, param_p -> pa_description_s, default_value_p, current_value_p, param_p -> pa_level);
+
+	if (dest_param_p)
+		{
+			return (& (dest_param_p -> bp_base_param));
+		}		/* if (dest_param_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AllocateStringParameter failed for copying \"%s\"", dest_param_p -> bp_base_param.pa_name_s);
+		}
+
+	return NULL;
 }
 
 

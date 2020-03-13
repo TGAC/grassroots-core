@@ -241,6 +241,9 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 			res = curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_HTTPHEADER, tool_p -> ct_headers_list_p);
 		}
 
+	/* enable all supported built-in compressions */
+	curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_ACCEPT_ENCODING, "");
+
 	if (res == CURLE_OK)
 		{
 			res = curl_easy_perform (tool_p -> ct_curl_p);

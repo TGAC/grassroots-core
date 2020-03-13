@@ -244,11 +244,6 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 {
 	bool success_flag = false;
 
-	#if CONNECTION_DEBUG >= STM_LEVEL_FINE
-	char *req_s = json_dumps (req_p, JSON_INDENT (2) | JSON_PRESERVE_ORDER);
-	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "MakeRemoteJsonCallViaConnection req:\n%s\n", req_s);
-	#endif
-
 	if (connection_p -> co_type == CT_RAW)
 		{
 			RawConnection *raw_connection_p = (RawConnection *) connection_p;
@@ -271,9 +266,6 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 				}		/* if (MakeRemoteJSONCallFromCurlTool (web_connection_p -> wc_curl_p, req_p)) */
 		}
 
-	#if CONNECTION_DEBUG >= STM_LEVEL_FINE
-	free (req_s);
-	#endif
 
 	return (success_flag ? GetConnectionData (connection_p) : NULL);
 }

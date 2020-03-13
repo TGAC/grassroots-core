@@ -65,7 +65,7 @@ void FreeParameterGroupNode (ListItem *node_p)
 }
 
 
-ParameterGroup *AllocateParameterGroup (const char *name_s, const bool repeatable_flag, ServiceData *service_data_p)
+ParameterGroup *AllocateParameterGroup (const char *name_s, const bool repeatable_flag, const ServiceData *service_data_p)
 {
 	char *copied_name_s = EasyCopyToNewString (name_s);
 
@@ -133,7 +133,7 @@ void FreeParameterGroup (ParameterGroup *param_group_p)
 }
 
 
-ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const bool repeatable_flag, struct ServiceData *service_data_p, ParameterSet *param_set_p)
+ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const bool repeatable_flag, const ServiceData *service_data_p, ParameterSet *param_set_p)
 {
 	ParameterGroup *group_p = AllocateParameterGroup (name_s, repeatable_flag, service_data_p);
 
@@ -304,7 +304,7 @@ bool CloneParameters (const ParameterGroup * const src_group_p, ParameterGroup *
 
 	while (src_node_p)
 		{
-			Parameter *dest_param_p = CloneParameter (src_node_p -> pn_parameter_p);
+			Parameter *dest_param_p = CloneParameter (src_node_p -> pn_parameter_p, dest_group_p -> pg_service_data_p);
 
 			if (dest_param_p)
 				{

@@ -117,6 +117,13 @@ typedef enum ParameterType
 	 */
 	PT_JSON_TABLE,
 
+	/**
+	 * A string variable which presents a list of possible matches
+	 * as a drop down list on each keypress. An auto-completeable
+	 * string.
+	 */
+	PT_COMPLETABLE_STRING,
+
 	/** The number of possible ParameterType values. */
 	PT_NUM_TYPES
 } ParameterType;

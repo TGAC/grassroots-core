@@ -49,6 +49,9 @@ static bool SetStringParameterValue (char **param_value_pp, const char *new_valu
 
 static StringParameter *GetNewStringParameter (const char *current_value_s, const char *default_value_s);
 
+static Parameter *CloneStringParameter (const Parameter *param_p, const ServiceData *service_data_p);
+
+static bool CopyStringParameterOptions (const StringParameter *src_p, StringParameter *dest_p);
 
 /*
  * API DEFINITIONS
@@ -99,7 +102,7 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 		{
 			if (InitParameter (& (param_p -> sp_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
 												 ClearStringParameter, AddStringParameterDetailsToJSON,
-												 NULL, SetStringParameterCurrentValueFromString))
+												 CloneStringParameter, SetStringParameterCurrentValueFromString))
 				{
 					if (service_data_p)
 						{
@@ -138,7 +141,7 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 					if (GetStringParameterDetailsFromJSON (param_p, param_json_p))
 						{
 							SetParameterCallbacks (& (param_p -> sp_base_param), ClearStringParameter, AddStringParameterDetailsToJSON,
-																		 NULL, SetStringParameterCurrentValueFromString);
+																		 CloneStringParameter, SetStringParameterCurrentValueFromString);
 
 							return param_p;
 						}
@@ -758,6 +761,54 @@ static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const j
 }
 
 
+static Parameter *CloneStringParameter (const Parameter *param_p, const ServiceData *service_data_p)
+{
+	const StringParameter *src_p = (const StringParameter *) param_p;
+	const char *default_value_s = GetStringParameterDefaultValue (src_p);
+	const char *current_value_s = GetStringParameterCurrentValue (src_p);
+	const char *min_value_s = NULL;
+	const char *max_value_s = NULL;
+
+	if (GetStringParameterBounds (src_p, &min_value_s, &max_value_s))
+		{
+			StringParameter *dest_param_p = AllocateStringParameter (service_data_p, param_p -> pa_type, param_p -> pa_name_s, param_p -> pa_display_name_s, param_p -> pa_description_s, default_value_s, current_value_s, param_p -> pa_level);
+
+			if (dest_param_p)
+				{
+					if (SetStringParameterBounds (dest_param_p, min_value_s, max_value_s))
+						{
+							if (CopyStringParameterOptions (src_p, dest_param_p))
+								{
+									return (& (dest_param_p -> sp_base_param));
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CopyStringParameterOptions failed for copying \"%s\"", dest_param_p -> sp_base_param.pa_name_s);
+								}
+
+						}		/* if (SetStringParameterBounds (dest_param_p, min_value_s, max_value_s))  */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetStringParameterBounds failed for copying \"%s\", min \"%s\", max \"%s\"", dest_param_p -> sp_base_param.pa_name_s, min_value_s ? min_value_s : "NULL", max_value_s ? max_value_s : "NULL");
+						}
+
+					FreeParameter (& (dest_param_p -> sp_base_param));
+				}		/* if (dest_param_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AllocateStringParameter failed for copying \"%s\"", dest_param_p -> sp_base_param.pa_name_s);
+				}
+
+		}		/* if (GetStringParameterBounds (src_p, &min_value_s, &max_value_s)) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetStringParameterBounds failed for copying \"%s\"", param_p -> pa_name_s);
+		}
+
+	return NULL;
+}
+
+
 static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const char *value_s)
 {
 	StringParameter *string_param_p = (StringParameter *) param_p;
@@ -769,19 +820,27 @@ static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const 
 
 static bool CopyStringParameterOptions (const StringParameter *src_p, StringParameter *dest_p)
 {
-	bool success_flag = false;
+	bool success_flag = true;
 	const LinkedList *src_options_p = src_p -> sp_base_param.pa_options_p;
 
 	if (src_options_p && (src_options_p -> ll_size > 0))
 		{
-			if (! (dest_p -> sp_base_param.pa_options_p))
+			StringParameterOptionNode *src_node_p = (StringParameterOptionNode *) (src_options_p -> ll_head_p);
+
+			while (src_node_p && success_flag)
 				{
+					const StringParameterOption *option_p = src_node_p -> spon_option_p;
 
+					if (CreateAndAddStringParameterOption (dest_p, option_p -> spo_value_s, option_p -> spo_description_s))
+						{
+							src_node_p = (StringParameterOptionNode *) (src_node_p -> spon_node.ln_next_p);
+						}
+					else
+						{
+							success_flag = false;
+						}
 				}
-
-
 		}
-
 
 	return success_flag;
 }

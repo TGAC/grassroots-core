@@ -138,7 +138,7 @@ typedef struct ParameterGroup
 	/**
 	 * The ServiceData for the Service that has created this ParametetrGroup
 	 */
-	struct ServiceData *pg_service_data_p;
+	const struct ServiceData *pg_service_data_p;
 
 } ParameterGroup;
 
@@ -201,7 +201,7 @@ GRASSROOTS_PARAMS_API void FreeParameterGroupNode (ListItem *node_p);
  * @return The new ParameterGroup or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *AllocateParameterGroup (const char *name_s,  const bool repeatable_flag, struct ServiceData *service_data_p);
+GRASSROOTS_PARAMS_API ParameterGroup *AllocateParameterGroup (const char *name_s,  const bool repeatable_flag, const struct ServiceData *service_data_p);
 
 
 /**
@@ -305,7 +305,7 @@ GRASSROOTS_PARAMS_API bool AddParameterToParameterGroup (ParameterGroup *parent_
  * @return The new ParameterGroup or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const bool repeatable_flag, struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
+GRASSROOTS_PARAMS_API ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, const bool repeatable_flag, const struct ServiceData *service_data_p, struct ParameterSet *param_set_p);
 
 
 /**

@@ -55,6 +55,11 @@ static bool AddUnsignedIntValueToJSON (json_t *param_json_p, const char *key_s, 
 
 static bool GetUnsignedIntParameterOptionsFromJSON (UnsignedIntParameter *param_p, const json_t * const json_p);
 
+
+static Parameter *CloneUnsignedIntParameter (const Parameter *param_p, const ServiceData *service_data_p);
+
+static bool CopyUnsignedIntParameterOptions (const UnsignedIntParameter *src_p, UnsignedIntParameter *dest_p);
+
 /*
  * API DEFINITIONS
  */
@@ -104,7 +109,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 		{
 			if (InitParameter (& (param_p -> uip_base_param), service_data_p, PT_UNSIGNED_INT, name_s, display_name_s, description_s, level,
 												 ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
-												 NULL, SetUnsignedIntParameterCurrentValueFromString))
+												 CloneUnsignedIntParameter, SetUnsignedIntParameterCurrentValueFromString))
 				{
 					if (service_data_p)
 						{
@@ -147,7 +152,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 						{
 							if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, concise_flag))
 								{
-									if (GetUnsignedIntParameterDetailsFromJSON (param_p, param_json_p))
+									if (GetUnsignedIntParameterDetailsFromJSON (& (param_p -> uip_base_param), param_json_p))
 										{
 											SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
 																						 NULL, SetUnsignedIntParameterCurrentValueFromString);
@@ -287,19 +292,10 @@ bool IsUnsignedIntParameterBounded (const UnsignedIntParameter *param_p)
 }
 
 
-bool GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, uint32 *min_p, uint32 *max_p)
+void GetUnsignedIntParameterBounds (const UnsignedIntParameter *param_p, const uint32 **min_pp, const uint32 **max_pp)
 {
-	bool success_flag = false;
-
-	if (IsUnsignedIntParameterBounded (param_p))
-		{
-			*min_p = * (param_p -> uip_min_value_p);
-			*max_p = * (param_p -> uip_max_value_p);
-
-			success_flag = true;
-		}
-
-	return success_flag;
+	*min_pp = param_p -> uip_min_value_p;
+	*max_pp = param_p -> uip_max_value_p;
 }
 
 
@@ -481,6 +477,65 @@ static bool SetUnsignedIntParameterValue (uint32 **param_value_pp, const uint32 
 		}
 
 	return success_flag;
+}
+
+
+static Parameter *CloneUnsignedIntParameter (const Parameter *param_p, const ServiceData *service_data_p)
+{
+	const UnsignedIntParameter *src_p = (const UnsignedIntParameter *) param_p;
+	const uint32 *default_value_p = GetUnsignedIntParameterDefaultValue (src_p);
+	const uint32 *current_value_p = GetUnsignedIntParameterCurrentValue (src_p);
+
+	UnsignedIntParameter *dest_param_p = AllocateUnsignedIntParameter (service_data_p, param_p -> pa_name_s, param_p -> pa_display_name_s, param_p -> pa_description_s, default_value_p, current_value_p, param_p -> pa_level);
+
+	if (dest_param_p)
+		{
+			bool success_flag = true;
+			const uint32 *min_value_p = NULL;
+			const uint32 *max_value_p = NULL;
+
+			GetUnsignedIntParameterBounds (src_p, &min_value_p, &max_value_p);
+
+			if (min_value_p && max_value_p)
+				{
+					if (!SetUnsignedIntParameterBounds (dest_param_p, *min_value_p, *max_value_p))
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					if (CopyUnsignedIntParameterOptions (src_p, dest_param_p))
+						{
+							return (& (dest_param_p -> uip_base_param));
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CopyUnsignedIntParameterOptions failed for copying \"%s\"", dest_param_p -> uip_base_param.pa_name_s);
+						}
+
+				}		/* if (SetStringParameterBounds (dest_param_p, min_value_s, max_value_s))  */
+			else
+				{
+					if (min_value_p && max_value_p)
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetUnsignedIntParameterBounds failed for copying \"%s\", min \"" UINT32_FMT "\", max \"" UINT32_FMT "\"", dest_param_p -> uip_base_param.pa_name_s, *min_value_p, *max_value_p);
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetUnsignedIntParameterBounds failed for copying \"%s\", null bounds", dest_param_p -> uip_base_param.pa_name_s);
+						}
+				}
+
+			FreeParameter (& (dest_param_p -> uip_base_param));
+		}		/* if (dest_param_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AllocateUnsignedIntParameter failed for copying \"%s\"", dest_param_p -> uip_base_param.pa_name_s);
+		}
+
+	return NULL;
 }
 
 
@@ -800,6 +855,34 @@ static LinkedList *GetUnsignedIntParameterMultiOptions (UnsignedIntParameter *pa
 		}
 
 	return (base_param_p -> pa_options_p);
+}
+
+
+static bool CopyUnsignedIntParameterOptions (const UnsignedIntParameter *src_p, UnsignedIntParameter *dest_p)
+{
+	bool success_flag = true;
+	const LinkedList *src_options_p = src_p -> uip_base_param.pa_options_p;
+
+	if (src_options_p && (src_options_p -> ll_size > 0))
+		{
+			const UnsignedIntParameterOptionNode *src_node_p = (const UnsignedIntParameterOptionNode *) (src_options_p -> ll_head_p);
+
+			while (src_node_p && success_flag)
+				{
+					const UnsignedIntParameterOption *option_p = src_node_p -> uipon_option_p;
+
+					if (CreateAndAddUnsignedIntParameterOption (dest_p, option_p -> uipo_value, option_p -> uipo_description_s))
+						{
+							src_node_p = (UnsignedIntParameterOptionNode *) (src_node_p -> uipon_node.ln_next_p);
+						}
+					else
+						{
+							success_flag = false;
+						}
+				}
+		}
+
+	return success_flag;
 }
 
 

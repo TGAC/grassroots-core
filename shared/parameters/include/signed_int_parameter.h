@@ -45,6 +45,28 @@ typedef struct SignedIntParameter
 } SignedIntParameter;
 
 
+typedef struct SignedIntParameterOption
+{
+	/** The internal value for this option */
+	int32 sipo_value;
+
+	/** The user-friendly description for this value */
+	char *sipo_description_s;
+
+} SignedIntParameterOption;
+
+
+
+typedef struct SignedIntParameterOptionNode
+{
+	ListItem sipon_node;
+
+	SignedIntParameterOption *sipon_option_p;
+
+} SignedIntParameterOptionNode;
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -110,13 +132,29 @@ GRASSROOTS_PARAMS_API bool SetSignedIntParameterBounds (SignedIntParameter *para
 GRASSROOTS_PARAMS_API bool IsSignedIntParameterBounded (const SignedIntParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p);
+GRASSROOTS_PARAMS_API void GetSignedIntParameterBounds (const SignedIntParameter *param_p, const int32 **min_pp, const int32 **max_pp);
 
 
 GRASSROOTS_PARAMS_API bool IsSignedIntParameter (const Parameter *param_p);
 
 
 GRASSROOTS_PARAMS_API bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const int32 **value_pp);
+
+
+GRASSROOTS_PARAMS_API bool CreateAndAddSignedIntParameterOption (SignedIntParameter *param_p, const int32 value, const char *description_s);
+
+
+GRASSROOTS_PARAMS_API SignedIntParameterOption *AllocateSignedIntParameterOption (const int32 value, const char *description_s);
+
+
+GRASSROOTS_PARAMS_API void FreeSignedIntParameterOption (SignedIntParameterOption *option_p);
+
+
+GRASSROOTS_PARAMS_API SignedIntParameterOptionNode *AllocateSignedIntParameterOptionNode (SignedIntParameterOption *option_p);
+
+
+GRASSROOTS_PARAMS_API void FreeStringParameterOptionNode (ListItem *item_p);
+
 
 #ifdef __cplusplus
 }

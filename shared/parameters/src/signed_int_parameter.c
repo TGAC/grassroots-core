@@ -44,6 +44,13 @@ static bool SetSignedIntParameterCurrentValueFromString (Parameter *param_p, con
 
 static SignedIntParameter *GetNewSignedIntParameter (const int32 *current_value_p, const int32 *default_value_p);
 
+static bool CopySignedIntParameterOptions (const SignedIntParameter *src_p, SignedIntParameter *dest_p);
+
+static Parameter *CloneSignedIntParameter (const Parameter *param_p, const ServiceData *service_data_p);
+
+static LinkedList *GetSignedIntParameterMultiOptions (SignedIntParameter *param_p);
+
+
 /*
  * API DEFINITIONS
  */
@@ -92,7 +99,7 @@ SignedIntParameter *AllocateSignedIntParameter (const struct ServiceData *servic
 		{
 			if (InitParameter (& (param_p -> sip_base_param), service_data_p, pt, name_s, display_name_s, description_s, level,
 												 ClearSignedIntParameter, AddSignedIntParameterDetailsToJSON,
-												 NULL, SetSignedIntParameterCurrentValueFromString))
+												 CloneSignedIntParameter, SetSignedIntParameterCurrentValueFromString))
 				{
 					if (service_data_p)
 						{
@@ -273,21 +280,10 @@ bool IsSignedIntParameterBounded (const SignedIntParameter *param_p)
 
 
 
-
-
-bool GetSignedIntParameterBounds (const SignedIntParameter *param_p, int32 *min_p, int32 *max_p)
+void GetSignedIntParameterBounds (const SignedIntParameter *param_p, const int32 **min_pp, const int32 **max_pp)
 {
-	bool success_flag = false;
-
-	if (IsSignedIntParameterBounded (param_p))
-		{
-			*min_p = * (param_p -> sip_min_value_p);
-			*max_p = * (param_p -> sip_max_value_p);
-
-			success_flag = true;
-		}
-
-	return success_flag;
+	*min_pp = param_p -> sip_min_value_p;
+	*max_pp = param_p -> sip_max_value_p;
 }
 
 
@@ -325,6 +321,111 @@ bool GetCurrentSignedIntParameterValueFromParameterSet (const ParameterSet * con
 		}
 
 	return success_flag;
+}
+
+
+bool CreateAndAddSignedIntParameterOption (SignedIntParameter *param_p, const int32 value, const char *description_s)
+{
+	bool success_flag = false;
+	LinkedList *options_p = GetSignedIntParameterMultiOptions (param_p);
+
+	if (options_p)
+		{
+			SignedIntParameterOption *option_p = AllocateSignedIntParameterOption (value, description_s);
+
+			if (option_p)
+				{
+					SignedIntParameterOptionNode *node_p = AllocateSignedIntParameterOptionNode (option_p);
+
+					if (node_p)
+						{
+							LinkedListAddTail (options_p, & (node_p -> sipon_node));
+							success_flag = true;
+						}
+					else
+						{
+							FreeSignedIntParameterOption (option_p);
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate option node with value " UINT32_FMT " and description \"%s\"", value, description_s);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate option with value " UINT32_FMT "and description \"%s\"", value, description_s);
+				}
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get options list for parameter \"%s\"", param_p -> sip_base_param.pa_name_s);
+		}
+
+
+	return success_flag;
+}
+
+
+
+SignedIntParameterOption *AllocateSignedIntParameterOption (const int32 value, const char *description_s)
+{
+	char *new_description_s  = NULL;
+
+	if (CloneValidString (description_s, &new_description_s))
+		{
+			SignedIntParameterOption *option_p = (SignedIntParameterOption *) AllocMemory (sizeof (SignedIntParameterOption));
+
+			if (option_p)
+				{
+					option_p -> sipo_value = value;
+					option_p -> sipo_description_s = new_description_s;
+
+					return option_p;
+				}
+
+			if (new_description_s)
+				{
+					FreeCopiedString (new_description_s);
+				}
+		}
+
+	return NULL;
+}
+
+
+void FreeSignedIntParameterOption (SignedIntParameterOption *option_p)
+{
+	if (option_p -> sipo_description_s)
+		{
+			FreeCopiedString (option_p -> sipo_description_s);
+		}
+
+	FreeMemory (option_p);
+}
+
+
+SignedIntParameterOptionNode *AllocateSignedIntParameterOptionNode (SignedIntParameterOption *option_p)
+{
+	SignedIntParameterOptionNode *node_p = (SignedIntParameterOptionNode *) AllocMemory (sizeof (SignedIntParameterOptionNode));
+
+	if (node_p)
+		{
+			InitListItem (& (node_p -> sipon_node));
+
+			node_p -> sipon_option_p = option_p;
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate SignedIntParameterOptionNode with value " UINT32_FMT " and description \"%s\"", option_p -> sipo_value, option_p -> sipo_description_s);
+		}
+
+	return node_p;
+}
+
+
+void FreeSignedIntParameterOptionNode (ListItem *item_p)
+{
+	SignedIntParameterOptionNode *node_p = (SignedIntParameterOptionNode *) item_p;
+
+	FreeSignedIntParameterOption (node_p -> sipon_option_p);
+	FreeMemory (node_p);
 }
 
 
@@ -503,5 +604,111 @@ static bool SetSignedIntParameterCurrentValueFromString (Parameter *param_p, con
 	success_flag = SetSignedIntParameterCurrentValue (int_param_p, value_p);
 
 	return success_flag;
+}
+
+
+
+static Parameter *CloneSignedIntParameter (const Parameter *param_p, const ServiceData *service_data_p)
+{
+	const SignedIntParameter *src_p = (const SignedIntParameter *) param_p;
+	const int32 *default_value_p = GetSignedIntParameterDefaultValue (src_p);
+	const int32 *current_value_p = GetSignedIntParameterCurrentValue (src_p);
+	SignedIntParameter *dest_param_p = AllocateSignedIntParameter (service_data_p, param_p -> pa_type, param_p -> pa_name_s, param_p -> pa_display_name_s, param_p -> pa_description_s, default_value_p, current_value_p, param_p -> pa_level);
+
+	if (dest_param_p)
+		{
+			bool success_flag = true;
+			const int32 *min_value_p = NULL;
+			const int32 *max_value_p = NULL;
+
+			GetSignedIntParameterBounds (src_p, &min_value_p, &max_value_p);
+
+			if (min_value_p && max_value_p)
+				{
+					if (!SetSignedIntParameterBounds (dest_param_p, *min_value_p, *max_value_p))
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					if (CopySignedIntParameterOptions (src_p, dest_param_p))
+						{
+							return (& (dest_param_p -> sip_base_param));
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CopySignedIntParameterOptions failed for copying \"%s\"", dest_param_p -> sip_base_param.pa_name_s);
+						}
+
+				}		/* if (SetStringParameterBounds (dest_param_p, min_value_s, max_value_s))  */
+			else
+				{
+					if (min_value_p && max_value_p)
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CopySignedIntParameterOptions failed for copying \"%s\", min \"" INT32_FMT "\", max \"" INT32_FMT "\"", dest_param_p -> sip_base_param.pa_name_s, *min_value_p, *max_value_p);
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CopySignedIntParameterOptions failed for copying \"%s\"", dest_param_p -> sip_base_param.pa_name_s);
+						}
+				}
+
+			FreeParameter (& (dest_param_p -> sip_base_param));
+		}		/* if (dest_param_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AllocateSignedIntParameter failed for copying \"%s\"", dest_param_p -> sip_base_param.pa_name_s);
+		}
+
+
+	return NULL;
+}
+
+
+static bool CopySignedIntParameterOptions (const SignedIntParameter *src_p, SignedIntParameter *dest_p)
+{
+	bool success_flag = true;
+	const LinkedList *src_options_p = src_p -> sip_base_param.pa_options_p;
+
+	if (src_options_p && (src_options_p -> ll_size > 0))
+		{
+			const SignedIntParameterOptionNode *src_node_p = (const SignedIntParameterOptionNode *) (src_options_p -> ll_head_p);
+
+			while (src_node_p && success_flag)
+				{
+					const SignedIntParameterOption *option_p = src_node_p -> sipon_option_p;
+
+					if (CreateAndAddSignedIntParameterOption (dest_p, option_p -> sipo_value, option_p -> sipo_description_s))
+						{
+							src_node_p = (SignedIntParameterOptionNode *) (src_node_p -> sipon_node.ln_next_p);
+						}
+					else
+						{
+							success_flag = false;
+						}
+				}
+		}
+
+	return success_flag;
+}
+
+
+static LinkedList *GetSignedIntParameterMultiOptions (SignedIntParameter *param_p)
+{
+	Parameter *base_param_p = & (param_p -> sip_base_param);
+
+	if (! (base_param_p -> pa_options_p))
+		{
+			base_param_p -> pa_options_p = AllocateLinkedList (FreeSignedIntParameterOptionNode);
+
+			if (! (base_param_p -> pa_options_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate options list for parameter \"%s\"", base_param_p -> pa_name_s);
+				}
+		}
+
+	return (base_param_p -> pa_options_p);
 }
 

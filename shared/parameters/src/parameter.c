@@ -71,7 +71,8 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 		"params:tabular",
 		"params:fasta",
 		"xsd:date",
-		"params:json_array"
+		"params:json_array",
+		"params:completable_string"
 };
 
 
@@ -213,6 +214,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_LARGE_STRING:
 						case PT_TABLE:
 						case PT_FASTA:
+						case PT_COMPLETABLE_STRING:
 							{
 								StringParameter *string_param_p = AllocateStringParameterFromJSON (root_p, service_p, concise_flag);
 
@@ -410,11 +412,11 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 
 
 
-bool InitParameter (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
+bool InitParameter (Parameter *param_p, const ServiceData *service_data_p, ParameterType type, const char * const name_s,
 										const char * const display_name_s, const char * const description_s, ParameterLevel level,
 										void (*clear_fn) (Parameter *param_p),
 										bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-										struct Parameter *(*clone_fn) (const Parameter *param_p),
+										struct Parameter *(*clone_fn) (const Parameter *param_p, const ServiceData *service_data_p),
 										bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
 {
@@ -597,9 +599,9 @@ void FreeParameter (Parameter *param_p)
 
 
 
-Parameter *CloneParameter (const Parameter * const src_p)
+Parameter *CloneParameter (const Parameter * const src_p, const ServiceData *data_p)
 {
-	Parameter *dest_p = src_p -> pa_clone_fn (src_p);
+	Parameter *dest_p = src_p -> pa_clone_fn (src_p, data_p);
 
 	if (dest_p)
 		{
@@ -1274,6 +1276,7 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 					case PT_DIRECTORY:
 					case PT_KEYWORD:
 					case PT_FASTA:
+					case PT_COMPLETABLE_STRING:
 						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
 						break;
 
@@ -2042,7 +2045,7 @@ const char *GetUIName (const Parameter * const parameter_p)
 
 void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *param_p),
 														bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-														Parameter *(*clone_fn) (const Parameter *param_p),
+														Parameter *(*clone_fn) (const Parameter *param_p, const ServiceData *data_p),
 														bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 )
 {
@@ -2169,6 +2172,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 			case PT_PASSWORD:
 			case PT_KEYWORD:
 			case PT_FASTA:
+			case PT_COMPLETABLE_STRING:
 				{
 					StringParameter *string_param_p = (StringParameter *) param_p;
 					const char *string_value_s = GetStringParameterCurrentValue (string_param_p);

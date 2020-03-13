@@ -25,7 +25,7 @@
 
 
 #ifdef _DEBUG
-	#define JSON_UTIL_DEBUG	(STM_LEVEL_FINE)
+	#define JSON_UTIL_DEBUG	(STM_LEVEL_INFO)
 #else
 	#define JSON_UTIL_DEBUG	(STM_LEVEL_NONE)
 #endif

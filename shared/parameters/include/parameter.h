@@ -1,4 +1,3 @@
-#include "jansson.h"
 /*
 ** Copyright 2014-2016 The Earlham Institute
 ** 
@@ -198,7 +197,7 @@ struct Parameter
 
 	bool (*pa_add_values_to_json_fn) (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
-	struct Parameter *(*pa_clone_fn) (const struct Parameter *param_p);
+	struct Parameter *(*pa_clone_fn) (const struct Parameter *param_p, const struct ServiceData *data_p);
 
 	bool (*pa_set_value_from_string_fn) (struct Parameter *param_p, const char *value_s);
 };
@@ -302,7 +301,7 @@ GRASSROOTS_PARAMS_API bool InitParameter (Parameter *param_p, const struct Servi
 																					const char * const display_name_s, const char * const description_s, ParameterLevel level,
 																					void (*clear_fn) (Parameter *param_p),
 																					bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-																					struct Parameter *(*clone_fn) (const Parameter *param_p),
+																					struct Parameter *(*clone_fn) (const Parameter *param_p, const struct ServiceData *service_data_p),
 																					bool (*set_value_from_string_fn) (struct Parameter *param_p, const char *value_s)
 );
 
@@ -320,7 +319,7 @@ GRASSROOTS_PARAMS_API bool AddParameterValuesToJSON (const Parameter *param_p, j
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof Parameter
  */
-GRASSROOTS_PARAMS_API Parameter *CloneParameter (const Parameter * const src_p);
+GRASSROOTS_PARAMS_API Parameter *CloneParameter (const Parameter * const src_p, const struct ServiceData *data_p);
 
 
 /**
@@ -677,7 +676,7 @@ GRASSROOTS_PARAMS_API bool AddParameterLevelToJSON (const ParameterLevel level, 
 
 GRASSROOTS_PARAMS_API void SetParameterCallbacks (Parameter *param_p, void (*clear_fn) (Parameter *param_p),
 														bool (*add_values_to_json_fn) (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag),
-														Parameter *(*clone_fn) (const Parameter *param_p),
+														Parameter *(*clone_fn) (const Parameter *param_p, const struct ServiceData *data_p),
 														bool (*set_value_from_string_fn) (Parameter *param_p, const char *value_s));
 
 
