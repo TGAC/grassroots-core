@@ -1,18 +1,18 @@
 /*
-** Copyright 2014-2016 The Earlham Institute
-** 
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-** 
-**     http://www.apache.org/licenses/LICENSE-2.0
-** 
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ ** Copyright 2014-2016 The Earlham Institute
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ **     http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
 
 /* Allocate the global constants in service.h */
 #define ALLOCATE_PATH_TAGS (1)
@@ -38,9 +38,9 @@
 
 
 #ifdef _DEBUG
-	#define SERVICE_DEBUG	(STM_LEVEL_INFO)
+#define SERVICE_DEBUG	(STM_LEVEL_INFO)
 #else
-	#define SERVICE_DEBUG	(STM_LEVEL_NONE)
+#define SERVICE_DEBUG	(STM_LEVEL_NONE)
 #endif
 
 
@@ -85,22 +85,23 @@ static int CompareServicesByName (const void *v0_p, const void *v1_p);
  */
 
 bool InitialiseService (Service * const service_p,
-	const char *(*get_service_name_fn) (const Service *service_p),
-	const char *(*get_service_description_fn) (const Service *service_p),
-	const char *(*get_service_info_uri_fn) (const Service *service_p),
-	ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
-	ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
-	ParameterSet *(*get_parameters_fn) (Service *service_p, Resource *resource_p, UserDetails *user_p),
-	bool (*get_parameter_type_fn) (const struct Service *service_p, const char *param_name_s, ParameterType *pt_p),
-	void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
-	bool (*close_fn) (struct Service *service_p),
-	void (*customise_service_job_fn) (Service *service_p, ServiceJob *job_p),
-	bool specific_flag,
-	Synchronicity synchronous,
-	ServiceData *data_p,
-	ServiceMetadata *(*get_metadata_fn) (struct Service *service_p),
-	json_t *(*get_indexing_data_fn) (struct Service *service_p),
-	GrassrootsServer *grassroots_p)
+												const char *(*get_service_name_fn) (const Service *service_p),
+												const char *(*get_service_description_fn) (const Service *service_p),
+												const char *(*get_service_alias_fn) (const Service *service_p),
+												const char *(*get_service_info_uri_fn) (const Service *service_p),
+												ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
+												ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
+												ParameterSet *(*get_parameters_fn) (Service *service_p, Resource *resource_p, UserDetails *user_p),
+												bool (*get_parameter_type_fn) (const struct Service *service_p, const char *param_name_s, ParameterType *pt_p),
+												void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
+												bool (*close_fn) (struct Service *service_p),
+												void (*customise_service_job_fn) (Service *service_p, ServiceJob *job_p),
+												bool specific_flag,
+												Synchronicity synchronous,
+												ServiceData *data_p,
+												ServiceMetadata *(*get_metadata_fn) (struct Service *service_p),
+												json_t *(*get_indexing_data_fn) (struct Service *service_p),
+												GrassrootsServer *grassroots_p)
 {
 	bool success_flag = false;
 
@@ -108,6 +109,7 @@ bool InitialiseService (Service * const service_p,
 		{
 			service_p -> se_get_service_name_fn = get_service_name_fn;
 			service_p -> se_get_service_description_fn = get_service_description_fn;
+			service_p -> se_get_service_alias_fn = get_service_alias_fn;
 			service_p -> se_get_service_info_uri_fn = get_service_info_uri_fn;
 			service_p -> se_run_fn = run_fn;
 			service_p -> se_match_fn = match_fn;
@@ -201,9 +203,9 @@ bool InitialiseService (Service * const service_p,
 
 void FreeService (Service *service_p)
 {
-	#if SERVICE_DEBUG >= STM_LEVEL_FINEST
+#if SERVICE_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "FreeService %s at %.16X", GetServiceName (service_p), service_p);
-	#endif
+#endif
 
 	Plugin *plugin_p = service_p -> se_plugin_p;
 
@@ -245,9 +247,9 @@ void FreeService (Service *service_p)
 
 bool CloseService (Service *service_p)
 {
-	#if SERVICE_DEBUG >= STM_LEVEL_FINEST
+#if SERVICE_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "Closing %s at %.16X", GetServiceName (service_p), service_p);
-	#endif
+#endif
 
 	return service_p -> se_close_fn (service_p);
 }
@@ -336,9 +338,9 @@ void FreeServiceNode (ListItem * const node_p)
 					delete_flag = !IsServiceRunning (service_p);
 				}
 
-			#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 			PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "Service \"%s\": delete flag = %d", GetServiceName (service_p), delete_flag ? 1 : 0);
-			#endif
+#endif
 
 
 			if (delete_flag)
@@ -361,7 +363,7 @@ void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_
 {
 	const char *root_path_s = GetServerRootDirectory (grassroots_p);
 	char *full_references_path_s = MakeFilename (root_path_s, references_path_s);
-	
+
 	if (full_references_path_s)
 		{
 			char *path_and_pattern_s = MakeFilename (full_references_path_s, "*.json");
@@ -369,12 +371,12 @@ void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_
 			if (path_and_pattern_s)
 				{
 					LinkedList *matching_filenames_p = GetMatchingFiles (path_and_pattern_s, true);
-					
+
 					if (matching_filenames_p)
 						{
 							StringListNode *reference_file_node_p = (StringListNode *) (matching_filenames_p -> ll_head_p);
 							PluginNameServiceMatcher *matcher_p = NULL;				
-	
+
 							if (operation_name_s)
 								{
 									matcher_p = (PluginNameServiceMatcher *) AllocatePluginOperationNameServiceMatcher (NULL, operation_name_s);
@@ -383,7 +385,7 @@ void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_
 								{
 									matcher_p = (PluginNameServiceMatcher *) AllocatePluginNameServiceMatcher (NULL);											
 								}
-								
+
 							if (matcher_p)
 								{
 
@@ -397,27 +399,27 @@ void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_
 													char *json_s = json_dumps (reference_config_p, JSON_INDENT (2));
 
 													json_t *services_json_p = json_object_get (reference_config_p, SERVICES_NAME_S);
-													
+
 													if (services_json_p)
 														{
 															const char * const plugin_name_s = GetPluginNameFromJSON (services_json_p);
-															
+
 															if (plugin_name_s)
 																{
 																	SetPluginNameForServiceMatcher (matcher_p, plugin_name_s);		
-																	
+
 																	num_added_services = GetMatchingReferrableServices (grassroots_p, (ServiceMatcher *) matcher_p, user_p, services_json_p, services_p, true);
 																}
 															else
 																{
 																	PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get service name from", reference_file_node_p -> sln_string_s);
 																}
-															
+
 														}		/* if (services_json_p) */
 
-													#if SERVICE_DEBUG >= STM_LEVEL_FINEST
+#if SERVICE_DEBUG >= STM_LEVEL_FINEST
 													PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "Added " UINT32_FMT " reference services for %s and refcount is %d", num_added_services, reference_file_node_p -> sln_string_s, config_p -> refcount);
-													#endif
+#endif
 
 													if (json_s)
 														{
@@ -433,20 +435,20 @@ void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_
 
 											reference_file_node_p = (StringListNode *) (reference_file_node_p -> sln_node.ln_next_p);
 										}		/* while (reference_file_node_p) */
-									
+
 									FreeServiceMatcher ((ServiceMatcher *) matcher_p);
 								}
 							else
 								{
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate memory for references service matcher\n");
 								}
-							
+
 							FreeLinkedList (matching_filenames_p);
 						}		/* if (matching_filenames_p) */
-					
+
 					FreeCopiedString (path_and_pattern_s);
 				}		/* if (path_and_pattern_s) */
-			
+
 			FreeCopiedString (full_references_path_s);
 		}		/* if (full_services_path_s) */			
 }
@@ -468,14 +470,14 @@ void SetServiceJobCustomFunctions (Service *service_p, ServiceJob *job_p)
 }
 
 
-Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s)
+Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s, const char * const service_alias_s)
 {
 	Service *service_p = NULL;
 	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
 
 	if (services_p)
 		{
-			LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, NULL);
+			LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, service_alias_s, NULL);
 
 			if (services_p -> ll_size == 1)
 				{
@@ -495,13 +497,16 @@ Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const se
 }
 
 
+
+
+
 static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, LinkedList *matching_services_p, ServiceMatcher *matcher_p, bool multiple_match_flag)
 {
 	Service **service_pp = services_p -> sa_services_pp;
 	uint32 i = services_p -> sa_num_services;
 	bool loop_flag = (i > 0);
 	uint32 num_matched_services = 0;
-	
+
 	while (loop_flag)
 		{
 			if (*service_pp)
@@ -513,11 +518,11 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 					if (IsServiceEnabled (grassroots_p, service_name_s))
 						{
 							bool using_service_flag = RunServiceMatcher (matcher_p, service_p);
-							
+
 							if (using_service_flag)
 								{
 									ServiceNode *service_node_p = AllocateServiceNode (service_p);
-									
+
 									if (service_node_p)
 										{
 											LinkedListAddTail (matching_services_p, (ListItem *) service_node_p);
@@ -544,17 +549,17 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 						}		/* if (!IsServiceDisabled (service_name_s)) */
 
 				}		/* if (*service_pp) */
-				
+
 			if (loop_flag)
 				{
 					-- i;
 					++ service_pp;
-					
+
 					loop_flag = (i > 0);
 				}
-			
+
 		}		/* while (loop_flag) */
-	
+
 	return num_matched_services;
 }
 
@@ -575,12 +580,12 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 {
 	uint32 num_matched_services = 0;
 	const char *plugin_pattern_s = GetPluginPattern ();
-	
+
 	if (plugin_pattern_s)
 		{
 			const char *root_path_s = GetServerRootDirectory (grassroots_p);
 			char *full_services_path_s = MakeFilename (root_path_s, "services");
-			
+
 			if (full_services_path_s)
 				{
 					char *path_and_pattern_s = MakeFilename (full_services_path_s, plugin_pattern_s);
@@ -588,19 +593,19 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 					if (path_and_pattern_s)
 						{
 							LinkedList *matching_filenames_p = GetMatchingFiles (path_and_pattern_s, true);
-							
+
 							if (matching_filenames_p)
 								{
 									StringListNode *node_p = (StringListNode *) (matching_filenames_p -> ll_head_p);
-									
+
 									while (node_p)
 										{
 											Plugin *plugin_p = AllocatePlugin (node_p -> sln_string_s, grassroots_p);
-										
+
 											if (plugin_p)
 												{
 													bool using_plugin_flag = false;
-													
+
 													if (OpenPlugin (plugin_p))
 														{																							
 															ServicesArray *services_p = NULL;
@@ -613,14 +618,14 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 																{
 																	services_p = GetReferrableServicesFromPlugin (plugin_p, user_p, reference_config_p);
 																}
-															
+
 															if (services_p)
 																{
 																	uint32 i = AddMatchingServicesFromServicesArray (services_p, services_list_p, matcher_p, multiple_match_flag);
 
-																	#if SERVICE_DEBUG >= STM_LEVEL_FINEST
+#if SERVICE_DEBUG >= STM_LEVEL_FINEST
 																	PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "Got " UINT32_FMT " services from %s with open count of " INT32_FMT, i, node_p -> sln_string_s, plugin_p -> pl_open_count);
-																	#endif
+#endif
 
 																	if (i > 0)
 																		{
@@ -643,7 +648,7 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 																{
 																	/* failed to get service from plugin */
 																}
-																
+
 														}		/* if (OpenPlugin (plugin_p)) */
 
 
@@ -654,37 +659,37 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 
 
 												}		/* if (plugin_p) */
-											
+
 											if (node_p)
 												{
 													node_p = (StringListNode *) (node_p -> sln_node.ln_next_p);
 												}
 										}		/* while (node_p) */
-									
+
 									FreeLinkedList (matching_filenames_p);
 								}		/* if (matching_filenames_p) */
-							
+
 							FreeCopiedString (path_and_pattern_s);
 						}		/* if (path_and_pattern_s) */
-					
+
 					FreeCopiedString (full_services_path_s);
 				}		/* if (full_services_path_s) */
-			
+
 		}		/* if (plugin_pattern_s) */
 
 	return num_matched_services;
 }
 
 
-void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, UserDetails *user_p)
+void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, const char *service_alias_s, UserDetails *user_p)
 {
 	NameServiceMatcher matcher;
-	
-	InitOperationNameServiceMatcher (&matcher, service_name_s);
-	
+
+	InitOperationNameServiceMatcher (&matcher, service_name_s, service_alias_s);
+
 	/* Since we're after a service with a given name, we don't need multiple matches */
 	GetMatchingServices (grassroots_p, & (matcher.nsm_base_matcher), user_p, services_p, false);
-	
+
 	if (services_p -> ll_size == 0)
 		{
 			AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, service_name_s, user_p);
@@ -696,11 +701,11 @@ void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *ser
 void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p)
 {
 	ResourceServiceMatcher matcher;
-	
+
 	InitResourceServiceMatcher (&matcher, resource_p, handler_p);
-	
+
 	GetMatchingServices (grassroots_p, & (matcher.rsm_base_matcher), user_p, services_p, true);
-		
+
 	AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, NULL, user_p);
 }
 
@@ -819,6 +824,25 @@ const char *GetServiceName (const Service *service_p)
 const char *GetServiceDescription (const Service *service_p)
 {
 	return service_p -> se_get_service_description_fn (service_p);	
+}
+
+
+/** Get the user-friendly description of the service. */
+const char *GetServiceAlias (const Service *service_p)
+{
+	const char *alias_s = NULL;
+
+	if ((service_p -> se_data_p) && (service_p -> se_data_p -> sd_config_p))
+		{
+			alias_s = GetJSONString (service_p -> se_data_p -> sd_config_p, SERVICE_ALIAS_S);
+		}
+
+	if (!alias_s)
+		{
+			alias_s = service_p -> se_get_service_alias_fn (service_p);
+		}
+
+	return alias_s;
 }
 
 
@@ -1059,6 +1083,7 @@ static json_t *GetServiceProcessRequest (const char * const service_name_s, cons
 
 	return NULL;
 }
+
 json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
 {
 	json_t *root_p = GetBaseServiceDataAsJSON (service_p, user_p);
@@ -1066,12 +1091,12 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 	if (root_p)
 		{
 			bool success_flag = false;
-		/* Add the operations for this service */
+			/* Add the operations for this service */
 			json_t *operation_p = json_object ();
 
-			#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 			PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - description :: ");
-			#endif
+#endif
 
 			if (operation_p)
 				{
@@ -1143,7 +1168,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 
 			json_decref (root_p);
 		}		/* if (root_p) */
-		
+
 	return NULL;
 }
 
@@ -1172,7 +1197,7 @@ json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resou
 
 
 
-json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p)
+json_t *GetBaseServiceDataAsJSONOld (Service * const service_p, UserDetails *user_p)
 {
 	json_t *root_p = json_object ();
 
@@ -1303,9 +1328,9 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 
 					if (success_flag)
 						{
-							#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 							PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - path :: ");
-							#endif
+#endif
 
 							const char *value_s = GetServiceDescription (service_p);
 
@@ -1329,9 +1354,9 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 				}
 
 
-			#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 			PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - service :: ");
-			#endif
+#endif
 
 		}		/* if (root_p) */
 
@@ -1339,6 +1364,182 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 	return root_p;
 }
 
+
+json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p)
+{
+	json_t *root_p = json_object ();
+
+	if (root_p)
+		{
+			if (SetJSONString (root_p, "@type", "grassroots_service"))
+				{
+					const char *service_name_s = GetServiceName (service_p);
+
+					if (SetJSONString (root_p, SERVICE_NAME_S, service_name_s))
+						{
+							const char *value_s = GetServiceDescription (service_p);
+
+							if (SetJSONString (root_p, SERVICE_DESCRIPTION_S, value_s))
+								{
+									value_s = GetServiceAlias (service_p);
+
+									if (SetJSONString (root_p, SERVICE_ALIAS_S, value_s))
+										{
+											GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (service_p);
+											const json_t *provider_p = GetProviderAsJSON (grassroots_p);
+
+											if (provider_p)
+												{
+													json_t *copied_provider_p = json_deep_copy (provider_p);
+
+													if (copied_provider_p)
+														{
+															if (SetProviderType (copied_provider_p))
+																{
+																	bool success_flag = true;
+
+																	/* Add any paired services details */
+																	if (service_p -> se_paired_services.ll_size > 0)
+																		{
+																			json_t *providers_array_p = json_array ();
+
+																			if (providers_array_p)
+																				{
+																					if (json_array_append_new (providers_array_p, copied_provider_p) == 0)
+																						{
+																							ServersManager *servers_manager_p = GetServersManager (grassroots_p);
+																							PairedServiceNode *node_p = (PairedServiceNode *) (service_p -> se_paired_services.ll_head_p);
+
+																							while (node_p)
+																								{
+																									PairedService *paired_service_p = node_p -> psn_paired_service_p;
+																									ExternalServer *external_server_p = GetExternalServerFromServersManager (servers_manager_p, paired_service_p -> ps_server_uri_s, NULL);
+
+																									if (external_server_p)
+																										{
+																											json_t *external_provider_p = paired_service_p -> ps_provider_p;
+
+																											if (external_provider_p)
+																												{
+																													if (json_array_append (providers_array_p, external_provider_p) != 0)
+																														{
+																															PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, external_provider_p, "Failed to append external provider to providers array");
+
+																															json_decref (external_provider_p);
+																														}		/* if (json_array_append_new (providers_array_p, external_provider_p) != 0) */
+
+																												}		/* if (external_provider_p) */
+																											else
+																												{
+																													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create provider for external server %s at %s array", external_server_p -> es_name_s, external_server_p -> es_uri_s);
+																												}
+
+
+																										}		/* if (external_server_p) */
+																									else
+																										{
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get external server for paired service at %s", paired_service_p -> ps_server_uri_s);
+																										}
+
+																									node_p = (PairedServiceNode *) (node_p -> psn_node.ln_next_p);
+																								}		/* while (node_p) */
+
+
+																							if (json_object_set_new (root_p, SERVER_MULTIPLE_PROVIDERS_S, providers_array_p) != 0)
+																								{
+																									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, providers_array_p, "Failed to set providers array");
+
+																									json_decref (providers_array_p);
+																								}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, providers_array_p) != 0) */
+
+																						}		/* if (json_array_append_new (providers_array_p, copied_provider_p) == 0) */
+																					else
+																						{
+																							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to append copied provider to providers array");
+
+																							json_decref (copied_provider_p);
+																							json_decref (providers_array_p);
+																						}
+
+																				}		/* if (providers_array_p) */
+																			else
+																				{
+																					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create providers array for %s", service_name_s);
+																				}
+
+																		}		/* if (service_p -> se_paired_services -> ll_size > 0) */
+																	else
+																		{
+																			if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0)
+																				{
+																					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to set copied provider");
+
+																					WipeJSON (copied_provider_p);
+																					success_flag = false;
+																				}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0) */
+																		}
+
+																	if (success_flag)
+																		{
+																			if (service_p -> se_metadata_p)
+																				{
+																					success_flag = AddServiceMetadataToJSON (service_p -> se_metadata_p, root_p);
+																				}
+
+																			if (success_flag)
+																				{
+																					#if SERVICE_DEBUG >= STM_LEVEL_FINER
+																					PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "GetServiceAsJSON - service :: ");
+																					#endif
+
+																					return root_p;
+																				}
+																		}
+
+																}		/* if (SetProviderType (copied_provider_p)) */
+															else
+																{
+
+																}
+
+														}		/* if (copied_provider_p) */
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, provider_p, "Failed to make copy of default provider");
+														}
+
+												}		/* if (provider_p) */
+
+										}		/* if (SetJSONString (root_p, SERVICE_ALIAS_S, value_s)) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, root_p, "Failed to add \"%s\": \"%s\" to Service JSON", SERVICE_ALIAS_S, value_s);
+										}
+
+								}		/* if (SetJSONString (root_p, SERVICE_DESCRIPTION_S, value_s)) */
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, root_p, "Failed to add \"%s\": \"%s\" to Service JSON", SERVICE_DESCRIPTION_S, value_s);
+								}
+
+						}		/* if (SetJSONString (root_p, SERVICE_NAME_S, value_s)) */
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, root_p, "Failed to add \"%s\": \"%s\" to Service JSON", SERVICE_NAME_S, service_name_s);
+						}
+
+				}		/* if (SetJSONString (root_p, "@type", "grassroots_service")) */
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, root_p, "Failed to add \"@type\" =  \"grassroots_service\" to Service JSON");
+				}
+
+			json_decref (root_p);
+		}		/* if (root_p) */
+
+
+	return NULL;
+}
 
 
 const char *GetServiceIcon (Service *service_p)
@@ -1364,9 +1565,9 @@ static bool AddServiceNameToJSON (Service * const service_p, json_t *root_p)
 			success_flag = (json_object_set_new (root_p, OPERATION_ID_S, json_string (name_s)) == 0);
 		}
 
-	#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceNameToJSON  :: ");
-	#endif
+#endif
 
 	return success_flag;
 }
@@ -1382,9 +1583,9 @@ static bool AddServiceDescriptionToJSON (Service * const service_p, json_t *root
 			success_flag = (json_object_set_new (root_p, OPERATION_DESCRIPTION_S, json_string (description_s)) == 0);
 		}
 
-	#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceDescriptionToJSON  :: ");
-	#endif
+#endif
 
 	return success_flag;
 }
@@ -1401,9 +1602,9 @@ static bool AddServiceUUIDToJSON (Service * const service_p, json_t *root_p)
 			FreeUUIDString (uuid_s);
 		}
 
-	#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceUUIDToJSON  :: ");
-	#endif
+#endif
 
 	return success_flag;
 }
@@ -1421,9 +1622,9 @@ static bool AddOperationInformationURIToJSON (Service * const service_p, json_t 
 		}
 
 
-	#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddOperationInformationURIToJSON  :: ");
-	#endif
+#endif
 
 	return success_flag;
 }
@@ -1433,11 +1634,11 @@ static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *roo
 {
 	bool success_flag = false;
 	ParameterSet *param_set_p = GetServiceParameters (service_p, resource_p, user_p);
-	
+
 	if (param_set_p)
 		{
 			json_t *param_set_json_p = GetParameterSetAsJSON (param_set_p, sv_p, full_definition_flag);
-			
+
 			if (param_set_json_p)
 				{
 					if (json_object_set_new (root_p, PARAM_SET_KEY_S, param_set_json_p) == 0)
@@ -1449,15 +1650,15 @@ static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *roo
 							json_decref (param_set_json_p);
 						}
 				}
-				
+
 			/* could set this to be cached ... */
 			ReleaseServiceParameters (service_p, param_set_p);
 		}
 
-	#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, root_p, "AddServiceParameterSetToJSON  :: ");
-	#endif
-	
+#endif
+
 	return success_flag;
 }
 
@@ -1515,12 +1716,12 @@ static uint32 AddLinkedServices (Service *service_p, GrassrootsServer *grassroot
 									size_t i;
 
 									json_array_foreach (linked_services_config_p, i, link_config_p)
-										{
-											if (!CreateAndAddLinkedService (service_p, link_config_p, grassroots_p))
-												{
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, link_config_p, "Failed to add LinkedService to \"%s\"", GetServiceName (service_p));
-												}
-										}
+									{
+										if (!CreateAndAddLinkedService (service_p, link_config_p, grassroots_p))
+											{
+												PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, link_config_p, "Failed to add LinkedService to \"%s\"", GetServiceName (service_p));
+											}
+									}
 
 
 								}		/* if (json_is_array (linked_services_config_p)) */
@@ -1592,9 +1793,9 @@ json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p
 						{
 							json_t *service_json_p = GetServiceAsJSON (service_node_p -> sn_service_p, resource_p, user_p, add_service_ids_flag);
 
-							#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 							PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, service_json_p, "service");
-							#endif
+#endif
 
 							if (service_json_p)
 								{
@@ -1613,9 +1814,9 @@ json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p
 
 				}		/* if (services_list_p) */
 
-			#if SERVICE_DEBUG >= STM_LEVEL_FINE
+#if SERVICE_DEBUG >= STM_LEVEL_FINE
 			PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, services_list_json_p, "services list:");
-			#endif
+#endif
 
 			return services_list_json_p;
 		}		/* if (services_list_json_p) */
@@ -1628,7 +1829,7 @@ json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p
 ServicesArray *AllocateServicesArray (const uint32 num_services)
 {
 	Service **services_pp = (Service **) AllocMemoryArray (num_services, sizeof (Service *));
-	
+
 	if (services_pp)
 		{
 			ServicesArray *services_array_p = (ServicesArray *) AllocMemory (sizeof (ServicesArray));
@@ -1640,10 +1841,10 @@ ServicesArray *AllocateServicesArray (const uint32 num_services)
 
 					return services_array_p;					
 				}
-			
+
 			FreeMemory (services_pp);
 		}
-	
+
 	return NULL;
 }
 
@@ -1652,7 +1853,7 @@ void FreeServicesArray (ServicesArray *services_p)
 {
 	uint32 i = services_p -> sa_num_services;
 	Service **service_pp = services_p -> sa_services_pp;
-	
+
 	for ( ; i > 0; -- i, ++ service_pp)
 		{
 			if (*service_pp)
@@ -1660,7 +1861,7 @@ void FreeServicesArray (ServicesArray *services_p)
 					FreeService (*service_pp);
 				}
 		}
-	
+
 	FreeMemory (services_p -> sa_services_pp);
 	FreeMemory (services_p);	
 }
@@ -1711,7 +1912,7 @@ void AssignPluginForServicesArray (ServicesArray *services_p, Plugin *plugin_p)
         },
       }
     }, 
-*/
+ */
 bool AddServiceResponseHeader (Service *service_p, json_t *response_p)
 {
 	bool success_flag = false;
@@ -1744,10 +1945,10 @@ bool AddServiceResponseHeader (Service *service_p, json_t *response_p)
 				}
 		}
 
-	
-	#if SERVICE_DEBUG >= STM_LEVEL_FINE
+
+#if SERVICE_DEBUG >= STM_LEVEL_FINE
 	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, response_p, "service response header");
-	#endif
+#endif
 
 	return success_flag;
 }
@@ -1781,9 +1982,9 @@ ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugi
 {
 	ServicesArray *services_p = NULL;
 
-	#if SERVICE_DEBUG >= STM_LEVEL_FINER
+#if SERVICE_DEBUG >= STM_LEVEL_FINER
 	PrintJSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, config_p, "GetReferenceServicesFromJSON: config");
-	#endif
+#endif
 
 	if (config_p)
 		{
@@ -1797,9 +1998,9 @@ ServicesArray *GetReferenceServicesFromJSON (json_t *config_p, const char *plugi
 					json_t *service_config_p;
 
 					json_array_foreach (config_p, i, service_config_p)
-						{
+					{
 
-						}
+					}
 
 				}
 			else

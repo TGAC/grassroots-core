@@ -223,7 +223,7 @@ bool AddLinkedServiceToRequestJSON (json_t *request_p, LinkedService *linked_ser
 
 			if (services_p)
 				{
-					Service *service_p = GetServiceByName (linked_service_p -> ls_grassroots_p, linked_service_p -> ls_output_service_s);
+					Service *service_p = GetServiceByName (linked_service_p -> ls_grassroots_p, linked_service_p -> ls_output_service_s, NULL);
 
 					if (service_p)
 						{
@@ -402,7 +402,7 @@ json_t *GetLinkedServiceAsJSON (LinkedService *linked_service_p)
 	if (res_p)
 		{
 			const SchemaVersion *sv_p = GetSchemaVersion (linked_service_p -> ls_grassroots_p);
-			Service *service_p = GetServiceByName (linked_service_p -> ls_grassroots_p, linked_service_p -> ls_output_service_s);
+			Service *service_p = GetServiceByName (linked_service_p -> ls_grassroots_p, linked_service_p -> ls_output_service_s, NULL);
 
 			if (service_p)
 				{

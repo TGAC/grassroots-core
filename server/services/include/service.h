@@ -215,6 +215,12 @@ typedef struct Service
 	 */
 	const char *(*se_get_service_description_fn) (const struct Service *service_p);
 
+
+ 	/**
+ 	 * Function to get the alias for a service.
+ 	 */
+	const char *(*se_get_service_alias_fn) (const struct Service *service_p);
+
 	/**
 	 * Function to get a web address for more information about the service
 	 */
@@ -464,6 +470,7 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
 GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
 	const char *(*get_service_name_fn) (const Service *service_p),
 	const char *(*get_service_description_fn) (const Service *service_p),
+	const char *(*get_service_alias_fn) (const Service *service_p),
 	const char *(*get_service_info_uri_fn) (const Service *service_p),
 	struct ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
 	ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
@@ -544,7 +551,7 @@ GRASSROOTS_SERVICE_API json_t *CreateSerialisedJSONForServiceJobFromService (str
  * @return The matching Service or <code>NULL</code> if it could not be found.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s);
+GRASSROOTS_SERVICE_API Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s, const char * const service_alias_s);
 
 
 /**
@@ -581,6 +588,9 @@ GRASSROOTS_SERVICE_API const char *GetServiceName (const Service *service_p);
  */
 GRASSROOTS_SERVICE_API const char *GetServiceDescription (const Service *service_p);
 
+
+
+GRASSROOTS_SERVICE_API const char *GetServiceAlias (const Service *service_p);
 
 /**
  * Get a JSON document containing the data that can be parsed by an
@@ -710,7 +720,7 @@ GRASSROOTS_SERVICE_API void FreeServiceNode (ListItem *node_p);
  * @param service_name_s The name of the Service to find.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  */
-GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, UserDetails *user_p);
+GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, const char *service_alias_s, UserDetails *user_p);
 
 
 /**

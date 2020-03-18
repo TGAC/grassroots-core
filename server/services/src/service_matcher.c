@@ -48,13 +48,13 @@ ServiceMatcher *AllocateResourceServiceMatcher (Resource *resource_p, Handler *h
 
 
 
-ServiceMatcher *AllocateOperationNameServiceMatcher (const char *name_s)
+ServiceMatcher *AllocateOperationNameServiceMatcher (const char *name_s, const char *alias_s)
 {
 	NameServiceMatcher *matcher_p = (NameServiceMatcher *) AllocMemory (sizeof (NameServiceMatcher));
 	
 	if (matcher_p)
 		{
-			InitOperationNameServiceMatcher (matcher_p, name_s);
+			InitOperationNameServiceMatcher (matcher_p, name_s, alias_s);
 		}
 		
 	return (ServiceMatcher *) matcher_p;
@@ -119,12 +119,13 @@ void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, Resource *re
 }
 
 
-void InitOperationNameServiceMatcher (NameServiceMatcher *matcher_p, const char *name_s)
+void InitOperationNameServiceMatcher (NameServiceMatcher *matcher_p, const char *name_s, const char *alias_s)
 {
-	InitServiceMatcher (& (matcher_p -> nsm_base_matcher), MatchServiceByName);
+	InitServiceMatcher (& (matcher_p -> nsm_base_matcher), MatchServiceByNameOrAlias);
 	matcher_p -> nsm_base_matcher.sm_destroy_fn = FreeNameServiceMatcher;
 
 	matcher_p -> nsm_service_name_s = name_s;
+	matcher_p -> nsm_service_alias_s = alias_s;
 }
 
 
@@ -170,6 +171,38 @@ bool MatchServiceByName (ServiceMatcher *matcher_p, Service *service_p)
 	
 	bool match_flag = (strcmp (service_name_s, name_matcher_p -> nsm_service_name_s) == 0);
 		
+	return match_flag;
+}
+
+
+bool MatchServiceByNameOrAlias (ServiceMatcher *matcher_p, Service *service_p)
+{
+	NameServiceMatcher *name_matcher_p = (NameServiceMatcher *) matcher_p;
+	bool match_flag = false;
+
+	if (name_matcher_p -> nsm_service_name_s)
+		{
+			const char *service_s = GetServiceName (service_p);
+
+			if (strcmp (service_s, name_matcher_p -> nsm_service_name_s) == 0)
+				{
+					match_flag = true;
+				}
+		}
+
+	if (!match_flag)
+		{
+			if (name_matcher_p -> nsm_service_alias_s)
+				{
+					const char *service_s = GetServiceAlias (service_p);
+
+					if (strcmp (service_s, name_matcher_p -> nsm_service_alias_s) == 0)
+						{
+							match_flag = true;
+						}
+				}
+		}
+
 	return match_flag;
 }
 

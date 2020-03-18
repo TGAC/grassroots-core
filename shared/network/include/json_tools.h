@@ -293,6 +293,15 @@ GRASSROOTS_NETWORK_API const char *GetServiceDescriptionFromJSON (const json_t *
 
 
 /**
+ * @brief Get the alias of a Service
+ *
+ * @param root_p The json_t representation of a Service.
+ * @return The description or <code>NULL</code> if it could not be found.
+ */
+GRASSROOTS_NETWORK_API const char *GetServiceAliasFromJSON (const json_t * const root_p);
+
+
+/**
  * @brief Get the name of a Service
  *
  * @param root_p The json_t representation of a Service.

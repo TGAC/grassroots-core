@@ -41,7 +41,9 @@ static Service *GetWebService (json_t *operation_json_p, size_t i);
 
 static const char *GetWebServiceName (Service *service_p);
 
-static const char *GetWebServiceDesciption (Service *service_p);
+static const char *GetWebServiceDescription (Service *service_p);
+
+static const char *GetWebServiceAlias (Service *service_p);
 
 static const char *GetWebServiceInformationUri (Service *service_p);
 
@@ -116,7 +118,7 @@ static Service *GetWebService (json_t *operation_json_p, size_t UNUSED_PARAM (i)
 				{
 					if (InitialiseService (web_service_p,
 						GetWebServiceName,
-						GetWebServiceDesciption,
+						GetWebServiceDescription,
 						GetWebServiceInformationUri,
 						RunWebService,
 						IsResourceForWebService,
@@ -174,11 +176,19 @@ static const char *GetWebServiceName (Service *service_p)
 }
 
 
-static const char *GetWebServiceDesciption (Service *service_p)
+static const char *GetWebServiceDescription (Service *service_p)
 {
 	WebServiceData *data_p = (WebServiceData *) (service_p -> se_data_p);
 
 	return (data_p -> wsd_description_s);
+}
+
+
+static const char *GetWebServiceAlias (Service *service_p)
+{
+	WebServiceData *data_p = (WebServiceData *) (service_p -> se_data_p);
+
+	return (data_p -> wsd_alias_s);
 }
 
 

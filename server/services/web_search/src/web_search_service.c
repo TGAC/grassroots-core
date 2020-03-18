@@ -51,8 +51,9 @@ static Service *GetWebSearchService (json_t *operation_json_p, size_t i);
 
 static const char *GetWebSearchServiceName (Service *service_p);
 
-static const char *GetWebSearchServiceDesciption (Service *service_p);
+static const char *GetWebSearchServiceDescription (Service *service_p);
 
+static const char *GetWebSearchServiceAlias (Service *service_p);
 
 static const char *GetWebSearchServiceInformationUri (Service *service_p);
 
@@ -114,7 +115,8 @@ static Service *GetWebSearchService (json_t *operation_json_p, size_t UNUSED_PAR
 				{
 					InitialiseService (web_service_p,
 						GetWebSearchServiceName,
-						GetWebSearchServiceDesciption,
+						GetWebSearchServiceDescription,
+						GetWebSearchServiceAlias,
 						GetWebSearchServiceInformationUri,
 						RunWebSearchService,
 						IsResourceForWebSearchService,
@@ -183,12 +185,21 @@ static const char *GetWebSearchServiceName (Service *service_p)
 }
 
 
-static const char *GetWebSearchServiceDesciption (Service *service_p)
+static const char *GetWebSearchServiceDescription (Service *service_p)
 {
 	WebSearchServiceData *data_p = (WebSearchServiceData *) (service_p -> se_data_p);
 
 	return (data_p -> wssd_base_data.wsd_description_s);
 }
+
+
+static const char *GetWebSearchServiceAlias (Service *service_p)
+{
+	WebSearchServiceData *data_p = (WebSearchServiceData *) (service_p -> se_data_p);
+
+	return (data_p -> wssd_base_data.wsd_alias_s);
+}
+
 
 
 static const char *GetWebSearchServiceInformationUri (Service *service_p)

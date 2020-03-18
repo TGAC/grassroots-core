@@ -113,6 +113,9 @@ typedef struct WebServiceData
 	/** The description of the WebService. */
 	const char *wsd_description_s;
 
+	/** The alias of the WebService. */
+	const char *wsd_alias_s;
+
 	/** The uri for more information about this WebService. */
 	const char *wsd_info_uri_s;
 

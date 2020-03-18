@@ -99,38 +99,42 @@ bool InitWebServiceData (WebServiceData * const data_p, json_t *service_config_p
 				{
 					if ((data_p -> wsd_description_s = GetServiceDescriptionFromJSON (service_config_p)) != NULL)
 						{
-							data_p -> wsd_buffer_p = AllocateByteBuffer (1024);
-
-							if (data_p -> wsd_buffer_p)
+							if ((data_p -> wsd_alias_s = GetServiceAliasFromJSON (service_config_p)) != NULL)
 								{
-									data_p -> wsd_params_p = CreateParameterSetFromJSON (op_p, NULL, false);
+									data_p -> wsd_buffer_p = AllocateByteBuffer (1024);
 
-									if (data_p -> wsd_params_p)
+									if (data_p -> wsd_buffer_p)
 										{
-											data_p -> wsd_curl_data_p = AllocateCurlTool (CM_MEMORY);
+											data_p -> wsd_params_p = CreateParameterSetFromJSON (op_p, NULL, false);
 
-											if (data_p -> wsd_curl_data_p)
+											if (data_p -> wsd_params_p)
 												{
-													data_p -> wsd_method = GetSubmissionMethod (op_p);
+													data_p -> wsd_curl_data_p = AllocateCurlTool (CM_MEMORY);
 
-													if (data_p -> wsd_method != SM_UNKNOWN)
+													if (data_p -> wsd_curl_data_p)
 														{
-															if ((data_p -> wsd_base_uri_s = GetJSONString (op_p, WEB_SERVICE_URL_S)) != NULL)
-																{
-																	data_p -> wsd_info_uri_s = GetOperationInformationURIFromJSON (service_config_p);
+															data_p -> wsd_method = GetSubmissionMethod (op_p);
 
-																	return true;
+															if (data_p -> wsd_method != SM_UNKNOWN)
+																{
+																	if ((data_p -> wsd_base_uri_s = GetJSONString (op_p, WEB_SERVICE_URL_S)) != NULL)
+																		{
+																			data_p -> wsd_info_uri_s = GetOperationInformationURIFromJSON (service_config_p);
+
+																			return true;
+																		}
 																}
+
+															FreeCurlTool (data_p -> wsd_curl_data_p);
 														}
 
-													FreeCurlTool (data_p -> wsd_curl_data_p);
+													FreeParameterSet (data_p -> wsd_params_p);
 												}
 
-											FreeParameterSet (data_p -> wsd_params_p);
-										}
+											FreeByteBuffer (data_p -> wsd_buffer_p);
+										}		/* if (data_p -> wsd_buffer_p) */
 
-									FreeByteBuffer (data_p -> wsd_buffer_p);
-								}		/* if (data_p -> wsd_buffer_p) */
+								}		/* if ((data_p -> wsd_alias_s = GetServiceAliasFromJSON (service_config_p)) != NULL) */
 
 						}		/* if (data_p -> wsd_description_s) */
 

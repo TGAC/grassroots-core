@@ -93,6 +93,9 @@ typedef struct NameServiceMatcher
 
 	/** The name of the Service to match */
 	const char *nsm_service_name_s;
+
+	/** The alias of the Service to match */
+	const char *nsm_service_alias_s;
 } NameServiceMatcher;
 
 
@@ -182,7 +185,7 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocateResourceServiceMatcher (Resource 
  * @return A newly-allocated NameServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocateOperationNameServiceMatcher (const char *name_s);
+GRASSROOTS_SERVICE_API ServiceMatcher *AllocateOperationNameServiceMatcher (const char *name_s, const char *alias_s);
 
 
 /**
@@ -227,7 +230,7 @@ GRASSROOTS_SERVICE_LOCAL void InitServiceMatcher (ServiceMatcher *matcher_p, Run
 
 GRASSROOTS_SERVICE_LOCAL void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, Resource *resource_p, Handler *handler_p);
 
-GRASSROOTS_SERVICE_LOCAL void InitOperationNameServiceMatcher (NameServiceMatcher *matcher_p, const char *name_s);
+GRASSROOTS_SERVICE_LOCAL void InitOperationNameServiceMatcher (NameServiceMatcher *matcher_p, const char *name_s, const char *alias_s);
 
 GRASSROOTS_SERVICE_LOCAL void InitPluginNameServiceMatcher (PluginNameServiceMatcher *matcher_p, const char *plugin_name_s);
 
@@ -258,6 +261,8 @@ GRASSROOTS_SERVICE_API void SetPluginNameForServiceMatcher (PluginNameServiceMat
 GRASSROOTS_SERVICE_API bool RunServiceMatcher (ServiceMatcher *matcher_p, Service *service_p);
 
 GRASSROOTS_SERVICE_LOCAL bool MatchServiceByName (ServiceMatcher *matcher_p, Service *service_p);
+
+GRASSROOTS_SERVICE_LOCAL bool MatchServiceByNameOrAlias (ServiceMatcher *matcher_p, Service *service_p);
 
 GRASSROOTS_SERVICE_LOCAL bool MatchServiceByResource (ServiceMatcher *matcher_p, Service *service_p);
 

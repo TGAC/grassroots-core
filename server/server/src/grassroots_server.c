@@ -967,11 +967,12 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 
 	if (mode != NONE)
 		{
-			const char *service_name_s = GetServiceNameFromJSON (service_req_p);
+			const char *name_s = GetServiceNameFromJSON (service_req_p);
+			const char *alias_s = GetServiceAliasFromJSON (service_req_p);
 
-			if (service_name_s)
+			if (name_s || alias_s)
 				{
-					Service *service_p = GetServiceByName (grassroots_p, service_name_s);
+					Service *service_p = GetServiceByName (grassroots_p, name_s, alias_s);
 
 					if (service_p)
 						{
@@ -987,14 +988,11 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 						}		/* if (service_p) */
 					else
 						{
-							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to get service \"%s\"", service_name_s);
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_req_p, "Failed to get service");
 						}
 
-				}		/* if (service_name_s) */
-			else
-				{
-					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  service_req_p, "Failed to get service name from json");
 				}
+
 
 		}		/* if (mode != NONE) */
 	else
@@ -1649,8 +1647,9 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 
 	if (service_name_s)
 		{
+			const char *service_alias_s = GetJSONString (service_req_p, SERVICE_ALIAS_S);
 			Resource *resource_p = GetResourceFromRequest (service_req_p);
-			Service *service_p = GetServiceByName (grassroots_p, service_name_s);
+			Service *service_p = GetServiceByName (grassroots_p, service_name_s, service_alias_s);
 
 			if (service_p)
 				{
