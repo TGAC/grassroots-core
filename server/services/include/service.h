@@ -78,6 +78,7 @@ struct ExternalServer;
 PATH_PREFIX const char *SERVICES_PATH_S PATH_VAL("services");
 
 
+#define SERVICE_GROUP_ALIAS_SEPARATOR "-"
 
 /**
  * A datatype detailing the addon services
