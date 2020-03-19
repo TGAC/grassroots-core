@@ -1644,16 +1644,25 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 static void ProcessServiceRequest (const json_t *service_req_p, json_t *services_res_p, GrassrootsServer *grassroots_p, ProvidersStateTable *providers_p, const char *server_s, UserDetails *user_p)
 {
 	const char *service_name_s = GetJSONString (service_req_p, SERVICE_NAME_S);
+	const char *service_alias_s = GetJSONString (service_req_p, SERVICE_ALIAS_S);
 
-	if (service_name_s)
+	if (service_name_s || service_alias_s)
 		{
-			const char *service_alias_s = GetJSONString (service_req_p, SERVICE_ALIAS_S);
 			Resource *resource_p = GetResourceFromRequest (service_req_p);
 			Service *service_p = GetServiceByName (grassroots_p, service_name_s, service_alias_s);
 
 			if (service_p)
 				{
 					AddPairedServices (grassroots_p, service_p, user_p, providers_p);
+
+					/*
+					 * If the Service was matched from only the alias, then the name can be NULL
+					 * so make sure we have it.
+					 */
+					if (!service_name_s)
+						{
+							service_name_s = GetServiceName (service_p);
+						}
 
 					if (AddToProvidersStateTable (providers_p, server_s, service_name_s))
 						{

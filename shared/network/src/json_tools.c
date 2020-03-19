@@ -357,21 +357,31 @@ static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const 
 
 							if (service_p)
 								{
-									if (SetJSONString (service_p, SERVICE_NAME_S, node_p -> sln_string_s))
+									const char * const service_name_s = node_p -> sln_string_s;
+
+									if (SetJSONString (service_p, SERVICE_NAME_S, service_name_s))
 										{
-											if (json_array_append_new (service_names_p, service_p) == 0)
+											if (SetJSONString (service_p, SERVICE_ALIAS_S, service_name_s))
 												{
-													node_p = (StringListNode *) (node_p -> sln_node.ln_next_p);
+													if (json_array_append_new (service_names_p, service_p) == 0)
+														{
+															node_p = (StringListNode *) (node_p -> sln_node.ln_next_p);
+														}
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, service_p, "Failed to append service request to array");
+															success_flag = false;
+														}
 												}
 											else
 												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append \"%s\": \"%s\" to JSON object", SERVICE_NAME_S, node_p -> sln_string_s);
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set \"%s\": \"%s\" for JSON object", SERVICE_ALIAS_S, service_name_s);
 													success_flag = false;
 												}
 										}
 									else
 										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set \"%s\": \"%s\" for JSON object", SERVICE_NAME_S, node_p -> sln_string_s);
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set \"%s\": \"%s\" for JSON object", SERVICE_NAME_S, service_name_s);
 											success_flag = false;
 										}
 
