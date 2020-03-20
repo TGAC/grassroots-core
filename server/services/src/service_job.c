@@ -42,7 +42,7 @@ static bool AddLinkedServicesToServiceJobJSON (ServiceJob *job_p, json_t *value_
 
 static bool AddResultEntryToServiceJob (ServiceJob *job_p, json_t **results_pp, json_t *result_to_add_p);
 
-static bool CreateAndAddServiceJobError (ServiceJob *job_p, const char *param_s, json_t *error_details_p);
+static json_t *CreateAndAddErrorObjectForParameter (json_t *root_p, const char *param_s, const ParameterType param_type, const bool add_type_flag);
 
 
 
@@ -1729,13 +1729,19 @@ ServiceJob *CreateServiceJobFromResultsJSON (const json_t *results_p, Service *s
 }
 
 
-bool AddErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const char * const value_s)
+bool AddGeneralErrorMessageToServiceJob (ServiceJob *job_p, const char * const error_s)
+{
+	return AddParameterErrorMessageToServiceJob (job_p, NULL, PT_NUM_TYPES, error_s);
+}
+
+
+bool AddParameterErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const ParameterType param_type, const char * const value_s)
 {
 	json_t *value_p = json_string (value_s);
 
 	if (value_p)
 		{
-			if (CreateAndAddServiceJobError (job_p, param_s, value_p))
+			if (AddCompoundErrorToServiceJob (job_p, param_s, param_type, value_p))
 				{
 					return true;
 				}
@@ -1747,54 +1753,45 @@ bool AddErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s,
 }
 
 
-bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char * const param_s, json_t *compound_error_p)
+
+bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char *param_s, const ParameterType param_type, json_t *error_details_p)
 {
-	return CreateAndAddServiceJobError (job_p, param_s, compound_error_p);
-}
+	json_t *param_errors_p = NULL;
 
-
-static bool CreateAndAddServiceJobError (ServiceJob *job_p, const char *param_s, json_t *error_details_p)
-{
-	json_t *param_errors_p;
-
-	if (!param_s)
+	if (param_s)
 		{
-			param_s = JOB_RUNTIME_ERRORS_S;
-		}
+			param_errors_p = json_object_get (job_p -> sj_errors_p, param_s);
 
-	param_errors_p = json_object_get (job_p -> sj_errors_p, param_s);
-
-	/*
-	 * If it doesn't exist, create it
-	 */
-	if (!param_errors_p)
-		{
-			param_errors_p = json_array ();
-
-			if (param_errors_p)
+			if (!param_errors_p)
 				{
-					if (json_object_set_new (job_p -> sj_errors_p, param_s, param_errors_p) != 0)
-						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_p -> sj_errors_p, "Failed to add errors array for \"%s\"in job \"%s\"", param_s, job_p -> sj_name_s);
-							json_decref (param_errors_p);
-							param_errors_p = NULL;
-						}
+					param_errors_p = CreateAndAddErrorObjectForParameter (job_p -> sj_errors_p, param_s, param_type, true);
 				}
-			else
+		}
+	else
+		{
+			param_errors_p = json_object_get (job_p -> sj_errors_p, JOB_RUNTIME_ERRORS_S);
+
+			if (!param_errors_p)
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create errors array for \"%s\"in job \"%s\"", param_s, job_p -> sj_name_s);
+					param_errors_p = CreateAndAddErrorObjectForParameter (job_p -> sj_errors_p, param_s, PT_NUM_TYPES, false);
 				}
 		}
 
 	if (param_errors_p)
 		{
-			if (json_array_append_new (param_errors_p, error_details_p) == 0)
+			json_t *errors_array_p = json_object_get (param_errors_p, JOB_ERRORS_S);
+
+			if (errors_array_p)
 				{
-					return true;
-				}
-			else
-				{
-					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_details_p, "Failed to add error message to service job \"%s\"", job_p -> sj_name_s);
+					if (json_array_append_new (param_errors_p, error_details_p) == 0)
+						{
+							return true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_details_p, "Failed to add error message to service job \"%s\"", job_p -> sj_name_s);
+						}
+
 				}
 		}
 
@@ -2000,4 +1997,58 @@ int32 GetNumberOfLiveJobsFromServiceJobSet (const ServiceJobSet *jobs_p)
 	return num_live_jobs;
 }
 
+
+
+static json_t *CreateAndAddErrorObjectForParameter (json_t *root_p, const char *param_s, const ParameterType param_type, const bool add_type_flag)
+{
+	json_t *error_obj_p = json_object ();
+
+	if (error_obj_p)
+		{
+			json_t *errors_array_p = json_array ();
+
+			if (errors_array_p)
+				{
+					if (json_object_set_new (error_obj_p, JOB_ERRORS_S, errors_array_p) == 0)
+						{
+							bool success_flag = false;
+
+							if (add_type_flag)
+								{
+									const char *type_s = GetGrassrootsTypeAsString (param_type);
+
+									if (type_s)
+										{
+											if (SetJSONString (error_obj_p, PARAM_GRASSROOTS_TYPE_INFO_TEXT_S, type_s))
+												{
+													success_flag = true;
+												}
+										}
+								}
+							else
+								{
+									success_flag = true;
+								}
+
+							if (success_flag)
+								{
+									if (json_object_set_new (root_p, param_s, error_obj_p) == 0)
+										{
+											return error_obj_p;
+										}
+								}
+
+						}		/* if (json_object_set_new (error_obj_p, JOB_ERRORS_S, errors_array_p) == 0) */
+					else
+						{
+							json_decref (errors_array_p);
+						}
+
+				}		/* if (errors_array_p) */
+
+			json_decref (error_obj_p);
+		}		/* if (error_obj_p) */
+
+	return NULL;
+}
 

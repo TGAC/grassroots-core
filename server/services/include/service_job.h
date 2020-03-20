@@ -714,6 +714,7 @@ GRASSROOTS_SERVICE_API bool InitServiceJobFromResultsJSON (ServiceJob *job_p, co
 
 
 /**
+ *
  * Add a key-value pair error statement to a ServiceJob.
  *
  * @param job_p The ServiceJob to update.
@@ -723,8 +724,20 @@ GRASSROOTS_SERVICE_API bool InitServiceJobFromResultsJSON (ServiceJob *job_p, co
  * <code>false</code> otherwise.
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API bool AddErrorMessageToServiceJob (ServiceJob *job_p, const char * const key_s, const char * const value_s);
+GRASSROOTS_SERVICE_API bool AddParameterErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const ParameterType param_type, const char * const value_s);
 
+
+/**
+ * Add a key-value pair error statement to a ServiceJob.
+ *
+ * @param job_p The ServiceJob to update.
+ * @param key_s The key for the error.
+ * @param value_s The value for the error.
+ * @return <code>true</code> if the ServiceJob was amended successfully,
+ * <code>false</code> otherwise.
+ * @memberof ServiceJob
+ */
+GRASSROOTS_SERVICE_API bool AddGeneralErrorMessageToServiceJob (ServiceJob *job_p, const char * const value_s);
 
 
 /**
@@ -737,7 +750,8 @@ GRASSROOTS_SERVICE_API bool AddErrorMessageToServiceJob (ServiceJob *job_p, cons
  * <code>false</code> otherwise.
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char * const key_s, json_t *compound_error_p);
+GRASSROOTS_SERVICE_API bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char *param_s, const ParameterType param_type, json_t *error_details_p);
+
 
 /**
  * Add a result to ServiceJob.
