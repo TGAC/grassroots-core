@@ -21,7 +21,7 @@
 
 #include "string_utils.h"
 #include "json_tools.h"
-
+#include "json_parameter.h"
 #include "jobs_manager.h"
 
 #ifdef _DEBUG
@@ -1770,7 +1770,7 @@ bool AddTabularParameterErrorMessageToServiceJob (ServiceJob *job_p, const char 
 		{
 			if (SetJSONInteger (error_p, TABLE_PARAM_ROW_S, row))
 				{
-					if (SetJSONString (error_p, TABLE_PARAM_COLUMN_S, column_s))
+					if ((column_s == NULL) || (SetJSONString (error_p, TABLE_PARAM_COLUMN_S, column_s)))
 						{
 							if (SetJSONString (error_p, JOB_ERROR_S, value_s))
 								{
