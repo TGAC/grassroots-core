@@ -753,6 +753,9 @@ GRASSROOTS_SERVICE_API bool AddGeneralErrorMessageToServiceJob (ServiceJob *job_
 GRASSROOTS_SERVICE_API bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char *param_s, const ParameterType param_type, json_t *error_details_p);
 
 
+GRASSROOTS_SERVICE_API bool AddTabularParameterErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const ParameterType param_type, const char * const value_s, const uint32 row, const char *column_s);
+
+
 /**
  * Add a result to ServiceJob.
  *

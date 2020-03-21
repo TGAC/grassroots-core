@@ -1737,6 +1737,7 @@ bool AddGeneralErrorMessageToServiceJob (ServiceJob *job_p, const char * const e
 
 bool AddParameterErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const ParameterType param_type, const char * const value_s)
 {
+	bool success_flag = false;
 	json_t *value_p = json_string (value_s);
 
 	if (value_p)
@@ -1745,12 +1746,70 @@ bool AddParameterErrorMessageToServiceJob (ServiceJob *job_p, const char * const
 				{
 					return true;
 				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "AddCompoundErrorToServiceJob failed for job %s", job_p -> sj_name_s);
+				}
 
 			json_decref (value_p);
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate JSON error object");
 		}
 
 	return false;
 }
+
+
+bool AddTabularParameterErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const ParameterType param_type, const char * const value_s, const uint32 row, const char *column_s)
+{
+	json_t *error_p = json_object ();
+
+	if (error_p)
+		{
+			if (SetJSONInteger (error_p, TABLE_PARAM_ROW_S, row))
+				{
+					if (SetJSONString (error_p, TABLE_PARAM_COLUMN_S, column_s))
+						{
+							if (SetJSONString (error_p, JOB_ERROR_S, value_s))
+								{
+									if (AddCompoundErrorToServiceJob (job_p, param_s, param_type, error_p))
+										{
+											return true;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_p, "AddCompoundErrorToServiceJob failed for job %s", job_p -> sj_name_s);
+										}
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_p, "Failed to set \"%s\": \"%s\" JSON error object", JOB_ERROR_S, value_s);
+								}
+
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_p, "Failed to set \"%s\": \"%s\" JSON error object", TABLE_PARAM_COLUMN_S, column_s);
+						}
+
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_p, "Failed to set \"%s\":" UINT32_FMT " JSON error object", TABLE_PARAM_ROW_S, row);
+				}
+
+			json_decref (error_p);
+		}		/* if (error_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate JSON error object");
+		}
+
+	return false;
+}
+
 
 
 
@@ -1791,7 +1850,6 @@ bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char *param_s, const
 						{
 							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_details_p, "Failed to add error message to service job \"%s\"", job_p -> sj_name_s);
 						}
-
 				}
 		}
 

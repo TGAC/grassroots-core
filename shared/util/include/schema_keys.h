@@ -376,7 +376,6 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *JOB_OMITTED_RESULTS_S VAL("results_omitted");
 	PREFIX const char *JOB_ERRORS_S VAL("errors");
 	PREFIX const char *JOB_ERROR_S VAL("error");
-
 	/**
 	 * The JSON key to specify errors for ServiceJobs where the parameters
 	 * have been valid, yet the job has failed whilst running.
