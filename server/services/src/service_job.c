@@ -1737,7 +1737,6 @@ bool AddGeneralErrorMessageToServiceJob (ServiceJob *job_p, const char * const e
 
 bool AddParameterErrorMessageToServiceJob (ServiceJob *job_p, const char * const param_s, const ParameterType param_type, const char * const value_s)
 {
-	bool success_flag = false;
 	json_t *value_p = json_string (value_s);
 
 	if (value_p)
@@ -1842,7 +1841,7 @@ bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char *param_s, const
 
 			if (errors_array_p)
 				{
-					if (json_array_append_new (param_errors_p, error_details_p) == 0)
+					if (json_array_append_new (errors_array_p, error_details_p) == 0)
 						{
 							return true;
 						}
