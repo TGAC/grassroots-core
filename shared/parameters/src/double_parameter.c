@@ -81,6 +81,7 @@ DoubleParameter *AllocateDoubleParameter (const struct ServiceData *service_data
 
 DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
+	DoubleParameter *param_p = NULL;
 	double64 *current_value_p = NULL;
 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
@@ -107,10 +108,14 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 								{
 									if (GetDoubleParameterDetailsFromJSON (param_p, param_json_p))
 										{
-											SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, NULL,
-																									 SetDoubleParameterCurrentValueFromString);
+											if (!SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, NULL,
+																									 SetDoubleParameterCurrentValueFromString))
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetParameterCallbacks failed for \"%s\ in service \"%s\"", param_p -> dp_base_param.pa_name_s, GetServiceName (service_p));
+													FreeParameter (param_p);
+													param_p = NULL;
+												}
 
-											return param_p;
 										}
 									else
 										{
@@ -126,11 +131,21 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 
 				}
 
-
+			if (default_value_p)
+				{
+					FreeMemory (default_value_p);
+				}
 
 		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
-	return NULL;
+
+
+	if (current_value_p)
+		{
+			FreeMemory (current_value_p);
+		}
+
+	return param_p;
 }
 
 

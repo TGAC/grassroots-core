@@ -82,10 +82,13 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 				{
 					if (InitParameterFromJSON (& (param_p -> bp_base_param), param_json_p, service_p, concise_flag))
 						{
-							SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON,
-																		 CloneBooleanParameter, SetBooleanParameterCurrentValueFromString);
-
-							return param_p;
+							if (!SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON,
+																		 CloneBooleanParameter, SetBooleanParameterCurrentValueFromString))
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetParameterCallbacks failed for \"%s\ in service \"%s\"", param_p -> bp_base_param.pa_name_s, GetServiceName (service_p));
+									FreeParameter (param_p);
+									param_p = NULL;
+								}
 						}
 					else
 						{

@@ -80,14 +80,14 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 						{
 							if (InitParameterFromJSON (& (param_p -> cp_base_param), param_json_p, service_p, concise_flag))
 								{
-									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON,
-																				 NULL, SetCharParameterCurrentValueFromString);
-
-									return param_p;
+									if (!SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON,
+																				 NULL, SetCharParameterCurrentValueFromString))
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetParameterCallbacks failed for \"%s\ in service \"%s\"", param_p -> cp_base_param.pa_name_s, GetServiceName (service_p));
+											FreeParameter (param_p);
+											param_p = NULL;
+										}
 								}
-
-							ClearCharParameter (& (param_p -> cp_base_param));
-							FreeMemory (param_p);
 						}
 
 
