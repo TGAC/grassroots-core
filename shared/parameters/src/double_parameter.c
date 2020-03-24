@@ -99,33 +99,28 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 
 			if (success_flag)
 				{
-					DoubleParameter *param_p = GetNewDoubleParameter (current_value_p, default_value_p);
+					param_p = GetNewDoubleParameter (current_value_p, default_value_p);
+
 					if (param_p)
 						{
-							Parameter *base_param_p = & (param_p -> dp_base_param);
-
 							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, concise_flag))
 								{
 									if (GetDoubleParameterDetailsFromJSON (param_p, param_json_p))
 										{
-											if (!SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, NULL,
-																									 SetDoubleParameterCurrentValueFromString))
-												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetParameterCallbacks failed for \"%s\ in service \"%s\"", param_p -> dp_base_param.pa_name_s, GetServiceName (service_p));
-													FreeParameter (param_p);
-													param_p = NULL;
-												}
-
+											SetParameterCallbacks (& (param_p -> dp_base_param), ClearDoubleParameter, AddDoubleParameterDetailsToJSON, NULL,
+																						 SetDoubleParameterCurrentValueFromString);
 										}
 									else
 										{
-											FreeParameter (base_param_p);
+											FreeParameter (& (param_p -> dp_base_param));
+											param_p = NULL;
 										}
 								}
 							else
 								{
 									ClearDoubleParameter (& (param_p -> dp_base_param));
 									FreeMemory (param_p);
+									param_p = NULL;
 								}
 						}
 
@@ -434,17 +429,11 @@ static bool GetDoubleParameterDetailsFromJSON (DoubleParameter *double_param_p, 
 {
 	bool success_flag = false;
 
-	if (SetValueFromJSON (& (double_param_p -> dp_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
+	if (SetValueFromJSON (& (double_param_p -> dp_min_value_p), param_json_p, PARAM_MIN_S))
 		{
-			if (SetValueFromJSON (& (double_param_p -> dp_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
+			if (SetValueFromJSON (& (double_param_p -> dp_max_value_p), param_json_p, PARAM_MAX_S))
 				{
-					if (SetValueFromJSON (& (double_param_p -> dp_min_value_p), param_json_p, PARAM_MIN_S))
-						{
-							if (SetValueFromJSON (& (double_param_p -> dp_max_value_p), param_json_p, PARAM_MAX_S))
-								{
-									success_flag = true;
-								}
-						}
+					success_flag = true;
 				}
 		}
 

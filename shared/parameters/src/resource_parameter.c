@@ -109,6 +109,7 @@ ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_
 
 ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p, const Service *service_p, const bool concise_flag)
 {
+	ResourceParameter *param_p = NULL;
 	Resource *current_value_p = NULL;
 
 	if (SetResourceParameterValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
@@ -126,7 +127,7 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 
 			if (success_flag)
 				{
-					ResourceParameter *param_p = GetNewResourceParameter (current_value_p, default_value_p);
+					param_p = GetNewResourceParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
@@ -134,12 +135,14 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 								{
 									SetParameterCallbacks (& (param_p -> rp_base_param), ClearResourceParameter, AddResourceParameterDetailsToJSON,
 																				 NULL, SetResourceParameterCurrentValueFromString);
-
-									return param_p;
+								}
+							else
+								{
+									ClearResourceParameter (& (param_p -> rp_base_param));
+									FreeMemory (param_p);
+									param_p = NULL;
 								}
 
-							ClearResourceParameter (& (param_p -> rp_base_param));
-							FreeMemory (param_p);
 						}
 				}
 
@@ -154,7 +157,7 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 			FreeResource (current_value_p);
 		}
 
-	return NULL;
+	return param_p;
 }
 
 

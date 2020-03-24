@@ -129,6 +129,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameter (const struct ServiceData *se
 
 UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
+	UnsignedIntParameter *param_p = NULL;
 	uint32 *current_value_p = NULL;
 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
@@ -146,7 +147,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 
 			if (success_flag)
 				{
-					UnsignedIntParameter *param_p = GetNewUnsignedIntParameter (current_value_p, default_value_p);
+					param_p = GetNewUnsignedIntParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
@@ -156,8 +157,11 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 										{
 											SetParameterCallbacks (& (param_p -> uip_base_param), ClearUnsignedIntParameter, AddUnsignedIntParameterDetailsToJSON,
 																						 NULL, SetUnsignedIntParameterCurrentValueFromString);
-
-											return param_p;
+										}
+									else
+										{
+											FreeParameter (& (param_p -> uip_base_param));
+											param_p = NULL;
 										}
 								}
 							else
@@ -180,7 +184,7 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 			FreeMemory (current_value_p);
 		}
 
-	return NULL;
+	return param_p;
 }
 
 
@@ -674,23 +678,17 @@ static bool GetUnsignedIntParameterDetailsFromJSON (Parameter *param_p, const js
 	UnsignedIntParameter *int_param_p = (UnsignedIntParameter *) param_p;
 	bool success_flag = false;
 
-	if (SetValueFromJSON (& (int_param_p -> uip_current_value_p), param_json_p, PARAM_CURRENT_VALUE_S))
+	if (SetValueFromJSON (& (int_param_p -> uip_min_value_p), param_json_p, PARAM_MIN_S))
 		{
-			if (SetValueFromJSON (& (int_param_p -> uip_default_value_p), param_json_p, PARAM_DEFAULT_VALUE_S))
+			if (SetValueFromJSON (& (int_param_p -> uip_max_value_p), param_json_p, PARAM_MAX_S))
 				{
-					if (SetValueFromJSON (& (int_param_p -> uip_min_value_p), param_json_p, PARAM_MIN_S))
+					if (GetUnsignedIntParameterOptionsFromJSON (int_param_p, param_json_p))
 						{
-							if (SetValueFromJSON (& (int_param_p -> uip_max_value_p), param_json_p, PARAM_MAX_S))
-								{
-									if (GetUnsignedIntParameterOptionsFromJSON (int_param_p, param_json_p))
-										{
-											success_flag = true;
-										}
-									else
-										{
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to set param \"%s\" options from JSON", param_p -> pa_name_s);
-										}
-								}
+							success_flag = true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to set param \"%s\" options from JSON", param_p -> pa_name_s);
 						}
 				}
 		}

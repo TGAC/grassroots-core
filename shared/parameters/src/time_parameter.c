@@ -108,6 +108,7 @@ TimeParameter *AllocateTimeParameter (const struct ServiceData *service_data_p, 
 
 TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const Service *service_p, const bool concise_flag)
 {
+	TimeParameter *param_p = NULL;
 	struct tm *current_value_p = NULL;
 
 	if (SetTimeValueFromJSON (param_json_p, PARAM_CURRENT_VALUE_S, &current_value_p))
@@ -125,7 +126,7 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 
 			if (success_flag)
 				{
-					TimeParameter *param_p = GetNewTimeParameter (current_value_p, default_value_p);
+					param_p = GetNewTimeParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
@@ -133,8 +134,6 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 								{
 									SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON,
 																				 NULL, SetTimeParameterCurrentValueFromString);
-
-									return param_p;
 								}
 							else
 								{
@@ -156,7 +155,7 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 				}
 		}
 
-	return NULL;
+	return param_p;
 }
 
 

@@ -57,6 +57,7 @@ static CharParameter *GetNewCharParameter (const char *current_value_p, const ch
 
 CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
+	CharParameter *param_p = NULL;
 	char *current_value_p = NULL;
 
 	if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
@@ -74,19 +75,20 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 
 			if (success_flag)
 				{
-					CharParameter *param_p = GetNewCharParameter (current_value_p, default_value_p);
+					param_p = GetNewCharParameter (current_value_p, default_value_p);
 
 					if (param_p)
 						{
 							if (InitParameterFromJSON (& (param_p -> cp_base_param), param_json_p, service_p, concise_flag))
 								{
-									if (!SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON,
-																				 NULL, SetCharParameterCurrentValueFromString))
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetParameterCallbacks failed for \"%s\ in service \"%s\"", param_p -> cp_base_param.pa_name_s, GetServiceName (service_p));
-											FreeParameter (param_p);
-											param_p = NULL;
-										}
+									SetParameterCallbacks (& (param_p -> cp_base_param), ClearCharParameter, AddCharParameterDetailsToJSON,
+																				 NULL, SetCharParameterCurrentValueFromString);
+								}
+							else
+								{
+									ClearCharParameter (& (param_p -> cp_base_param));
+									FreeMemory (param_p);
+									param_p = NULL;
 								}
 						}
 
@@ -103,7 +105,7 @@ CharParameter *AllocateCharParameterFromJSON (const json_t *param_json_p, const 
 				}
 		}		/* if (SetValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
-	return NULL;
+	return param_p;
 }
 
 
