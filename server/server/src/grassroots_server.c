@@ -1853,7 +1853,10 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 							case OS_FAILED_TO_START:
 							case OS_FAILED:
 								{
-									RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+									if (current_status != old_status)
+										{
+											RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+										}
 								}
 								break;
 
@@ -1864,12 +1867,15 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 							case OS_PENDING:
 							case OS_STARTED:
 								{
-									if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
+									if (current_status != old_status)
 										{
-											char job_uuid_s [UUID_STRING_BUFFER_SIZE];
+											if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
+												{
+													char job_uuid_s [UUID_STRING_BUFFER_SIZE];
 
-											ConvertUUIDToString (job_id, job_uuid_s);
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
+													ConvertUUIDToString (job_id, job_uuid_s);
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
+												}
 										}
 								}
 								break;

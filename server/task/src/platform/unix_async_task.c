@@ -195,5 +195,6 @@ static void *DoAsyncTaskRun (void *data_p)
 			RunEventConsumer (async_task_p -> at_consumer_p, async_task_p);
 		}
 
-	return res_p;
+	pthread_exit (NULL);
+	//return res_p;
 }
