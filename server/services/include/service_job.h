@@ -356,7 +356,10 @@ GRASSROOTS_SERVICE_API struct Service *GetServiceFromServiceJob (ServiceJob *job
  * NULL</code> if it could not be found.
  * @memberof ServiceJobSet
  */
-GRASSROOTS_SERVICE_API ServiceJobNode *FindServiceJobNodeInServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p);
+GRASSROOTS_SERVICE_API ServiceJobNode *FindServiceJobNodeInServiceJobSet (const ServiceJobSet *job_set_p, const ServiceJob *job_p);
+
+
+GRASSROOTS_SERVICE_API bool IsServiceJobInServiceJobSet (const ServiceJobSet *job_set_p, const ServiceJob *job_p);
 
 
 /**

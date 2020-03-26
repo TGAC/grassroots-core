@@ -129,7 +129,6 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 
 	memset (job_p, 0, sizeof (ServiceJob));
 
-
 	job_p -> sj_service_p = service_p;
 
 	if (id_p)
@@ -618,7 +617,13 @@ ServiceJob *GetServiceJobFromServiceJobSetById (const ServiceJobSet *jobs_p, con
 
 
 
-ServiceJobNode *FindServiceJobNodeInServiceJobSet (ServiceJobSet *job_set_p, ServiceJob *job_p)
+bool IsServiceJobInServiceJobSet (const ServiceJobSet *job_set_p, const ServiceJob *job_p)
+{
+	return (FindServiceJobNodeInServiceJobSet (job_set_p, job_p) != NULL);
+}
+
+
+ServiceJobNode *FindServiceJobNodeInServiceJobSet (const ServiceJobSet *job_set_p, const ServiceJob *job_p)
 {
 	if (job_set_p && job_p)
 		{
@@ -1047,6 +1052,13 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate empty ServiceJob");
 								}
 						}
+
+					if (job_p)
+						{
+
+
+						}		/* if (job_p) */
+
 
 
 					/*
