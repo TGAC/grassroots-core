@@ -1821,60 +1821,64 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 			int32 num_live_jobs = 0;
 
 			/* Has the ServiceJob changed its status since the last check? */
-			switch (current_status)
+//			if (current_status != old_status)
 				{
-
-					/*
-					 * If the job has finished, then remove it from the jobs manager.
-					 */
-					case OS_FINISHED:
-					case OS_SUCCEEDED:
-					case OS_PARTIALLY_SUCCEEDED:
+					switch (current_status)
 						{
-							//RemoveServiceJobFromJobsManager (manager_p, job_id, false);
 
-							if (! (job_p -> sj_result_p))
+							/*
+							 * If the job has finished, then remove it from the jobs manager.
+							 */
+							case OS_FINISHED:
+							case OS_SUCCEEDED:
+							case OS_PARTIALLY_SUCCEEDED:
 								{
-									if (! (CalculateServiceJobResult (job_p)))
+									//RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+
+									if (! (job_p -> sj_result_p))
+										{
+											if (! (CalculateServiceJobResult (job_p)))
+												{
+													char job_uuid_s [UUID_STRING_BUFFER_SIZE];
+
+													ConvertUUIDToString (job_id, job_uuid_s);
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to calculate results for job \"%s\"", job_uuid_s);
+												}
+										}
+								}
+								break;
+
+
+							case OS_ERROR:
+							case OS_FAILED_TO_START:
+							case OS_FAILED:
+								{
+									RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+								}
+								break;
+
+								/*
+								 * If the job has updated its status but not yet finished running,
+								 * then update the value stored in the jobs manager
+								 */
+							case OS_PENDING:
+							case OS_STARTED:
+								{
+									if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
 										{
 											char job_uuid_s [UUID_STRING_BUFFER_SIZE];
 
 											ConvertUUIDToString (job_id, job_uuid_s);
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to calculate results for job \"%s\"", job_uuid_s);
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
 										}
 								}
-						}
-						break;
+								break;
 
+							default:
+								break;
+						}		/* switch (current_status) */
 
-					case OS_ERROR:
-					case OS_FAILED_TO_START:
-					case OS_FAILED:
-						{
-							RemoveServiceJobFromJobsManager (manager_p, job_id, false);
-						}
-						break;
-
-						/*
-						 * If the job has updated its status but not yet finished running,
-						 * then update the value stored in the jobs manager
-						 */
-					case OS_PENDING:
-					case OS_STARTED:
-						{
-							if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
-								{
-									char job_uuid_s [UUID_STRING_BUFFER_SIZE];
-
-									ConvertUUIDToString (job_id, job_uuid_s);
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
-								}
-						}
-						break;
-
-					default:
-						break;
-				}		/* switch (current_status) */
+				}		/* if (current_status != old_status) */
 
 
 			job_json_p = get_job_json_fn (job_p, false);
@@ -1884,7 +1888,7 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get job %s for \"%s\" %s", identifier_s, job_p -> sj_name_s ? job_p -> sj_name_s : "", uuid_s);
 				}
 
-			num_live_jobs = GetNumberOfLiveJobs (service_p);
+			num_live_jobs = 0; //GetNumberOfLiveJobs (service_p);
 
 
 			#if SERVER_DEBUG >= STM_LEVEL_FINE
@@ -1927,7 +1931,7 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 			else
 				{
 					json_decref (job_json_p);
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s for \"%s\" %s", identifier_s, job_p -> sj_name_s ? job_p -> sj_name_s : "", uuid_s);
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to add job %s for %s", identifier_s, uuid_s);
 				}
 		}
 
