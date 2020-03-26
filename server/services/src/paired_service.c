@@ -548,7 +548,7 @@ static bool AddRemoteServiceJob (RemoteServiceJob *job_p, Service *service_p, co
 	 * the local uuid
 	 */
 
-		if (AddServiceJobToService (service_p, & (job_p -> rsj_job), false))
+		if (AddServiceJobToService (service_p, & (job_p -> rsj_job)))
 			{
 				if ((save_job_fn != NULL) && (!save_job_fn (job_p, service_data_p)))
 					{

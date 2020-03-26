@@ -70,7 +70,7 @@ ServiceJobSet *AllocateSimpleServiceJobSet (struct Service *service_p, const cha
 
 	if (job_set_p)
 		{
-			ServiceJob *job_p = CreateAndAddServiceJobToService (service_p, job_name_s, job_description_s, NULL, NULL, NULL, false);
+			ServiceJob *job_p = CreateAndAddServiceJobToService (service_p, job_name_s, job_description_s, NULL, NULL, NULL);
 
 			if (job_p)
 				{
@@ -103,21 +103,11 @@ ServiceJob *AllocateServiceJob (Service *service_p, const char *job_name_s, cons
 }
 
 
-ServiceJob *CreateAndAddServiceJobToService (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), bool require_lock_flag)
+ServiceJob *CreateAndAddServiceJobToService (Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p))
 {
 	ServiceJob *job_p = AllocateServiceJob (service_p, job_name_s, job_description_s, update_fn, calculate_results_fn, free_job_fn, SJ_DEFAULT_TYPE_S);
 
-	if (job_p)
-		{
-			if (AddServiceJobToService (service_p, job_p, require_lock_flag))
-				{
-					return job_p;
-				}
-
-			FreeServiceJob (job_p);
-		}		/* if (job_p) */
-
-	return NULL;
+	return job_p;
 }
 
 
@@ -165,32 +155,40 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 
 											if (CloneValidString (job_type_s, &copied_job_type_s))
 												{
-													job_p -> sj_name_s = copied_job_name_s;
-													job_p -> sj_description_s = copied_job_description_s;
-													job_p -> sj_service_name_s = copied_service_name_s;
+													if (AddServiceJobToService (service_p, job_p))
+														{
+															job_p -> sj_name_s = copied_job_name_s;
+															job_p -> sj_description_s = copied_job_description_s;
+															job_p -> sj_service_name_s = copied_service_name_s;
 
-													job_p -> sj_result_p = NULL;
-													job_p -> sj_metadata_p = NULL;
+															job_p -> sj_result_p = NULL;
+															job_p -> sj_metadata_p = NULL;
 
-													job_p -> sj_update_fn = update_fn;
-													job_p -> sj_free_fn = free_job_fn;
+															job_p -> sj_update_fn = update_fn;
+															job_p -> sj_free_fn = free_job_fn;
 
-													job_p -> sj_calculate_result_fn = calculate_results_fn;
+															job_p -> sj_calculate_result_fn = calculate_results_fn;
 
-													job_p -> sj_is_updating_flag = false;
+															job_p -> sj_is_updating_flag = false;
 
-													job_p -> sj_type_s = copied_job_type_s;
+															job_p -> sj_type_s = copied_job_type_s;
 
-		#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
-													{
-														char uuid_s [UUID_STRING_BUFFER_SIZE];
+				#if SERVICE_JOB_DEBUG >= STM_LEVEL_FINE
+															{
+																char uuid_s [UUID_STRING_BUFFER_SIZE];
 
-														ConvertUUIDToString (job_p -> sj_id, uuid_s);
-														PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Job: %s\n", uuid_s);
-													}
-		#endif
+																ConvertUUIDToString (job_p -> sj_id, uuid_s);
+																PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Job: %s\n", uuid_s);
+															}
+				#endif
 
-													return true;
+															return true;
+														}
+													else
+														{
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job \"%s\" to service  \"%s\"", job_name_s, GetServiceName (service_p));
+														}
+
 												}
 											else
 												{
@@ -578,7 +576,11 @@ void FreeServiceJobNode (ListItem *node_p)
 {
 	ServiceJobNode *service_job_node_p = (ServiceJobNode *) node_p;
 
-	FreeServiceJob (service_job_node_p -> sjn_job_p);
+	if (service_job_node_p)
+		{
+			FreeServiceJob (service_job_node_p -> sjn_job_p);
+		}
+
 	FreeMemory (service_job_node_p);
 }
 
@@ -1083,7 +1085,7 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer
 
 					if (add_job_flag)
 						{
-							if (!AddServiceJobToService (service_p, job_p, false))
+							if (!AddServiceJobToService (service_p, job_p))
 								{
 									char uuid_s [UUID_STRING_BUFFER_SIZE];
 

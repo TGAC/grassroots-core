@@ -1095,13 +1095,11 @@ GRASSROOTS_SERVICE_API void SetMetadataForService (Service *service_p, SchemaTer
  *
  * @param service_p The Service to add the ServiceJob to.
  * @param job_p The ServiceJob to add.
- * @param require_lock_flag Set this to <code>true</code> if the Service needs to be thread-safe, <code>false</code>
- * otherwise.
  * @return <code>true</code> if the ServiceJob was added to the Service successfully,
  * <code>false</code> otherwise.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require_lock_flag);
+GRASSROOTS_SERVICE_API bool AddServiceJobToService (Service *service_p, ServiceJob *job_p);
 
 
 /**

@@ -269,13 +269,11 @@ GRASSROOTS_SERVICE_API ServiceJob *AllocateServiceJob (struct Service *service_p
  * this ServiceJob. This is useful for subclasses of ServiceJob that need custom
  * behaviour. If this is <code>NULL</code>, then ClearServiceJob will be used before
  * deallocating the memory ServiceJob structure.
- * @param require_lock_flag Set this to <code>true</code> if the Service is running in a multi-threaded
- * environment.
  * @return The newly-allocated ServiceJob or <code>NULL</code> upon error.
  * @see AllocateServiceJob
  * @memberof ServiceJob
  */
-GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToService (struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p), bool require_lock_flag);
+GRASSROOTS_SERVICE_API ServiceJob *CreateAndAddServiceJobToService (struct Service *service_p, const char *job_name_s, const char *job_description_s, bool (*update_fn) (struct ServiceJob *job_p), bool (*calculate_results_fn) (struct ServiceJob *job_p), void (*free_job_fn) (struct ServiceJob *job_p));
 
 
 /**

@@ -2104,9 +2104,10 @@ bool UnlockService (Service *service_p)
 }
 
 
-bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require_lock_flag)
+bool AddServiceJobToService (Service *service_p, ServiceJob *job_p)
 {
 	bool added_flag = false;
+
 	ServiceJobNode *node_p = AllocateServiceJobNode (job_p);
 
 	if (node_p)
@@ -2120,18 +2121,30 @@ bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require
 				{
 					if (service_p -> se_sync_data_p)
 						{
-							if (require_lock_flag || AcquireSyncDataLock (service_p -> se_sync_data_p))
+							if (AcquireSyncDataLock (service_p -> se_sync_data_p))
 								{
-									LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
-
-									if (require_lock_flag || ReleaseSyncDataLock (service_p -> se_sync_data_p))
+									/*
+									 * Is it already in the Service's job set?
+									 */
+									if (!FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
 										{
-											added_flag = true;
+											LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+
+											if (ReleaseSyncDataLock (service_p -> se_sync_data_p))
+												{
+													job_p -> sj_service_p = service_p;
+													added_flag = true;
+												}
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+												}
 										}
 									else
 										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+											added_flag = true;
 										}
+
 								}
 							else
 								{
@@ -2140,8 +2153,16 @@ bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require
 						}
 					else
 						{
-							LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
-							added_flag = true;
+							if (!FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
+								{
+									LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+									job_p -> sj_service_p = service_p;
+									added_flag = true;
+								}
+							else
+								{
+									added_flag = true;
+								}
 						}
 
 				}		/* if (service_p -> se_jobs_p) */
@@ -2150,7 +2171,13 @@ bool AddServiceJobToService (Service *service_p, ServiceJob *job_p, bool require
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "No ServiceJobSet for \"%s\"", GetServiceName (service_p));
 				}
 
-		}
+			if (!added_flag)
+				{
+					node_p -> sjn_job_p = NULL;
+					FreeServiceJobNode (& (node_p -> sjn_node));
+				}
+
+		}		/* if (node_p) */
 	else
 		{
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
