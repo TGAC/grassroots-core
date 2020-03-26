@@ -191,7 +191,7 @@ bool IsRemoteServiceJobJSON (const json_t *job_json_p)
 }
 
 
-RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer *grassroots_p)
+RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p, Service *service_p, GrassrootsServer *grassroots_p)
 {
 	if (IsRemoteServiceJobJSON (job_json_p))
 		{
@@ -199,7 +199,7 @@ RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p, Grassro
 
 			if (job_p)
 				{
-					if (InitServiceJobFromJSON (& (job_p -> rsj_job), job_json_p, grassroots_p))
+					if (InitServiceJobFromJSON (& (job_p -> rsj_job), job_json_p, service_p, grassroots_p))
 						{
 							const char *remote_service_s;
 

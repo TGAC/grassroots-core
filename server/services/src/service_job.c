@@ -884,7 +884,7 @@ static bool CopyValidJSON (const json_t *src_p, const char *src_key_s, json_t **
 }
 
 
-bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p, GrassrootsServer *grassroots_p)
+bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p, Service *service_p, GrassrootsServer *grassroots_p)
 {
 	bool success_flag = false;
 
@@ -898,19 +898,19 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p, Grassr
 
 			if (service_name_s)
 				{
-					const char *uuid_s = GetJSONString (job_json_p, JOB_UUID_S);
+					const char *service_s = GetServiceName (service_p);
 
-					if (uuid_s)
+					if (strcmp (service_name_s, service_s) == 0)
 						{
-							const char *job_name_s = GetJSONString (job_json_p, JOB_NAME_S);
-							const char *job_description_s  = GetJSONString (job_json_p, JOB_DESCRIPTION_S);
-							OperationStatus status;
+							const char *uuid_s = GetJSONString (job_json_p, JOB_UUID_S);
 
-							if (GetOperationStatusFromServiceJobJSON (job_json_p, &status))
+							if (uuid_s)
 								{
-									Service *service_p = GetServiceByName (grassroots_p, service_name_s, NULL);
+									const char *job_name_s = GetJSONString (job_json_p, JOB_NAME_S);
+									const char *job_description_s  = GetJSONString (job_json_p, JOB_DESCRIPTION_S);
+									OperationStatus status;
 
-									if (service_p)
+									if (GetOperationStatusFromServiceJobJSON (job_json_p, &status))
 										{
 											const char *type_s = GetJSONString (job_json_p, JOB_TYPE_S);
 
@@ -968,23 +968,25 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p, Grassr
 
 												}		/* if (type_s) */
 
-										}		/* if (service_p) */
+
+										}		/* if (GetOperationStatusFromServiceJobJSON (job_json_p, &status)) */
 									else
 										{
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get service \"%s\"", service_name_s);
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get status from JSON");
 										}
 
-								}		/* if (GetOperationStatusFromServiceJobJSON (job_json_p, &status)) */
+								}		/* if (uuid_s) */
 							else
 								{
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get status from JSON");
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get uuid from JSON");
 								}
 
-						}		/* if (uuid_s) */
+						}		/* if (strcmp (service_name_s, service_s) == 0) */
 					else
 						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Couldn't get uuid from JSON");
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Service name in json \"%s\" does not match instantiated service name \"%s\"", service_name_s, service_s);
 						}
+
 
 				}		/* if (service_name_s) */
 			else
@@ -1042,7 +1044,7 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer
 
 							if (job_p)
 								{
-									if (!InitServiceJobFromJSON (job_p, job_json_p, grassroots_p))
+									if (!InitServiceJobFromJSON (job_p, job_json_p, service_p, grassroots_p))
 										{
 											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, job_json_p, "Failed to create ServiceJob with InitServiceJobFromJSON");
 											FreeServiceJob (job_p);

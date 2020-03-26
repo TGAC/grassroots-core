@@ -147,7 +147,7 @@ GRASSROOTS_SERVICE_API bool IsRemoteServiceJobJSON (const json_t *job_json_p);
  * @return The newly-allocated RemoteServiceJob or <code>NULL</code> upon error.
  * @memberof RemoteServiceJob
  */
-GRASSROOTS_SERVICE_API RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer *grassroots_p);
+GRASSROOTS_SERVICE_API RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p, struct Service *service_p, GrassrootsServer *grassroots_p);
 
 
 
