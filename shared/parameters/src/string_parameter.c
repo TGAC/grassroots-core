@@ -53,6 +53,9 @@ static Parameter *CloneStringParameter (const Parameter *param_p, const ServiceD
 
 static bool CopyStringParameterOptions (const StringParameter *src_p, StringParameter *dest_p);
 
+
+static bool SetStringJSONValue (json_t *param_json_p, const char *key_s, const char *value_s);
+
 /*
  * API DEFINITIONS
  */
@@ -527,20 +530,22 @@ static void ClearStringParameter (Parameter *param_p)
 }
 
 
+
+
 static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	StringParameter *string_param_p = (StringParameter *) param_p;
 	bool success_flag = false;
 
-	if ((string_param_p -> sp_current_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, string_param_p -> sp_current_value_s)))
+	if (SetStringJSONValue (param_json_p, PARAM_CURRENT_VALUE_S, string_param_p -> sp_current_value_s))
 		{
 			if (full_definition_flag)
 				{
-					if ((string_param_p -> sp_default_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_DEFAULT_VALUE_S, string_param_p -> sp_default_value_s)))
+					if (SetStringJSONValue (param_json_p, PARAM_DEFAULT_VALUE_S, string_param_p -> sp_default_value_s))
 						{
-							if ((string_param_p -> sp_min_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_MIN_S, string_param_p -> sp_min_value_s)))
+							if (SetStringJSONValue (param_json_p, PARAM_MIN_S, string_param_p -> sp_min_value_s))
 								{
-									if ((string_param_p -> sp_max_value_s == NULL ) || (SetJSONString (param_json_p, PARAM_MAX_S, string_param_p -> sp_max_value_s)))
+									if (SetStringJSONValue (param_json_p, PARAM_MAX_S, string_param_p -> sp_max_value_s))
 										{
 											LinkedList *options_p = param_p -> pa_options_p;
 
@@ -844,3 +849,21 @@ static bool CopyStringParameterOptions (const StringParameter *src_p, StringPara
 
 	return success_flag;
 }
+
+
+static bool SetStringJSONValue (json_t *param_json_p, const char *key_s, const char *value_s)
+{
+	bool success_flag = false;
+
+	if (value_s)
+		{
+			success_flag = SetJSONString (param_json_p, key_s, value_s);
+		}
+	else
+		{
+			success_flag = SetJSONNull (param_json_p, key_s);
+		}
+
+	return success_flag;
+}
+

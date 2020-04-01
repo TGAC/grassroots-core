@@ -34,9 +34,9 @@
 
 
 #ifdef _DEBUG
-	#define STANDALONE_CLIENT_DEBUG (STM_LEVEL_INFO)
+	#define CLIENT_DEBUG (STM_LEVEL_FINEST)
 #else
-	#define STANDALONE_CLIENT_DEBUG (STM_LEVEL_NONE)
+	#define CLIENT_DEBUG (STM_LEVEL_NONE)
 #endif
 
 
@@ -621,7 +621,7 @@ int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p)
 	const char *name_s = GetJSONString (service_json_p, SERVICE_NAME_S);
 
 #if CLIENT_DEBUG >= STM_LEVEL_FINER
-	PrintJSONToLog (STANDALONE_CLIENT_DEBUG, __FILE__, __LINE__, service_json_p, "client received service:\n");
+	PrintJSONToLog (CLIENT_DEBUG, __FILE__, __LINE__, service_json_p, "client received service:\n");
 #endif
 
 	if (name_s)
