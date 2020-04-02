@@ -160,7 +160,18 @@ const char *GetJSONString (const json_t *json_p, const char * const key_s)
 
 bool SetJSONString (json_t *json_p, const char * const key_s, const char * const value_s)
 {
-	return SetJSONValue (json_p, key_s, json_string (value_s));
+	bool success_flag = false;
+
+	if ()
+		{
+			success_flag = SetJSONValue (json_p, key_s, json_string (value_s));
+		}
+	else
+		{
+			success_flag = SetJSONNull (json_p, key_s);
+		}
+
+	return success_flag;
 }
 
 
