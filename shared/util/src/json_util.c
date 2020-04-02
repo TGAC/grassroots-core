@@ -162,7 +162,7 @@ bool SetJSONString (json_t *json_p, const char * const key_s, const char * const
 {
 	bool success_flag = false;
 
-	if ()
+	if (value_s)
 		{
 			success_flag = SetJSONValue (json_p, key_s, json_string (value_s));
 		}
