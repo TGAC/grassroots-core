@@ -452,22 +452,39 @@ static bool SetTimeValueFromJSON (const json_t *param_json_p, const char *key_s,
 		{
 			const char *value_s = json_string_value (value_p);
 
-			if (*time_pp)
+			if (IsStringEmpty (value_s))
 				{
-					if (SetTimeFromString (*time_pp, value_s))
-						{
-							success_flag = true;
-						}
-				}
-			else
-				{
-					*time_pp = GetTimeFromString (value_s);
-
 					if (*time_pp)
 						{
-							success_flag = true;
+							FreeTime (*time_pp);
 						}
+
+					*time_pp = NULL;
+					success_flag = true;
+
+				}		/* if (IsStringEmpty (value_s)) */
+			else
+				{
+					if (*time_pp)
+						{
+							if (SetTimeFromString (*time_pp, value_s))
+								{
+									success_flag = true;
+								}
+						}
+					else
+						{
+							*time_pp = GetTimeFromString (value_s);
+
+							if (*time_pp)
+								{
+									success_flag = true;
+								}
+						}
+
 				}
+
+
 		}		/* else if (json_is_string (value_p)) */
 
 	return success_flag;
