@@ -1847,7 +1847,7 @@ bool AddCompoundErrorToServiceJob (ServiceJob *job_p, const char *param_s, const
 
 			if (!param_errors_p)
 				{
-					param_errors_p = CreateAndAddErrorObjectForParameter (job_p -> sj_errors_p, param_s, PT_NUM_TYPES, false);
+					param_errors_p = CreateAndAddErrorObjectForParameter (job_p -> sj_errors_p, JOB_RUNTIME_ERRORS_S, PT_NUM_TYPES, false);
 				}
 		}
 
