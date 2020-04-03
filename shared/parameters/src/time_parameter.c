@@ -479,7 +479,11 @@ static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const ch
 	bool success_flag = false;
 	TimeParameter *time_param_p = (TimeParameter *) param_p;
 
-	if (value_s)
+	if (IsStringEmpty (value_s))
+		{
+			success_flag = SetTimeParameterCurrentValue (time_param_p, NULL);
+		}
+	else
 		{
 			struct tm t;
 
@@ -490,10 +494,6 @@ static bool SetTimeParameterCurrentValueFromString (Parameter *param_p, const ch
 							success_flag = true;
 						}
 				}
-		}
-	else
-		{
-			success_flag = SetTimeParameterCurrentValue (time_param_p, NULL);
 		}
 
 	return success_flag;
