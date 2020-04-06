@@ -52,6 +52,29 @@ typedef struct FileInformation
 #endif
 
 
+
+/**
+ * Initialise a FileInformation ready for use.
+ *
+ * @param info_p The FileInformation to initialise..
+ * @memberof FileInformation
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API	void InitFileInformation (FileInformation *info_p);
+
+
+/**
+ * Calculate the FileInformation for a given filename.
+ *
+ * @param path_s The path to the file/directory to get the information for.
+ * @param info_p Where the FileInformation will be stored.
+ * @return <code>true</code> if the information was calculated successfully, <code>false</code>
+ * otherwise.
+ * @memberof FileInformation
+ */
+GRASSROOTS_UTIL_API bool CalculateFileInformation (const char * const path_s, FileInformation *info_p);
+
+
 /**
  * Get the filename only from a given path.
  *
@@ -309,18 +332,6 @@ GRASSROOTS_UTIL_API char *GetHomeDirectory (void);
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API bool IsDirectory (const char * const path_s);
-
-
-/**
- * Calculate the FileInformation for a given filename.
- *
- * @param path_s The path to the file/directory to get the information for.
- * @param info_p Where the FileInformation will be stored.
- * @return <code>true</code> if the information was calculated successfully, <code>false</code>
- * otherwise.
- * @memberof FileInformation
- */
-GRASSROOTS_UTIL_API bool CalculateFileInformation (const char * const path_s, FileInformation *info_p);
 
 
 /**

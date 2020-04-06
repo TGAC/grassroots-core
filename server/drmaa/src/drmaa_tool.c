@@ -310,6 +310,8 @@ void ClearDrmaaTool (DrmaaTool *tool_p)
 					++ filename_s;
 				}
 
+			InitFileInformation (&fi);
+
 			if (CalculateFileInformation (filename_s, &fi))
 				{
 					/* If the stdout/stderr file is empty, then delete it */

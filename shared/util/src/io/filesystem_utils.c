@@ -138,6 +138,14 @@ void UsePlatformFileSeparator (char *value_s)
 }
 
 
+void InitFileInformation (FileInformation *info_p)
+{
+	info_p -> fi_last_modified = 0;
+	info_p -> fi_size = 0;
+}
+
+
+
 char *SetFileExtension (const char * const filename_s, const char * const extension_s, bool replace_flag)
 {
 	char *new_filename_s = NULL;
