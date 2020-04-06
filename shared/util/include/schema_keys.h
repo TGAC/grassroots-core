@@ -238,6 +238,8 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *SERVER_REMOTE_PAIRED_SERVCE_S VAL("remote");
 	/**@}*/
 
+
+
 	/* Start of doxygen member group */
 	/**@{*/
 	PREFIX const char *CONNECTION_RAW_S VAL("connection_raw");

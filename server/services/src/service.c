@@ -1542,7 +1542,7 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 }
 
 
-const char *GetServiceIcon (Service *service_p)
+const char *GetServiceIcon (const Service *service_p)
 {
 	const char *icon_uri_s = NULL;
 
@@ -1552,6 +1552,19 @@ const char *GetServiceIcon (Service *service_p)
 		}
 
 	return icon_uri_s;
+}
+
+
+const char *GetServiceInformationPage (const Service *service_p)
+{
+	const char *info_uri_s = NULL;
+
+	if ((service_p -> se_data_p) && (service_p -> se_data_p -> sd_config_p))
+		{
+			info_uri_s = GetJSONString (service_p -> se_data_p -> sd_config_p, OPERATION_INFORMATION_URI_S);
+		}
+
+	return info_uri_s;
 }
 
 

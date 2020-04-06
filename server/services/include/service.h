@@ -799,10 +799,21 @@ GRASSROOTS_SERVICE_API json_t *GetServiceAsJSON (Service * const service_p, Reso
  * Get the URL of an icon image to use for a given Service.
  *
  * @param service_p The Service to get the icon for.
- * @return The URL of the image to use for the Service.
+ * @return The URL of the image to use for the Service. This can be <code>NULL</code>.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API const char *GetServiceIcon (Service *service_p);
+GRASSROOTS_SERVICE_API const char *GetServiceIcon (const Service *service_p);
+
+
+
+/**
+ * Get the URL of a web page describing  a given Service.
+ *
+ * @param service_p The Service to get the page for.
+ * @return The URL of the description page for the Service. This can be <code>NULL</code>.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_API const char *GetServiceInformationPage (const Service *service_p);
 
 
 /**
