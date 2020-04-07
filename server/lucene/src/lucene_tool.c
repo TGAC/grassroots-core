@@ -386,70 +386,104 @@ bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 
 																			if (error_s)
 																				{
-																					SetLuceneToolOutput (tool_p, output_s);
+																					char *results_s = ConcatenateStrings (full_filename_stem_s, ".json");
 
-																					if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -err ", error_s, NULL))
+																					if (results_s)
 																						{
-																							const char *command_s = GetByteBufferData (buffer_p);
-																							int res = system (command_s);
-
-																							if (res != -1)
+																							if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -err ", error_s, " -results ", results_s, NULL))
 																								{
-																									int process_exit_code = WEXITSTATUS (res);
+																									const char *command_s = GetByteBufferData (buffer_p);
+																									int res;
 
-																									if (process_exit_code == 0)
+																									SetLuceneToolOutput (tool_p, output_s);
+
+																									res = system (command_s);
+
+																									if (res != -1)
 																										{
-																											/*
-																											 * check error file
-																											 */
-																											FileInformation info;
+																											int process_exit_code = WEXITSTATUS (res);
 
-																											InitFileInformation (&info);
-
-																											if (CalculateFileInformation (error_s, &info))
+																											if (process_exit_code == 0)
 																												{
-																													if (info.fi_size == 0)
-																														{
-																															success_flag = true;
-																															PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
-																														}
-																													else
-																														{
-																															char *error_details_s = GetFileContentsAsStringByFilename (error_s);
 
-																															if (error_details_s)
+																													/*
+																													 * Do we have a results file?
+																													 */
+																													json_error_t err;
+																													json_t *results_p = json_load_file (results_s, 0, &err);
+
+																													if (results_p)
+																														{
+																															int successes;
+																															int total;
+
+																															if (GetJSONInteger (results_p, "successes", &successes))
 																																{
-																																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running:\n%s", command_s, error_details_s);
 
-																																	FreeCopiedString (error_details_s);
+																																}		/* if (GetJSONInteger (results_p, "successes", &successes)) */
+
+																														}		/* if (results_p) */
+
+																													/*
+																													 * check error file
+																													 */
+																													FileInformation info;
+
+																													InitFileInformation (&info);
+
+																													if (CalculateFileInformation (error_s, &info))
+																														{
+
+
+																															if (info.fi_size == 0)
+																																{
+																																	success_flag = true;
+																																	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
 																																}
 																															else
 																																{
-																																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running contained in \"%s\"", command_s, error_s);
-																																}
-																														}
+																																	char *error_details_s = GetFileContentsAsStringByFilename (error_s);
 
-																												}		/* if (CalculateFileInformation (error_s, &info)) */
+																																	if (error_details_s)
+																																		{
+																																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running:\n%s", command_s, error_details_s);
+
+																																			FreeCopiedString (error_details_s);
+																																		}
+																																	else
+																																		{
+																																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running contained in \"%s\"", command_s, error_s);
+																																		}
+																																}
+
+																														}		/* if (CalculateFileInformation (error_s, &info)) */
+																													else
+																														{
+																															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CalculateFileInformation failed for \"%s\"", error_s);
+																														}
+																												}
 																											else
 																												{
-																													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CalculateFileInformation failed for \"%s\"", error_s);
+																													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
 																												}
 																										}
 																									else
 																										{
-																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
 																										}
-																								}
+
+																								}		/* if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL)) */
 																							else
 																								{
-																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
-																								}
+																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to append output and log params for \"%s\"", full_filename_stem_s);
+																								}																							FreeCopiedString (results_s);
 
-																						}		/* if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL)) */
+																						}
 																					else
 																						{
-																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to append output and log params for \"%s\"", full_filename_stem_s);
+																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to create results filename for stem \"%s\"", full_filename_stem_s);
 																						}
+
 
 																					FreeCopiedString (error_s);
 																				}		/* if (error_s) */
