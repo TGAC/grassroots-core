@@ -152,10 +152,10 @@ GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s
  * @param data_p The data to index
  * @param update_flag If this is <code>true</code> then add to the current index.
  * If this <code>false</code>, then the index will be cleared before indexing the given data.
- * @return <code>true</code> if the LuceneTool ran successfully, <code>false</code> otherwise.
+ * @return The OperationStatus from running the indexing.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag);
+GRASSROOTS_LUCENE_API OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag);
 
 
 GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p);

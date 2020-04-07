@@ -327,9 +327,9 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 }
 
 
-bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
+OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 {
-	bool success_flag = false;
+	OperationStatus status = OS_FAILED;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
 
 	if (buffer_p)
@@ -415,10 +415,28 @@ bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 																													if (results_p)
 																														{
 																															int successes;
-																															int total;
 
 																															if (GetJSONInteger (results_p, "successes", &successes))
 																																{
+																																	int total;
+
+																																	if (GetJSONInteger (results_p, "successes", &total))
+																																		{
+																																			if (total != 0)
+																																				{
+																																					if (successes == total)
+																																						{
+																																							status = OS_SUCCEEDED;
+																																						}
+																																				}
+																																			else
+																																				{
+																																					if (total > 0)
+																																						{
+																																							status = OS_PARTIALLY_SUCCEEDED;
+																																						}
+																																				}
+																																		}		/* if (GetJSONInteger (results_p, "successes", &successes)) */
 
 																																}		/* if (GetJSONInteger (results_p, "successes", &successes)) */
 
@@ -437,7 +455,6 @@ bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 
 																															if (info.fi_size == 0)
 																																{
-																																	success_flag = true;
 																																	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
 																																}
 																															else
@@ -549,7 +566,7 @@ bool IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to allocate ByteBuffer");
 		}
 
-	return success_flag;
+	return status;
 }
 
 
