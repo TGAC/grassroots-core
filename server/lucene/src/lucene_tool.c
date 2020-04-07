@@ -440,43 +440,46 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 
 																																}		/* if (GetJSONInteger (results_p, "successes", &successes)) */
 
+																															json_decfef (results_p);
 																														}		/* if (results_p) */
 
-																													/*
-																													 * check error file
-																													 */
-																													FileInformation info;
 
-																													InitFileInformation (&info);
-
-																													if (CalculateFileInformation (error_s, &info))
+																													if (status != OS_SUCCEEDED)
 																														{
+																															/*
+																															 * check error file
+																															 */
+																															FileInformation info;
 
+																															InitFileInformation (&info);
 
-																															if (info.fi_size == 0)
+																															if (CalculateFileInformation (error_s, &info))
 																																{
-																																	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
-																																}
-																															else
-																																{
-																																	char *error_details_s = GetFileContentsAsStringByFilename (error_s);
-
-																																	if (error_details_s)
+																																	if (info.fi_size == 0)
 																																		{
-																																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running:\n%s", command_s, error_details_s);
-
-																																			FreeCopiedString (error_details_s);
+																																			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
 																																		}
 																																	else
 																																		{
-																																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running contained in \"%s\"", command_s, error_s);
-																																		}
-																																}
+																																			char *error_details_s = GetFileContentsAsStringByFilename (error_s);
 
-																														}		/* if (CalculateFileInformation (error_s, &info)) */
-																													else
-																														{
-																															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CalculateFileInformation failed for \"%s\"", error_s);
+																																			if (error_details_s)
+																																				{
+																																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running:\n%s", command_s, error_details_s);
+
+																																					FreeCopiedString (error_details_s);
+																																				}
+																																			else
+																																				{
+																																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" had errors whilst running contained in \"%s\"", command_s, error_s);
+																																				}
+																																		}
+
+																																}		/* if (CalculateFileInformation (error_s, &info)) */
+																															else
+																																{
+																																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CalculateFileInformation failed for \"%s\"", error_s);
+																																}
 																														}
 																												}
 																											else
