@@ -386,7 +386,7 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 
 																			if (error_s)
 																				{
-																					char *results_s = ConcatenateStrings (full_filename_stem_s, ".json");
+																					char *results_s = ConcatenateStrings (full_filename_stem_s, ".results");
 
 																					if (results_s)
 																						{
@@ -440,7 +440,7 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 
 																																}		/* if (GetJSONInteger (results_p, "successes", &successes)) */
 
-																															json_decfef (results_p);
+																															json_decref (results_p);
 																														}		/* if (results_p) */
 
 
