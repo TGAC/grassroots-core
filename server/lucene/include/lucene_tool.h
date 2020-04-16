@@ -158,7 +158,19 @@ GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s
 GRASSROOTS_LUCENE_API OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag);
 
 
-GRASSROOTS_LUCENE_API bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p);
+/**
+ * Delete data in Lucene.
+ *
+ * @param tool_p The LuceneTool to index with.
+ * @param query_s The query to run for deleting matching documents
+ * @return The OperationStatus from running the deletion.
+ * @memberof LuceneTool
+ */
+GRASSROOTS_LUCENE_API OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s);
+
+
+
+GRASSROOTS_LUCENE_API OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p);
 
 GRASSROOTS_LUCENE_API bool SetLuceneToolOutput (LuceneTool *tool_p, char *output_s);
 

@@ -327,6 +327,14 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 }
 
 
+OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s)
+{
+	OperationStatus status = OS_FAILED;
+
+	return status;
+}
+
+
 OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool update_flag)
 {
 	OperationStatus status = OS_FAILED;
@@ -610,9 +618,9 @@ static bool ReplaceValidString (const char *src_s, char **dest_ss)
 }
 
 
-bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p)
+OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p)
 {
-	bool success_flag = false;
+	OperationStatus status = OS_FAILED;
 
 	if (tool_p -> lt_output_file_s)
 		{
@@ -636,29 +644,41 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 										{
 											const size_t num_docs = json_array_size (docs_p);
 											size_t i = 0;
+											size_t num_successes = 0;
 
-											success_flag = true;
-
-											while ((i < num_docs) && success_flag)
+											while (i < num_docs)
 												{
 													const json_t *result_p = json_array_get (docs_p, i);
 
 													if (LoadDocument (result_p, document_p))
 														{
-															if (!lucene_results_callback_fn (document_p, i, data_p))
+															if (lucene_results_callback_fn (document_p, i, data_p))
 																{
-																	success_flag = false;
+																	++ num_successes;
+																}
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, result_p, "Lucene callback conversion function failed");
 																}
 
 														}		/* if (LoadDocument (result_p, document_p)) */
 													else
 														{
-															success_flag = false;
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, result_p, "LoadDocument failed");
 														}
 
 													++ i;
 													ClearLuceneDocument (document_p);
 												}		/* while (loop_flag && success_flag) */
+
+											if (num_successes == num_docs)
+												{
+													status = OS_SUCCEEDED;
+												}
+											else if (num_successes > 0)
+												{
+													status = OS_PARTIALLY_SUCCEEDED;
+												}
 
 										}		/* if (json_is_array (docs_p)) */
 
@@ -706,7 +726,7 @@ bool ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to,
 		}		/* if (tool_p -> lt_output_file_s) */
 
 
-	return success_flag;
+	return status;
 }
 
 
