@@ -128,6 +128,7 @@ static bool GetParameterTypeFromSeparateObjects (const json_t * const json_p, Pa
 
 static bool AddParameterRequiredToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
+static bool AddParameterReadOnlyStatusToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p);
 
 /******************************************************/
 
@@ -384,6 +385,12 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 							if (GetJSONBoolean (root_p, PARAM_REQUIRED_S, &flag))
 								{
 									param_p -> pa_required_flag = flag;
+								}
+
+							flag = false;
+							if (GetJSONBoolean (root_p, PARAM_READ_ONLY_S, &flag))
+								{
+									param_p -> pa_read_only_flag = flag;
 								}
 
 							/* AllocateParameter made a deep copy of the current and default values, so we can deallocate our cached copies */
@@ -908,6 +915,15 @@ json_t *GetParameterAsJSON (const Parameter * const param_p, const SchemaVersion
 																						{
 																							if (AddParameterRequiredToJSON (param_p, root_p, sv_p))
 																								{
+																									if (AddParameterReadOnlyStatusToJSON (param_p, root_p, sv_p))
+																										{
+																											success_flag = true;
+																										}		/* if (AddParameterRequiredToJSON (param_p, root_p, sv_p)) */
+																									else
+																										{
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed: AddParameterReadOnlyStatusToJSON for \"%s\"", param_p -> pa_name_s);
+																										}
+
 																									success_flag = true;
 																								}		/* if (AddParameterRequiredToJSON (param_p, root_p, sv_p)) */
 																							else
@@ -1592,6 +1608,18 @@ static bool AddParameterRequiredToJSON (const Parameter * const param_p, json_t 
 	return success_flag;
 }
 
+
+static bool AddParameterReadOnlyStatusToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
+{
+	bool success_flag = true;
+
+	if (param_p -> pa_read_only_flag)
+		{
+			success_flag = SetJSONBoolean (root_p, PARAM_READ_ONLY_S, true);
+		}
+
+	return success_flag;
+}
 
 const char *GetGrassrootsTypeAsString (const ParameterType param_type)
 {
@@ -2471,6 +2499,7 @@ static bool InitParameterWithoutCallbacks (Parameter *param_p, const struct Serv
 											param_p -> pa_refresh_service_flag = false;
 
 											param_p -> pa_required_flag = false;
+											param_p -> pa_read_only_flag = false;
 
 											/*
 											 * Check for any values that have been overrode in

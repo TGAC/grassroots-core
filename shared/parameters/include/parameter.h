@@ -200,6 +200,12 @@ struct Parameter
 	struct Parameter *(*pa_clone_fn) (const struct Parameter *param_p, const struct ServiceData *data_p);
 
 	bool (*pa_set_value_from_string_fn) (struct Parameter *param_p, const char *value_s);
+
+
+	/**
+	 * Is the Parameter read-only?
+	 */
+	bool pa_read_only_flag;
 };
 
 
