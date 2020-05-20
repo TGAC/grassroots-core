@@ -316,7 +316,7 @@ static bool AddJSONValue (const json_t *value_to_add_p, const char *key_s, json_
 		}
 	else
 		{
-			success_flag = true;
+			success_flag = AddNullParameterValueToJSON (dest_p, key_s);
 		}
 
 	return success_flag;

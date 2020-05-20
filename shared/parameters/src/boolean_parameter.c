@@ -326,7 +326,7 @@ static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *
 	BooleanParameter *boolean_param_p = (BooleanParameter *) param_p;
 	bool success_flag = false;
 
-	if ((boolean_param_p -> bp_current_value_p == NULL ) || (SetJSONBoolean (param_json_p, PARAM_CURRENT_VALUE_S, * (boolean_param_p -> bp_current_value_p))))
+	if ((boolean_param_p -> bp_current_value_p != NULL ) || (SetJSONBoolean (param_json_p, PARAM_CURRENT_VALUE_S, * (boolean_param_p -> bp_current_value_p))))
 		{
 			if (full_definition_flag)
 				{

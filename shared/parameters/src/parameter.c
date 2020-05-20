@@ -1570,6 +1570,22 @@ bool AddParameterValuesToJSON (const struct Parameter *param_p, json_t *param_js
 	return (param_p -> pa_add_values_to_json_fn (param_p, param_json_p, full_definition_flag));
 }
 
+
+bool AddNullParameterValueToJSON (json_t *param_json_p, const char *key_s)
+{
+	bool success_flag = false;
+	json_t *null_p = json_null ();
+
+	if (json_object_set (param_json_p, key_s, null_p) == 0)
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
+
 static bool AddParameterVisibilityToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const sv_p)
 {
 	bool success_flag = true;
@@ -1938,39 +1954,44 @@ static bool InitParameterStoreFromJSON (const json_t *root_p, HashTable *store_p
 			const json_t *value_p;
 
 			json_object_foreach (store_json_p, key_s, value_p)
-			{
-				char *value_s = NULL;
-				bool alloc_flag = false;
+				{
+					char *value_s = NULL;
+					bool alloc_flag = false;
 
-				if (json_is_string (value_p))
-					{
-						value_s = (char *) json_string_value (value_p);
-					}
-				else
-					{
-						value_s = json_dumps (value_p, JSON_INDENT (2));
+					if (json_is_string (value_p))
+						{
+							value_s = (char *) json_string_value (value_p);
+						}
+					else
+						{
+							value_s = json_dumps (value_p, JSON_INDENT (2));
 
-						if (value_s)
-							{
-								alloc_flag = true;
-							}
-						else
-							{
-								PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "Failed to decode \"%s\" to parameter store\n");
-								success_flag = false;
-							}
-					}
+							if (value_s)
+								{
+									alloc_flag = true;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "Failed to decode \"%s\" to parameter store\n");
+									success_flag = false;
+								}
+						}
 
-				if (success_flag)
-					{
-						if (!PutInHashTable (store_p, key_s, value_s))
-							{
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add \"%s\"=\"%s\" to parameter store\n", key_s, value_s);
-								success_flag = false;
-							}
-					}
+					if (value_s)
+						{
+							if (!PutInHashTable (store_p, key_s, value_s))
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add \"%s\"=\"%s\" to parameter store\n", key_s, value_s);
+									success_flag = false;
+								}
 
-			}		/* json_object_foreach (store_json_p, key_s, value_p) */
+							if (alloc_flag)
+								{
+									free (value_s);
+								}
+						}
+
+				}		/* json_object_foreach (store_json_p, key_s, value_p) */
 
 		}		/* if (store_json_p) */
 

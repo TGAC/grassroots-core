@@ -689,6 +689,10 @@ GRASSROOTS_PARAMS_API void SetParameterCallbacks (Parameter *param_p, void (*cle
 GRASSROOTS_PARAMS_API const json_t *GetParameterFromConfig (const json_t *service_config_p, const char * const param_name_s);
 
 
+
+GRASSROOTS_PARAMS_LOCAL bool AddNullParameterValueToJSON (json_t *param_json_p, const char *key_s);
+
+
 #ifdef __cplusplus
 }
 #endif

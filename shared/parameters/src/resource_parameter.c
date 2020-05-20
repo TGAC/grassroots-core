@@ -302,7 +302,7 @@ static bool AddResourceValueToJSON (const Resource *resource_p, json_t *param_js
 		}
 	else
 		{
-			success_flag = true;
+			success_flag = AddNullParameterValueToJSON (param_json_p, key_s);
 		}
 
 	return success_flag;
