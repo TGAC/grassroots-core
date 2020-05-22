@@ -39,6 +39,8 @@ static void ClearBooleanParameter (Parameter *param_p);
 
 static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
+static bool AddBooleanValueToJSON (json_t *param_json_p, const char *key_s, const bool *value_p);
+
 static bool SetValueFromJSON (bool **value_pp, const json_t *param_json_p, const char *key_s);
 
 static bool SetBooleanParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
@@ -320,21 +322,19 @@ static void ClearBooleanParameter (Parameter *param_p)
 		}
 }
 
-
-static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
+static bool AddBooleanParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	BooleanParameter *boolean_param_p = (BooleanParameter *) param_p;
 	bool success_flag = false;
 
-	if ((boolean_param_p -> bp_current_value_p != NULL ) || (SetJSONBoolean (param_json_p, PARAM_CURRENT_VALUE_S, * (boolean_param_p -> bp_current_value_p))))
+	if (AddBooleanValueToJSON (param_json_p, PARAM_CURRENT_VALUE_S, boolean_param_p -> bp_current_value_p))
 		{
 			if (full_definition_flag)
 				{
-					if ((boolean_param_p -> bp_default_value_p == NULL ) || (SetJSONBoolean (param_json_p, PARAM_DEFAULT_VALUE_S, * (boolean_param_p -> bp_default_value_p))))
+					if (AddBooleanValueToJSON (param_json_p, PARAM_DEFAULT_VALUE_S, boolean_param_p -> bp_default_value_p))
 						{
 							success_flag = true;
 						}
-
 				}
 			else
 				{
@@ -342,6 +342,23 @@ static bool AddBooleanParameterDetailsToJSON (const Parameter *param_p, json_t *
 				}
 		}
 
+	return success_flag;
+}
+
+
+
+static bool AddBooleanValueToJSON (json_t *param_json_p, const char *key_s, const bool *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			success_flag = SetJSONBoolean (param_json_p, key_s, *value_p);
+		}
+	else
+		{
+			success_flag = AddNullParameterValueToJSON (param_json_p, key_s);
+		}
 
 	return success_flag;
 }

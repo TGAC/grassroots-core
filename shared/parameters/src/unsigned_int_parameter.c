@@ -765,12 +765,7 @@ static bool AddUnsignedIntValueToJSON (json_t *param_json_p, const char *key_s, 
 		}
 	else
 		{
-			json_t *null_p = json_null ();
-
-			if (json_object_set (param_json_p, key_s, null_p) == 0)
-				{
-					success_flag = true;
-				}
+			success_flag = AddNullParameterValueToJSON (param_json_p, key_s);
 		}
 
 	return success_flag;

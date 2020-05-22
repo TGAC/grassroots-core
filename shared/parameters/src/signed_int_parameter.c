@@ -36,6 +36,9 @@ static void ClearSignedIntParameter (Parameter *param_p);
 
 static bool AddSignedIntParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
+static bool AddSignedIntValueToJSON (json_t *param_json_p, const char *key_s, const int32 *value_p);
+
+
 static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
 static bool SetValueFromJSON (int32 **value_pp, const json_t *param_json_p, const char *key_s);
@@ -508,39 +511,124 @@ static void ClearSignedIntParameter (Parameter *param_p)
 }
 
 
-static bool AddSignedIntParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
+static bool AddSignedIntParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	SignedIntParameter *int_param_p = (SignedIntParameter *) param_p;
 	bool success_flag = false;
 
-	if (int_param_p -> sip_current_value_p != NULL)
+	if (AddSignedIntValueToJSON (param_json_p, PARAM_CURRENT_VALUE_S, int_param_p -> sip_current_value_p))
 		{
-			success_flag = SetJSONInteger (param_json_p, PARAM_CURRENT_VALUE_S, * (int_param_p -> sip_current_value_p));
-		}
-	else
-		{
-			success_flag = SetJSONNull (param_json_p, PARAM_CURRENT_VALUE_S);
-		}
-
-	if (full_definition_flag)
-		{
-			success_flag = false;
-
-			if ((int_param_p -> sip_default_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_DEFAULT_VALUE_S, * (int_param_p -> sip_default_value_p))))
+ 			if (full_definition_flag)
 				{
-					if ((int_param_p -> sip_min_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MIN_S, * (int_param_p -> sip_min_value_p))))
+ 					if (AddSignedIntValueToJSON (param_json_p, PARAM_DEFAULT_VALUE_S, int_param_p -> sip_default_value_p))
 						{
-							if ((int_param_p -> sip_max_value_p == NULL ) || (SetJSONInteger (param_json_p, PARAM_MAX_S, * (int_param_p -> sip_max_value_p))))
+							if (AddSignedIntValueToJSON (param_json_p, PARAM_MIN_S, int_param_p -> sip_min_value_p))
 								{
-									success_flag = true;
+									if (AddSignedIntValueToJSON (param_json_p, PARAM_MAX_S, int_param_p -> sip_max_value_p))
+										{
+											LinkedList *options_p = param_p -> pa_options_p;
+
+											if ((options_p != NULL) && (options_p -> ll_size > 0))
+												{
+													json_t *json_options_p = json_array ();
+
+													if (json_options_p)
+														{
+															SignedIntParameterOptionNode *node_p = (SignedIntParameterOptionNode *) (options_p -> ll_head_p);
+
+															while (node_p)
+																{
+																	SignedIntParameterOption *option_p = node_p -> sipon_option_p;
+																	json_t *value_p = json_integer (option_p -> sipo_value);
+
+																	if (value_p)
+																		{
+																			json_t *item_p = json_object ();
+
+																			success_flag = false;
+
+																			if (item_p)
+																				{
+																					bool res_flag = true;
+
+																					if (option_p -> sipo_description_s)
+																						{
+																							if (!SetJSONString (item_p, SHARED_TYPE_DESCRIPTION_S, option_p -> sipo_description_s))
+																								{
+																									res_flag = false;
+																								}
+																						}
+
+																					if (res_flag)
+																						{
+																							if (json_object_set_new (item_p, SHARED_TYPE_VALUE_S, value_p) == 0)
+																								{
+																									success_flag = (json_array_append_new (json_options_p, item_p) == 0);
+																								}
+																						}
+
+																					if (!success_flag)
+																						{
+																							json_object_clear (item_p);
+																							json_decref (item_p);
+																						}
+																				}
+																		}
+
+																	node_p = (SignedIntParameterOptionNode *) (node_p -> sipon_node.ln_next_p);
+																}		/* while (node_p) */
+
+															if (success_flag)
+																{
+																	if (json_object_set_new (param_json_p, PARAM_OPTIONS_S, json_options_p) == 0)
+																		{
+																			success_flag = true;
+																		}
+																	else
+																		{
+																			json_decref (json_options_p);
+																		}
+																}
+
+														}		/* if (json_options_p) */
+
+												}
+
+											success_flag = true;
+										}
 								}
 						}
 				}
-
+			else
+				{
+					success_flag = true;
+				}
 		}
 
 	return success_flag;
 }
+
+
+
+
+static bool AddSignedIntValueToJSON (json_t *param_json_p, const char *key_s, const int32 *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			int i = (int) *value_p;
+			success_flag = SetJSONInteger  (param_json_p, key_s, i);
+		}
+	else
+		{
+			success_flag = AddNullParameterValueToJSON (param_json_p, key_s);
+		}
+
+	return success_flag;
+}
+
+
 
 
 static bool GetSignedIntParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)

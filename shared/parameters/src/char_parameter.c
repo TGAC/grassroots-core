@@ -41,7 +41,7 @@ static bool AddCharParameterDetailsToJSON (const Parameter *param_p, json_t *par
 
 static bool GetCharParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
-static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p);
+static bool AddCharValueToJSON (json_t *param_json_p, const char *key_s, const char *value_p);
 
 static bool SetValueFromJSON (char **value_pp, const json_t *param_json_p, const char *key_s);
 
@@ -368,25 +368,26 @@ static void ClearCharParameter (Parameter *param_p)
 }
 
 
-static bool AddCharParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
+static bool AddCharParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	CharParameter *char_param_p = (CharParameter *) param_p;
 	bool success_flag = false;
 
-	if ((char_param_p -> cp_current_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_current_value_p, PARAM_CURRENT_VALUE_S, param_json_p)))
+	if (AddCharValueToJSON (param_json_p, PARAM_CURRENT_VALUE_S, char_param_p -> cp_current_value_p))
 		{
 			if (full_definition_flag)
 				{
-					if ((char_param_p -> cp_default_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_default_value_p, PARAM_DEFAULT_VALUE_S, param_json_p)))
+					if (AddCharValueToJSON (param_json_p, PARAM_DEFAULT_VALUE_S, char_param_p -> cp_default_value_p))
 						{
-							if ((char_param_p -> cp_min_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_min_value_p, PARAM_MIN_S, param_json_p)))
+							if (AddCharValueToJSON (param_json_p, PARAM_MIN_S, char_param_p -> cp_min_value_p))
 								{
-									if ((char_param_p -> cp_max_value_p == NULL ) || (AddJSONValue (char_param_p -> cp_max_value_p, PARAM_MAX_S, param_json_p)))
+									if (AddCharValueToJSON (param_json_p, PARAM_MAX_S, char_param_p -> cp_max_value_p))
 										{
 											success_flag = true;
 										}
 								}
 						}
+
 				}
 			else
 				{
@@ -398,29 +399,30 @@ static bool AddCharParameterDetailsToJSON (const Parameter *param_p, json_t *par
 }
 
 
-static bool AddJSONValue (const char *c_p, const char *key_s, json_t *dest_p)
+static bool AddCharValueToJSON (json_t *param_json_p, const char *key_s, const char *value_p)
 {
 	bool success_flag = false;
 
-	if (c_p)
+	if (value_p)
 		{
 			char buffer_s [2];
 
-			*buffer_s = *c_p;
+			*buffer_s = *value_p;
 			* (buffer_s + 1) = '\0';
 
-			if (SetJSONString (dest_p, key_s, buffer_s))
+			if (SetJSONString (param_json_p, key_s, buffer_s))
 				{
 					success_flag = true;
 				}
 		}
 	else
 		{
-			success_flag = AddNullParameterValueToJSON (dest_p, key_s);
+			success_flag = AddNullParameterValueToJSON (param_json_p, key_s);
 		}
 
 	return success_flag;
 }
+
 
 
 static bool GetCharParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p)
