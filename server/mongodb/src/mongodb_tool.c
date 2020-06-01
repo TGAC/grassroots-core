@@ -503,28 +503,39 @@ bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p, const 
 bool RemoveMongoDocuments (MongoTool *tool_p, const json_t *selector_json_p, const bool remove_first_match_only_flag)
 {
 	bool success_flag = false;
+	bson_t *selector_p = ConvertJSONToBSON (selector_json_p);
+
+	if (selector_p)
+		{
+				success_flag = RemoveMongoDocumentsByBSON (tool_p, selector_p, remove_first_match_only_flag);
+				bson_destroy (selector_p);
+		}		/* if (selector_p) */
+
+
+	return success_flag;
+}
+
+
+bool RemoveMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *selector_p, const bool remove_first_match_only_flag)
+{
+	bool success_flag = false;
 
 	if (tool_p -> mt_collection_p)
 		{
-			bson_t *selector_p = ConvertJSONToBSON (selector_json_p);
+			bson_error_t error;
+			mongoc_remove_flags_t flags = remove_first_match_only_flag ? MONGOC_REMOVE_SINGLE_REMOVE : MONGOC_REMOVE_NONE;
 
-			if (selector_p)
+			if (mongoc_collection_remove (tool_p -> mt_collection_p, flags, selector_p, NULL, &error))
 				{
-					bson_error_t error;
-					mongoc_remove_flags_t flags = remove_first_match_only_flag ? MONGOC_REMOVE_SINGLE_REMOVE : MONGOC_REMOVE_NONE;
-
-					if (mongoc_collection_remove (tool_p -> mt_collection_p, flags, selector_p, NULL, &error))
-						{
-							success_flag = true;
-						}		/* if (mongoc_collection_update (tool_p -> mt_collection_p, MONGOC_UPDATE_NONE, query_p, update_statement_p, NULL, &error)) */
-
-					bson_destroy (selector_p);
-				}		/* if (selector_p) */
+					success_flag = true;
+				}		/* if (mongoc_collection_update (tool_p -> mt_collection_p, MONGOC_UPDATE_NONE, query_p, update_statement_p, NULL, &error)) */
 
 		}		/* if (tool_p -> mt_collection_p) */
 
 	return success_flag;
 }
+
+
 
 
 static bool AddSimpleTypeToQuery (bson_t *query_p, const char *key_s, const json_t *value_p)

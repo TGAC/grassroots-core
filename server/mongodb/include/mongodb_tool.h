@@ -577,6 +577,9 @@ GRASSROOTS_MONGODB_API bool InsertMongoDataAsBSON (MongoTool *tool_p, const bson
 GRASSROOTS_MONGODB_API bool RunMongoCommand (MongoTool *tool_p, bson_t *command_p, bson_t **reply_pp);
 
 
+GRASSROOTS_MONGODB_API bool RemoveMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *selector_p, const bool remove_first_match_only_flag);
+
+
 
 /**
  * Create a new BSON fragment from a given JSON one.
