@@ -1673,7 +1673,7 @@ bool GetGrassrootsTypeFromString (const char *param_type_s, ParameterType *param
 
 
 
-bool AddColumnParameterHint (const char *name_s, const ParameterType param_type, json_t *array_p)
+bool AddColumnParameterHint (const char *name_s, const char *description_s, const ParameterType param_type, const bool required_flag, json_t *array_p)
 {
 	json_t *hint_p = json_object ();
 
@@ -1681,30 +1681,46 @@ bool AddColumnParameterHint (const char *name_s, const ParameterType param_type,
 		{
 			if (SetJSONString (hint_p, PARAM_NAME_S, name_s))
 				{
-					const char *type_s = GetGrassrootsTypeAsString (param_type);
-
-					if (type_s)
+					if ((!description_s) || (SetJSONString (hint_p, PARAM_DESCRIPTION_S, description_s)))
 						{
-							if (SetJSONString (hint_p, PARAM_TYPE_S, type_s))
+							if ((!required_flag) || (SetJSONBoolean (hint_p, PARAM_REQUIRED_S, required_flag)))
 								{
-									if (json_array_append_new (array_p, hint_p) == 0)
+									const char *type_s = GetGrassrootsTypeAsString (param_type);
+
+									if (type_s)
 										{
-											return true;
+											if (SetJSONString (hint_p, PARAM_TYPE_S, type_s))
+												{
+													if (json_array_append_new (array_p, hint_p) == 0)
+														{
+															return true;
+														}
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "json_array_append_new failed");
+														}
+												}
+											else
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "SetJSONString failed for \"%s\": \"%s\"", PARAM_TYPE_S, name_s);
+												}
 										}
 									else
 										{
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "json_array_append_new failed");
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetGrassrootsTypeAsString failed for \"%s\": %d", name_s, param_type);
 										}
 								}
 							else
 								{
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "SetJSONString failed for \"%s\": \"%s\"", PARAM_TYPE_S, name_s);
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "SetJSONBoolean failed for \"%s\": \"%s\"", PARAM_REQUIRED_S, required_flag ? "true" : "false");
 								}
+
 						}
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetGrassrootsTypeAsString failed for \"%s\": %d", name_s, param_type);
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, hint_p, "SetJSONString failed for \"%s\": \"%s\"", PARAM_DESCRIPTION_S, description_s);
 						}
+
 				}
 			else
 				{

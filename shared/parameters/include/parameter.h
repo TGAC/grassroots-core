@@ -403,7 +403,7 @@ GRASSROOTS_PARAMS_API bool AddParameterKeyStringValuePair (Parameter * const par
 GRASSROOTS_PARAMS_API bool AddParameterKeyJSONValuePair (Parameter * const parameter_p, const char *key_s, const json_t *value_p);
 
 
-GRASSROOTS_PARAMS_API bool AddColumnParameterHint (const char *name_s, const ParameterType param_type, json_t *array_p);
+GRASSROOTS_PARAMS_API bool AddColumnParameterHint (const char *name_s, const char *description_s, const ParameterType param_type, const bool required_flag, json_t *array_p);
 
 
 /**
