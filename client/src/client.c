@@ -563,6 +563,8 @@ void GetNamedServicesInClient (Client *client_p, const char * const service_s, U
 
 			if (req_p)
 				{
+					PrintJSONToLog (STM_LEVEL_INFO, __FILE__, __LINE__, req_p, "req:\n");
+
 					json_t *response_p = MakeRemoteJsonCall (req_p, client_p -> cl_data_p -> cd_connection_p);
 
 					if (response_p)
