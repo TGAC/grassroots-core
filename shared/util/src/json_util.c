@@ -182,7 +182,7 @@ char *GetCopiedJSONString (const json_t *json_p, const char * const key_s)
 
 	if (src_s)
 		{
-			dest_s = CopyToNewString (src_s, 0, false);
+			dest_s = EasyCopyToNewString (src_s);
 
 			if (!dest_s)
 				{
@@ -1468,6 +1468,22 @@ bool GetJSONStringAsDouble (const json_t *json_p, const char * const key_s, doub
 	return success_flag;
 }
 
+
+
+
+bool GetRealValueFromJSONString (const json_t *json_p, double64 *answer_p)
+{
+	bool success_flag = false;
+
+	if (json_is_string (json_p))
+		{
+			const char *value_s = json_string_value (json_p);
+
+			success_flag = GetValidRealNumber (&value_s, answer_p, NULL);
+		}
+
+	return success_flag;
+}
 
 
 static bool SetJSONValue (json_t *json_p, const char * const key_s, json_t *value_p)
