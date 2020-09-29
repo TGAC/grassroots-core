@@ -299,6 +299,7 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 
 																		}		/* if (SetLuceneToolOutput (tool_p, output_s)) */
 
+																	FreeCopiedString (output_s);
 																}		/* if (output_s) */
 
 															FreeCopiedString (full_filename_stem_s);
@@ -814,9 +815,86 @@ static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p)
 							if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
 								{
 									success_flag = false;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add string value \"%s\": \"%s\" to document", key_s, value_s);
 								}
 
 						}		/* if (json_is_string (value_p)) */
+					else if ((json_is_object (value_p)) || (json_is_array (value_p)))
+						{
+							char *value_s = json_dumps (value_p, 0);
+
+							if (value_s)
+								{
+									if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
+										{
+											success_flag = false;
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add object/array value \"%s\": \"%s\" to document", key_s, value_s);
+										}
+
+									free (value_s);
+								}
+							else
+								{
+									success_flag = false;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "json_dumps () failed, key \"%s\"", key_s);
+								}
+						}
+					else if (json_is_boolean (value_p))
+						{
+							bool value = json_boolean_value (value_p);
+
+							if (!AddFieldToLuceneDocument (document_p, key_s, value ? "true" : "false"))
+								{
+									success_flag = false;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add boolean value \"%s\": \"%s\" to document", key_s, value ? "true" : "false");
+								}
+						}
+					else if (json_is_integer (value_p))
+						{
+							json_int_t value = json_integer_value (value_p);
+
+							char *value_s = ConvertIntegerToString (value);
+
+							if (value_s)
+								{
+									if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
+										{
+											success_flag = false;
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add integer value \"%s\": \"%s\" to document", key_s, value_s);
+										}
+
+									FreeCopiedString (value_s);
+								}
+							else
+								{
+									success_flag = false;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "ConvertIntegerToString failed  for \"%d\", key \"%s\"", value, key_s);
+								}
+
+						}
+					else if (json_is_number (value_p))
+						{
+							double value = json_number_value (value_p);
+							char *value_s = ConvertDoubleToString (value);
+
+							if (value_s)
+								{
+									if (!AddFieldToLuceneDocument (document_p, key_s, value_s))
+										{
+											success_flag = false;
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add double value \"%s\": \"%s\" to document", key_s, value_s);
+										}
+
+									FreeCopiedString (value_s);
+								}
+							else
+								{
+									success_flag = false;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "ConvertDoubleToString failed for \"%lf\", key \"%s\"", value, key_s);
+								}
+
+
+						}
 
 					itr_p = json_object_iter_next (result_p, itr_p);
 				}		/* while (itr_p) */

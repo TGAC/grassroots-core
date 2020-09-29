@@ -93,3 +93,6 @@ GRASSROOTS_LUCENE_API const char *GetDocumentFieldValue (const LuceneDocument *d
 
 
 GRASSROOTS_LUCENE_API const char *GetDocumentFieldMultiValue (const LuceneDocument *doc_p, const char *key_s, size_t index);
+
+
+GRASSROOTS_LUCENE_API json_t *GetCopyOfDocuemnt (const LuceneDocument *doc_p);

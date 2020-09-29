@@ -61,6 +61,12 @@ void FreeLuceneDocument (LuceneDocument *doc_p)
 }
 
 
+json_t *GetCopyOfDocuemnt (const LuceneDocument *doc_p)
+{
+	return json_deep_copy (doc_p -> ld_store_p);
+}
+
+
 bool AddFieldToLuceneDocument (LuceneDocument *doc_p, const char *key_s, const char *value_s)
 {
 	bool success_flag = true;
@@ -119,7 +125,9 @@ bool AddFieldToLuceneDocument (LuceneDocument *doc_p, const char *key_s, const c
 
 const char *GetDocumentFieldValue (const LuceneDocument *doc_p, const char *key_s)
 {
-	return GetJSONString (doc_p -> ld_store_p, key_s);
+	const char *value_s = GetJSONString (doc_p -> ld_store_p, key_s);
+
+	return value_s;
 }
 
 
