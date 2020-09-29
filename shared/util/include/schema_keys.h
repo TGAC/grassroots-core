@@ -701,13 +701,27 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *KVP_VALUE_S VAL("value");
 
 
+
+
+	PREFIX const char *INDEXING_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	PREFIX const char *INDEXING_SERVICE_S VAL("service");
+	PREFIX const char *INDEXING_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	PREFIX const char *INDEXING_TYPE_S VAL("@type");
+	PREFIX const char *INDEXING_TYPE_SERVICE_GRASSROOTS_S VAL("Grassroots:Service");
+	PREFIX const char *INDEXING_PAYLOAD_DATA_S VAL("payload");
+	PREFIX const char *INDEXING_PAYLOAD_URL_S VAL("internal_url");
+	PREFIX const char *INDEXING_ID_S VAL("id");
+	
+
+
+
 /**
  * Expand a context ontology term to its fully qualified version. For instance
  * "so:name"  will become "http://schema.org/name" since "so:" is a shortcut
  * for "http://schmema.org"
  *
  * @param term_s The term to expand.
- * @return The newly-allocate full qualified term url or <code>NULL</code>
+ * @return The newly-allocated fully-qualified term url or <code>NULL</code>
  * upon error. This will need to be freed with FreeCopiedString() to avoid a memory leak
  */
 GRASSROOTS_UTIL_API char *GetExpandedContextTerm (const char *term_s);

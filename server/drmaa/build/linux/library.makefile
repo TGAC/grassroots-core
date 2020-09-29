@@ -40,8 +40,9 @@ INCLUDES = \
 	
 	
 SRCS 	= \
-	drmaa_tool.c 
-
+	drmaa_tool.c  \
+	htcondor_env_patch.c
+	
 BASE_LDFLAGS += -ldl \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) \
