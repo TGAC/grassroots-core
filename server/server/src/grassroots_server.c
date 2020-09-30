@@ -67,12 +67,12 @@ static json_t *GetServiceResultsAsJSON (GrassrootsServer *grassroots_p, const js
 
 static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, Resource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
 
-static json_t *GetNamedServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
+//static json_t *GetNamedServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
 
-static json_t *GetNamedServiceInfo (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
+//static json_t *GetNamedServiceInfo (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
 
 
-static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, json_t * (*generate_json_fn) (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p));
+static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, Operation op);
 
 static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, bool (*callback_fn) (GrassrootsServer *grassroots_p, json_t *services_p, uuid_t service_id, const char *uuid_s));
 
@@ -108,7 +108,7 @@ static struct MongoClientManager *GetMongoClientManager (const json_t *config_p)
 
 static Resource *GetResourceFromRequest (const json_t *req_p);
 
-static void ProcessServiceRequest (const json_t *service_req_p, json_t *services_res_p, GrassrootsServer *grassroots_p, ProvidersStateTable *providers_p, const char *server_s, UserDetails *user_p, json_t * (*generate_json_fn) (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p));
+static void ProcessServiceRequest (const json_t *service_req_p, json_t *services_res_p, GrassrootsServer *grassroots_p, ProvidersStateTable *providers_p, const char *server_s, UserDetails *user_p, Operation op);
 
 static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
 
@@ -1569,7 +1569,7 @@ static json_t *RunKeywordServices (GrassrootsServer *grassroots_p, const json_t 
 }
 
 
-
+/*
 static json_t *GetNamedServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p)
 {
 	return GetNamedServicesFunctionality (grassroots_p, req_p, user_p);
@@ -1580,9 +1580,9 @@ static json_t *GetNamedServiceInfo (GrassrootsServer *grassroots_p, const json_t
 {
 	return GetNamedServicesFunctionality (grassroots_p, req_p, user_p);
 }
+*/
 
-
-static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p)
+static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, Operation op)
 {
 	json_t *res_p = NULL;
 	json_t *services_req_p = json_object_get (req_p, SERVICES_NAME_S);
@@ -1614,12 +1614,12 @@ static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, co
 										{
 											json_t *service_req_p = json_array_get (services_req_p, i);
 
-											ProcessServiceRequest (service_req_p, services_res_p, grassroots_p, providers_p, server_s, user_p, generate_json_fn);
+											ProcessServiceRequest (service_req_p, services_res_p, grassroots_p, providers_p, server_s, user_p, op);
 										}		/* for (i = 0; i < num_requested_services; ++ i) */
 								}
 							else
 								{
-									ProcessServiceRequest (services_req_p, services_res_p, grassroots_p, providers_p, server_s, user_p, generate_json_fn);
+									ProcessServiceRequest (services_req_p, services_res_p, grassroots_p, providers_p, server_s, user_p, op);
 								}
 
 						}
@@ -1671,7 +1671,7 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 								}
 							else if (op == OP_GET_SERVICE_INFO)
 								{
-									service_res_p = 
+									service_res_p = GetServiceIndexingData (service_p);
 								}
 
 							if (service_res_p)
