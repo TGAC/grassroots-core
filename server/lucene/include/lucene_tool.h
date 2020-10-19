@@ -96,6 +96,11 @@ LUCENE_TOOL_PREFIX const char *LT_HITS_END_INDEX_S LUCENE_TOOL_VAL ("to");
 LUCENE_TOOL_PREFIX const char *LT_FACETS_S LUCENE_TOOL_VAL ("facets");
 
 
+/** The identifier used to uniquely specify a Lucene document.
+ *
+ * @memberof LuceneTool
+ */
+LUCENE_TOOL_PREFIX const char *LUCENE_ID_S LUCENE_TOOL_VAL("id");
 
 
 #ifdef __cplusplus
