@@ -704,7 +704,8 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 
 
 	PREFIX const char *INDEXING_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
-	PREFIX const char *INDEXING_SERVICE_S VAL("service");
+	PREFIX const char *INDEXING_SERVICE_NAME_S VAL("service");
+	PREFIX const char *INDEXING_SERVICE_ALIAS_S VAL("service_alternate_name");
 	PREFIX const char *INDEXING_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 	PREFIX const char *INDEXING_TYPE_S VAL("@type");
 	PREFIX const char *INDEXING_TYPE_SERVICE_GRASSROOTS_S VAL("Grassroots:Service");
