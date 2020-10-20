@@ -708,11 +708,13 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	PREFIX const char *INDEXING_SERVICE_ALIAS_S VAL("service_alternate_name");
 	PREFIX const char *INDEXING_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 	PREFIX const char *INDEXING_TYPE_S VAL("@type");
+	PREFIX const char *INDEXING_TYPE_DESCRIPTION_S VAL("type_description");
 	PREFIX const char *INDEXING_TYPE_SERVICE_GRASSROOTS_S VAL("Grassroots:Service");
+	PREFIX const char *INDEXING_TYPE_DESCRIPTION_SERVICE_GRASSROOTS_S VAL("Service");
 	PREFIX const char *INDEXING_PAYLOAD_DATA_S VAL("payload");
 	PREFIX const char *INDEXING_PAYLOAD_URL_S VAL("internal_url");
 	PREFIX const char *INDEXING_ID_S VAL("id");
-	
+	PREFIX const char *INDEXING_ICON_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
 
 
 
