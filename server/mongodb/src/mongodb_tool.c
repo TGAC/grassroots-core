@@ -1371,7 +1371,6 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 }
 
 
-
 json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
 {
 	json_t *results_array_p = NULL;
