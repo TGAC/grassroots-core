@@ -519,6 +519,17 @@ GRASSROOTS_MONGODB_API bson_t *GenerateQuery (const json_t *json_p);
 GRASSROOTS_MONGODB_API json_t *ConvertBSONValueToJSON (const bson_value_t *value_p);
 
 
+
+
+/**
+ * Create a new JSON fragment from a given BSON one.
+ *
+ * @param bson_p The BSON fragment to convert to JSON.
+ * @return The JSON fragment or <code>NULL</code> upon error.
+ */
+GRASSROOTS_MONGODB_API json_t *ConvertBSONToJSON (const bson_t *bson_p);
+
+
 /**
  * Insert of update data in a set of matching documents.
  *

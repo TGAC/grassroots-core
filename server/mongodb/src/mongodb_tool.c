@@ -55,14 +55,6 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 
 
 
-/**
- * Create a new JSON fragment from a given BSON one.
- *
- * @param bson_p The BSON fragment to convert to JSON.
- * @return The JSON fragment or <code>NULL</code> upon error.
- */
-static json_t *ConvertBSONToJSON (const bson_t *bson_p);
-
 
 
 

@@ -936,3 +936,112 @@ void UpdateStatuses (const uuid_t **ids_pp, const size_t size, Connection *conne
 
 }
 
+
+
+json_t *GetIndexingDataPayload (GrassrootsServer *grassroots_p, const char *service_s, const json_t *params_array_json_p)
+{
+	json_t *payload_p = json_object ();
+
+	if (payload_p)
+		{
+			json_t *services_p = json_array ();
+
+			if (services_p)
+				{
+					if (json_object_set_new (payload_p, SERVICES_NAME_S, services_p) == 0)
+						{
+							json_t *service_p  = json_object ();
+
+							if (service_p)
+								{
+									if (json_array_append_new (services_p, service_p) == 0)
+										{
+											if (SetJSONString (service_p, SERVICE_NAME_S, service_s))
+												{
+													if (SetJSONBoolean (service_p, SERVICE_REFRESH_S, true))
+														{
+															json_t *param_set_p = json_object ();
+
+															if (param_set_p)
+																{
+																	if (json_object_set_new (service_p, PARAM_SET_KEY_S, param_set_p) == 0)
+																		{
+																			if (SetJSONString (param_set_p, PARAM_LEVEL_S, PARAM_LEVEL_TEXT_SIMPLE_S))
+																				{
+																					if (json_object_set_new (param_set_p, PARAM_SET_PARAMS_S, params_array_json_p) == 0)
+																						{
+																							return payload_p;
+
+																						}		/* if (json_object_set_new (param_set_p, PARAM_SET_PARAMS_S, params_p) == 0) */
+																					else
+																						{
+																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, payload_p, "Failed to add params array to param set \"%s\"", service_s);
+																						}
+
+																				}		/* if (SetJSONString (param_set_p, PARAM_LEVEL_S, PARAM_LEVEL_TEXT_SIMPLE_S)) */
+																			else
+																				{
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_set_p, "Failed to add \"%s\": \"%s\"", PARAM_LEVEL_S, PARAM_LEVEL_TEXT_SIMPLE_S);
+																				}
+
+																		}		/* if (json_object_set_new (service_p, PARAM_SET_KEY_S, param_set_p) == 0) */
+																	else
+																		{
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, payload_p, "Failed to add parameter set to service \"%s\"", service_s);
+																		}
+
+																}		/* if (param_set_p) */
+															else
+																{
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate param set  for \"%s\"", service_s);
+																}
+
+														}		/* if (SetJSONBoolean (services_p, SERVICE_REFRESH_S, true)) */
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, services_p, "Failed to add \"%s\": true", SERVICE_REFRESH_S);
+														}
+
+												}		/* if (SetJSONString (services_p, SERVICE_NAME_S, service_s)) */
+											else
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, services_p, "Failed to add \"%s\": \"%s\"", SERVICE_NAME_S, service_s);
+												}
+
+										}		/* if (json_array_append_new (services_p, service_p)) == 0) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, payload_p, "Failed to add service to services array \"%s\"", service_s);
+										}
+
+								}		/* if (service_p) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate service for \"%s\"", service_s);
+								}
+
+						}		/* if (json_object_set_new (payload_p, SERVICES_NAME_S, services_p) == 0) */
+					else
+						{
+							json_decref (services_p);
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, payload_p, "Failed to add services to payload \"%s\"", service_s);
+						}
+
+				}		/* if (services_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate services for \"%s\"", service_s);
+				}
+
+			json_decref (payload_p);
+		}		/* if (payload_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate payload for \"%s\"", service_s);
+		}
+
+
+	return NULL;
+}
+
+

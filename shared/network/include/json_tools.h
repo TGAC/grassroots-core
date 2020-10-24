@@ -30,6 +30,7 @@
 #include "uuid/uuid.h"
 #include "user_details.h"
 #include "schema_version.h"
+#include "grassroots_server.h"
 
 
 
@@ -376,6 +377,11 @@ GRASSROOTS_NETWORK_API const json_t *GetProviderFromServiceJSON (const json_t *s
  * it could not be found.
  */
 GRASSROOTS_NETWORK_API Operation GetOperationFromTopLevelJSON (const json_t * const json_p);
+
+
+
+
+GRASSROOTS_NETWORK_API json_t *GetIndexingDataPayload (GrassrootsServer *grassroots_p, const char *service_s, const json_t *params_array_json_p);
 
 
 #ifdef __cplusplus
