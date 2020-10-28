@@ -62,6 +62,14 @@ typedef struct CurlTool
 	/** @private */
 	CURL *ct_curl_p;
 
+
+	/** @private */
+	char *ct_username_s;
+
+	/** @private */
+	char *ct_password_s;
+
+
 	/** @private */
 	CurlMode ct_mode;
 
@@ -257,6 +265,20 @@ GRASSROOTS_NETWORK_API bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, co
  * @memberof CurlTool
  */
 GRASSROOTS_NETWORK_API bool SetCurlToolHeader (CurlTool *tool_p, const char *key_s, const char *value_s);
+
+
+/**
+ *
+ * @memberof CurlTool
+ */
+GRASSROOTS_NETWORK_API bool SetCurlToolAuth (CurlTool *tool_p, const char *username_s, const char *password_s);
+
+
+/**
+ *
+ * @memberof CurlTool
+ */
+GRASSROOTS_NETWORK_API void ClearCurlToolAuth (CurlTool *tool_p);
 
 
 

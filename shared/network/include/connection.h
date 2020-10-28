@@ -203,6 +203,14 @@ GRASSROOTS_NETWORK_API const char *MakeRemoteJsonCallViaConnection (Connection *
 
 GRASSROOTS_NETWORK_LOCAL int SendJsonRequestViaRawConnection (RawConnection *connection_p, const json_t *json_p);
 
+
+
+/**
+ * @memberof Connection
+ */
+GRASSROOTS_NETWORK_API bool SetConnectionCredentials (Connection *connection_p, const char *username_s, const char *password_s);
+
+
 /** @} */
 
 

@@ -329,7 +329,6 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 
 														break;
 
-													case OP_RUN_KEYWORD_SERVICES:
 													case OP_GET_SERVICE_RESULTS:
 													//	element_name_s = SERVICE_RESULTS_S;
 														break;

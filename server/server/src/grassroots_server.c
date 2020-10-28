@@ -478,30 +478,6 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 										res_p = GetInterestedServices (grassroots_p, req_p, user_p);
 										break;
 
-									case OP_RUN_KEYWORD_SERVICES:
-										{
-											json_t *keyword_json_group_p = json_object_get (req_p, KEYWORDS_QUERY_S);
-
-											if (keyword_json_group_p)
-												{
-													const char *keyword_s = GetJSONString (keyword_json_group_p, KEYWORDS_QUERY_S);
-
-													if (keyword_s)
-														{
-															res_p = RunKeywordServices (grassroots_p, req_p, user_p, keyword_s);
-														}
-													else
-														{
-															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, keyword_json_group_p, "Failed to get query keyword");
-														}
-												}
-											else
-												{
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, req_p, "Failed to get query group");
-												}
-										}
-										break;
-
 									case OP_GET_NAMED_SERVICES:
 									case OP_GET_SERVICE_INFO:
 										res_p = GetNamedServicesFunctionality (grassroots_p, req_p, user_p, op);

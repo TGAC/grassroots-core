@@ -344,6 +344,22 @@ const char *GetConnectionData (Connection *connection_p)
 }
 
 
+bool SetConnectionCredentials (Connection *connection_p, const char *username_s, const char *password_s)
+{
+	bool success_flag = false;
+
+	if (connection_p -> co_type == CT_WEB)
+		{
+			WebConnection *web_conn_p = (WebConnection *) connection_p;
+
+			success_flag = SetCurlToolAuth (web_conn_p -> wc_curl_p, username_s, password_s);
+		}
+
+	return success_flag;
+}
+
+
+
 static int ConnectToServer (const char *hostname_s, const char *port_s, struct addrinfo **server_pp)
 {
 	struct addrinfo hints;

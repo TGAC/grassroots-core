@@ -303,26 +303,6 @@ json_t *GetInterestedServicesRequest (const UserDetails *user_p, const char * co
 
 
 
-json_t *GetKeywordServicesRequest (const UserDetails *user_p, const char * const keyword_s, const SchemaVersion * const sv_p)
-{
-	json_t *res_p = NULL;
-	json_error_t error;
-	json_t *op_data_p = json_pack_ex (&error, 0, "{s:s}", KEYWORDS_QUERY_S, keyword_s);
-
-	if (op_data_p)
-		{
-			res_p = GetServicesRequest (user_p, OP_RUN_KEYWORD_SERVICES, KEYWORDS_QUERY_S, op_data_p, sv_p);
-		}
-	else
-		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetKeywordServicesRequest failed for %s", keyword_s);
-		}
-
-	return res_p;
-}
-
-
-
 json_t *GetNamedServicesIndexingDataRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
 {
 	return GetGenericNamedServicesRequest (user_p, OP_GET_SERVICE_INFO, service_names_s, sv_p);

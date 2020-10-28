@@ -112,6 +112,8 @@ CurlTool *AllocateCurlTool (CurlMode mode)
 							curl_tool_p -> ct_headers_list_p = NULL;
 							curl_tool_p -> ct_temp_f = NULL;
 							curl_tool_p -> ct_mode = mode;
+							curl_tool_p -> ct_username_s = NULL;
+							curl_tool_p -> ct_password_s = NULL;
 
 							return curl_tool_p;
 						}
@@ -136,6 +138,18 @@ void FreeCurlTool (CurlTool *curl_tool_p)
 		}
 
 	FreeByteBuffer (curl_tool_p -> ct_buffer_p);
+
+	if (curl_tool_p -> ct_username_s)
+		{
+			FreeCopiedString (curl_tool_p -> ct_username_s);
+		}
+
+	if (curl_tool_p -> ct_password_s)
+		{
+			FreeCopiedString (curl_tool_p -> ct_password_s);
+		}
+
+
 	FreeMemory (curl_tool_p);
 }
 
@@ -240,6 +254,23 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 		{
 			res = curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_HTTPHEADER, tool_p -> ct_headers_list_p);
 		}
+
+	if ((tool_p -> ct_username_s) && (tool_p -> ct_password_s))
+		{
+			char *auth_s = ConcatenateVarargsStrings (tool_p -> ct_username_s, ":", tool_p -> ct_password_s, NULL);
+
+			if (auth_s)
+				{
+					curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_HTTPAUTH, (long) CURLAUTH_ANY);
+					curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_USERPWD, auth_s);
+
+					FreeCopiedString (auth_s);
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "ConcatenateVarargsStrings () for username and password failed");
+				}
+		}		/* if ((tool_p -> ct_username_s) && (tool_p -> ct_password_s)) */
 
 	/* enable all supported built-in compressions */
 	curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_ACCEPT_ENCODING, "");
@@ -367,6 +398,57 @@ bool SetCurlToolHeader (CurlTool *tool_p, const char *key_s, const char *value_s
 		}
 
 	return success_flag;
+}
+
+
+bool SetCurlToolAuth (CurlTool *tool_p, const char *username_s, const char *password_s)
+{
+	char *copied_username_s = EasyCopyToNewString (username_s);
+
+	if (copied_username_s)
+		{
+			char *copied_password_s = EasyCopyToNewString (password_s);
+
+			if (copied_password_s)
+				{
+					ClearCurlToolAuth (tool_p);
+
+					tool_p -> ct_username_s = copied_username_s;
+					tool_p -> ct_password_s = copied_password_s;
+
+					return true;
+				}		/* if (copied_password_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy password");
+				}
+
+			FreeCopiedString (copied_username_s);
+		}		/* if (copied_username_s) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy username");
+		}
+
+	return false;
+}
+
+
+void ClearCurlToolAuth (CurlTool *tool_p)
+{
+	if (tool_p -> ct_username_s)
+		{
+			FreeCopiedString (tool_p -> ct_username_s);
+		}
+
+	tool_p -> ct_username_s = NULL;
+
+	if (tool_p -> ct_password_s)
+		{
+			FreeCopiedString (tool_p -> ct_password_s);
+		}
+
+	tool_p -> ct_password_s = NULL;
 }
 
 

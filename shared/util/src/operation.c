@@ -46,7 +46,6 @@ static const char *S_OPERATIONS_SS [OP_NUM_OPERATIONS] =
 	"get_all_services",
 	"get_schema_version",
 	"get_interested_services",
-	"run_keyword_services",
 	"get_named_service",
 	"get_service_results",
 	"get_resource",
