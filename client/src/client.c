@@ -281,9 +281,12 @@ void GetAllServicesInClient (Client *client_p, UserDetails *user_p)
 		{
 			json_t *response_p = NULL;
 
-			if (!AddClientConfigToJSON (req_p, user_p))
+			if (user_p)
 				{
-					printf ("Failed to add credentials\n");
+					if (!AddClientConfigToJSON (req_p, user_p))
+						{
+							printf ("Failed to add credentials\n");
+						}
 				}
 
 			response_p = MakeRemoteJsonCall (req_p, client_p -> cl_data_p -> cd_connection_p);
