@@ -203,7 +203,7 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 								{
 									KeyValuePair *pair_p = node_p -> kvpn_pair_p;
 
-									if (!AppendStringsToByteBuffer (buffer_p, " -facet_name \"", pair_p -> kvp_key_s, "\" -facet_value \"", pair_p -> kvp_value_s, "\"", NULL))
+									if (!AppendStringsToByteBuffer (buffer_p, " -facet \"", pair_p -> kvp_key_s, ":", pair_p -> kvp_value_s, "\"", NULL))
 										{
 											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add facet pair \"%s\": \"%s\" to lucene tool buffer", pair_p -> kvp_key_s, pair_p -> kvp_value_s);
 											run_flag = false;
@@ -402,7 +402,21 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 																							if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -err ", error_s, " -results ", results_s, NULL))
 																								{
 																									const char *command_s = GetByteBufferData (buffer_p);
+																									char *command_filename_s = ConcatenateStrings (full_filename_stem_s, ".command");
 																									int res;
+
+																									if (command_filename_s)
+																										{
+																											FILE *command_f = fopen (command_filename_s, "w");
+
+																											if (command_f)
+																												{
+																													fputs (command_s, command_f);
+																													fclose (command_f);
+																												}
+
+																											FreeCopiedString (command_filename_s);
+																										}
 
 																									SetLuceneToolOutput (tool_p, output_s);
 
