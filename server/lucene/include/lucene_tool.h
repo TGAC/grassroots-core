@@ -175,7 +175,7 @@ GRASSROOTS_LUCENE_API OperationStatus DeleteLucene (LuceneTool *tool_p, const ch
 
 
 
-GRASSROOTS_LUCENE_API OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p);
+GRASSROOTS_LUCENE_API OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (json_t *document_p, const uint32 index, void *data_p), void *data_p);
 
 GRASSROOTS_LUCENE_API bool SetLuceneToolOutput (LuceneTool *tool_p, char *output_s);
 

@@ -633,7 +633,7 @@ static bool ReplaceValidString (const char *src_s, char **dest_ss)
 }
 
 
-OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (LuceneDocument *document_p, const uint32 index, void *data_p), void *data_p)
+OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (json_t *document_p, const uint32 index, void *data_p), void *data_p)
 {
 	OperationStatus status = OS_FAILED;
 
@@ -644,96 +644,75 @@ OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const
 
 			if (results_p)
 				{
-					LuceneDocument *document_p = AllocateLuceneDocument ();
 
-					if (document_p)
+					json_t *docs_p = json_object_get (results_p, "documents");
+
+					if (docs_p)
 						{
+							int value;
 
-							json_t *docs_p = json_object_get (results_p, "documents");
-
-							if (docs_p)
+							if (json_is_array (docs_p))
 								{
-									int value;
+									const size_t num_docs = json_array_size (docs_p);
+									size_t i = 0;
+									size_t num_successes = 0;
 
-									if (json_is_array (docs_p))
+									while (i < num_docs)
 										{
-											const size_t num_docs = json_array_size (docs_p);
-											size_t i = 0;
-											size_t num_successes = 0;
+											const json_t *doc_p = json_array_get (docs_p, i);
 
-											while (i < num_docs)
+											if (lucene_results_callback_fn (doc_p, i, data_p))
 												{
-													const json_t *result_p = json_array_get (docs_p, i);
-
-													if (LoadDocument (result_p, document_p))
-														{
-															if (lucene_results_callback_fn (document_p, i, data_p))
-																{
-																	++ num_successes;
-																}
-															else
-																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, result_p, "Lucene callback conversion function failed");
-																}
-
-														}		/* if (LoadDocument (result_p, document_p)) */
-													else
-														{
-															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, result_p, "LoadDocument failed");
-														}
-
-													++ i;
-													ClearLuceneDocument (document_p);
-												}		/* while (loop_flag && success_flag) */
-
-											if (num_successes == num_docs)
-												{
-													status = OS_SUCCEEDED;
+													++ num_successes;
 												}
-											else if (num_successes > 0)
+											else
 												{
-													status = OS_PARTIALLY_SUCCEEDED;
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, doc_p, "Lucene callback conversion function failed");
 												}
 
-										}		/* if (json_is_array (docs_p)) */
+											++ i;
+										}		/* while (loop_flag && success_flag) */
 
-
-
-									if (GetJSONInteger (results_p, "total_hits", &value))
+									if (num_successes == num_docs)
 										{
-											tool_p -> lt_num_total_hits = value;
+											status = OS_SUCCEEDED;
 										}
-									else
+									else if (num_successes > 0)
 										{
-											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get total number of hits");
-										}
-
-									if (GetJSONInteger (results_p, "from", &value))
-										{
-											tool_p -> lt_hits_from_index = value;
-										}
-									else
-										{
-											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get hits start index");
+											status = OS_PARTIALLY_SUCCEEDED;
 										}
 
-									if (GetJSONInteger (results_p, "to", &value))
-										{
-											tool_p -> lt_hits_to_index = value;
-										}
-									else
-										{
-											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get hits end index");
-										}
+								}		/* if (json_is_array (docs_p)) */
 
+							if (GetJSONInteger (results_p, "total_hits", &value))
+								{
+									tool_p -> lt_num_total_hits = value;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get total number of hits");
+								}
 
-									ParseFacetResults (tool_p, results_p);
+							if (GetJSONInteger (results_p, "from", &value))
+								{
+									tool_p -> lt_hits_from_index = value;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get hits start index");
+								}
 
+							if (GetJSONInteger (results_p, "to", &value))
+								{
+									tool_p -> lt_hits_to_index = value;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get hits end index");
+								}
 
-								}		/* if (docs_p) */
-
-							FreeLuceneDocument (document_p);
-						}		/* if (document_p) */
+							ParseFacetResults (tool_p, results_p);
+						}		/* if (docs_p) */
 
 					json_decref (results_p);
 				}		/* if (results_p) */
