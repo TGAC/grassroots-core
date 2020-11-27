@@ -143,13 +143,6 @@ GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
 GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size);
 
 
-
-/*
- * 		for (int i = 0; i < args.length; ++ i) {
-			} else if ("-data".equals (args [i])) {
-				data_dir_name = args [++ i];
- */
-
 /**
  * Index data in Lucene.
  *
@@ -184,6 +177,11 @@ GRASSROOTS_LUCENE_API bool SetLuceneToolName (LuceneTool *tool_p, const char *na
 
 
 GRASSROOTS_LUCENE_API bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p);
+
+
+
+GRASSROOTS_LUCENE_API bool AddFacetResultToLucene (LuceneTool *tool_p, const char *name_s, const uint32 count);
+
 
 
 #ifdef __cplusplus

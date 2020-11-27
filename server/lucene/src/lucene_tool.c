@@ -1019,3 +1019,28 @@ static bool ParseFacetResults (LuceneTool *tool_p, const json_t *results_p)
 	return success_flag;
 }
 
+
+
+bool AddFacetResultToLucene (LuceneTool *tool_p, const char *name_s, const uint32 count)
+{
+	LuceneFacet *facet_p = AllocateLuceneFacet (name_s, count);
+
+	if (facet_p)
+		{
+			LuceneFacetNode *node_p = AllocateLuceneFacetNode (facet_p);
+
+			if (node_p)
+				{
+					LinkedListAddTail (tool_p -> lt_facet_results_p, & (node_p -> lfn_node));
+					return true;
+				}
+
+			FreeLuceneFacet (facet_p);
+		}		/* if (facet_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate LuceneFacet for \"%s\": " UINT32_FMT, name_s, count);
+		}
+
+	return false;
+}
