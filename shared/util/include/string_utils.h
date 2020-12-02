@@ -467,6 +467,9 @@ GRASSROOTS_UTIL_API bool DoesStringEndWith (const char *value_s, const char *end
 GRASSROOTS_UTIL_API char *GetStringAsLowerCase (const char *value_s);
 
 
+GRASSROOTS_UTIL_API void FreeStringArray (char **values_ss);
+
+
 
 #ifdef __cplusplus
 }

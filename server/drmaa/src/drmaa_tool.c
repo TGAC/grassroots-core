@@ -25,6 +25,7 @@
 #include "filesystem_utils.h"
 #include "math_utils.h"
 #include "grassroots_server.h"
+#include "string_utils.h"
 
 
 #if HTCONDOR_DRMAA_ENABLED
@@ -60,8 +61,6 @@ static bool BuildNativeSpecification (DrmaaTool *tool_p);
 static bool SetDrmaaAttribute (DrmaaTool *tool_p, const char *name_s, const char *value_s);
 
 static bool SetDrmaaVectorAttribute (DrmaaTool *tool_p, const char *name_s, const char **values_ss);
-
-void FreeStringArray (char **values_ss);
 
 static bool DeleteJobTemplate (DrmaaTool *tool_p);
 
@@ -480,19 +479,6 @@ bool SetDrmaaToolEmailNotifications (DrmaaTool *tool_p, const char **email_addre
 	return success_flag;
 }
 
-
-void FreeStringArray (char **values_ss)
-{
-	char **value_ss = values_ss;
-
-	while (*value_ss)
-		{
-			FreeCopiedString (*value_ss);
-			++ value_ss;
-		}
-
-	FreeMemory (values_ss);
-}
 
 
 bool SetDrmaaToolOutputFilename (DrmaaTool *tool_p, const char *output_name_s)
