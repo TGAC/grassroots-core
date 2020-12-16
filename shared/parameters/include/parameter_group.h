@@ -113,6 +113,13 @@ typedef struct ParameterGroup
 
 
 	/**
+	 * If the ParameterGroup is repeatable, use this named
+	 * parameter as the label in the list of the parameters
+	 * in this ParameterGroup.
+	 */
+	const char *pg_repeatable_param_label_s;
+
+	/**
 	 * If the parameters can be repeated, this is the current
 	 * index e.g. row number in a table.
 	 */
