@@ -186,68 +186,93 @@ bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_arra
 json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p)
 {
 	json_error_t err;
-	json_t *value_p = json_pack_ex (&err, 0, "{s:s,s:b,s:b}", PARAM_GROUP_NAME_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag);
+	json_t *value_p = json_pack_ex (&err, 0, "{s:s,s:b}", PARAM_GROUP_NAME_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag);
 
 	if (value_p)
 		{
 			bool success_flag = true;
-			ParameterNode *node_p = (ParameterNode *) (param_group_p -> pg_params_p -> ll_head_p);
 
-			if (node_p)
+			if (param_group_p -> pg_repeatable_flag)
 				{
-					bool all_levels_same_flag = true;
-					ParameterLevel l = node_p -> pn_parameter_p -> pa_level;
-
-					node_p = (ParameterNode *) node_p -> pn_node.ln_next_p;
-
-					while (node_p && all_levels_same_flag)
+					if (SetJSONBoolean (value_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag))
 						{
-							if (node_p -> pn_parameter_p -> pa_level == l)
+							if (param_group_p -> pg_repeatable_param_label_s)
 								{
-									node_p = (ParameterNode *) node_p -> pn_node.ln_next_p;
-								}
-							else
-								{
-									all_levels_same_flag = false;
+									if (!SetJSONString (value_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_label_s))
+										{
+											success_flag = false;
+										}
 								}
 						}
-
-					if (all_levels_same_flag)
+					else
 						{
-							const char *level_s = NULL;
-
 							success_flag = false;
+						}
 
-							switch (l)
+				}
+
+			if (success_flag)
+				{
+					ParameterNode *node_p = (ParameterNode *) (param_group_p -> pg_params_p -> ll_head_p);
+
+					if (node_p)
+						{
+							bool all_levels_same_flag = true;
+							ParameterLevel l = node_p -> pn_parameter_p -> pa_level;
+
+							node_p = (ParameterNode *) node_p -> pn_node.ln_next_p;
+
+							while (node_p && all_levels_same_flag)
 								{
-									case PL_SIMPLE:
-										level_s = PARAM_LEVEL_TEXT_SIMPLE_S;
-										break;
-
-									case PL_ADVANCED:
-										level_s = PARAM_LEVEL_TEXT_ADVANCED_S;
-										break;
-
-									case PL_ALL:
-										level_s = PARAM_LEVEL_TEXT_ALL_S;
-										break;
-
-									default:
-										PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unknown ParameterLevel %d", l);
-										break;
-								}		/* switch (param_p -> pa_level) */
-
-							if (level_s)
-								{
-									if (SetJSONString (value_p, PARAM_LEVEL_S, level_s))
+									if (node_p -> pn_parameter_p -> pa_level == l)
 										{
-											success_flag = true;
+											node_p = (ParameterNode *) node_p -> pn_node.ln_next_p;
+										}
+									else
+										{
+											all_levels_same_flag = false;
 										}
 								}
 
-						}		/* if (all_levels_same_flag) */
+							if (all_levels_same_flag)
+								{
+									const char *level_s = NULL;
 
-				}		/* if (node_p) */
+									success_flag = false;
+
+									switch (l)
+										{
+											case PL_SIMPLE:
+												level_s = PARAM_LEVEL_TEXT_SIMPLE_S;
+												break;
+
+											case PL_ADVANCED:
+												level_s = PARAM_LEVEL_TEXT_ADVANCED_S;
+												break;
+
+											case PL_ALL:
+												level_s = PARAM_LEVEL_TEXT_ALL_S;
+												break;
+
+											default:
+												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unknown ParameterLevel %d", l);
+												break;
+										}		/* switch (param_p -> pa_level) */
+
+									if (level_s)
+										{
+											if (SetJSONString (value_p, PARAM_LEVEL_S, level_s))
+												{
+													success_flag = true;
+												}
+										}
+
+								}		/* if (all_levels_same_flag) */
+
+						}		/* if (node_p) */
+
+				}
+
 
 			if (success_flag)
 				{

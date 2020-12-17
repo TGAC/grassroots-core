@@ -532,6 +532,12 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 
 
 	/**
+	 * If the parameters are repeatable, specify the parameter to use the entry labels.
+	 */
+	PREFIX const char *PARAM_GROUP_REPEATABLE_LABEL_S VAL("repeatable_label");
+
+
+	/**
 	 * The JSON key for specifying the minimum value that a numeric Parameter
 	 * can take.
 	 */
