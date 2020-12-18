@@ -196,9 +196,9 @@ json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p)
 				{
 					if (SetJSONBoolean (value_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag))
 						{
-							if (param_group_p -> pg_repeatable_param_label_s)
+							if (param_group_p -> pg_repeatable_param_p)
 								{
-									if (!SetJSONString (value_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_label_s))
+									if (!SetJSONString (value_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_p -> pa_name_s))
 										{
 											success_flag = false;
 										}
