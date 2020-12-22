@@ -425,12 +425,13 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 															json_t *group_json_p = json_array_get (groups_json_p, i);
 
 															const char *group_name_s = GetJSONString (group_json_p, PARAM_GROUP_NAME_S);
+															const char *param_label_name_s = GetJSONString (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S);
 															bool repeatable_flag = false;
 															ParameterGroup *param_group_p = NULL;
 
 															GetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, &repeatable_flag);
 
-															param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, repeatable_flag, NULL, params_p);
+															param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, repeatable_flag, service_p ? service_p -> se_data_p : NULL, params_p);
 
 
 															if (param_group_p)
@@ -446,7 +447,16 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 
 																			if ((param_group_name_s) && (strcmp (param_group_name_s, group_name_s) == 0))
 																				{
-																					if (!AddParameterToParameterGroup (param_group_p, param_node_p -> pn_parameter_p))
+																					Parameter *param_p = param_node_p -> pn_parameter_p;
+
+																					if (AddParameterToParameterGroup (param_group_p, param_p))
+																						{
+																							if (param_label_name_s && (strcmp (param_p -> pa_name_s, param_label_name_s) == 0))
+																								{
+																									param_group_p -> pg_repeatable_param_p = param_p;
+																								}
+																						}
+																					else
 																						{
 																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add parameter \"%s\" to group \"%s\"",  param_node_p -> pn_parameter_p -> pa_name_s, group_name_s);
 																						}

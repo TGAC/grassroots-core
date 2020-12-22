@@ -252,6 +252,11 @@ json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p, const bool inclu
 												}
 										}
 								}
+
+						}		/* if (SetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag)) */
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, group_json_p, "SetJSONBoolean failed for \"%s\": \"%s\"", PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag ? "true" : "false");
 						}
 				}
 			else
