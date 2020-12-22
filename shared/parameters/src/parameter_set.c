@@ -185,7 +185,7 @@ json_t *GetParameterSetSelectionAsJSON (const ParameterSet * const param_set_p, 
 														{
 															while (success_flag && group_node_p)
 																{
-																	if (AddParameterGroupAsJSON (group_node_p -> pgn_param_group_p, group_names_p))
+																	if (AddParameterGroupAsJSON (group_node_p -> pgn_param_group_p, group_names_p, sv_p))
 																		{
 																			group_node_p = (ParameterGroupNode *) (group_node_p -> pgn_node.ln_next_p);
 																		}

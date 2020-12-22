@@ -124,6 +124,8 @@ typedef enum ParameterType
 	 */
 	PT_COMPLETABLE_STRING,
 
+
+
 	/** The number of possible ParameterType values. */
 	PT_NUM_TYPES
 } ParameterType;

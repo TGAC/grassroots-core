@@ -156,10 +156,10 @@ ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, co
 }
 
 
-bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_array_p)
+bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_array_p, const SchemaVersion * const sv_p)
 {
 	bool success_flag = false;
-	json_t *group_json_p = GetParameterGroupAsJSON (param_group_p);
+	json_t *group_json_p = GetParameterGroupAsJSON (param_group_p, sv_p, false, false);
 
 	if (group_json_p)
 		{
@@ -173,7 +173,7 @@ bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_arra
 
 							while (node_p && success_flag)
 								{
-									success_flag = AddParameterGroupAsJSON (node_p -> pgn_param_group_p, groups_array_p);
+									success_flag = AddParameterGroupAsJSON (node_p -> pgn_param_group_p, groups_array_p, sv_p);
 									node_p = (ParameterGroupNode *) (node_p -> pgn_node.ln_next_p);
 								}
 						}
@@ -184,32 +184,79 @@ bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_arra
 }
 
 
-json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p)
+
+json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p, const bool include_params_flag, const bool full_definition_flag, const SchemaVersion * const sv_p)
 {
 	json_error_t err;
-	json_t *value_p = json_pack_ex (&err, 0, "{s:s,s:b}", PARAM_GROUP_NAME_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag);
+	json_t *group_json_p = json_pack_ex (&err, 0, "{s:s,s:b}", PARAM_GROUP_NAME_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag);
 
-	if (value_p)
+	if (group_json_p)
 		{
-			bool success_flag = true;
+			bool success_flag = false;
 
 			if (param_group_p -> pg_repeatable_flag)
 				{
-					if (SetJSONBoolean (value_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag))
+					if (SetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag))
 						{
 							if (param_group_p -> pg_repeatable_param_p)
 								{
-									if (!SetJSONString (value_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_p -> pa_name_s))
+									if (SetJSONString (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_p -> pa_name_s))
 										{
-											success_flag = false;
+											if (include_params_flag && (param_group_p -> pg_params_p))
+												{
+													json_t *params_json_p = json_array ();
+
+													if (params_json_p)
+														{
+															if (json_object_set_new (group_json_p, PARAM_GROUP_PARAMS_S, params_json_p) == 0)
+																{
+																	ParameterNode *node_p = (ParameterNode *) (param_group_p -> pg_params_p -> ll_head_p);
+
+																	success_flag = true;
+
+																	while (node_p && success_flag)
+																		{
+																			Parameter *param_p = node_p -> pn_parameter_p;
+																			json_t *param_json_p = GetParameterAsJSON (param_p, sv_p, false);
+
+																			if (param_json_p)
+																				{
+																					if (json_array_append_new (params_json_p, param_json_p) == 0)
+																						{
+																							node_p = (ParameterNode *) (node_p -> pn_node.ln_next_p);
+																						}
+																					else
+																						{
+																							success_flag = false;
+																						}
+																				}
+																			else
+																				{
+																					success_flag = false;
+																				}
+																		}
+
+																}
+
+
+
+														}		/* if (params_json_p) */
+													else
+														{
+															json_decref (params_json_p);
+														}
+												}
+											else
+												{
+													success_flag = true;
+												}
 										}
 								}
 						}
-					else
-						{
-							success_flag = false;
-						}
-
+				}
+			else
+				{
+					success_flag = true;
 				}
 
 			if (success_flag)
@@ -262,7 +309,7 @@ json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p)
 
 									if (level_s)
 										{
-											if (SetJSONString (value_p, PARAM_LEVEL_S, level_s))
+											if (SetJSONString (group_json_p, PARAM_LEVEL_S, level_s))
 												{
 													success_flag = true;
 												}
@@ -277,10 +324,10 @@ json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p)
 
 			if (success_flag)
 				{
-					return value_p;
+					return group_json_p;
 				}
 
-			json_decref (value_p);
+			json_decref (group_json_p);
 		}
 	else
 		{

@@ -228,7 +228,7 @@ GRASSROOTS_PARAMS_API void FreeParameterGroup (ParameterGroup *param_group_p);
  * @return <code>true</code> if the ParameterGroup was added successfully, <code>false</code> otherwise.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_array_p);
+GRASSROOTS_PARAMS_API bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_array_p, const SchemaVersion * const sv_p);
 
 
 /**
@@ -238,7 +238,7 @@ GRASSROOTS_PARAMS_API bool AddParameterGroupAsJSON (ParameterGroup *param_group_
  * @return The JSON fragment or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p);
+GRASSROOTS_PARAMS_API json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p, const bool include_params_flag, const bool full_definition_flag, const SchemaVersion * const sv_p);
 
 
 /**
