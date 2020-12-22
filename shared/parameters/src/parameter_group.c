@@ -99,6 +99,7 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const bool repeatabl
 									param_group_p -> pg_repeatable_flag = repeatable_flag;
 									param_group_p -> pg_current_repeatable_group_index = 0;
 									param_group_p -> pg_service_data_p = service_data_p;
+									param_group_p -> pg_repeatable_param_p = NULL;
 
 									if (service_data_p)
 										{
