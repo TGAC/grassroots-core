@@ -650,12 +650,9 @@ int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p)
 
 									res = AddServiceToClient (client_p, name_s, description_s, service_info_uri_s, service_icon_uri_s, provider_p, params_p, metadata_p);
 
-									if (res != 0)
+									if (metadata_p)
 										{
-											if (metadata_p)
-												{
-													FreeServiceMetadata (metadata_p);
-												}
+											FreeServiceMetadata (metadata_p);
 										}
 								}		/* if (params_p) */
 
