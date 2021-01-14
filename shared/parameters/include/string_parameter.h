@@ -161,6 +161,8 @@ GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterSet (const
 
 GRASSROOTS_PARAMS_API bool GetCurrentStringParameterValueFromParameterGroup (const ParameterGroup * const params_p, const char * const name_s, const char **value_pp);
 
+
+
 #ifdef __cplusplus
 }
 #endif

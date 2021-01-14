@@ -1040,6 +1040,24 @@ json_t *GetServiceRunRequest (const char * const service_name_s, const Parameter
 static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, const ParameterSet *params_p, const SchemaVersion *sv_p, const ParameterLevel level)
 {
 	json_t *service_json_p = NULL;
+	json_t *param_set_json_p = GetParameterSetAsJSON (params_p, sv_p, false);
+
+	if (param_set_json_p)
+		{
+			service_json_p = GetServiceJSONRequest (service_name_s, request_key_s, run_flag, param_set_json_p, sv_p, level);
+		}		/* if (param_set_json_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterSet as JSON");
+		}
+
+	return service_json_p;
+}
+
+
+json_t *GetServiceJSONRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, const json_t *param_set_json_p, const SchemaVersion *sv_p, const ParameterLevel level)
+{
+	json_t *service_json_p = NULL;
 	json_error_t err;
 
 	service_json_p = json_pack_ex (&err, 0, "{s:s,s:b}", SERVICE_NAME_S, service_name_s, request_key_s, run_flag);
@@ -1048,25 +1066,15 @@ static json_t *GetServiceProcessRequest (const char * const service_name_s, cons
 		{
 			if (run_flag)
 				{
-					json_t *param_set_json_p = GetParameterSetAsJSON (params_p, sv_p, false);
-
-					if (param_set_json_p)
+					if (json_object_set_new (service_json_p, PARAM_SET_KEY_S, param_set_json_p) == 0)
 						{
-							if (json_object_set_new (service_json_p, PARAM_SET_KEY_S, param_set_json_p) == 0)
-								{
-									return service_json_p;
-								}
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add ParameterSet JSON");
-									json_decref (param_set_json_p);
-								}		/* if (json_object_set_new (service_json_p, PARAM_SET_KEY_S, param_set_json_p) != 0) */
-
-						}		/* if (param_set_json_p) */
+							return service_json_p;
+						}
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterSet as JSON");
-						}
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add ParameterSet JSON");
+							json_decref (param_set_json_p);
+						}		/* if (json_object_set_new (service_json_p, PARAM_SET_KEY_S, param_set_json_p) != 0) */
 
 				}		/* if (run_flag) */
 			else
@@ -1083,6 +1091,7 @@ static json_t *GetServiceProcessRequest (const char * const service_name_s, cons
 
 	return NULL;
 }
+
 
 json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
 {
