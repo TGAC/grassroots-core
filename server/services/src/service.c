@@ -70,7 +70,7 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 
 static void GenerateServiceUUID (Service *service_p);
 
-static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, const ParameterSet *params_p, const SchemaVersion *sv_p, const ParameterLevel level);
+static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, json_t *param_set_json_p, const SchemaVersion *sv_p, const ParameterLevel level);
 
 static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p);
 
@@ -1027,24 +1027,12 @@ bool DeallocatePluginService (Plugin * const plugin_p)
 
 json_t *GetServiceRefreshRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
 {
-	return GetServiceProcessRequest (service_name_s, SERVICE_REFRESH_S, run_flag, params_p, sv_p, level);
-}
-
-
-json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
-{
-	return GetServiceProcessRequest (service_name_s, SERVICE_RUN_S, run_flag, params_p, sv_p, level);
-}
-
-
-static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, const ParameterSet *params_p, const SchemaVersion *sv_p, const ParameterLevel level)
-{
 	json_t *service_json_p = NULL;
 	json_t *param_set_json_p = GetParameterSetAsJSON (params_p, sv_p, false);
 
 	if (param_set_json_p)
 		{
-			service_json_p = GetServiceJSONRequest (service_name_s, request_key_s, run_flag, param_set_json_p, sv_p, level);
+			service_json_p = GetServiceRefreshRequestFromJSON (service_name_s, param_set_json_p, sv_p, run_flag, level);
 		}		/* if (param_set_json_p) */
 	else
 		{
@@ -1055,7 +1043,38 @@ static json_t *GetServiceProcessRequest (const char * const service_name_s, cons
 }
 
 
-json_t *GetServiceJSONRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, const json_t *param_set_json_p, const SchemaVersion *sv_p, const ParameterLevel level)
+json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
+{
+	json_t *service_json_p = NULL;
+	json_t *param_set_json_p = GetParameterSetAsJSON (params_p, sv_p, false);
+
+	if (param_set_json_p)
+		{
+			service_json_p = GetServiceRunRequestFromJSON (service_name_s, param_set_json_p, sv_p, run_flag, level);
+		}		/* if (param_set_json_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterSet as JSON");
+		}
+
+	return service_json_p;
+}
+
+
+json_t *GetServiceRefreshRequestFromJSON (const char * const service_name_s, json_t *param_set_json_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
+{
+	return GetServiceProcessRequest (service_name_s, SERVICE_REFRESH_S, run_flag, param_set_json_p, sv_p, level);
+}
+
+
+json_t *GetServiceRunRequestFromJSON (const char * const service_name_s, json_t *param_set_json_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level)
+{
+	return GetServiceProcessRequest (service_name_s, SERVICE_RUN_S, run_flag, param_set_json_p, sv_p, level);
+}
+
+
+
+static json_t *GetServiceProcessRequest (const char * const service_name_s, const char *request_key_s, const bool run_flag, json_t *param_set_json_p, const SchemaVersion *sv_p, const ParameterLevel level)
 {
 	json_t *service_json_p = NULL;
 	json_error_t err;

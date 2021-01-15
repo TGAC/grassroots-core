@@ -1180,6 +1180,12 @@ GRASSROOTS_SERVICE_API json_t *GetBaseServiceDataAsJSON (Service * const service
 
 GRASSROOTS_SERVICE_API GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_p);
 
+
+GRASSROOTS_SERVICE_API json_t *GetServiceRefreshRequestFromJSON (const char * const service_name_s, json_t *param_set_json_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
+
+
+GRASSROOTS_SERVICE_API json_t *GetServiceRunRequestFromJSON (const char * const service_name_s, json_t *param_set_json_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
+
 #ifdef __cplusplus
 }
 #endif
