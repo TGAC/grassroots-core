@@ -378,7 +378,7 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 											PrintJSONToLog (param_json_p, "param_json_p: ", PARAMETER_SET_DEBUG, __FILE__, __LINE__);
 #endif
 
-											if (service_p -> se_custom_parameter_decoder_fn)
+											if (service_p && (service_p -> se_custom_parameter_decoder_fn))
 												{
 													param_p = service_p -> se_custom_parameter_decoder_fn (service_p, param_json_p, concise_flag);
 												}
