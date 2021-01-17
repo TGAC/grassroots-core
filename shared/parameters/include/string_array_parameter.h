@@ -1,0 +1,13 @@
+/*
+ * string_array_parameter.h
+ *
+ *  Created on: 17 Jan 2021
+ *      Author: billy
+ */
+
+#ifndef CORE_SHARED_PARAMETERS_INCLUDE_STRING_ARRAY_PARAMETER_H_
+#define CORE_SHARED_PARAMETERS_INCLUDE_STRING_ARRAY_PARAMETER_H_
+
+
+
+#endif /* CORE_SHARED_PARAMETERS_INCLUDE_STRING_ARRAY_PARAMETER_H_ */

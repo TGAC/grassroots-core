@@ -510,6 +510,12 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 */
 	PREFIX const char *PARAM_GROUP_S VAL("group");
 
+
+	/**
+	 * The JSON key for the name of the ParameterGroup for this Parameter.
+	 */
+	PREFIX const char *PARAM_REPEATED_GROUPS_S VAL("groups");
+
 	/**
 	 * The JSON key for specifying the name of a ParameterGroup
 	 * to a user.
