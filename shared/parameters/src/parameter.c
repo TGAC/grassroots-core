@@ -161,10 +161,6 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterType for %s in %s", name_s, GetServiceName (service_p));
 								}
 						}
-					else if (service_p -> )
-						{
-
-						}
 				}		/* if (service_p) */
 			else
 				{
