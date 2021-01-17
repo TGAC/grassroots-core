@@ -380,6 +380,13 @@ typedef struct Service
 	json_t *(*se_get_indexing_data_fn) (struct Service *service_p);
 
 
+	/*
+	 * If the service has to have a more complex method of
+	 * creating parameters from json blobs than the standard method,
+	 * use this custom callback function
+	 */
+	Parameter *(*se_custom_parameter_decoder_fn) (struct Service *service_p, json_t *param_json_p, const bool concise_flag);
+
 } Service;
 
 

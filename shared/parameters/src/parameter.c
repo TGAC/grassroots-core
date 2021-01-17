@@ -138,6 +138,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 	Parameter *param_p = NULL;
 	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
 
+
 #if SERVER_DEBUG >= STM_LEVEL_FINE
 	PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, root_p, "InitParameterFromJSON");
 #endif
@@ -149,15 +150,21 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 			if (service_p)
 				{
-					if (GetParameterTypeForNamedParameter (service_p, name_s, &pt))
+					if (service_p -> se_get_parameter_type_fn)
 						{
-							got_type_flag = true;
+							if (GetParameterTypeForNamedParameter (service_p, name_s, &pt))
+								{
+									got_type_flag = true;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterType for %s in %s", name_s, GetServiceName (service_p));
+								}
 						}
-					else
+					else if (service_p -> )
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterType for %s in %s", name_s, GetServiceName (service_p));
-						}
 
+						}
 				}		/* if (service_p) */
 			else
 				{

@@ -144,6 +144,8 @@ bool InitialiseService (Service * const service_p,
 
 			service_p -> se_get_indexing_data_fn = get_indexing_data_fn;
 
+			service_p -> se_custom_parameter_decoder_fn = NULL;
+
 			InitLinkedList (& (service_p -> se_paired_services));
 			SetLinkedListFreeNodeFunction (& (service_p -> se_paired_services), FreePairedServiceNode);
 
