@@ -42,6 +42,7 @@ SRCS 	= \
 	resource_parameter.c \
 	signed_int_parameter.c \
 	string_parameter.c \
+	string_array_parameter.c \
 	time_parameter.c \
 	unsigned_int_parameter.c 
 	
