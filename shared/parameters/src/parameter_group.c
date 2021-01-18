@@ -159,7 +159,7 @@ ParameterGroup *CreateAndAddParameterGroupToParameterSet (const char *name_s, co
 bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_array_p, const SchemaVersion * const sv_p)
 {
 	bool success_flag = false;
-	json_t *group_json_p = GetParameterGroupAsJSON (param_group_p, sv_p, false, false);
+	json_t *group_json_p = GetParameterGroupAsJSON (param_group_p, false, false, sv_p);
 
 	if (group_json_p)
 		{

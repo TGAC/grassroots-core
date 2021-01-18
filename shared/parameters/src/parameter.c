@@ -39,6 +39,7 @@
 #include "resource_parameter.h"
 #include "signed_int_parameter.h"
 #include "string_parameter.h"
+#include "string_array_parameter.h"
 #include "time_parameter.h"
 #include "unsigned_int_parameter.h"
 
@@ -73,6 +74,7 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 		"xsd:date",
 		"params:json_array",
 		"params:completable_string"
+		"params:string_array"
 };
 
 
@@ -285,6 +287,18 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 									{
 										param_p = & (double_param_p -> dp_base_param);
 									}
+							}
+							break;
+
+						case PT_STRING_ARRAY:
+							{
+								StringArrayParameter *string_array_param_p = AllocateStringArrayParameterFromJSON (root_p, service_p, concise_flag);
+
+								if (string_array_param_p)
+									{
+										param_p = & (string_array_param_p -> sap_base_param);
+									}
+
 							}
 							break;
 
@@ -1268,55 +1282,59 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 		{
 			/* Set the parameter type */
 			switch (param_type)
-			{
-				case PT_BOOLEAN:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_BOOLEAN_S)) == 0);
-					break;
+				{
+					case PT_BOOLEAN:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_BOOLEAN_S)) == 0);
+						break;
 
-				case PT_CHAR:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_CHAR:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-				case PT_SIGNED_INT:
-				case PT_NEGATIVE_INT:
-				case PT_UNSIGNED_INT:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_INTEGER_S)) == 0);
-					break;
+					case PT_SIGNED_INT:
+					case PT_NEGATIVE_INT:
+					case PT_UNSIGNED_INT:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_INTEGER_S)) == 0);
+						break;
 
-				case PT_SIGNED_REAL:
-				case PT_UNSIGNED_REAL:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_NUMBER_S)) == 0);
-					break;
+					case PT_SIGNED_REAL:
+					case PT_UNSIGNED_REAL:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_NUMBER_S)) == 0);
+						break;
 
-				case PT_STRING:
-				case PT_TABLE:
-				case PT_LARGE_STRING:
-				case PT_PASSWORD:
-				case PT_FILE_TO_WRITE:
-				case PT_DIRECTORY:
-				case PT_KEYWORD:
-				case PT_FASTA:
-				case PT_COMPLETABLE_STRING:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_STRING:
+					case PT_TABLE:
+					case PT_LARGE_STRING:
+					case PT_PASSWORD:
+					case PT_FILE_TO_WRITE:
+					case PT_DIRECTORY:
+					case PT_KEYWORD:
+					case PT_FASTA:
+					case PT_COMPLETABLE_STRING:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-				case PT_FILE_TO_READ:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_FILE_TO_READ:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-				case PT_JSON:
-				case PT_JSON_TABLE:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("json")) == 0);
-					break;
+					case PT_JSON:
+					case PT_JSON_TABLE:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string ("json")) == 0);
+						break;
 
-				case PT_TIME:
-					success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
-					break;
+					case PT_TIME:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_S)) == 0);
+						break;
 
-				case PT_NUM_TYPES:
-					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type");
-					break;
-			}		/* switch (param_p -> pa_type) */
+					case PT_STRING_ARRAY:
+						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_ARRAY_S)) == 0);
+						break;
+
+					case PT_NUM_TYPES:
+						PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type");
+						break;
+				}		/* switch (param_p -> pa_type) */
 
 		}		/* if (full_definition_flag) */
 	else
@@ -2284,6 +2302,18 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 				if (value_p)
 					{
 						value_s = GetTimeAsString (value_p , true);
+						*alloc_flag_p = true;
+					}
+			}
+			break;
+
+		case PT_STRING_ARRAY:
+			{
+				StringArrayParameter *string_array_param_p = (StringArrayParameter *) param_p;
+				value_s = GetStringArrayParameterCurrentValuesAsFlattenedString (string_array_param_p);
+
+				if (value_s)
+					{
 						*alloc_flag_p = true;
 					}
 			}
