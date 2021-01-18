@@ -59,18 +59,19 @@ GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameter (const 
 GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag);
 
 
-GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+
+GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char *default_value_s, uint8 level);
+																											const char **default_values_ss, uint8 level);
 
-
-GRASSROOTS_PARAMS_API Parameter *CreateAndAddStringArrayParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
+GRASSROOTS_PARAMS_API Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char *default_value_s, const char *current_value_s, uint8 level);
-
+																											const char **default_value_ss, const char **current_value_ss, uint8 level);
 
 
 GRASSROOTS_PARAMS_API void FreeStringArrayParameter (StringArrayParameter *param_p);
+
+GRASSROOTS_PARAMS_API bool IsStringArrayParameter (const Parameter *param_p);
 
 
 GRASSROOTS_PARAMS_API const char **GetStringArrayParameterCurrentValues (const StringArrayParameter *param_p);

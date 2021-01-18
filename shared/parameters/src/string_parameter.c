@@ -60,36 +60,6 @@ static bool SetStringJSONValue (json_t *param_json_p, const char *key_s, const c
  * API DEFINITIONS
  */
 
-static StringParameter *GetNewStringParameter (const char *current_value_s, const char *default_value_s)
-{
-	StringParameter *param_p = (StringParameter *) AllocMemory (sizeof (StringParameter));
-
-	if (param_p)
-		{
-			param_p -> sp_current_value_s = NULL;
-			param_p -> sp_default_value_s = NULL;
-			param_p -> sp_min_value_s = NULL;
-			param_p -> sp_max_value_s = NULL;
-
-			if (SetStringParameterValue (& (param_p -> sp_current_value_s), current_value_s))
-				{
-					if (SetStringParameterValue (& (param_p -> sp_default_value_s), default_value_s))
-						{
-							return param_p;
-						}
-
-					if (param_p -> sp_current_value_s)
-						{
-							FreeCopiedString (param_p -> sp_current_value_s);
-						}
-				}
-
-			FreeMemory (param_p);
-		}
-
-	return NULL;
-}
-
 
 
 
@@ -115,7 +85,7 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 					return param_p;
 				}
 
-			FreeParameter (& (param_p -> sp_base_param));
+			ClearParameter (& (param_p -> sp_base_param));
 		}
 
 	return NULL;
@@ -663,6 +633,39 @@ bool GetStringParameterDefaultValueFromConfig (StringParameter *param_p, const S
 
 	return found_flag;
 }
+
+
+static StringParameter *GetNewStringParameter (const char *current_value_s, const char *default_value_s)
+{
+	StringParameter *param_p = (StringParameter *) AllocMemory (sizeof (StringParameter));
+
+	if (param_p)
+		{
+			param_p -> sp_current_value_s = NULL;
+			param_p -> sp_default_value_s = NULL;
+			param_p -> sp_min_value_s = NULL;
+			param_p -> sp_max_value_s = NULL;
+
+			if (SetStringParameterValue (& (param_p -> sp_current_value_s), current_value_s))
+				{
+					if (SetStringParameterValue (& (param_p -> sp_default_value_s), default_value_s))
+						{
+							return param_p;
+						}
+
+					if (param_p -> sp_current_value_s)
+						{
+							FreeCopiedString (param_p -> sp_current_value_s);
+						}
+				}
+
+			FreeMemory (param_p);
+		}
+
+	return NULL;
+}
+
+
 
 
 static bool GetStringParameterDetailsFromJSON (StringParameter *param_p, const json_t *param_json_p)
