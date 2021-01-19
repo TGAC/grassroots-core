@@ -177,6 +177,25 @@ bool IsStringArrayParameter (const Parameter *param_p)
 }
 
 
+size_t GetNumberOfStringArrayCurrentParameterValues (const StringArrayParameter *param_p)
+{
+	size_t i = 0;
+
+	if (param_p -> sp_current_values_ss)
+		{
+			char **temp_pp = param_p -> sp_current_values_ss;
+
+			while (*temp_pp)
+				{
+					++ temp_pp;
+					++ i;
+				}
+		}
+
+	return i;
+}
+
+
 char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayParameter *param_p)
 {
 	char *flattened_s = NULL;
