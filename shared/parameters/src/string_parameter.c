@@ -109,7 +109,7 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 		{
 			Parameter *base_param_p = & (param_p -> sp_base_param);
 
-			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, concise_flag))
+			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, concise_flag, NULL))
 				{
 					if (GetStringParameterDetailsFromJSON (param_p, param_json_p))
 						{

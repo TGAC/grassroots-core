@@ -320,7 +320,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
  */
 
 
-bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const Service *service_p, const bool concise_flag, const bool ignore_type_check_flag)
+bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const Service *service_p, const bool concise_flag, const ParameterType *pt_p)
 {
 	const char *name_s = GetJSONString (root_p, PARAM_NAME_S);
 
@@ -330,18 +330,18 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 
 	if (name_s)
 		{
-			bool got_type_flag = ignore_type_check_flag;
+			bool got_type_flag = false;
 			ParameterType pt = PT_NUM_TYPES;
 
-			if (!got_type_flag)
+			if (pt_p)
+				{
+					pt = *pt_p;
+				}
+			else
 				{
 					if (service_p)
 						{
-							if (GetParameterTypeForNamedParameter (service_p, name_s, &pt))
-								{
-									got_type_flag = true;
-								}
-							else
+							if (!GetParameterTypeForNamedParameter (service_p, name_s, &pt))
 								{
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get ParameterType for %s in %s", name_s, GetServiceName (service_p));
 								}
@@ -349,18 +349,14 @@ bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, con
 						}		/* if (service_p) */
 					else
 						{
-							if (GetParameterTypeFromJSON (root_p, &pt))
-								{
-									got_type_flag = true;
-								}
-							else
+							if (!GetParameterTypeFromJSON (root_p, &pt))
 								{
 									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Failed to get ParameterType for %s from JSON", name_s);
 								}
 						}
 				}
 
-			if (got_type_flag)
+			if (pt != PT_NUM_TYPES)
 				{
 					/*
 					 * The default, options, display name and bounds are optional

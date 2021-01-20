@@ -82,7 +82,9 @@ BooleanParameter *AllocateBooleanParameterFromJSON (const json_t *param_json_p, 
 
 			if (param_p)
 				{
-					if (InitParameterFromJSON (& (param_p -> bp_base_param), param_json_p, service_p, concise_flag))
+					ParameterType pt = PT_BOOLEAN;
+
+					if (InitParameterFromJSON (& (param_p -> bp_base_param), param_json_p, service_p, concise_flag, &pt))
 						{
 							SetParameterCallbacks (& (param_p -> bp_base_param), ClearBooleanParameter, AddBooleanParameterDetailsToJSON,
 																		 CloneBooleanParameter, SetBooleanParameterCurrentValueFromString);

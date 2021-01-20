@@ -1060,42 +1060,42 @@ ServiceJob *CreateServiceJobFromJSON (const json_t *job_json_p, GrassrootsServer
 					if (job_p)
 						{
 
+							/*
+							 * Make sure that the ServiceJob's service parameter is set
+							 * and if it differs from the service_p created earlier, then
+							 * clean up service_p
+							 */
+							if (job_p -> sj_service_p)
+								{
+									if (job_p -> sj_service_p != service_p)
+										{
+											if (RemoveServiceJobFromService (job_p -> sj_service_p, job_p))
+												{
+													FreeService (service_p);
+												}
+											else
+												{
+													char uuid_s [UUID_STRING_BUFFER_SIZE];
+													const char *name_s = GetServiceName (service_p);
+
+													ConvertUUIDToString (job_p -> sj_id, uuid_s);
+
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to remove job \"%s\" from service \"%s""", uuid_s, name_s);
+												}
+
+											service_p = job_p -> sj_service_p;
+											add_job_flag = true;
+										}
+								}
+							else
+								{
+									add_job_flag = true;
+								}
 
 						}		/* if (job_p) */
 
 
 
-					/*
-					 * Make sure that the ServiceJob's service parameter is set
-					 * and if it differs from the service_p created earlier, then
-					 * clean up service_p
-					 */
-					if (job_p -> sj_service_p)
-						{
-							if (job_p -> sj_service_p != service_p)
-								{
-									if (RemoveServiceJobFromService (job_p -> sj_service_p, job_p))
-										{
-											FreeService (service_p);
-										}
-									else
-										{
-											char uuid_s [UUID_STRING_BUFFER_SIZE];
-											const char *name_s = GetServiceName (service_p);
-
-											ConvertUUIDToString (job_p -> sj_id, uuid_s);
-
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to remove job \"%s\" from service \"%s""", uuid_s, name_s);
-										}
-
-									service_p = job_p -> sj_service_p;
-									add_job_flag = true;
-								}
-						}
-					else
-						{
-							add_job_flag = true;
-						}
 
 					if (add_job_flag)
 						{

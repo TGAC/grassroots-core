@@ -107,8 +107,9 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 	if (param_p)
 		{
 			Parameter *base_param_p = & (param_p -> sap_base_param);
+			ParameterType pt = PT_STRING_ARRAY;
 
-			if (InitParameterFromJSON (& (param_p -> sap_base_param), param_json_p, service_p, concise_flag))
+			if (InitParameterFromJSON (& (param_p -> sap_base_param), param_json_p, service_p, concise_flag, &pt))
 				{
 					SetParameterCallbacks (& (param_p -> sap_base_param), ClearStringArrayParameter, AddStringArrayParameterDetailsToJSON,
 																 CloneStringArrayParameter, SetStringArrayParameterCurrentValueFromString);
@@ -121,6 +122,8 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 					FreeMemory (param_p);
 				}
 		}
+
+	return NULL;
 }
 
 

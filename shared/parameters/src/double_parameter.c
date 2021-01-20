@@ -103,7 +103,7 @@ DoubleParameter *AllocateDoubleParameterFromJSON (const json_t *param_json_p, co
 
 					if (param_p)
 						{
-							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, concise_flag))
+							if (InitParameterFromJSON (& (param_p -> dp_base_param), param_json_p, service_p, concise_flag, NULL))
 								{
 									if (GetDoubleParameterDetailsFromJSON (param_p, param_json_p))
 										{

@@ -563,26 +563,27 @@ bool AddExternalServerFromJSON (ServersManager *manager_p, const json_t *json_p)
 
 			switch (res)
 				{
-					case 0:
+				case 1:
+					{
+						char *uuid_s = GetUUIDAsString (server_p -> es_id);
+
+						if (uuid_s)
+							{
+								PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s, uuid_s);
+								FreeUUIDString (uuid_s);
+							}
+						else
+							{
+								PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s);
+							}
+
+						return true;
+					}
+					// deliberate fall through
+
+
+				case 0:
 						FreeExternalServer (server_p);
-						// deliberate fall through
-
-					case 1:
-						{
-							char *uuid_s = GetUUIDAsString (server_p -> es_id);
-
-							if (uuid_s)
-								{
-									PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s, uuid_s);
-									FreeUUIDString (uuid_s);
-								}
-							else
-								{
-									PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Added external server %s on %s to manager with id %s", server_p -> es_name_s, server_p -> es_uri_s);
-								}
-
-							return true;
-						}
 						break;
 
 					case -1:

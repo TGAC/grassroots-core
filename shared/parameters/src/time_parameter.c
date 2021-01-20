@@ -130,7 +130,9 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 
 					if (param_p)
 						{
-							if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, concise_flag))
+							ParameterType pt = PT_TIME;
+
+							if (InitParameterFromJSON (& (param_p -> tp_base_param), param_json_p, service_p, concise_flag, &pt))
 								{
 									SetParameterCallbacks (& (param_p -> tp_base_param), ClearTimeParameter, AddTimeParameterDetailsToJSON,
 																				 NULL, SetTimeParameterCurrentValueFromString);

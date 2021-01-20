@@ -151,7 +151,9 @@ UnsignedIntParameter *AllocateUnsignedIntParameterFromJSON (const json_t *param_
 
 					if (param_p)
 						{
-							if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, concise_flag))
+							ParameterType pt = PT_UNSIGNED_INT;
+
+							if (InitParameterFromJSON (& (param_p -> uip_base_param), param_json_p, service_p, concise_flag, &pt))
 								{
 									if (GetUnsignedIntParameterDetailsFromJSON (& (param_p -> uip_base_param), param_json_p))
 										{

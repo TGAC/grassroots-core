@@ -92,7 +92,7 @@ JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const 
 
 	if (param_p)
 		{
-			if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, concise_flag))
+			if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, concise_flag, NULL))
 				{
 					SetParameterCallbacks (& (param_p -> jp_base_param), ClearJSONParameter, AddJSONParameterDetailsToJSON,
 																 NULL, SetJSONParameterCurrentValueFromString);

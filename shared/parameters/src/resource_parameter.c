@@ -131,7 +131,8 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 
 					if (param_p)
 						{
-							if (InitParameterFromJSON (& (param_p -> rp_base_param), param_json_p, service_p, concise_flag))
+
+							if (InitParameterFromJSON (& (param_p -> rp_base_param), param_json_p, service_p, concise_flag, NULL))
 								{
 									SetParameterCallbacks (& (param_p -> rp_base_param), ClearResourceParameter, AddResourceParameterDetailsToJSON,
 																				 NULL, SetResourceParameterCurrentValueFromString);
