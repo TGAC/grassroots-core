@@ -1242,7 +1242,7 @@ static char **GetEmailAddresses (const json_t * const json_p)
 				{
 					if (json_array_size (array_p) > 0)
 						{
-							emails_ss = GetStringArrayFromJSON (array_p);
+							emails_ss = GetStringArrayFromJSON (array_p, false);
 
 							if (!emails_ss)
 								{

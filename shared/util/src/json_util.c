@@ -194,6 +194,103 @@ char *GetCopiedJSONString (const json_t *json_p, const char * const key_s)
 }
 
 
+char **GetStringArrayFromJSON (const json_t * const array_json_p, bool add_terminating_null_flag)
+{
+	const size_t num_strings = json_array_size (array_json_p);
+	size_t size = num_strings;
+	char **values_ss;
+
+	if (add_terminating_null_flag)
+		{
+			++ size;
+		}
+
+	values_ss = (char **) AllocMemoryArray	(size, sizeof (char *));
+
+	if (values_ss)
+		{
+			char **value_pp = values_ss;
+			bool success_flag = true;
+			size_t i;
+
+			for (i = 0; i < num_strings; ++ i, ++ value_pp)
+				{
+					json_t *entry_p = json_array_get (array_json_p, i);
+
+					if (json_is_string (entry_p))
+						{
+							const char *value_s = json_string_value (entry_p);
+							char *copied_value_s = EasyCopyToNewString (value_s);
+
+							if (copied_value_s)
+								{
+									*value_pp = copied_value_s;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, array_json_p, "Failed to copy entry [" SIZET_FMT "] \"%s\"", i, value_s);
+									success_flag = false;
+								}
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, array_json_p, "Entry [" SIZET_FMT "] is not a string", i);
+						}
+				}
+
+			if (success_flag)
+				{
+					return values_ss;
+				}
+
+			FreeMemory (values_ss);
+		}
+
+	return NULL;
+}
+
+
+json_t *ConvertStringArrayToJSON (char **values_ss)
+{
+	json_t *array_p = json_array ();
+
+	if (array_p)
+		{
+			bool success_flag = true;
+			char **value_pp = values_ss;
+
+			while ((*value_pp) && success_flag)
+				{
+					json_t *str_p = json_string (*value_pp);
+
+					if (str_p)
+						{
+							if (json_array_append_new (array_p, str_p) == 0)
+								{
+									++ value_pp;
+								}
+							else
+								{
+									success_flag = false;
+								}
+						}
+					else
+						{
+							success_flag = false;
+						}
+				}
+
+			if (success_flag)
+				{
+					return array_p;
+				}
+
+			json_decref (array_p);
+		}
+
+	return NULL;
+}
+
 
 
 bool CopyJSONKeyStringValuePair (const json_t *src_p, json_t *dest_p, const char * const key_s, bool optional_flag)
@@ -433,85 +530,6 @@ bool AddStringArrayToJSON (json_t *parent_p, const char ** const values_ss, cons
 }
 
 
-char **GetStringArrayFromJSON (const json_t * const array_p)
-{
-	char **array_ss = NULL;
-
-	if (json_is_array (array_p))
-		{
-			size_t num_values = json_array_size (array_p);
-
-			if (num_values > 0)
-				{
-					array_ss = (char **) AllocMemoryArray (num_values + 1, sizeof (char *));
-
-					if (array_ss)
-						{
-							size_t i = 0;
-							bool loop_flag = true;
-							bool success_flag = true;
-							char **dest_ss = array_ss;
-
-							while (loop_flag && success_flag)
-								{
-									json_t *value_p = json_array_get (array_p, i);
-
-									if (json_is_string (value_p))
-										{
-											const char *src_s = json_string_value (value_p);
-
-											*dest_ss = CopyToNewString (src_s, 0, false);
-
-											if (*dest_ss)
-												{
-													++ i;
-
-													if (i < num_values)
-														{
-															++ dest_ss;
-														}
-													else
-														{
-															loop_flag = false;
-														}
-
-												}		/* if (*dest_ss) */
-											else
-												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy \"%s\"", src_s);
-													success_flag = false;
-												}
-
-										}		/* if (json_is_string (value_p)) */
-									else
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "value is %d not a string", json_typeof (value_p));
-											success_flag = false;
-										}
-
-								}		/* while (loop_flag && success_flag) */
-
-							if (!success_flag)
-								{
-									dest_ss = array_ss;
-
-									while (*dest_ss)
-										{
-											FreeCopiedString (*dest_ss);
-											++ dest_ss;
-										}
-
-									FreeMemory (array_ss);
-									array_ss = NULL;
-								}
-						}		/* if (array_ss) */
-
-				}		/* if (num_values > 0) */
-
-		}		/* if (json_is_array (array_p)) */
-
-	return array_ss;
-}
 
 
 

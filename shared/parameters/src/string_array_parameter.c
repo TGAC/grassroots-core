@@ -63,7 +63,64 @@ StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *se
 
 StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
 {
+	StringArrayParameter *param_p = NULL;
+	char **current_value_ss = NULL;
+	char **default_value_ss = NULL;
 
+	const json_t *value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
+
+	if (value_p)
+		{
+			if (json_is_array (value_p))
+				{
+					current_value_ss = GetStringArrayFromJSON (value_p, true);
+				}
+		}
+
+
+	if (!concise_flag)
+		{
+			value_p = json_object_get (param_json_p, PARAM_DEFAULT_VALUE_S);
+
+			if (value_p)
+				{
+					if (json_is_array (value_p))
+						{
+							default_value_ss = GetStringArrayFromJSON (value_p, true);
+						}
+				}
+		}
+
+	param_p = GetNewStringArrayParameter (current_value_ss, default_value_ss);
+
+	if (current_value_ss)
+		{
+			FreeStringArray (current_value_ss);
+		}
+
+	if (default_value_ss)
+		{
+			FreeStringArray (default_value_ss);
+		}
+
+
+	if (param_p)
+		{
+			Parameter *base_param_p = & (param_p -> sap_base_param);
+
+			if (InitParameterFromJSON (& (param_p -> sap_base_param), param_json_p, service_p, concise_flag))
+				{
+					SetParameterCallbacks (& (param_p -> sap_base_param), ClearStringArrayParameter, AddStringArrayParameterDetailsToJSON,
+																 CloneStringArrayParameter, SetStringArrayParameterCurrentValueFromString);
+
+					return param_p;
+				}
+			else
+				{
+					ClearParameter (& (param_p -> sap_base_param));
+					FreeMemory (param_p);
+				}
+		}
 }
 
 
@@ -421,9 +478,46 @@ static bool SetStringArrayParameterValue (char ***param_value_sss, char **new_va
 }
 
 
+
+
 static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	bool success_flag = false;
+	StringArrayParameter *string_array_param_p = (StringArrayParameter *) param_p;
+
+	json_t *current_values_json_p = NULL;
+
+	if ((! (string_array_param_p -> sp_current_values_ss)) || ((current_values_json_p = ConvertStringArrayToJSON (string_array_param_p -> sp_current_values_ss)) != NULL))
+		{
+			if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0)
+				{
+					if (full_definition_flag)
+						{
+							json_t *default_values_json_p = NULL;
+
+							if ((! (string_array_param_p -> sp_default_values_ss)) || ((default_values_json_p = ConvertStringArrayToJSON (string_array_param_p -> sp_default_values_ss)) != NULL))
+								{
+									if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0)
+										{
+											success_flag = true;
+										}		/* if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0) */
+									else
+										{
+											json_decref (default_values_json_p);
+										}
+
+								}		/* if ((! (string_array_param_p -> sp_default_values_ss)) || ((default_values_json_p = ConvertStringArray (string_array_param_p -> sp_default_values_ss)) != NULL)) */
+
+						}		/* if (full_definition_flag) */
+
+				}		/* if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0) */
+			else
+				{
+					json_decref (current_values_json_p);
+				}
+
+		}		/* if ((! (string_array_param_p -> sp_current_values_ss)) || (current_values_json_p = ConvertStringArray (string_array_param_p -> sp_current_values_ss))) */
+
 
 	return success_flag;
 }
@@ -444,3 +538,5 @@ static void ClearStringArrayParameter (Parameter *param_p)
 			FreeStringArray (string_array_param_p -> sp_default_values_ss);
 		}
 }
+
+

@@ -210,7 +210,7 @@ GRASSROOTS_UTIL_API bool AddStringArrayToJSON (json_t *parent_p, const char ** c
  *
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API char **GetStringArrayFromJSON (const json_t * const array_p);
+GRASSROOTS_UTIL_API char **GetStringArrayFromJSON (const json_t * const array_p, bool add_terminating_null_flag);
 
 
 /**
@@ -655,6 +655,10 @@ GRASSROOTS_UTIL_API bool GetJSONUnsignedInteger (const json_t *json_p, const cha
 
 
 GRASSROOTS_UTIL_API bool GetRealValueFromJSONString (const json_t *json_p, double64 *answer_p);
+
+
+GRASSROOTS_UTIL_API json_t *ConvertStringArrayToJSON (char **values_ss);
+
 
 
 #ifdef __cplusplus
