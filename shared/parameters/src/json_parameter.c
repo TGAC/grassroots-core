@@ -77,7 +77,7 @@ JSONParameter *AllocateJSONParameter (const struct ServiceData *service_data_p, 
 
 
 
-JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
+JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p)
 {
 	JSONParameter *param_p = NULL;
 	const json_t *current_value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
@@ -92,7 +92,7 @@ JSONParameter *AllocateJSONParameterFromJSON (const json_t *param_json_p, const 
 
 	if (param_p)
 		{
-			if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, concise_flag, NULL))
+			if (InitParameterFromJSON (& (param_p -> jp_base_param), param_json_p, service_p, concise_flag, pt_p))
 				{
 					SetParameterCallbacks (& (param_p -> jp_base_param), ClearJSONParameter, AddJSONParameterDetailsToJSON,
 																 NULL, SetJSONParameterCurrentValueFromString);

@@ -61,7 +61,7 @@ StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *se
 
 
 
-StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
+StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p)
 {
 	StringArrayParameter *param_p = NULL;
 	char **current_value_ss = NULL;
@@ -107,7 +107,7 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 	if (param_p)
 		{
 			Parameter *base_param_p = & (param_p -> sap_base_param);
-			ParameterType pt = PT_STRING_ARRAY;
+			ParameterType pt = pt_p ? *pt_p : PT_STRING_ARRAY;
 
 			if (InitParameterFromJSON (base_param_p, param_json_p, service_p, concise_flag, &pt))
 				{

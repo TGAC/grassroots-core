@@ -92,7 +92,7 @@ extern "C"
 GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, const char *default_value_p, const char *current_value_p, ParameterLevel level);
 
 
-GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag);
+GRASSROOTS_PARAMS_API StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p);
 
 
 GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddStringParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,

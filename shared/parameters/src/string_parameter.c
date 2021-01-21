@@ -92,7 +92,7 @@ StringParameter *AllocateStringParameter (const struct ServiceData *service_data
 }
 
 
-StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag)
+StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p)
 {
 	StringParameter *param_p = NULL;
 	const char *current_value_s = GetJSONString (param_json_p, PARAM_CURRENT_VALUE_S);
@@ -109,7 +109,7 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 		{
 			Parameter *base_param_p = & (param_p -> sp_base_param);
 
-			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, concise_flag, NULL))
+			if (InitParameterFromJSON (& (param_p -> sp_base_param), param_json_p, service_p, concise_flag, pt_p))
 				{
 					if (GetStringParameterDetailsFromJSON (param_p, param_json_p))
 						{

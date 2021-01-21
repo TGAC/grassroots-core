@@ -58,7 +58,7 @@ extern "C"
 GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s, const char * const display_name_s, const char * const description_s, char **default_value_ss, char **current_value_ss, ParameterLevel level);
 
 
-GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag);
+GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p);
 
 
 

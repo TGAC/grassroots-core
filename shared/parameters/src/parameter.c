@@ -205,7 +205,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_JSON:
 						case PT_JSON_TABLE:
 							{
-								JSONParameter *json_param_p = AllocateJSONParameterFromJSON (root_p, service_p, concise_flag);
+								JSONParameter *json_param_p = AllocateJSONParameterFromJSON (root_p, service_p, concise_flag, NULL);
 
 								if (json_param_p)
 									{
@@ -222,7 +222,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 						case PT_FASTA:
 						case PT_COMPLETABLE_STRING:
 							{
-								StringParameter *string_param_p = AllocateStringParameterFromJSON (root_p, service_p, concise_flag);
+								StringParameter *string_param_p = AllocateStringParameterFromJSON (root_p, service_p, concise_flag, NULL);
 
 								if (string_param_p)
 									{
@@ -292,7 +292,7 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 
 						case PT_STRING_ARRAY:
 							{
-								StringArrayParameter *string_array_param_p = AllocateStringArrayParameterFromJSON (root_p, service_p, concise_flag);
+								StringArrayParameter *string_array_param_p = AllocateStringArrayParameterFromJSON (root_p, service_p, concise_flag, NULL);
 
 								if (string_array_param_p)
 									{
