@@ -198,7 +198,7 @@ bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char *
 }
 
 
-const char **GetStringArrayParameterDefaulttValues (const StringArrayParameter *param_p)
+const char **GetStringArrayParameterDefaultValues (const StringArrayParameter *param_p)
 {
 	return (const char **) (param_p -> sp_default_values_ss);
 }

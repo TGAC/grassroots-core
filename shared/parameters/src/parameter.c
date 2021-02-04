@@ -73,7 +73,7 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 		"params:fasta",
 		"xsd:date",
 		"params:json_array",
-		"params:completable_string"
+		"params:completable_string",
 		"params:string_array"
 };
 
@@ -1360,7 +1360,7 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 
 			if (!success_flag)
 				{
-					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Failed to add grassroots type for %d", param_type);
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Failed to add grassroots type for %d with schema " UINT32_FMT ", " UINT32_FMT, param_type, sv_p -> sv_major, sv_p -> sv_minor);
 				}		/* if (!AddCompoundGrassrootsType (root_p, param_p -> pa_type)) */
 
 		}		/* if (success_flag) */
