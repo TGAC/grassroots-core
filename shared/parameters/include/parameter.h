@@ -696,6 +696,10 @@ GRASSROOTS_PARAMS_API const json_t *GetParameterFromConfig (const json_t *servic
 GRASSROOTS_PARAMS_LOCAL bool AddNullParameterValueToJSON (json_t *param_json_p, const char *key_s);
 
 
+
+GRASSROOTS_PARAMS_API bool SetParameterCurrentValueFromJSON (Parameter *param_p, const json_t *value_p);
+
+
 #ifdef __cplusplus
 }
 #endif

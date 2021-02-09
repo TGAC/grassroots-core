@@ -1199,6 +1199,53 @@ bool AddParameterLevelToJSON (const ParameterLevel level, json_t *root_p, const 
 }
 
 
+bool SetParameterCurrentValueFromJSON (Parameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (IsBooleanParameter (param_p))
+		{
+			success_flag = SetBooleanParameterCurrentValueFromJSON ((BooleanParameter *) param_p, value_p);
+		}
+	else if (IsCharParameter (param_p))
+		{
+			success_flag = SetCharParameterCurrentValueFromJSON ((CharParameter *) param_p, value_p);
+		}
+	else if (IsDoubleParameter (param_p))
+		{
+			success_flag = SetDoubleParameterCurrentValueFromJSON ((DoubleParameter *) param_p, value_p);
+		}
+	else if (IsJSONParameter (param_p))
+		{
+			success_flag = SetJSONParameterCurrentValueFromJSON ((JSONParameter *) param_p, value_p);
+		}
+	else if (IsResourceParameter (param_p))
+		{
+			success_flag = SetResourceParameterCurrentValueFromJSON ((ResourceParameter *) param_p, value_p);
+		}
+	else if (IsSignedIntParameter (param_p))
+		{
+			success_flag = SetSignedIntParameterCurrentValueFromJSON ((SignedIntParameter *) param_p, value_p);
+		}
+	else if (IsStringParameter (param_p))
+		{
+			success_flag = SetStringParameterCurrentValueFromJSON ((StringParameter *) param_p, value_p);
+		}
+	else if (IsTimeParameter (param_p))
+		{
+			success_flag = SetTimeParameterCurrentValueFromJSON ((TimeParameter *) param_p, value_p);
+		}
+	else if (IsUnsignedIntParameter (param_p))
+		{
+			success_flag = SetUnsignedIntParameterCurrentValueFromJSON ((UnsignedIntParameter *) param_p, value_p);
+		}
+
+
+	return success_flag;
+}
+
+
+
 static bool AddParameterStoreToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p))
 {
 	bool success_flag = true;

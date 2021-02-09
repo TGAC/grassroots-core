@@ -120,6 +120,9 @@ GRASSROOTS_PARAMS_API Parameter *CreateAndAddCharParameterToParameterSet (const 
 																								const char *default_value_p, const char *current_value_p, uint8 level);
 
 
+GRASSROOTS_PARAMS_API bool SetCharParameterCurrentValueFromJSON (CharParameter *param_p, const json_t *value_p);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -152,6 +152,9 @@ GRASSROOTS_PARAMS_API UnsignedIntParameterOptionNode *AllocateUnsignedIntParamet
 GRASSROOTS_PARAMS_API void FreeStringParameterOptionNode (ListItem *item_p);
 
 
+GRASSROOTS_PARAMS_API bool SetUnsignedIntParameterCurrentValueFromJSON (UnsignedIntParameter *param_p, const json_t *value_p);
+
+
 #ifdef __cplusplus
 }
 #endif

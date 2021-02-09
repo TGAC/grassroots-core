@@ -101,6 +101,11 @@ GRASSROOTS_PARAMS_API bool IsBooleanParameter (const Parameter *param_p);
 
 GRASSROOTS_PARAMS_API bool GetCurrentBooleanParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const bool **value_pp);
 
+
+GRASSROOTS_PARAMS_API bool SetBooleanParameterCurrentValueFromJSON (BooleanParameter *param_p, const json_t *value_p);
+
+
+
 #ifdef __cplusplus
 }
 #endif

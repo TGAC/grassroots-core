@@ -238,7 +238,7 @@ GRASSROOTS_PARAMS_API bool AddParameterGroupAsJSON (ParameterGroup *param_group_
  * @return The JSON fragment or <code>NULL</code> upon error.
  * @memberof ParameterGroup
  */
-GRASSROOTS_PARAMS_API json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p, const bool include_params_flag, const bool full_definition_flag, const SchemaVersion * const sv_p);
+GRASSROOTS_PARAMS_API json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool include_params_flag, const bool full_definition_flag, const SchemaVersion * const sv_p);
 
 
 /**

@@ -442,6 +442,35 @@ void FreeSignedIntParameterOptionNode (ListItem *item_p)
 }
 
 
+bool SetSignedIntParameterCurrentValueFromJSON (SignedIntParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			if (json_is_integer (value_p))
+				{
+					int32 i = json_integer_value (value_p);
+					success_flag = SetSignedIntParameterValue (param_p -> sip_current_value_p, &i);
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetSignedIntParameterValue (param_p -> sip_current_value_p, NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not integer", value_p -> type);
+				}
+		}
+	else
+		{
+			success_flag = SetSignedIntParameterValue (param_p -> sip_current_value_p, NULL);
+		}
+
+	return success_flag;
+
+}
+
 /*
  * STATIC DEFINITIONS
  */

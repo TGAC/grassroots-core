@@ -88,6 +88,8 @@ GRASSROOTS_PARAMS_API bool GetCurrentResourceParameterValueFromParameterSet (con
 GRASSROOTS_PARAMS_API bool IsResourceParameter (const Parameter *param_p);
 
 
+GRASSROOTS_PARAMS_API bool SetResourceParameterCurrentValueFromJSON (ResourceParameter *param_p, const json_t *value_p);
+
 #ifdef __cplusplus
 }
 #endif

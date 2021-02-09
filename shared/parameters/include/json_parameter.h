@@ -116,7 +116,8 @@ GRASSROOTS_PARAMS_API bool IsJSONParameter (Parameter *param_p);
 
 GRASSROOTS_PARAMS_API bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const json_t **value_pp);
 
-GRASSROOTS_PARAMS_API bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const json_t **value_pp);
+
+GRASSROOTS_PARAMS_API bool SetJSONParameterCurrentValueFromJSON (JSONParameter *param_p, const json_t *value_p);
 
 
 #ifdef __cplusplus

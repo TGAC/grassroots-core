@@ -370,6 +370,43 @@ static void ClearCharParameter (Parameter *param_p)
 }
 
 
+
+bool SetCharParameterCurrentValueFromJSON (CharParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (json_is_string (value_p))
+		{
+			const char *value_s = json_string_value (value_p);
+
+			if (value_s)
+				{
+					if (strlen (value_s) == 1)
+						{
+							char buffer_s [2];
+
+							*buffer_s = *value_s;
+							* (buffer_s + 1) = '\0';
+
+							success_flag = SetCharParameterValue (param_p -> cp_current_value_p, buffer_s);
+						}
+				}
+		}
+	else if (json_is_null (value_p))
+		{
+			success_flag = SetCharParameterValue (param_p -> cp_current_value_p, NULL);
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not string", value_p -> type);
+		}
+
+	return success_flag;
+}
+
+
+
+
 static bool AddCharParameterDetailsToJSON (const struct Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	CharParameter *char_param_p = (CharParameter *) param_p;

@@ -429,6 +429,19 @@ bool GetCurrentStringParameterValueFromParameterGroup (const ParameterGroup * co
 }
 
 
+bool SetStringParameterCurrentValueFromJSON (StringParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (json_is_string (value_p))
+		{
+			success_flag = SetStringParameterValue (& (param_p -> sp_current_value_s), json_string_value (value_p));
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

@@ -225,6 +225,40 @@ bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * cons
 }
 
 
+bool SetResourceParameterCurrentValueFromJSON (ResourceParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = true;
+
+	if (value_p)
+		{
+			if (param_p -> rp_current_value_p)
+				{
+					success_flag = CopyResource (value_p, param_p -> rp_current_value_p);
+				}
+			else
+				{
+					param_p -> rp_current_value_p = CloneResource (value_p);
+
+					if (! (param_p -> rp_current_value_p))
+						{
+							success_flag = false;
+						}
+				}
+		}
+	else
+		{
+			if (param_p -> rp_current_value_p)
+				{
+					FreeResource (param_p -> rp_current_value_p);
+					param_p -> rp_current_value_p = NULL;
+				}
+		}
+
+	return success_flag;
+
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

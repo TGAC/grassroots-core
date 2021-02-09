@@ -156,6 +156,9 @@ GRASSROOTS_PARAMS_API SignedIntParameterOptionNode *AllocateSignedIntParameterOp
 GRASSROOTS_PARAMS_API void FreeStringParameterOptionNode (ListItem *item_p);
 
 
+GRASSROOTS_PARAMS_API bool SetSignedIntParameterCurrentValueFromJSON (SignedIntParameter *param_p, const json_t *value_p);
+
+
 #ifdef __cplusplus
 }
 #endif

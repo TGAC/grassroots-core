@@ -309,6 +309,63 @@ bool GetCurrentTimeParameterValueFromParameterSet (const ParameterSet * const pa
 	return success_flag;
 }
 
+
+bool SetTimeParameterCurrentValueFromJSON (TimeParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if ((value_p == NULL) || (json_is_null (value_p)))
+		{
+			if (param_p -> tp_current_value_p)
+				{
+					FreeTime (param_p -> tp_current_value_p);
+				}
+
+			param_p -> tp_current_value_p = NULL;
+			success_flag = true;
+		}
+	else if (json_is_string (value_p))
+		{
+			const char *value_s = json_string_value (value_p);
+
+			if (IsStringEmpty (value_s))
+				{
+					if (param_p -> tp_current_value_p)
+						{
+							FreeTime (param_p -> tp_current_value_p);
+						}
+
+					param_p -> tp_current_value_p = NULL;
+					success_flag = true;
+
+				}		/* if (IsStringEmpty (value_s)) */
+			else
+				{
+					if (param_p -> tp_current_value_p)
+						{
+							if (SetTimeFromString (param_p -> tp_current_value_p, value_s))
+								{
+									success_flag = true;
+								}
+						}
+					else
+						{
+							param_p -> tp_current_value_p = GetTimeFromString (value_s);
+
+							if (param_p -> tp_current_value_p)
+								{
+									success_flag = true;
+								}
+						}
+
+				}
+
+		}		/* else if (json_is_string (value_p)) */
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

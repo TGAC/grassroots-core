@@ -302,6 +302,38 @@ Parameter *CreateAndAddDoubleParameterToParameterSet (const ServiceData *service
 	return NULL;
 }
 
+
+bool SetDoubleParameterCurrentValueFromJSON (DoubleParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			if (json_is_number (value_p))
+				{
+					double d = json_number_value (value_p);
+					success_flag = SetDoubleParameterValue (& (param_p -> dp_current_value_p), &d);
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetDoubleParameterValue (& (param_p -> dp_current_value_p), NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not double", value_p -> type);
+				}
+		}
+	else
+		{
+			success_flag = SetDoubleParameterValue (& (param_p -> dp_current_value_p), NULL);
+		}
+
+	return success_flag;
+
+}
+
+
+
 /*
  * STATIC DEFINITIONS
  */

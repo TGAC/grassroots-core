@@ -156,6 +156,10 @@ GRASSROOTS_PARAMS_API bool SetDoubleParameterMinimumValue (DoubleParameter *para
 
 GRASSROOTS_PARAMS_API bool SetDoubleParameterMaximumValue (DoubleParameter *param_p, const double64 *max_value_p);
 
+
+GRASSROOTS_PARAMS_API bool SetDoubleParameterCurrentValueFromJSON (DoubleParameter *param_p, const json_t *value_p);
+
+
 #ifdef __cplusplus
 }
 #endif

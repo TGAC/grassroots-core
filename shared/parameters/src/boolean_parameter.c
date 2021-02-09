@@ -247,6 +247,35 @@ Parameter *CreateAndAddBooleanParameterToParameterSet (const ServiceData *servic
 }
 
 
+bool SetBooleanParameterCurrentValueFromJSON (BooleanParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			if (json_is_boolean (value_p))
+				{
+					bool b = json_boolean_value (value_p);
+					success_flag = SetBooleanParameterValue (& (param_p -> bp_current_value_p), &b);
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetBooleanParameterValue (& (param_p -> bp_current_value_p), NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not boolean", value_p -> type);
+				}
+		}
+	else
+		{
+			success_flag = SetBooleanParameterValue (& (param_p -> bp_current_value_p), NULL);
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

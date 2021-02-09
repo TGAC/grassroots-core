@@ -185,7 +185,8 @@ bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_arra
 
 
 
-json_t *GetParameterGroupAsJSON (ParameterGroup *param_group_p, const bool include_params_flag, const bool full_definition_flag, const SchemaVersion * const sv_p)
+
+json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool include_params_flag, const bool full_definition_flag, const SchemaVersion * const sv_p)
 {
 	json_error_t err;
 	json_t *group_json_p = json_pack_ex (&err, 0, "{s:s,s:b}", PARAM_GROUP_NAME_S, param_group_p -> pg_name_s, PARAM_GROUP_VISIBLE_S, param_group_p -> pg_visible_flag);

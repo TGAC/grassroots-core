@@ -448,6 +448,45 @@ void FreeUnsignedIntParameterOptionNode (ListItem *item_p)
 	FreeMemory (node_p);
 }
 
+
+bool SetUnsignedIntParameterCurrentValueFromJSON (UnsignedIntParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			if (json_is_integer (value_p))
+				{
+					json_int_t i = json_integer_value (value_p);
+
+					if (i >= 0)
+						{
+							uint32 u = (uint32) i;
+							success_flag = SetUnsignedIntParameterValue (param_p -> uip_current_value_p, &u);
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is less than zero, %d not an unsigned integer", value_p -> type);
+						}
+				}
+			else if (json_is_null (value_p))
+				{
+					success_flag = SetUnsignedIntParameterValue (param_p -> uip_current_value_p, NULL);
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is of the wrong type, %d not integer", value_p -> type);
+				}
+		}
+	else
+		{
+			success_flag = SetUnsignedIntParameterValue (param_p -> uip_current_value_p, NULL);
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
@@ -793,7 +832,7 @@ static bool SetValueFromJSON (uint32 **value_pp, const json_t *param_json_p, con
 						}
 					else
 						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is less than zero, %d not an unisgned integer", value_p -> type);
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, value_p, "JSON value is less than zero, %d not an unsigned integer", value_p -> type);
 						}
 				}
 			else if (json_is_null (value_p))

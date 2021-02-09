@@ -217,6 +217,41 @@ bool GetCurrentJSONParameterValueFromParameterSet (const ParameterSet * const pa
 }
 
 
+bool SetJSONParameterCurrentValueFromJSON (JSONParameter *param_p, const json_t *value_p)
+{
+	bool success_flag = false;
+
+	if (value_p)
+		{
+			json_t *copied_value_p = json_deep_copy (value_p);
+
+			if (copied_value_p)
+				{
+					if (param_p -> jp_current_value_p)
+						{
+							json_decref (param_p -> jp_current_value_p);
+						}
+
+					param_p -> jp_current_value_p = copied_value_p;
+					success_flag = true;
+				}
+		}
+	else
+		{
+			if (param_p -> jp_current_value_p)
+				{
+					json_decref (param_p -> jp_current_value_p);
+				}
+
+			param_p -> jp_current_value_p = NULL;
+			success_flag = true;
+		}
+
+	return success_flag;
+
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
