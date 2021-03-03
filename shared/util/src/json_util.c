@@ -358,6 +358,24 @@ bool GetJSONUnsignedInteger (const json_t *json_p, const char * const key_s, uin
 							success_flag = true;
 						}
 				}
+			else if (json_is_string (json_value_p))
+				{
+					const char *value_s = json_string_value (json_value_p);
+
+					if (!IsStringEmpty (value_s))
+						{
+							int i;
+
+							if (GetValidInteger (&value_s, &i))
+								{
+									if (i >= 0)
+										{
+											*value_p = (uint32) i;
+											success_flag = true;
+										}
+								}
+						}
+				}
 		}
 
 	return success_flag;
