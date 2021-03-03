@@ -1013,11 +1013,11 @@ bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p,
 				{
 					if (extra_opts_p)
 						{
-							fields_p = bson_new ();
+							fields_p = bson_copy (extra_opts_p);
 						}
 					else
 						{
-							fields_p = bson_copy (extra_opts_p);
+							fields_p = bson_new ();
 						}
 
 					if (fields_p)

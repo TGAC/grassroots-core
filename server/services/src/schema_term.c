@@ -184,24 +184,38 @@ void FreeSchemaTermNode (ListItem *node_p)
 }
 
 
+
+bool AddSchemaTermToJSON (const SchemaTerm *term_p, json_t *root_p)
+{
+	bool success_flag = false;
+
+	if (SetJSONString (root_p, SCHEMA_TERM_URL_S, term_p -> st_url_s))
+		{
+			if (SetJSONString (root_p, SCHEMA_TERM_NAME_S, term_p -> st_name_s))
+				{
+					if ((IsStringEmpty (term_p -> st_description_s)) || (SetJSONString (root_p, SCHEMA_TERM_DESCRIPTION_S, term_p -> st_description_s)))
+						{
+							if ((IsStringEmpty (term_p -> st_abbreviation_s)) || (SetJSONString (root_p, SCHEMA_TERM_ABBREVIATION_S, term_p -> st_abbreviation_s)))
+								{
+									success_flag = true;
+								}
+						}
+				}
+		}
+
+	return success_flag;
+}
+
+
 json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p)
 {
 	json_t *root_p = json_object ();
 
 	if (root_p)
 		{
-			if (SetJSONString (root_p, SCHEMA_TERM_URL_S, term_p -> st_url_s))
+			if (AddSchemaTermToJSON (term_p, root_p))
 				{
-					if (SetJSONString (root_p, SCHEMA_TERM_NAME_S, term_p -> st_name_s))
-						{
-							if ((IsStringEmpty (term_p -> st_description_s)) || (SetJSONString (root_p, SCHEMA_TERM_DESCRIPTION_S, term_p -> st_description_s)))
-								{
-									if ((IsStringEmpty (term_p -> st_abbreviation_s)) || (SetJSONString (root_p, SCHEMA_TERM_ABBREVIATION_S, term_p -> st_abbreviation_s)))
-										{
-											return root_p;
-										}
-								}
-						}
+					return root_p;
 				}
 
 			json_decref (root_p);

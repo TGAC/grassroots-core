@@ -171,6 +171,17 @@ GRASSROOTS_SERVICE_API json_t *GetSchemaTermAsJSON (const SchemaTerm *term_p);
 
 
 /**
+ * Populate a JSON fragment with the details for a given SchemaTerm.
+ *
+ * @param term_p The SchemaTerm to get the JSON for.
+ * @param The JSON fragment to populate.
+ * @return <code>true</code> upon success, <code>false</code> upon failure.
+ * @memberof SchemaTerm
+ */
+GRASSROOTS_SERVICE_API bool AddSchemaTermToJSON (const SchemaTerm *term_p, json_t *root_p);
+
+
+/**
  * Get the JSON fragment for a given SchemaTerm.
  *
  * @param term_json_p The JSON fragment for a given SchemaTerm.
