@@ -114,6 +114,7 @@ GRASSROOTS_UTIL_API const char *GetJSONString (const json_t *json_p, const char 
 
 GRASSROOTS_UTIL_API bool SetJSONString (json_t *json_p, const char * const key_s, const char * const value_s);
 
+GRASSROOTS_UTIL_API bool SetJSONStringOrNull (json_t *json_p, const char * const key_s, const char * const value_s, const bool null_flag);
 
 /**
  * Get the newly-allocated value for a given key in a json_t object.

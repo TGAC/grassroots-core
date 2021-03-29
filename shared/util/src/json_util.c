@@ -160,19 +160,26 @@ const char *GetJSONString (const json_t *json_p, const char * const key_s)
 
 bool SetJSONString (json_t *json_p, const char * const key_s, const char * const value_s)
 {
+	return SetJSONStringOrNull (json_p, key_s, value_s, true);
+}
+
+
+bool SetJSONStringOrNull (json_t *json_p, const char * const key_s, const char * const value_s, const bool null_flag)
+{
 	bool success_flag = false;
 
 	if (value_s)
 		{
 			success_flag = SetJSONValue (json_p, key_s, json_string (value_s));
 		}
-	else
+	else if (null_flag)
 		{
 			success_flag = SetJSONNull (json_p, key_s);
 		}
 
 	return success_flag;
 }
+
 
 
 char *GetCopiedJSONString (const json_t *json_p, const char * const key_s)

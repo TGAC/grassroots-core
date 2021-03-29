@@ -388,13 +388,13 @@ bool SetCharParameterCurrentValueFromJSON (CharParameter *param_p, const json_t 
 							*buffer_s = *value_s;
 							* (buffer_s + 1) = '\0';
 
-							success_flag = SetCharParameterValue (param_p -> cp_current_value_p, buffer_s);
+							success_flag = SetCharParameterValue (& (param_p -> cp_current_value_p), buffer_s);
 						}
 				}
 		}
 	else if (json_is_null (value_p))
 		{
-			success_flag = SetCharParameterValue (param_p -> cp_current_value_p, NULL);
+			success_flag = SetCharParameterValue (& (param_p -> cp_current_value_p), NULL);
 		}
 	else
 		{
