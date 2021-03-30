@@ -24,7 +24,11 @@
 #include "memory_allocations.h"
 
 
+/* length of YYYY-MM-DD */
 const size_t S_DATE_BUFFER_SIZE = 11;
+
+
+/* length of YYYY-MM-DDThh:mm:ss */
 const size_t S_TIME_BUFFER_SIZE = 20;
 
 
@@ -70,7 +74,7 @@ bool SetTimeFromString (struct tm * const time_p, const char *time_s)
 	const size_t l = strlen (time_s);
 
 	/*
-	 * String is of the format YYYY-MM-DD or YYYY-MM-DDThhmmss
+	 * String is of the format YYYY-MM-DD or YYYY-MM-DDThh:mm:ss
 	 */
 
 	if (l >= S_DATE_BUFFER_SIZE - 1)
