@@ -55,7 +55,7 @@ extern "C"
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof BooleanParameter
  */
-GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s, const char * const display_name_s, const char * const description_s, char **default_value_ss, char **current_value_ss, ParameterLevel level);
+GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s, const char * const display_name_s, const char * const description_s, const char **default_value_ss, const char **current_value_ss, ParameterLevel level);
 
 
 GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p);
@@ -64,11 +64,11 @@ GRASSROOTS_PARAMS_API StringArrayParameter *AllocateStringArrayParameterFromJSON
 
 GRASSROOTS_PARAMS_API Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											char **default_values_ss, uint8 level);
+																											const char **default_values_ss, uint8 level);
 
 GRASSROOTS_PARAMS_API Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											char **default_value_ss, char **current_value_ss, uint8 level);
+																											const char **default_value_ss, const char **current_value_ss, uint8 level);
 
 
 GRASSROOTS_PARAMS_API char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayParameter *param_p);

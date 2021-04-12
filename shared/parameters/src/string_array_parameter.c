@@ -8,13 +8,13 @@
 /*
  * STATIC DECLARATIONS
  */
-static char **CopyStringsArray (char **src_ss);
+static char **CopyStringsArray (const char **src_ss);
 
 static void ClearStringArrayParameter (Parameter *param_p);
 
-static StringArrayParameter *GetNewStringArrayParameter (char **current_values_ss, char **default_values_ss);
+static StringArrayParameter *GetNewStringArrayParameter (const char **current_values_ss, const char **default_values_ss);
 
-static bool SetStringArrayParameterValue (char ***param_value_sss, char **new_values_ss);
+static bool SetStringArrayParameterValue (char ***param_value_sss, const char **new_values_ss);
 
 static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
@@ -32,7 +32,7 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *service_data_p,
 																					const char * const name_s, const char * const display_name_s,
 																					const char * const description_s,
-																					char **default_values_ss, char **current_values_ss,
+																					const char **default_values_ss, const char **current_values_ss,
 																					ParameterLevel level)
 {
 	StringArrayParameter *param_p = GetNewStringArrayParameter (current_values_ss, default_values_ss);
@@ -129,7 +129,7 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 
 Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											char **default_values_ss, uint8 level)
+																											const char **default_values_ss, uint8 level)
 {
 	return CreateAndAddStringArrayParameterToParameterSet (service_data_p, params_p, group_p,
 																										name_s, display_name_s, description_s,
@@ -138,7 +138,7 @@ Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData
 
 Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											char **default_values_ss, char **current_values_ss, uint8 level)
+																											const char **default_values_ss, const char **current_values_ss, uint8 level)
 {
 	Parameter *base_param_p = NULL;
 	StringArrayParameter *string_array_param_p = AllocateStringArrayParameter (service_data_p, name_s, display_name_s, description_s, default_values_ss, current_values_ss, level);
@@ -314,7 +314,7 @@ char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayPa
  * STATIC DEFINITIONS
  */
 
-static StringArrayParameter *GetNewStringArrayParameter (char **current_values_ss, char **default_values_ss)
+static StringArrayParameter *GetNewStringArrayParameter (const char **current_values_ss, const char **default_values_ss)
 {
 	StringArrayParameter *param_p = (StringArrayParameter *) AllocMemory (sizeof (StringArrayParameter));
 
@@ -393,7 +393,7 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 
 
 
-static char **CopyStringsArray (char **src_ss)
+static char **CopyStringsArray (const char **src_ss)
 {
 	uint32 num_src_values = 1;		/* for the final NULL entry */
 	char **src_pp = src_ss;
@@ -447,7 +447,7 @@ static char **CopyStringsArray (char **src_ss)
 
 
 
-static bool SetStringArrayParameterValue (char ***param_value_sss, char **new_values_ss)
+static bool SetStringArrayParameterValue (char ***param_value_sss, const char **new_values_ss)
 {
 	bool success_flag = false;
 
