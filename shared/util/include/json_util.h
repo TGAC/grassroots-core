@@ -660,6 +660,11 @@ GRASSROOTS_UTIL_API bool GetRealValueFromJSONString (const json_t *json_p, doubl
 
 GRASSROOTS_UTIL_API json_t *ConvertStringArrayToJSON (char **values_ss);
 
+GRASSROOTS_UTIL_API bool SetNonTrivialUnsignedInt (json_t *json_p, const char *key_s, const uint32 *value_p, const bool null_flag);
+
+GRASSROOTS_UTIL_API bool SetNonTrivialString (json_t *value_p, const char *key_s, const char *value_s, const bool null_flag);
+
+GRASSROOTS_UTIL_API bool SetNonTrivialDouble (json_t *json_p, const char *key_s, const double64 *value_p, const bool null_fla);
 
 
 #ifdef __cplusplus

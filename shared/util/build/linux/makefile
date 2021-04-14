@@ -1,4 +1,4 @@
-NAME := grassroots_util
+I'll chjeckNAME := grassroots_util
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
