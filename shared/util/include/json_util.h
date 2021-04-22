@@ -139,10 +139,10 @@ GRASSROOTS_UTIL_API char *GetCopiedJSONString (const json_t *json_p, const char 
  *
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API bool GetJSONInteger (const json_t *json_p, const char * const key_s, int *value_p);
+GRASSROOTS_UTIL_API bool GetJSONInteger (const json_t *json_p, const char * const key_s, json_int_t *value_p);
 
 
-GRASSROOTS_UTIL_API bool SetJSONInteger (json_t *json_p, const char * const key_s, const int value);
+GRASSROOTS_UTIL_API bool SetJSONInteger (json_t *json_p, const char * const key_s, const json_int_t value);
 
 /**
  * Get the long value for a given key in a json_t object.

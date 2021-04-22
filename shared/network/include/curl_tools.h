@@ -305,6 +305,10 @@ GRASSROOTS_NETWORK_API char *GetURLEscapedString (CurlTool *tool_p, const char *
 GRASSROOTS_NETWORK_API void FreeURLEscapedString (char *value_s);
 
 
+
+GRASSROOTS_NETWORK_API char *GetWebData (const char *url_s);
+
+
 #ifdef __cplusplus
 }
 #endif

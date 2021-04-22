@@ -334,7 +334,7 @@ bool CopyJSONKeyIntegerValuePair (const json_t *src_p, json_t *dest_p, const cha
 }
 
 
-bool GetJSONInteger (const json_t *json_p, const char * const key_s, int *value_p)
+bool GetJSONInteger (const json_t *json_p, const char * const key_s, json_int_t *value_p)
 {
 	bool success_flag = false;
 	json_t *json_value_p = json_object_get (json_p, key_s);
@@ -390,7 +390,7 @@ bool GetJSONUnsignedInteger (const json_t *json_p, const char * const key_s, uin
 
 
 
-bool SetJSONInteger (json_t *json_p, const char * const key_s, const int value)
+bool SetJSONInteger (json_t *json_p, const char * const key_s, const json_int_t value)
 {
 	return SetJSONValue (json_p, key_s, json_integer (value));
 }

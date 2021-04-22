@@ -169,6 +169,12 @@ GRASSROOTS_UTIL_API char *ConvertLongToString (const int64 value);
 GRASSROOTS_UTIL_API char *ConvertDoubleToString (const double64 value);
 
 
+
+
+GRASSROOTS_UTIL_API char *ConvertSizeTToString (const size_t value);
+
+
+
 #ifdef __cplusplus
 }
 #endif

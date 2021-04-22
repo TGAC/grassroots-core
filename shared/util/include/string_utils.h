@@ -464,6 +464,9 @@ GRASSROOTS_UTIL_API bool DoesStringContainWhitespace (const char *value_s);
 GRASSROOTS_UTIL_API bool DoesStringEndWith (const char *value_s, const char *ending_s);
 
 
+GRASSROOTS_UTIL_API bool DoesStringStartWith (const char *value_s, const char *start_s);
+
+
 GRASSROOTS_UTIL_API char *GetStringAsLowerCase (const char *value_s);
 
 

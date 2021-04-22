@@ -142,6 +142,25 @@ bool GetValidLong (const char **str_pp, long *answer_p)
 }
 
 
+char *ConvertSizeTToString (const size_t value)
+{
+	int num_chars = snprintf (NULL, 0, "%zu", value);
+	char *value_s = NULL;
+
+	++ num_chars;
+
+	value_s = (char *) AllocMemory (num_chars * sizeof (char));
+
+	if (value_s)
+		{
+			num_chars = snprintf (value_s, num_chars, "%zu", value);
+		}
+
+	return value_s;
+}
+
+
+
 static bool GetNumber (const char **str_pp, double64 *answer_p, bool fractions_flag, const char * const alternative_decimal_points_s)
 {
 	const char *str_p = *str_pp;
