@@ -27,8 +27,6 @@ INCLUDES := \
 	-I$(DIR_GRASSROOTS_SERVER_INC) \
 	-I$(DIR_GRASSROOTS_SERVICES_INC) \
 	-I$(DIR_GRASSROOTS_TASK_INC) \
-	-I$(DIR_HCXSELECT_INC) \
-	-I$(DIR_HTMLCXX_INC) \
 	-I$(DIR_JANSSON_INC) \
 	-I$(DIR_UUID_INC) \
 	-I$(DIR_PCRE_INC)	
@@ -38,14 +36,12 @@ SRCS 	:= \
 	curl_tools.c \
 	json_tools.c \
 	key_value_pair.c \
-	request_tools.c \
-	selector.cpp
+	request_tools.c 
+
 	
 
 BASE_LDFLAGS := -ldl -L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
-	-L$(DIR_HCXSELECT_LIB) -lhcxselect \
-	-L$(DIR_HTMLCXX_LIB) -lhtmlcxx \
 
 	
 CPPFLAGS += -DGRASSROOTS_NETWORK_LIBRARY_EXPORTS  -I$(DIR_HTMLCXX_INC)
