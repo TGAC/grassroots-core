@@ -1562,9 +1562,16 @@ bool SetNonTrivialDouble (json_t *json_p, const char *key_s, const double64 *val
 		{
 			success_flag = SetJSONReal (json_p, key_s, *value_p);
 		}
-	else if (null_flag)
+	else
 		{
-			success_flag = SetJSONNull (json_p, key_s);
+			if (null_flag)
+				{
+					success_flag = SetJSONNull (json_p, key_s);
+				}
+			else
+				{
+					success_flag = true;
+				}
 		}
 
 	return success_flag;
@@ -1579,13 +1586,20 @@ bool SetNonTrivialUnsignedInt (json_t *json_p, const char *key_s, const uint32 *
 		{
 			success_flag = SetJSONInteger (json_p, key_s, *value_p);
 		}
-	else if (null_flag)
+	else
 		{
-			success_flag = SetJSONNull (json_p, key_s);
+			if (null_flag)
+				{
+					success_flag = SetJSONNull (json_p, key_s);
+				}
+			else
+				{
+					success_flag = true;
+				}
 		}
 
-	return success_flag;
 
+	return success_flag;
 }
 
 
