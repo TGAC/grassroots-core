@@ -153,18 +153,6 @@ GRASSROOTS_UTIL_API bool AddStringToStringLinkedList (LinkedList *list_p, const 
 
 
 
-/**
- * Create a LinkedList of StringListNodes with each entry being
- * a uuid.
- *
- * @param ids_s The string to parse from which the LinkedList will be
- * generated. The values in this string need to be separated by
- * whitespace.
- * @return The newly-allocated LinkedList of StringListNodes where each
- * entry is a uuid or <code>NULL</code> upon error.
- * @memberof StringListNode
- */
-LinkedList *GetUUIDSList (const char *ids_s);
 
 
 GRASSROOTS_UTIL_API char *DetachStringFromStringListNode (StringListNode *node_p);

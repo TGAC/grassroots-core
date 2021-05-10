@@ -32,21 +32,6 @@
 #include "grassroots_util_library.h"
 #include "linked_list.h"
 
-#include "uuid/uuid.h"
-
-/**
- * The number of bytes required to store a c-style string
- * representation of a UUID.
- * @ingroup utility_group
- */
-#define UUID_STRING_BUFFER_SIZE (37)
-
-/**
- * The number of bytes required to store the raw data
- * of a UUID.
- * @ingroup utility_group
- */
-#define UUID_RAW_SIZE (16)
 
 #ifdef __cplusplus
 	extern "C" {
@@ -320,51 +305,6 @@ GRASSROOTS_UTIL_API char *Strrstr (const char *haystack_s, const char *needle_s)
 
 
 /**
- * Get the string representation of a uuid_t.
- *
- * @param id The uuid_t to get the string representation of.
- * @return A newly-allocated string of the id or <code>NULL</code> upon error.
- * @see FreeUUIDString.
- * @ingroup utility_group
- */
-GRASSROOTS_UTIL_API char *GetUUIDAsString (const uuid_t id);
-
-
-/**
- * Convert a uuid_t into a given string buffer.
- *
- * @param id The uuid_t to get the string representation of.
- * @param uuid_s The buffer to write the representation to. This must be at least
- * UUID_STRING_BUFFER_SIZE bytes long.
- * @see UUID_STRING_BUFFER_SIZE
- * @ingroup utility_group
- */
-GRASSROOTS_UTIL_API void ConvertUUIDToString (const uuid_t id, char *uuid_s);
-
-
-
-/**
- * Convert the string representation of a uuid_t to a uuid_t.
- *
- * @param id_s The buffer containing the representation.
- * @param id The uuid_t to set.
- * @return <code>true</code> if the uuid_t was set successfully, <code>false</code> otherwise.
- * @ingroup utility_group
- */
-GRASSROOTS_UTIL_API bool ConvertStringToUUID (const char *id_s, uuid_t id);
-
-
-/**
- * Free a string representation of a uuid_t.
- *
- * @param uuid_s The string representation to free.
- * @see GetUUIDAsString.
- * @ingroup utility_group
- */
-GRASSROOTS_UTIL_API void FreeUUIDString (char *uuid_s);
-
-
-/**
  * Make a copy of a string.
  *
  * @param dest_ss Pointer to the string where the source string
@@ -440,14 +380,6 @@ GRASSROOTS_UTIL_API char *ConcatenateVarargsStrings (const char *value_s, ...);
 
 
 
-/**
- * Test whether a uuid_t contains a valid value.
- *
- * @param id The uuid_t to test.
- * @return <code>true</code> if the uuid_t is valid, <code>false</code> otherwise.
- * @ingroup utility_group
- */
-GRASSROOTS_UTIL_API bool IsUUIDSet (uuid_t id);
 
 
 

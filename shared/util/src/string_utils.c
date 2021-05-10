@@ -918,44 +918,6 @@ char *Strrstr (const char *haystack_s, const char *needle_s)
 }
 
 
-bool IsUUIDSet (uuid_t id)
-{
-	return (!uuid_is_null (id));
-}
-
-
-void ConvertUUIDToString (const uuid_t id, char *uuid_s)
-{
-	uuid_unparse_lower (id, uuid_s);
-	* (uuid_s + (UUID_STRING_BUFFER_SIZE - 1)) = '\0';
-}
-
-
-bool ConvertStringToUUID (const char *id_s, uuid_t id)
-{
-	return (uuid_parse (id_s, id) == 0);
-}
-
-
-char *GetUUIDAsString (const uuid_t id)
-{
-	char *uuid_s = (char *) AllocMemory (UUID_STRING_BUFFER_SIZE * sizeof (char));
-
-	if (uuid_s)
-		{
-			ConvertUUIDToString (id, uuid_s);
-			* (uuid_s + (UUID_STRING_BUFFER_SIZE - 1)) = '\0';
-		}
-
-	return uuid_s;
-}
-
-
-void FreeUUIDString (char *uuid_s)
-{
-	FreeMemory (uuid_s);
-}
-
 
 bool ReplaceStringValue (char **dest_ss, const char *value_s)
 {
