@@ -92,7 +92,7 @@ Resource *ParseStringToResource (const char * const resource_s)
 }
 
 
-Resource *AllocateResource (const char *protocol_s, const char *value_s, const char * const title_s)
+Resource *AllocateResource (const char *protocol_s, const char *value_s, const char *title_s)
 {
 	Resource *resource_p = (Resource *) AllocMemory (sizeof (Resource));
 
@@ -263,7 +263,7 @@ bool CopyResource (const Resource * const src_p, Resource * const dest_p)
 }
 
 
-json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * const path_s, const char *title_s, json_t *data_p)
+json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * const path_s, const char * const title_s, json_t *data_p)
 {
 	json_t *json_p = json_object ();
 

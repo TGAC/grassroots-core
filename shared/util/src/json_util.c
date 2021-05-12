@@ -1430,7 +1430,7 @@ json_t *SplitJSON (json_t *src_p, uint8 percentage_to_move)
 	if (dest_p)
 		{
 			const size_t src_size = json_object_size (src_p);
-			const size_t num_to_move = src_size * percentage_to_move * 0.010;
+			const size_t num_to_move = (size_t) (src_size * percentage_to_move * 0.010);
 			size_t i = 0;
 			void *tmp_p;
 			const char *key_s;
