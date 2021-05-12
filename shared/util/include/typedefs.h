@@ -68,35 +68,50 @@
 	typedef int8_t int8;
 	typedef int16_t int16;
 	typedef uint16_t uint16;
+#else if defined WINDOWS
+#include <stdint.h>
+
+typedef uint32_t uint32;
+typedef int32_t int32;
+typedef uint64_t uint64;
+typedef int64_t int64;
+typedef double double64;
+typedef uint8_t uint8;
+typedef int8_t int8;
+typedef int16_t int16;
+typedef uint16_t uint16;
+
+#endif
+
 
 	/** The C I/O length field for uint32 datatypes. */
-	#define UINT32_FMT_IDENT "u"
+#define UINT32_FMT_IDENT "u"
 
-	/** The C I/O length field for int32 datatypes. */
-	#define INT32_FMT_IDENT "d"
+/** The C I/O length field for int32 datatypes. */
+#define INT32_FMT_IDENT "d"
 
-	/** The C I/O length field for double64 datatypes. */
-	#define DOUBLE64_FMT_IDENT "lf"
+/** The C I/O length field for double64 datatypes. */
+#define DOUBLE64_FMT_IDENT "lf"
 
-	/** The C I/O length field for uint8 datatypes. */
-	#define UINT8_FMT_IDENT "cu"
+/** The C I/O length field for uint8 datatypes. */
+#define UINT8_FMT_IDENT "cu"
 
-	/** The C I/O length field for int8 datatypes. */
-	#define INT8_FMT_IDENT "c"
+/** The C I/O length field for int8 datatypes. */
+#define INT8_FMT_IDENT "c"
 
-	/** The C I/O length field for uint16 datatypes. */
-	#define UINT16_FMT_IDENT "hu"
+/** The C I/O length field for uint16 datatypes. */
+#define UINT16_FMT_IDENT "hu"
 
-	/** The C I/O length field for int16 datatypes. */
-	#define INT16_FMT_IDENT "hd"
+/** The C I/O length field for int16 datatypes. */
+#define INT16_FMT_IDENT "hd"
 
-	/** The C I/O length field for sizet datatypes. */
-	#define SIZET_FMT_IDENT "lu"
+/** The C I/O length field for sizet datatypes. */
+#define SIZET_FMT_IDENT "lu"
 
 
-	/** The C I/O length field for uint64 datatypes. */
-	#define INT64_FMT_IDENT "ld"
-#endif
+/** The C I/O length field for uint64 datatypes. */
+#define INT64_FMT_IDENT "ld"
+
 
 /** The C I/O format specifier for uint32 datatypes. */
 #define UINT32_FMT "%" UINT32_FMT_IDENT
@@ -152,11 +167,13 @@ typedef enum FileLocation
 
 #ifdef __GNUC__
 	#define ATTR_UNUSED __attribute__((unused))
+#define UNUSED_PARAM(name) unused_ ## name ATTR_UNUSED
 #else
-	#define ATTR_UNUSED(x) x
+#define UNUSED_PARAM(x) x
 #endif
 
-#define UNUSED_PARAM(name) unused_ ## name ATTR_UNUSED
+
+
 
 #endif		/* #ifndef UNUSED_PARAM */
 

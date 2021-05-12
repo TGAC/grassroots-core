@@ -21,7 +21,7 @@
 #include <WinBase.h>
 #include <Dbghelp.h>
 
-#include "filesystem.h"
+#include "filesystem_utils.h"
 #include "linked_list.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
@@ -106,7 +106,7 @@ LinkedList *GetMatchingFiles (const char * const pattern)
 									StringListNode *node_p = AllocateStringListNode (file_data.cFileName, MF_DEEP_COPY);
 									if (node_p)
 										{
-											LinkedListAddTail (list_p, (ListNode *) node_p);
+											LinkedListAddTail (list_p, (ListItem *) node_p);
 										}
 
 									while (FindNextFile (handle, &file_data))
@@ -117,7 +117,7 @@ LinkedList *GetMatchingFiles (const char * const pattern)
 													node_p = AllocateStringListNode (file_data.cFileName, MF_DEEP_COPY);
 													if (node_p)
 														{
-															LinkedListAddTail (list_p, (ListNode *) node_p);
+															LinkedListAddTail (list_p, (ListItem *) node_p);
 														}
 
 												}

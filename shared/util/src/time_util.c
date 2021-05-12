@@ -309,7 +309,11 @@ bool GetCurrentTime (struct tm *tm_p)
 
 	if (current_time != (time_t) -1)
 		{
-			success_flag =  (localtime_r (&current_time, tm_p) != NULL);
+#ifdef _WIN32
+		success_flag = (localtime_s (tm_p, &current_time) != 0);
+#else
+		success_flag = (localtime_r(&current_time, tm_p) != NULL);
+#endif
 		}
 
 	return success_flag;
@@ -476,8 +480,8 @@ static bool ConvertStringToTime (const char * const time_s, time_t *time_p, bool
 				{
 					double d = floor (offset * 0.010);
 					int h = (int) d; 
-					int m = offset - (d * 100);
-					time_t offset_time = (3600 * h) + (60 * m);
+					int m = offset - (h * 100);
+					time_t offset_time = (3600 * (time_t) h) + (60 * (time_t) m);
 					
 					if (offset > 0)
 						{

@@ -21,7 +21,7 @@
 #ifndef FILE_STREAMER_H
 #define FILE_STREAMER_H
 
-#include "configuration_manager.h"
+//#include "configuration_manager.h"
 #include "streamer.h"
 #include "library.h"
 
