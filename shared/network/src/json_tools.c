@@ -24,6 +24,13 @@
 #include "filesystem_utils.h"
 #include "providers_state_table.h"
 
+#ifdef _WIN32
+	#include "windows_uuid.h"
+#else
+#include "uuid/uuid.h"
+#endif
+
+
 
 
 #ifdef _DEBUG

@@ -28,7 +28,7 @@
 #ifndef SERVERS_POOL_H_
 #define SERVERS_POOL_H_
 
-#include "uuid_util.h"
+#include "uuid_defs.h"
 
 #include "connection.h"
 #include "grassroots_service_manager_library.h"

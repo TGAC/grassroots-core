@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,12 @@
 ** limitations under the License.
 */
 #include <string.h>
+
+#ifdef _WIN32
+
+#else
 #include <unistd.h>
+#endif
 
 #include "connection.h"
 #include "memory_allocations.h"
@@ -24,6 +29,9 @@
 #include "streams.h"
 
 
+#include "raw_connection.h"
+
+
 #ifdef _DEBUG
 	#define CONNECTION_DEBUG	(STM_LEVEL_FINE)
 #else
@@ -31,7 +39,6 @@
 #endif
 
 
-static int ConnectToServer (const char *hostname_s, const char *port_s, struct addrinfo **server_pp);
 
 
 static bool InitConnection (Connection *connection_p, ConnectionType type);
@@ -43,56 +50,12 @@ static void ReleaseConnection (Connection *connection_p);
 static void FreeWebConnection (WebConnection *connection_p);
 
 
-static void FreeRawConnection (RawConnection *connection_p);
-
 
 /******************************/
 /***** METHOD DEFINITIONS *****/
 /******************************/
 
 
-Connection *AllocaterRawClientConnection (int server_socket_fd)
-{
-	RawConnection *connection_p = (RawConnection *) AllocMemory (sizeof (RawConnection));
-
-	if (connection_p)
-		{
-			if (InitConnection (& (connection_p -> rc_base), CT_RAW))
-				{
-					connection_p -> rc_data_buffer_p = AllocateByteBuffer (1024);
-
-					if (connection_p -> rc_data_buffer_p)
-						{
-							struct sockaddr *remote_p = (struct sockaddr *) AllocMemory (sizeof (struct sockaddr));
-
-							if (remote_p)
-								{
-									socklen_t t = sizeof (struct sockaddr);
-									int client_socket_fd = accept (server_socket_fd, remote_p, &t);
-
-									if (client_socket_fd != -1)
-										{
-											connection_p -> rc_sock_fd = client_socket_fd;
-											connection_p -> rc_data.rc_client_p = remote_p;
-											connection_p -> rc_server_connection_flag = false;
-
-											return (& (connection_p -> rc_base));
-										}
-
-									FreeMemory (remote_p);
-								}		/* if (remote_p) */
-
-							FreeByteBuffer (connection_p -> rc_data_buffer_p);
-						}		/* if (connection_p -> rc_data_buffer_p) */
-
-					ReleaseConnection (& (connection_p -> rc_base));
-				}		/* if (InitConnection (& (connection_p -> rc_base))) */
-
-			FreeMemory (connection_p);
-		}		/* if (connection_p) */
-
-	return NULL;
-}
 
 
 static bool InitConnection (Connection *connection_p, ConnectionType type)
@@ -111,43 +74,6 @@ static void ReleaseConnection (Connection * UNUSED_PARAM (connection_p))
 
 }
 
-
-Connection *AllocateRawServerConnection (const char * const hostname_s, const char * const port_s)
-{
-	RawConnection *connection_p = (RawConnection *) AllocMemory (sizeof (RawConnection));
-
-	if (connection_p)
-		{
-			if (InitConnection (& (connection_p -> rc_base), CT_RAW))
-				{
-					connection_p -> rc_data_buffer_p = AllocateByteBuffer (1024);
-
-					if (connection_p -> rc_data_buffer_p)
-						{
-							struct addrinfo *server_p = NULL;
-							int fd = ConnectToServer (hostname_s, port_s, &server_p);
-
-							if (fd >= 0)
-								{
-									connection_p -> rc_sock_fd = fd;
-									connection_p -> rc_data.rc_server_p = server_p;
-									connection_p -> rc_server_connection_flag = true;
-
-									return (& (connection_p -> rc_base));
-								}		/* if (fd >= 0) */
-
-							FreeByteBuffer (connection_p -> rc_data_buffer_p);
-						}
-
-					ReleaseConnection (& (connection_p -> rc_base));
-				}		/* if (InitConnection (& (connection_p -> rc_base))) */
-
-			FreeMemory (connection_p);
-		}		/* if (connection_p) */
-
-
-	return NULL;
-}
 
 
 Connection *AllocateWebServerConnection (const char * const full_uri_s)
@@ -222,7 +148,7 @@ void FreeConnection (Connection *connection_p)
 	switch (connection_p -> co_type)
 		{
 			case CT_RAW:
-				FreeRawConnection ((RawConnection *) connection_p);
+				FreeRawConnection ((struct RawConnection *) connection_p);
 				break;
 
 			case CT_WEB:
@@ -246,15 +172,7 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 
 	if (connection_p -> co_type == CT_RAW)
 		{
-			RawConnection *raw_connection_p = (RawConnection *) connection_p;
-
-			if (SendJsonRequestViaRawConnection (raw_connection_p, req_p) > 0)
-				{
-					if (AtomicReceiveViaRawConnection (raw_connection_p) > 0)
-						{
-							success_flag = true;
-						}
-				}
+			success_flag =  MakeRemoteJsonCallViaRawConnection (connection_p, req_p);
 		}
 	else if (connection_p -> co_type == CT_WEB)
 		{
@@ -272,7 +190,7 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 
 
 
-int SendJsonRequestViaRawConnection (RawConnection *connection_p, const json_t *json_p)
+int SendJsonRequestViaRawConnection (struct RawConnection *connection_p, const json_t *json_p)
 {
 	int res = -1;
 	char *req_s = json_dumps (json_p, 0);
@@ -299,39 +217,13 @@ static void FreeWebConnection (WebConnection *connection_p)
 }
 
 
-static void FreeRawConnection (RawConnection *connection_p)
-{
-	if (connection_p -> rc_server_connection_flag)
-		{
-			if (connection_p -> rc_data.rc_server_p)
-				{
-					freeaddrinfo (connection_p -> rc_data.rc_server_p);
-				}
-		}
-	else
-		{
-			if (connection_p -> rc_data.rc_client_p)
-				{
-					FreeMemory (connection_p -> rc_data.rc_client_p);
-				}
-		}
-
-	FreeByteBuffer (connection_p -> rc_data_buffer_p);
-
-
-	close (connection_p -> rc_sock_fd);
-}
-
-
 const char *GetConnectionData (Connection *connection_p)
 {
 	const char *data_s = NULL;
 
 	if (connection_p -> co_type == CT_RAW)
 		{
-			RawConnection *raw_connection_p = (RawConnection *) connection_p;
-
-			data_s = GetByteBufferData (raw_connection_p -> rc_data_buffer_p);
+		data_s = GetRawConnectionData(connection_p);
 		}
 	else if (connection_p -> co_type == CT_WEB)
 		{
@@ -359,54 +251,4 @@ bool SetConnectionCredentials (Connection *connection_p, const char *username_s,
 }
 
 
-
-static int ConnectToServer (const char *hostname_s, const char *port_s, struct addrinfo **server_pp)
-{
-	struct addrinfo hints;
-	int i;
-	int sock_fd = -1;
-
-	memset (&hints, 0, sizeof (hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-
-	i = getaddrinfo (hostname_s, port_s, &hints, server_pp);
-
-	if (i == 0)
-		{
-			struct addrinfo *addr_p = *server_pp;
-			int loop_flag = 1;
-
-			/* loop through all the results and connect to the first we can */
-			while (loop_flag)
-				{
-					sock_fd = socket (addr_p -> ai_family, addr_p -> ai_socktype, addr_p -> ai_protocol);
-
-					if (sock_fd != -1)
-						{
-							i = connect (sock_fd, addr_p -> ai_addr, addr_p -> ai_addrlen);
-
-							if (i != -1)
-								{
-
-									loop_flag = 0;
-								}
-							else
-								{
-									close (sock_fd);
-									sock_fd = -1;
-								}
-						}
-
-					if (loop_flag)
-						{
-							addr_p = addr_p -> ai_next;
-							loop_flag = (addr_p != NULL);
-						}
-				}		/* while (addr_p) */
-
-		}		/* if (i == 0) */
-
-	return sock_fd;
-}
 

@@ -27,7 +27,7 @@
 #include "typedefs.h"
 #include "operation.h"
 #include "request_tools.h"
-#include "uuid/uuid.h"
+//#include "uuid/uuid.h"
 #include "user_details.h"
 #include "schema_version.h"
 #include "grassroots_server.h"

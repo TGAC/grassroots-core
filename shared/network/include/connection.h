@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,6 @@
 #ifndef CONNECTION_H_
 #define CONNECTION_H_
 
-#include <netdb.h>
 
 #include "typedefs.h"
 #include "byte_buffer.h"
@@ -73,45 +72,6 @@ typedef struct Connection
 } Connection;
 
 
-/**
- * @brief A Connection that uses raw socket-based communication.
- *
- * @extends Connection
- *
- * @ingroup network_group
- */
-typedef struct RawConnection
-{
-	/** The base Connection */
-	Connection rc_base;
-
-	/** The buffer where all of the received data is stored */
-	ByteBuffer *rc_data_buffer_p;
-
-	/** The socket the RawConnection is using. */
-	int rc_sock_fd;
-
-	/**
-	 * <code>true</code> if the Connection is to a Server, <code>
-	 * false</code> if it is to a Client.
-	 */
-	bool rc_server_connection_flag;
-
-	/**
-	 * Dependent upon rc_server_connection_flag this stores the underlying
-	 * connection data.
-	 */
-	union
-		{
-			/** If this RawConnection is to a Server this will be used. */
-			struct addrinfo *rc_server_p;
-
-			/** If this RawConnection is to a Client this will be used. */
-			struct sockaddr *rc_client_p;
-		}
-	rc_data;
-
-} RawConnection;
 
 
 /**
@@ -139,16 +99,6 @@ extern "C"
 {
 #endif
 
-
-/**
- * Allocate a RawConnection to a Server.
- *
- * @param hostname_s The hostname of the Server to connect to.
- * @param port_s The Server's port to connect to.
- * @return A Connection to the given Server or <code>NULL</code> upon error.
- * @memberof Connection
- */
-GRASSROOTS_NETWORK_API Connection *AllocateRawServerConnection (const char * const hostname_s, const char * const port_s);
 
 
 /**
@@ -199,9 +149,6 @@ GRASSROOTS_NETWORK_API void FreeConnection (Connection *connection_p);
  * @memberof Connection
  */
 GRASSROOTS_NETWORK_API const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const json_t *req_p);
-
-
-GRASSROOTS_NETWORK_LOCAL int SendJsonRequestViaRawConnection (RawConnection *connection_p, const json_t *json_p);
 
 
 
