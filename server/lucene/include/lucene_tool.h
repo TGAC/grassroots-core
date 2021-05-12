@@ -22,7 +22,7 @@
 #ifndef LUCENE_TOOL_H_
 #define LUCENE_TOOL_H_
 
-#include "uuid/uuid.h"
+#include "uuid_defs.h"
 
 #include "lucene_library.h"
 #include "typedefs.h"

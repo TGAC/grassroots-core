@@ -29,6 +29,7 @@
 #include "filesystem_utils.h"
 #include "math_utils.h"
 #include "lucene_facet.h"
+#include "uuid_util.h"
 
 
 static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p);
@@ -437,11 +438,11 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 
 																													if (results_p)
 																														{
-																															int successes;
+																															json_int_t successes;
 
 																															if (GetJSONInteger (results_p, "successes", &successes))
 																																{
-																																	int total;
+																																	json_int_t total;
 
 																																	if (GetJSONInteger (results_p, "successes", &total))
 																																		{

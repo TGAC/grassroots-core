@@ -32,7 +32,7 @@
 #include "service.h"
 #include "service_job.h"
 #include "grassroots_service_manager_library.h"
-#include "uuid/uuid.h"
+#include "uuid_defs.h"
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -25,9 +25,6 @@
 #define CORE_SHARED_UUID_INCLUDE_UUID_UTIL_H_
 
 
-#include "uuid/uuid.h"
-
-
 #include "uuid_util_library.h"
 #include "typedefs.h"
 #include "string_linked_list.h"

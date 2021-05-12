@@ -32,7 +32,7 @@
 
 
 #include "jansson.h"
-#include "uuid/uuid.h"
+#include "uuid_defs.h"
 
 #include "parameter_set.h"
 #include "linked_list.h"

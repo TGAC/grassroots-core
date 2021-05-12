@@ -26,7 +26,7 @@
 #include "math_utils.h"
 #include "grassroots_server.h"
 #include "string_utils.h"
-
+#include "uuid_util.h"
 
 #if HTCONDOR_DRMAA_ENABLED
 	#include "htcondor_env_patch.h"
@@ -1334,7 +1334,7 @@ DrmaaTool *ConvertDrmaaToolFromJSON (const json_t * const json_p, GrassrootsServ
 
 																									if (drmaa_p -> dt_args_p)
 																										{
-																											int i = 0;
+																											json_int_t i = 0;
 
 																											if (GetJSONInteger (json_p, DRMAA_NUM_CORES_S, &i))
 																												{

@@ -23,6 +23,19 @@
 #ifndef GRASSROOTS_WINDOWS_UUID_H
 #define GRASSROOTS_WINDOWS_UUID_H
 
+#include <rpcdce.h>
+
+
+/*
+ * We want to use the Unix uuid_t as the standard
+ * and wrap a Windows equivalent and since the
+ * structures differ slightly we need to untypedef
+ * uuid_t for Windows
+ */
+
+#ifdef uuid_t
+	#undef uuid_t
+#endif
 
 typedef struct
 {

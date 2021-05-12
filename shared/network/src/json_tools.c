@@ -24,12 +24,8 @@
 #include "filesystem_utils.h"
 #include "providers_state_table.h"
 
-#ifdef _WIN32
-	#include "windows_uuid.h"
-#else
-#include "uuid/uuid.h"
-#endif
-
+#include "uuid_defs.h"
+#include "uuid_util.h"
 
 
 
@@ -480,7 +476,7 @@ Operation GetOperationFromTopLevelJSON (const json_t * const json_p)
 				}		/* if (op_s) */
 			else
 				{
-					int value;
+					json_int_t value;
 
 					if (GetJSONInteger (server_op_p, OPERATION_S, &value))
 						{
@@ -886,7 +882,7 @@ void UpdateStatuses (const uuid_t **ids_pp, const size_t size, Connection *conne
 																		}
 																	else
 																		{
-																			int k;
+																			json_int_t k;
 																			/* Get the job status */
 
 																			if (GetJSONInteger(job_p, SERVICE_STATUS_VALUE_S, &k))
@@ -925,7 +921,7 @@ void UpdateStatuses (const uuid_t **ids_pp, const size_t size, Connection *conne
 
 
 
-json_t *GetIndexingDataPayload (GrassrootsServer *grassroots_p, const char *service_s, const json_t *params_array_json_p)
+json_t *GetIndexingDataPayload (GrassrootsServer *grassroots_p, const char *service_s, json_t *params_array_json_p)
 {
 	json_t *payload_p = json_object ();
 

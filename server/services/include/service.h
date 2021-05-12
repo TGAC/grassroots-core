@@ -33,7 +33,7 @@
 #include "operation.h"
 #include "paired_service.h"
 #include "linked_service.h"
-#include "uuid/uuid.h"
+#include "uuid_defs.h"
 #include "service_metadata.h"
 #include "sync_data.h"
 

@@ -27,7 +27,7 @@
 #include "linked_list.h"
 #include "operation.h"
 #include "json_util.h"
-#include "uuid/uuid.h"
+#include "uuid_defs.h"
 //#include "drmaa.h"
 #include "grassroots_server.h"
 

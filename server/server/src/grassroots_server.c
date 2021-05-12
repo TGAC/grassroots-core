@@ -36,7 +36,7 @@
 #include "user.h"
 #include "provider.h"
 #include "string_parameter.h"
-
+#include "uuid_util.h"
 
 /*
  * STATIC DECLARATIONS
@@ -112,7 +112,7 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 
 static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
 
-static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
+static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
 
 /*
  * API DEFINITIONS
@@ -986,7 +986,7 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 }
 
 
-static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p)
+static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p)
 {
 	int res = 0;
 	const char *server_uri_s = GetServerProviderURI (grassroots_p);
@@ -1245,8 +1245,8 @@ static SchemaVersion *InitSchemaVersionDetails (json_t *config_p)
 
 	if (schema_p)
 		{
-			GetJSONInteger (schema_p, VERSION_MAJOR_S, (int *) &major);
-			GetJSONInteger (schema_p, VERSION_MINOR_S, (int *) &minor);
+			GetJSONUnsignedInteger (schema_p, VERSION_MAJOR_S, &major);
+			GetJSONUnsignedInteger (schema_p, VERSION_MINOR_S, &minor);
 		}
 
 	sv_p = AllocateSchemaVersion (major, minor);

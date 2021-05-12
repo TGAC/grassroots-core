@@ -38,7 +38,18 @@
  */
 #define UUID_RAW_SIZE (16)
 
+/*
+ * We want to use the Unix uuid_t as the standard
+ * and wrap a Windows equivalent and since the
+ * structures differ slightly we need to untypedef
+ * uuid_t for Windows
+ */
 
+#ifdef _WIN32
+	#include "windows_uuid.h"
+#else
+	#include "uuid/uuid.h"
+#endif
 
 
 #endif /* CORE_SHARED_UUID_INCLUDE_UUID_CONSTANTS_H_ */

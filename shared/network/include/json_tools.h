@@ -364,7 +364,7 @@ GRASSROOTS_NETWORK_API Operation GetOperationFromTopLevelJSON (const json_t * co
 
 
 
-GRASSROOTS_NETWORK_API json_t *GetIndexingDataPayload (GrassrootsServer *grassroots_p, const char *service_s, const json_t *params_array_json_p);
+GRASSROOTS_NETWORK_API json_t *GetIndexingDataPayload (GrassrootsServer *grassroots_p, const char *service_s, json_t *params_array_json_p);
 
 
 #ifdef __cplusplus

@@ -68,7 +68,7 @@
 	typedef int8_t int8;
 	typedef int16_t int16;
 	typedef uint16_t uint16;
-#else if defined WINDOWS
+#elif defined WINDOWS
 #include <stdint.h>
 
 typedef uint32_t uint32;

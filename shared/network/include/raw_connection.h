@@ -32,10 +32,14 @@
 #ifndef RAW_CONNECTION_H_
 #define RAW_CONNECTION_H_
 
+#include "jansson.h"
 
+#include "network_library.h"
+#include "typedefs.h"
 
 /* forward declarations */
 struct RawConnection;
+struct Connection;
 
 
 #ifdef __cplusplus
@@ -52,7 +56,7 @@ extern "C"
  * @return A Connection to the given Server or <code>NULL</code> upon error.
  * @memberof Connection
  */
-GRASSROOTS_NETWORK_API Connection *AllocateRawServerConnection (const char * const hostname_s, const char * const port_s);
+GRASSROOTS_NETWORK_API struct Connection *AllocateRawServerConnection (const char * const hostname_s, const char * const port_s);
 
 
 
@@ -103,10 +107,10 @@ GRASSROOTS_NETWORK_API int AtomicSendViaRawConnection (const char *buffer_p, uin
 GRASSROOTS_NETWORK_LOCAL int SendJsonRequestViaRawConnection (struct RawConnection *connection_p, const json_t *json_p);
 
 
-GRASSROOTS_NETWORK_LOCAL const char *GetRawConnectionData (Connection *connection_p);
+GRASSROOTS_NETWORK_LOCAL const char *GetRawConnectionData (struct Connection *connection_p);
 
 
-GRASSROOTS_NETWORK_LOCAL bool MakeRemoteJsonCallViaRawConnection (Connection *connection_p, const json_t *req_p);
+GRASSROOTS_NETWORK_LOCAL bool MakeRemoteJsonCallViaRawConnection (struct Connection *connection_p, const json_t *req_p);
 
 GRASSROOTS_NETWORK_LOCAL void FreeRawConnection (struct RawConnection *conn_p);
 

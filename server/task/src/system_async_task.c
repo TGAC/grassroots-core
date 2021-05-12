@@ -9,6 +9,7 @@
 #include "async_tasks_manager.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
+#include "uuid_util.h"
 
 
 #ifdef _DEBUG

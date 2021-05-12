@@ -24,7 +24,7 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
 
-#include "uuid/uuid.h"
+#include "uuid_defs.h"
 
 #include "linked_list.h"
 #include "grassroots_params_library.h"

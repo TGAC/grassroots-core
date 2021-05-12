@@ -128,9 +128,9 @@ LuceneFacet *GetLuceneFacetFromResultsJSON (const json_t *json_p)
 
 	if (name_s)
 		{
-			int32 count = 0;
+			uint32 count = 0;
 
-			if (GetJSONInteger (json_p, "value", &count))
+			if (GetJSONUnsignedInteger (json_p, "value", &count))
 				{
 					LuceneFacet *facet_p = AllocateLuceneFacet (name_s, count);
 

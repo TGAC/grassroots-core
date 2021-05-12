@@ -32,6 +32,44 @@
 #include "math_utils.h"
 #include "memory_allocations.h"
 
+#include "connection.h"
+
+struct RawConnection
+{
+	/** The base Connection */
+	Connection rc_base;
+
+	/** The buffer where all of the received data is stored */
+	ByteBuffer *rc_data_buffer_p;
+
+	/** The socket the RawConnection is using. */
+	int rc_sock_fd;
+
+	/**
+	 * <code>true</code> if the Connection is to a Server, <code>
+	 * false</code> if it is to a Client.
+	 */
+	bool rc_server_connection_flag;
+
+	/**
+	 * Dependent upon rc_server_connection_flag this stores the underlying
+	 * connection data.
+	 */
+	union
+		{
+			/** If this RawConnection is to a Server this will be used. */
+			struct addrinfo *rc_server_p;
+
+			/** If this RawConnection is to a Client this will be used. */
+			struct sockaddr *rc_client_p;
+		}
+	rc_data;
+
+};
+
+typedef struct RawConnection RawConnection;
+
+
 /*****************************/
 /***** STATIC PROTOTYPES *****/
 /*****************************/
@@ -47,7 +85,7 @@ static int ReceiveDataIntoByteBuffer (int socket_fd, ByteBuffer *buffer_p, const
 /***** METHOD DEFINITIONS *****/
 /******************************/
 
-bool MakeRemoteJsonCallViaConnection (Connection *connection_p, const json_t *req_p)
+bool MakeRemoteJsonCallViaRawConnection (Connection *connection_p, const json_t *req_p)
 {
 	bool success_flag = false;
 
@@ -184,48 +222,6 @@ static int ReceiveDataIntoByteBuffer (int socket_fd, ByteBuffer *buffer_p, const
 
 	return num_received;
 }
-
-
-/**
- * @brief A Connection that uses raw socket-based communication.
- *
- * @extends Connection
- *
- * @ingroup network_group
- */
-typedef struct RawConnection
-{
-	/** The base Connection */
-	Connection rc_base;
-
-	/** The buffer where all of the received data is stored */
-	ByteBuffer *rc_data_buffer_p;
-
-	/** The socket the RawConnection is using. */
-	int rc_sock_fd;
-
-	/**
-	 * <code>true</code> if the Connection is to a Server, <code>
-	 * false</code> if it is to a Client.
-	 */
-	bool rc_server_connection_flag;
-
-	/**
-	 * Dependent upon rc_server_connection_flag this stores the underlying
-	 * connection data.
-	 */
-	union
-		{
-			/** If this RawConnection is to a Server this will be used. */
-			struct addrinfo *rc_server_p;
-
-			/** If this RawConnection is to a Client this will be used. */
-			struct sockaddr *rc_client_p;
-		}
-	rc_data;
-
-} RawConnection;
-
 
 static int ConnectToServer (const char *hostname_s, const char *port_s, struct addrinfo **server_pp);
 

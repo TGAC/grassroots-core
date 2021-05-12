@@ -37,7 +37,7 @@
 #include "linked_service.h"
 
 
-#include "uuid/uuid.h"
+#include "uuid_defs.h"
 
 /* forward declarations */
 struct Service;

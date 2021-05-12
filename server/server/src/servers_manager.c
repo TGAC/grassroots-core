@@ -25,6 +25,7 @@
 #include "provider.h"
 #include "plugin.h"
 #include "filesystem_utils.h"
+#include "uuid_util.h"
 
 
 #ifdef _DEBUG
