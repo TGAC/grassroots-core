@@ -40,13 +40,6 @@
 
 
 
-
-static bool InitConnection (Connection *connection_p, ConnectionType type);
-
-
-static void ReleaseConnection (Connection *connection_p);
-
-
 static void FreeWebConnection (WebConnection *connection_p);
 
 
@@ -58,7 +51,7 @@ static void FreeWebConnection (WebConnection *connection_p);
 
 
 
-static bool InitConnection (Connection *connection_p, ConnectionType type)
+bool InitConnection (Connection *connection_p, ConnectionType type)
 {
 	bool success_flag = true;
 
@@ -69,7 +62,7 @@ static bool InitConnection (Connection *connection_p, ConnectionType type)
 }
 
 
-static void ReleaseConnection (Connection * UNUSED_PARAM (connection_p))
+void ReleaseConnection (Connection * UNUSED_PARAM (connection_p))
 {
 
 }

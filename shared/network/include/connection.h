@@ -158,6 +158,13 @@ GRASSROOTS_NETWORK_API const char *MakeRemoteJsonCallViaConnection (Connection *
 GRASSROOTS_NETWORK_API bool SetConnectionCredentials (Connection *connection_p, const char *username_s, const char *password_s);
 
 
+GRASSROOTS_NETWORK_API bool InitConnection (Connection *connection_p, ConnectionType type);
+
+
+GRASSROOTS_NETWORK_API void ReleaseConnection (Connection *connection_p);
+
+
+
 /** @} */
 
 
