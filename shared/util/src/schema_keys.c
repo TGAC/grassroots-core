@@ -79,7 +79,7 @@ static char *ExpandTerm (const char *term_s, const char *prefix_s, const char *e
 
 			if (!result_s)
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to expand term \%s\" using \"%s\" and \"%s\"", term_s, prefix_s, expanded_prefix_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to expand term \"%s\" using \"%s\" and \"%s\"", term_s, prefix_s, expanded_prefix_s);
 				}
 		}
 

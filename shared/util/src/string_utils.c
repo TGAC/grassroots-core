@@ -497,8 +497,8 @@ bool SearchAndReplaceInString (const char *src_s, char **dest_ss, const char *to
 {
 	bool success_flag = true;
 	char *result_s = NULL; // the return string
-	int len_rep;  // length of rep (the string to remove)
-	int len_with; // length of with (the string to replace rep with)
+//	int len_rep;  // length of rep (the string to remove)
+//	int len_with; // length of with (the string to replace rep with)
 	int len_front; // distance between rep and end of last rep
 
 	// sanity checks and initialization
@@ -806,8 +806,8 @@ int Strnicmp (const char *c0_p, const char *c1_p, size_t length)
 			bool loop_flag = (length > 0);
 			int i0;
 			int i1;
-			char c0;
-			char c1;
+			char c0 = 0;
+			char c1 = 0;
 
 			while (loop_flag)
 				{
@@ -919,7 +919,7 @@ char *Strrstr (const char *haystack_s, const char *needle_s)
 
 
 
-bool ReplaceStringValue (char **dest_ss, const char *value_s)
+bool ReplaceStringValue (char **dest_ss, const char * const value_s)
 {
 	bool success_flag = false;
 	char *new_value_s = CopyToNewString (value_s, 0, false);

@@ -25,6 +25,7 @@
 
 #include <rpc.h>
 
+#include "uuid_util_library.h"
 
 /*
  * We want to use the Unix uuid_t as the standard
@@ -48,11 +49,11 @@ extern "C"
 {
 #endif
 
-int uuid_parse (char *in, uuid_t uu);
+GRASSROOTS_UUID_API int uuid_parse (char *in, uuid_t uu);
 
-int uuid_is_null (uuid_t uu);
+GRASSROOTS_UUID_API int uuid_is_null (uuid_t uu);
 
-void uuid_unparse_lower (uuid_t uu, char* out);
+GRASSROOTS_UUID_API void uuid_unparse_lower (uuid_t uu, char* out);
 
 #ifdef __cplusplus
 }

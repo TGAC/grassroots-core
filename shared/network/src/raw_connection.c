@@ -466,6 +466,22 @@ int AtomicSendViaRawConnection (const char *buffer_p, const uint32 num_to_send, 
 }
 
 
+int SendJsonRequestViaRawConnection (struct RawConnection *connection_p, const json_t *json_p)
+{
+	int res = -1;
+	char *req_s = json_dumps (json_p, 0);
+
+	if (req_s)
+		{
+			res = AtomicSendStringViaRawConnection (req_s, connection_p);
+			free (req_s);
+		}
+
+	return res;
+}
+
+
+
 /**
  * Make sure that we keep sending until the complete message has been
  * transferred.

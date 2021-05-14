@@ -68,18 +68,25 @@
 	typedef int8_t int8;
 	typedef int16_t int16;
 	typedef uint16_t uint16;
-#elif defined WINDOWS
-#include <stdint.h>
 
-typedef uint32_t uint32;
-typedef int32_t int32;
-typedef uint64_t uint64;
-typedef int64_t int64;
-typedef double double64;
-typedef uint8_t uint8;
-typedef int8_t int8;
-typedef int16_t int16;
-typedef uint16_t uint16;
+	/** The C I/O length field for uint64 datatypes. */
+	#define INT64_FMT_IDENT "ld"
+
+#elif defined WINDOWS
+	#include <stdint.h>
+
+	typedef uint32_t uint32;
+	typedef int32_t int32;
+	typedef uint64_t uint64;
+	typedef int64_t int64;
+	typedef double double64;
+	typedef uint8_t uint8;
+	typedef int8_t int8;
+	typedef int16_t int16;
+	typedef uint16_t uint16;
+
+	/** The C I/O length field for uint64 datatypes. */
+	#define INT64_FMT_IDENT "lld"
 
 #endif
 
@@ -109,8 +116,6 @@ typedef uint16_t uint16;
 #define SIZET_FMT_IDENT "lu"
 
 
-/** The C I/O length field for uint64 datatypes. */
-#define INT64_FMT_IDENT "ld"
 
 
 /** The C I/O format specifier for uint32 datatypes. */

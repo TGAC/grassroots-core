@@ -27,7 +27,7 @@ void ConvertUUIDToString (const uuid_t id, char *uuid_s)
 }
 
 
-bool ConvertStringToUUID (const char *id_s, uuid_t id)
+bool ConvertStringToUUID (char *id_s, uuid_t id)
 {
 	return (uuid_parse (id_s, id) == 0);
 }

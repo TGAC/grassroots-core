@@ -56,15 +56,24 @@
  */
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
-	#define PREFIX GRASSROOTS_UTIL_API
-	#define VAL(x)	= x
-	#define CONCAT_VAL(x,y) = x y
-#else
-	#define PREFIX extern
-	#define VAL(x)
-	#define CONCAT_VAL(x,y)
-#endif
+
+	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS /* defined if we are building the LIB DLL (instead of using it) */
+
+		#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
+			#define PREFIX GRASSROOTS_UTIL_API
+			#define VAL(x)	= x
+			#define CONCAT_VAL(x,y) = x y
+		#else
+			#define PREFIX extern
+			#define VAL(x)
+			#define CONCAT_VAL(x,y)
+		#endif
+	#else
+		#define PREFIX GRASSROOTS_UTIL_API
+		#define VAL(x)
+		#define CONCAT_VAL(x,y)
+	#endif
+
 
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
 

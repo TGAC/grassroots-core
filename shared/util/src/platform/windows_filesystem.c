@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,16 +50,16 @@ const char *GetPluginPattern (void)
 }
 
 
-BOOLEAN IsPathValid (const char * const path)
+bool IsPathValid (const char * const path)
 {
 	DWORD attrs = GetFileAttributes (path);
 	return ((attrs | FILE_ATTRIBUTE_DIRECTORY) != 0);
 }
 
 
-BOOLEAN IsPathAbsolute (const char * const path_s)
+bool IsPathAbsolute (const char * const path_s)
 {
-	BOOLEAN absolute_path_flag = FALSE;
+	bool absolute_path_flag = FALSE;
 
 	if (path_s)
 		{
@@ -82,7 +82,7 @@ BOOLEAN IsPathAbsolute (const char * const path_s)
 }
 
 
-LinkedList *GetMatchingFiles (const char * const pattern)
+LinkedList *GetMatchingFiles (const char * const pattern, const bool full_path_flag)
 {
 	LinkedList *list_p = AllocateLinkedList (FreeStringListNode);
 
@@ -103,7 +103,9 @@ LinkedList *GetMatchingFiles (const char * const pattern)
 
 							if (value != FILE_ATTRIBUTE_DIRECTORY)
 								{
-									StringListNode *node_p = AllocateStringListNode (file_data.cFileName, MF_DEEP_COPY);
+									const char* c_p = file_data.cFileName;
+									StringListNode *node_p = AllocateStringListNode (c_p, MF_DEEP_COPY);
+
 									if (node_p)
 										{
 											LinkedListAddTail (list_p, (ListItem *) node_p);
@@ -145,28 +147,32 @@ LinkedList *GetMatchingFiles (const char * const pattern)
 }
 
 
-BOOLEAN EnsureDirectoryExists (const char * const path_s)
+bool EnsureDirectoryExists (const char * const path_s)
 {
 	return MakeSureDirectoryPathExists (path_s);
 }
 
 
-BOOLEAN CopyToNewFile (const char * const src_filename, const char * const dest_filename, void (*callback_fn) ())
+bool CopyToNewFile (const char * const src_filename, const char * const dest_filename, void (*callback_fn) (void))
 {
+	bool b;
 	LPPROGRESS_ROUTINE prog_fn = (LPPROGRESS_ROUTINE) callback_fn;
+
 
 	if (callback_fn)
 		{
-			return (CopyFileEx (src_filename, dest_filename, prog_fn, NULL, 0, 0) != 0);
+			b = (CopyFileEx (src_filename, dest_filename, prog_fn, NULL, 0, 0) != 0);
 		}
 	else
 		{
-			return (CopyFile (src_filename, dest_filename, TRUE) != 0);
+			b = (CopyFile (src_filename, dest_filename, TRUE) != 0);
 		}
+
+	return b;
 }
 
 
-BOOLEAN SetCurrentWorkingDirectory (const char * const path)
+bool SetCurrentWorkingDirectory (const char * const path)
 {
 	return (SetCurrentDirectory (path) != 0);
 }
@@ -194,13 +200,32 @@ char *GetCurrentWorkingDirectory (void)
 }
 
 
-BOOLEAN IsDirectory (const char * const path)
+bool IsDirectory (const char * const path)
 {
 	DWORD dw = GetFileAttributes (path);
 
 	return (dw & FILE_ATTRIBUTE_DIRECTORY);
 }
 
+
+
+char *GetHomeDirectory (void)
+{
+	char *result_s = NULL;
+	const char *home_s = getenv ("USER");
+
+	if (home_s)
+		{
+			result_s = EasyCopyToNewString (home_s);
+
+			if (!result_s)
+				{
+
+				}
+		}
+
+	return result_s;
+}
 
 
 /*

@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,17 +35,18 @@
 ** LIB_LOCAL is used for non-api symbols.
 */
 
-#ifdef SHARED_LIBRARY /* defined if LIB is compiled as a DLL */
-  #ifdef  GRASSROOTS_UTIL_LIBRARY_EXPORTS /* defined if we are building the LIB DLL (instead of using it) */
+#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS /* defined if we are building the LIB DLL (instead of using it) */
+  #ifdef SHARED_LIBRARY /* defined if LIB is compiled as a DLL */
     #define GRASSROOTS_UTIL_API LIB_HELPER_SYMBOL_EXPORT
-  #else
-    #define GRASSROOTS_UTIL_API LIB_HELPER_SYMBOL_IMPORT
-  #endif /* #ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS */
-  #define GRASSROOTS_UTIL_LOCAL LIB_HELPER_SYMBOL_LOCAL
-#else /* SHARED_LIBRARY is not defined: this means LIB is a static lib. */
-  #define GRASSROOTS_UTIL_API
+    #define GRASSROOTS_UTIL_LOCAL LIB_HELPER_SYMBOL_LOCAL
+  #else  /* SHARED_LIBRARY is not defined: this means LIB is a static lib. */
+    #define GRASSROOTS_UTIL_API
+    #define GRASSROOTS_UTIL_LOCAL
+  #endif /* #ifdef SHARED_LIBRARY */
+#else   
+  #define GRASSROOTS_UTIL_API LIB_HELPER_SYMBOL_IMPORT
   #define GRASSROOTS_UTIL_LOCAL
-#endif /* #ifdef SHARED_LIBRARY */
+#endif /* #ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS */
 
 #ifdef __cplusplus
 }

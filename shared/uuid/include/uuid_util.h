@@ -70,7 +70,7 @@ GRASSROOTS_UUID_API void ConvertUUIDToString (const uuid_t id, char *uuid_s);
  * @return <code>true</code> if the uuid_t was set successfully, <code>false</code> otherwise.
  * @ingroup utility_group
  */
-GRASSROOTS_UUID_API bool ConvertStringToUUID (const char *id_s, uuid_t id);
+GRASSROOTS_UUID_API bool ConvertStringToUUID (char *id_s, uuid_t id);
 
 
 /**

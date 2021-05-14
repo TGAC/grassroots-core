@@ -141,7 +141,12 @@ void FreeConnection (Connection *connection_p)
 	switch (connection_p -> co_type)
 		{
 			case CT_RAW:
-				FreeRawConnection ((struct RawConnection *) connection_p);
+#ifdef _WIN32 
+
+#else
+				FreeRawConnection((struct RawConnection*) connection_p);
+#endif	
+
 				break;
 
 			case CT_WEB:
@@ -165,7 +170,11 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 
 	if (connection_p -> co_type == CT_RAW)
 		{
-			success_flag =  MakeRemoteJsonCallViaRawConnection (connection_p, req_p);
+#ifdef _WIN32 
+
+#else
+		success_flag = MakeRemoteJsonCallViaRawConnection(connection_p, req_p);
+#endif	
 		}
 	else if (connection_p -> co_type == CT_WEB)
 		{
@@ -181,21 +190,6 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 	return (success_flag ? GetConnectionData (connection_p) : NULL);
 }
 
-
-
-int SendJsonRequestViaRawConnection (struct RawConnection *connection_p, const json_t *json_p)
-{
-	int res = -1;
-	char *req_s = json_dumps (json_p, 0);
-
-	if (req_s)
-		{
-			res = AtomicSendStringViaRawConnection (req_s, connection_p);
-			free (req_s);
-		}
-
-	return res;
-}
 
 
 
@@ -216,7 +210,11 @@ const char *GetConnectionData (Connection *connection_p)
 
 	if (connection_p -> co_type == CT_RAW)
 		{
-		data_s = GetRawConnectionData(connection_p);
+			#ifdef _WIN32 
+
+			#else
+				data_s = GetRawConnectionData(connection_p);
+			#endif	
 		}
 	else if (connection_p -> co_type == CT_WEB)
 		{
