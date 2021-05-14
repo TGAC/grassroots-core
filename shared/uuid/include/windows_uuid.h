@@ -23,7 +23,7 @@
 #ifndef GRASSROOTS_WINDOWS_UUID_H
 #define GRASSROOTS_WINDOWS_UUID_H
 
-#include <rpcdce.h>
+#include <rpc.h>
 
 
 /*
@@ -49,6 +49,10 @@ extern "C"
 #endif
 
 int uuid_parse (char *in, uuid_t uu);
+
+int uuid_is_null (uuid_t uu);
+
+void uuid_unparse_lower (uuid_t uu, char* out);
 
 #ifdef __cplusplus
 }

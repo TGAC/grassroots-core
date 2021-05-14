@@ -859,7 +859,7 @@ void UpdateStatuses (const uuid_t **ids_pp, const size_t size, Connection *conne
 
 											if (uuid_s)
 												{
-													uuid_t uuid;
+												uuid_t uuid = { 0 };
 
 													if (uuid_parse (uuid_s, uuid) == 0)
 														{

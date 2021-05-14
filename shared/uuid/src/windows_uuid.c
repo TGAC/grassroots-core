@@ -2,20 +2,23 @@
 
 #include "windows_uuid.h"
 
+#include "string_utils.h"
+
+
 
 static void ConvertFromUUIDT (const uuid_t src, UUID *dest_p);
-static void ConvertToUUIDT (const UUID src, uuid_t *dest_p);
+static void ConvertToUUIDT (const UUID *src_p, uuid_t *dest_p);
 
 
 int uuid_parse (char *in, uuid_t uu)
 {
 	int ret = -1;
-	UUID uuid;
-	RPC_STATUS status = UuidFromString (in, uuid);
+	UUID win_uuid;
+	RPC_STATUS status = UuidFromString (in, &win_uuid);
 
 	if (status == RPC_S_OK)
 		{
-			ConvertToUUIDT (uuid, uu);
+			ConvertToUUIDT (&win_uuid, &uu);
 			ret = 0;
 		}
 
@@ -23,23 +26,63 @@ int uuid_parse (char *in, uuid_t uu)
 }
 
 
-static void ConvertFromUUIDT (const uuid_t src, UUID *dest_p)
+int uuid_is_null (uuid_t uu)
 {
-	memcpy (& (dest_p -> Data1), src, 4);
+	int ret = 0;
+	UUID win_uuid;
+	RPC_STATUS status;
 
-	memcpy (& (dest_p -> Data2), src + 4, 2);
-	memcpy (& (dest_p -> Data2), src + 6, 2);
-	memcpy (dest_p -> Data4, src + 8, 8);
+	ConvertFromUUIDT (uu, &win_uuid);
+
+	if (UuidIsNil (&win_uuid, &status) == TRUE)
+		{
+			ret = 1;
+		}
+
+	return ret;
+}
+
+void uuid_unparse_lower (uuid_t uu, char *out_s)
+{
+	UUID win_uuid;
+	RPC_STATUS status;
+	RPC_CSTR str;
+
+	ConvertFromUUIDT (uu, &win_uuid);
+
+	status = UuidToString (&win_uuid, &str);
+
+	if (status == RPC_S_OK)
+		{
+			out_s = EasyCopyToNewString ((char*) str);
+
+			if (!out_s)
+				{
+				}
+
+
+			RpcStringFree (&str);
+		}
 }
 
 
-static void ConvertToUUIDT (const UUID src, uuid_t *dest_p)
+static void ConvertFromUUIDT (const uuid_t src, UUID *dest_p)
 {
-	memcpy (dest_p -> uu_data, src -> Data1, 4);
+	memcpy (& (dest_p -> Data1), src.uu_data, 4);
 
-	memcpy (((dest_p -> uu_data) + 4), src -> Data2, 2);
-	memcpy (((dest_p -> uu_data) + 6), src -> Data3, 2);
+	memcpy (& (dest_p -> Data2), src.uu_data + 4, 2);
+	memcpy (& (dest_p -> Data2), src.uu_data + 6, 2);
+	memcpy (dest_p -> Data4, src.uu_data + 8, 8);
+}
 
-	memcpy (((dest_p -> uu_data) + 8), src -> Data4, 8);
+
+static void ConvertToUUIDT (const UUID *src_p, uuid_t *dest_p)
+{
+	memcpy (dest_p -> uu_data, & (src_p -> Data1), 4);
+
+	memcpy (((dest_p -> uu_data) + 4), & (src_p -> Data2), 2);
+	memcpy (((dest_p -> uu_data) + 6), & (src_p -> Data3), 2);
+
+	memcpy (((dest_p -> uu_data) + 8), src_p -> Data4, 8);
 }
 
