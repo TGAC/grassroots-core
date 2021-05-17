@@ -1182,30 +1182,6 @@ json_t *ConvertDrmaaToolToJSON (const DrmaaTool * const tool_p)
 }
 
 
-//typedef struct DrmaaTool
-//{
-//	/** @privatesection */
-//	LinkedList *dt_args_p;
-//
-//	/** Filename for where to store the stdout/stderr for the drmaa job */
-//	char *dt_output_filename_s;
-//	char dt_id_s [MAX_LEN_JOBID];
-//	char dt_id_out_s [MAX_LEN_JOBID];
-//	uint32 dt_num_cores;
-//	uint32 dt_mb_mem_usage;
-//	char *dt_user_name_s;
-//	char **dt_email_addresses_ss;
-//} DrmaaTool;
-
-/*
-	PREFIX const char *DRMAA_ID_S VAL("drmma_job_id");
-	PREFIX const char *DRMAA_OUT_ID_S VAL("drmma_job_out_id");
-
-	PREFIX const char *DRMAA_NUM_CORES VAL("num_cores");
-	PREFIX const char *DRMAA_MEM_USAGE_S VAL("mem");
- */
-
-
 static bool SetUpDrmaaToolValue (const json_t * const json_p, const char * const key_s, DrmaaTool * drmaa_p, bool (*assign_value_fn) (DrmaaTool *drmaa_p, const char *value_s), const bool optional_flag)
 {
 	bool success_flag = optional_flag;

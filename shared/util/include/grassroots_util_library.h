@@ -22,9 +22,7 @@
 #ifndef GRASSROOTS_UTIL_LIBRARY_H
 #define GRASSROOTS_UTIL_LIBRARY_H
 
-#ifdef __cplusplus
-	extern "C" {
-#endif
+
 
 #include "library.h"
 
@@ -47,6 +45,11 @@
   #define GRASSROOTS_UTIL_API LIB_HELPER_SYMBOL_IMPORT
   #define GRASSROOTS_UTIL_LOCAL
 #endif /* #ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS */
+
+
+#ifdef __cplusplus
+	extern "C" {
+#endif
 
 #ifdef __cplusplus
 }
