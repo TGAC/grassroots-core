@@ -71,15 +71,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -146,64 +154,64 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\byte_buffer.c" />
-    <ClCompile Include="..\..\..\src\containers\int_linked_list.c" />
-    <ClCompile Include="..\..\..\src\containers\linked_list.c" />
-    <ClCompile Include="..\..\..\src\containers\linked_list_iterator.c" />
-    <ClCompile Include="..\..\..\src\containers\string_hash_table.c" />
-    <ClCompile Include="..\..\..\src\containers\string_int_pair.c" />
-    <ClCompile Include="..\..\..\src\containers\string_linked_list.c" />
-    <ClCompile Include="..\..\..\src\hash_table.c" />
-    <ClCompile Include="..\..\..\src\io\filesystem_utils.c" />
-    <ClCompile Include="..\..\..\src\io\file_output_stream.c" />
-    <ClCompile Include="..\..\..\src\io\streams.c" />
-    <ClCompile Include="..\..\..\src\json_util.c" />
-    <ClCompile Include="..\..\..\src\math_utils.c" />
-    <ClCompile Include="..\..\..\src\operation.c" />
-    <ClCompile Include="..\..\..\src\platform\windows_filesystem.c" />
-    <ClCompile Include="..\..\..\src\regular_expressions.c" />
-    <ClCompile Include="..\..\..\src\resource.c" />
-    <ClCompile Include="..\..\..\src\schema_keys.c" />
-    <ClCompile Include="..\..\..\src\schema_version.c" />
-    <ClCompile Include="..\..\..\src\search_options.c" />
-    <ClCompile Include="..\..\..\src\string_utils.c" />
-    <ClCompile Include="..\..\..\src\time_util.c" />
-    <ClCompile Include="..\..\..\src\user_details.c" />
+    <ClCompile Include="..\..\src\byte_buffer.c" />
+    <ClCompile Include="..\..\src\containers\int_linked_list.c" />
+    <ClCompile Include="..\..\src\containers\linked_list.c" />
+    <ClCompile Include="..\..\src\containers\linked_list_iterator.c" />
+    <ClCompile Include="..\..\src\containers\string_hash_table.c" />
+    <ClCompile Include="..\..\src\containers\string_int_pair.c" />
+    <ClCompile Include="..\..\src\containers\string_linked_list.c" />
+    <ClCompile Include="..\..\src\hash_table.c" />
+    <ClCompile Include="..\..\src\io\filesystem_utils.c" />
+    <ClCompile Include="..\..\src\io\file_output_stream.c" />
+    <ClCompile Include="..\..\src\io\streams.c" />
+    <ClCompile Include="..\..\src\json_util.c" />
+    <ClCompile Include="..\..\src\math_utils.c" />
+    <ClCompile Include="..\..\src\operation.c" />
+    <ClCompile Include="..\..\src\platform\windows_filesystem.c" />
+    <ClCompile Include="..\..\src\regular_expressions.c" />
+    <ClCompile Include="..\..\src\resource.c" />
+    <ClCompile Include="..\..\src\schema_keys.c" />
+    <ClCompile Include="..\..\src\schema_version.c" />
+    <ClCompile Include="..\..\src\search_options.c" />
+    <ClCompile Include="..\..\src\string_utils.c" />
+    <ClCompile Include="..\..\src\time_util.c" />
+    <ClCompile Include="..\..\src\user_details.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\include\amiga_debugging.h" />
-    <ClInclude Include="..\..\..\include\amiga_platform.h" />
-    <ClInclude Include="..\..\..\include\byte_buffer.h" />
-    <ClInclude Include="..\..\..\include\containers\hash_table.h" />
-    <ClInclude Include="..\..\..\include\containers\int_linked_list.h" />
-    <ClInclude Include="..\..\..\include\containers\linked_list.h" />
-    <ClInclude Include="..\..\..\include\containers\linked_list_iterator.h" />
-    <ClInclude Include="..\..\..\include\containers\string_hash_table.h" />
-    <ClInclude Include="..\..\..\include\containers\string_int_pair.h" />
-    <ClInclude Include="..\..\..\include\containers\string_linked_list.h" />
-    <ClInclude Include="..\..\..\include\data_resource.h" />
-    <ClInclude Include="..\..\..\include\doxygen_groups.h" />
-    <ClInclude Include="..\..\..\include\doxygen_pages.h" />
-    <ClInclude Include="..\..\..\include\grassroots_util_library.h" />
-    <ClInclude Include="..\..\..\include\io\filesystem_utils.h" />
-    <ClInclude Include="..\..\..\include\io\file_output_stream.h" />
-    <ClInclude Include="..\..\..\include\io\streams.h" />
-    <ClInclude Include="..\..\..\include\io_utils.h" />
-    <ClInclude Include="..\..\..\include\json_util.h" />
-    <ClInclude Include="..\..\..\include\library.h" />
-    <ClInclude Include="..\..\..\include\math_utils.h" />
-    <ClInclude Include="..\..\..\include\memory_allocations.h" />
-    <ClInclude Include="..\..\..\include\operation.h" />
-    <ClInclude Include="..\..\..\include\platform.h" />
-    <ClInclude Include="..\..\..\include\regular_expressions.h" />
-    <ClInclude Include="..\..\..\include\schema_keys.h" />
-    <ClInclude Include="..\..\..\include\schema_version.h" />
-    <ClInclude Include="..\..\..\include\search_options.h" />
-    <ClInclude Include="..\..\..\include\string_utils.h" />
-    <ClInclude Include="..\..\..\include\temp_file.hpp" />
-    <ClInclude Include="..\..\..\include\time_util.h" />
-    <ClInclude Include="..\..\..\include\typedefs.h" />
-    <ClInclude Include="..\..\..\include\user_details.h" />
+    <ClInclude Include="..\..\include\amiga_debugging.h" />
+    <ClInclude Include="..\..\include\amiga_platform.h" />
+    <ClInclude Include="..\..\include\byte_buffer.h" />
+    <ClInclude Include="..\..\include\containers\hash_table.h" />
+    <ClInclude Include="..\..\include\containers\int_linked_list.h" />
+    <ClInclude Include="..\..\include\containers\linked_list.h" />
+    <ClInclude Include="..\..\include\containers\linked_list_iterator.h" />
+    <ClInclude Include="..\..\include\containers\string_hash_table.h" />
+    <ClInclude Include="..\..\include\containers\string_int_pair.h" />
+    <ClInclude Include="..\..\include\containers\string_linked_list.h" />
+    <ClInclude Include="..\..\include\data_resource.h" />
+    <ClInclude Include="..\..\include\doxygen_groups.h" />
+    <ClInclude Include="..\..\include\doxygen_pages.h" />
+    <ClInclude Include="..\..\include\grassroots_util_library.h" />
+    <ClInclude Include="..\..\include\io\filesystem_utils.h" />
+    <ClInclude Include="..\..\include\io\file_output_stream.h" />
+    <ClInclude Include="..\..\include\io\streams.h" />
+    <ClInclude Include="..\..\include\io_utils.h" />
+    <ClInclude Include="..\..\include\json_util.h" />
+    <ClInclude Include="..\..\include\library.h" />
+    <ClInclude Include="..\..\include\math_utils.h" />
+    <ClInclude Include="..\..\include\memory_allocations.h" />
+    <ClInclude Include="..\..\include\operation.h" />
+    <ClInclude Include="..\..\include\platform.h" />
+    <ClInclude Include="..\..\include\regular_expressions.h" />
+    <ClInclude Include="..\..\include\schema_keys.h" />
+    <ClInclude Include="..\..\include\schema_version.h" />
+    <ClInclude Include="..\..\include\search_options.h" />
+    <ClInclude Include="..\..\include\string_utils.h" />
+    <ClInclude Include="..\..\include\temp_file.hpp" />
+    <ClInclude Include="..\..\include\time_util.h" />
+    <ClInclude Include="..\..\include\typedefs.h" />
+    <ClInclude Include="..\..\include\user_details.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
