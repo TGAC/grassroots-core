@@ -491,7 +491,7 @@ GRASSROOTS_UTIL_API bool SetRealFromJSON (const json_t *json_p, double *value_p)
  *
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API bool SetIntegerFromJSON (const json_t *json_p, int32 *value_p);
+GRASSROOTS_UTIL_API bool SetIntegerFromJSON (const json_t *json_p, json_int_t *value_p);
 
 
 /**

@@ -26,7 +26,7 @@
 
 #include <string.h>
 
-#define ALLOCATE_SCHEMA_KEYS_TAGS
+#define ALLOCATE_SCHEMA_KEYS_TAGS (1)
 #include "schema_keys.h"
 
 #include "string_utils.h"

@@ -54,14 +54,15 @@
  * including this header file. Currently this happens in
  * scheme_keys.c.
  */
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 
-	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS /* defined if we are building the LIB DLL (instead of using it) */
+	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
 
 		#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
-			#define PREFIX GRASSROOTS_UTIL_API
-			#define VAL(x)	= x
+			#define PREFIX  GRASSROOTS_UTIL_API
+			#define VAL(x) = x
 			#define CONCAT_VAL(x,y) = x y
 		#else
 			#define PREFIX extern
@@ -74,8 +75,29 @@
 		#define CONCAT_VAL(x,y)
 	#endif
 
+#endif //	#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
+//#ifndef DOXYGEN_SHOULD_SKIP_THIS
+//
+//	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
+//
+//		#define PREFIX GRASSROOTS_UTIL_API
+//
+//		#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
+//			#define VAL(x)	= x
+//			#define CONCAT_VAL(x,y) = x y
+//		#else
+//			#define VAL(x)
+//			#define CONCAT_VAL(x,y)
+//		#endif
+//
+//	#endif		//#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS
+//
+//#endif		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
 
 
 #ifdef __cplusplus

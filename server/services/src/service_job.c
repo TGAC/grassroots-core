@@ -23,6 +23,7 @@
 #include "json_tools.h"
 #include "json_parameter.h"
 #include "jobs_manager.h"
+#include "uuid_util.h"
 
 #ifdef _DEBUG
 #define SERVICE_JOB_DEBUG	(STM_LEVEL_INFO)
@@ -823,7 +824,7 @@ bool GetOperationStatusFromServiceJobJSON (const json_t *value_p, OperationStatu
 
 	if (json_is_object (value_p))
 		{
-			int i;
+			json_int_t i;
 
 			if (GetJSONInteger (value_p, SERVICE_STATUS_VALUE_S, &i))
 				{

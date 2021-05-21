@@ -35,7 +35,7 @@
 #include "string_utils.h"
 #include "service_job.h"
 #include "provider.h"
-
+#include "uuid_util.h"
 
 #ifdef _DEBUG
 #define SERVICE_DEBUG	(STM_LEVEL_INFO)

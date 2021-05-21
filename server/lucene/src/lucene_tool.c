@@ -650,7 +650,7 @@ OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const
 
 					if (docs_p)
 						{
-							int value;
+							uint32 value;
 
 							if (json_is_array (docs_p))
 								{
@@ -685,7 +685,7 @@ OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const
 
 								}		/* if (json_is_array (docs_p)) */
 
-							if (GetJSONInteger (results_p, "total_hits", &value))
+							if (GetJSONUnsignedInteger (results_p, "total_hits", &value))
 								{
 									tool_p -> lt_num_total_hits = value;
 								}
@@ -694,7 +694,7 @@ OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const
 									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get total number of hits");
 								}
 
-							if (GetJSONInteger (results_p, "from", &value))
+							if (GetJSONUnsignedInteger (results_p, "from", &value))
 								{
 									tool_p -> lt_hits_from_index = value;
 								}
@@ -703,7 +703,7 @@ OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const
 									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, results_p, "Failed to get hits start index");
 								}
 
-							if (GetJSONInteger (results_p, "to", &value))
+							if (GetJSONUnsignedInteger (results_p, "to", &value))
 								{
 									tool_p -> lt_hits_to_index = value;
 								}

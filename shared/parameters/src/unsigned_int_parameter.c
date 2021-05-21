@@ -462,7 +462,7 @@ bool SetUnsignedIntParameterCurrentValueFromJSON (UnsignedIntParameter *param_p,
 					if (i >= 0)
 						{
 							uint32 u = (uint32) i;
-							success_flag = SetUnsignedIntParameterValue (param_p -> uip_current_value_p, &u);
+							success_flag = SetUnsignedIntParameterValue (& (param_p -> uip_current_value_p), &u);
 						}
 					else
 						{
@@ -471,7 +471,7 @@ bool SetUnsignedIntParameterCurrentValueFromJSON (UnsignedIntParameter *param_p,
 				}
 			else if (json_is_null (value_p))
 				{
-					success_flag = SetUnsignedIntParameterValue (param_p -> uip_current_value_p, NULL);
+					success_flag = SetUnsignedIntParameterValue (& (param_p -> uip_current_value_p), NULL);
 				}
 			else
 				{
@@ -480,7 +480,7 @@ bool SetUnsignedIntParameterCurrentValueFromJSON (UnsignedIntParameter *param_p,
 		}
 	else
 		{
-			success_flag = SetUnsignedIntParameterValue (param_p -> uip_current_value_p, NULL);
+			success_flag = SetUnsignedIntParameterValue (& (param_p -> uip_current_value_p), NULL);
 		}
 
 	return success_flag;

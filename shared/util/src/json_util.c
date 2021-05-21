@@ -320,7 +320,7 @@ bool CopyJSONKeyStringValuePair (const json_t *src_p, json_t *dest_p, const char
 bool CopyJSONKeyIntegerValuePair (const json_t *src_p, json_t *dest_p, const char * const key_s, bool optional_flag)
 {
 	bool success_flag = optional_flag;
-	int value;
+	json_int_t value;
 
 	if (GetJSONInteger (src_p, key_s, &value))
 		{
@@ -1203,7 +1203,7 @@ bool SetRealFromJSON (const json_t *json_p, double *value_p)
 
 
 
-bool SetIntegerFromJSON (const json_t *json_p, int32 *value_p)
+bool SetIntegerFromJSON (const json_t *json_p, json_int_t *value_p)
 {
 	bool success_flag = false;
 

@@ -42,7 +42,6 @@ INCLUDES += \
 endif	
 	
 SRCS 	:= \
-	alloc_failure.cpp \
 	byte_buffer.c \
 	file_output_stream.c \
 	filesystem_utils.c \
@@ -67,7 +66,8 @@ SRCS 	:= \
 	time_util.c \
 	unix_filesystem.c \
 	unix_shared_memory.c \
-	user_details.c
+	user_details.c \
+#	alloc_failure.cpp \
 	
 
 ifeq ($(BUILD),release)

@@ -33,16 +33,18 @@
 ** LIB_LOCAL is used for non-api symbols.
 */
 
-#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS /* defined if we are building the LIB DLL (instead of using it) */
-  #ifdef SHARED_LIBRARY /* defined if LIB is compiled as a DLL */
+#ifdef SHARED_LIBRARY /* defined if LIB is compiled as a DLL */
+
+	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS /* defined if we are building the LIB DLL (instead of using it) */
     #define GRASSROOTS_UTIL_API LIB_HELPER_SYMBOL_EXPORT
-    #define GRASSROOTS_UTIL_LOCAL LIB_HELPER_SYMBOL_LOCAL
-  #else  /* SHARED_LIBRARY is not defined: this means LIB is a static lib. */
-    #define GRASSROOTS_UTIL_API
-    #define GRASSROOTS_UTIL_LOCAL
-  #endif /* #ifdef SHARED_LIBRARY */
-#else   
-  #define GRASSROOTS_UTIL_API LIB_HELPER_SYMBOL_IMPORT
+  #else  /* GRASSROOTS_UTIL_LIBRARY_EXPORTS is not defined */
+    #define GRASSROOTS_UTIL_API LIB_HELPER_SYMBOL_IMPORT
+	#endif
+
+	#define GRASSROOTS_UTIL_LOCAL LIB_HELPER_SYMBOL_LOCAL
+
+#else		/* SHARED_LIBRARY is not defined, we're building a static library */
+	#define GRASSROOTS_UTIL_API
   #define GRASSROOTS_UTIL_LOCAL
 #endif /* #ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS */
 

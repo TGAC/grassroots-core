@@ -451,11 +451,11 @@ bool SetSignedIntParameterCurrentValueFromJSON (SignedIntParameter *param_p, con
 			if (json_is_integer (value_p))
 				{
 					int32 i = json_integer_value (value_p);
-					success_flag = SetSignedIntParameterValue (param_p -> sip_current_value_p, &i);
+					success_flag = SetSignedIntParameterValue (& (param_p -> sip_current_value_p), &i);
 				}
 			else if (json_is_null (value_p))
 				{
-					success_flag = SetSignedIntParameterValue (param_p -> sip_current_value_p, NULL);
+					success_flag = SetSignedIntParameterValue (& (param_p -> sip_current_value_p), NULL);
 				}
 			else
 				{
@@ -464,7 +464,7 @@ bool SetSignedIntParameterCurrentValueFromJSON (SignedIntParameter *param_p, con
 		}
 	else
 		{
-			success_flag = SetSignedIntParameterValue (param_p -> sip_current_value_p, NULL);
+			success_flag = SetSignedIntParameterValue (& (param_p -> sip_current_value_p), NULL);
 		}
 
 	return success_flag;

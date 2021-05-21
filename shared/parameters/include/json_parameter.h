@@ -41,15 +41,25 @@ typedef struct JSONParameter
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef ALLOCATE_JSON_PARAMETER_TAGS
-	#define JSON_PARAM_PREFIX GRASSROOTS_UTIL_API
-	#define JSON_PARAM_VAL(x)	= x
+#ifdef GRASSROOTS_PARAMS_LIBRARY_EXPORTS /* defined if we are building the LIB DLL (instead of using it) */
+
+	#ifdef ALLOCATE_JSON_PARAMETER_TAGS
+		#define JSON_PARAM_PREFIX GRASSROOTS_PARAMS_API
+		#define JSON_PARAM_VAL(x)	= x
+	#else
+		#define JSON_PARAM_PREFIX extern
+		#define JSON_PARAM_VAL(x)
+	#endif
 #else
-	#define JSON_PARAM_PREFIX extern
+	#define JSON_PARAM_PREFIX GRASSROOTS_PARAMS_API
 	#define JSON_PARAM_VAL(x)
 #endif
 
+
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
+
 
 
 JSON_PARAM_PREFIX const char *TABLE_PARAM_ROW_S JSON_PARAM_VAL("row");
