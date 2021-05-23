@@ -103,6 +103,9 @@
       <AdditionalDependencies>dbghelp.lib;%(AdditionalDependencies);grassroots_util.lib;jansson.lib;grassroots_uuid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\uuid\build\windows\$(Platform)\$(Configuration);..\..\..\util\build\windows\$(Platform)\$(Configuration);D:\jansson\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) d:\grassroots\$(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -118,6 +121,9 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);grassroots_util.lib;jansson.lib;grassroots_uuid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\jansson\lib;..\..\..\uuid\build\windows\$(Platform)\$(Configuration);..\..\..\util\build\windows\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) d:\grassroots\$(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -137,6 +143,9 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);grassroots_util.lib;jansson.lib;grassroots_uuid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\jansson\lib;..\..\..\uuid\build\windows\$(Platform)\$(Configuration);..\..\..\util\build\windows\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) d:\grassroots\$(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -156,6 +165,9 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);grassroots_util.lib;jansson.lib;grassroots_uuid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\jansson\lib;..\..\..\uuid\build\windows\$(Platform)\$(Configuration);..\..\..\util\build\windows\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) d:\grassroots\$(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\connection.c" />
