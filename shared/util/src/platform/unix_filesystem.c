@@ -187,20 +187,39 @@ static bool CreateSingleLevelDirectory (const char *path_s)
 {
 	struct stat st;
 	bool success_flag = false;
+	const char *term_s = "/";
 
-	if (stat (path_s, &st) == 0)
+	if (DoesStringEndWith (path_s, term_s))
 		{
-			if (S_ISDIR (st.st_mode))
+			if (stat (path_s, &st) == 0)
 				{
-					/* directory already exists */
-					success_flag = true;
-				}
-			else
-				{
-					/* it's not a directory */
+					if ((st.st_mode & S_IFMT) == S_IFDIR)
+						{
+							/* directory already exists */
+							success_flag = true;
+						}
 				}
 		}
 	else
+		{
+			char *terminated_path_s = ConcatenateStrings (path_s, term_s);
+
+			if (terminated_path_s)
+				{
+					if (stat (terminated_path_s, &st) == 0)
+						{
+							if ((st.st_mode & S_IFMT) == S_IFDIR)
+								{
+									/* directory already exists */
+									success_flag = true;
+								}
+						}
+
+					FreeCopiedString (terminated_path_s);
+				}
+		}
+
+	if (!success_flag)
 		{
 			/* Directory does not exist. EEXIST for race condition */
 			const int res = mkdir (path_s, S_IRWXU);
