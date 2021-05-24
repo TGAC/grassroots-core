@@ -15,7 +15,7 @@
 */
 #include <string.h>
 
-#ifdef _WIN32
+#ifdef WINDOWS
 
 #else
 #include <unistd.h>
@@ -141,7 +141,7 @@ void FreeConnection (Connection *connection_p)
 	switch (connection_p -> co_type)
 		{
 			case CT_RAW:
-#ifdef _WIN32 
+#ifdef WINDOWS 
 
 #else
 				FreeRawConnection((struct RawConnection*) connection_p);
@@ -170,7 +170,7 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 
 	if (connection_p -> co_type == CT_RAW)
 		{
-#ifdef _WIN32 
+#ifdef WINDOWS 
 
 #else
 		success_flag = MakeRemoteJsonCallViaRawConnection(connection_p, req_p);
@@ -210,7 +210,7 @@ const char *GetConnectionData (Connection *connection_p)
 
 	if (connection_p -> co_type == CT_RAW)
 		{
-			#ifdef _WIN32 
+			#ifdef WINDOWS 
 
 			#else
 				data_s = GetRawConnectionData(connection_p);

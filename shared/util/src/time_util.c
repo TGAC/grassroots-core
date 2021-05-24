@@ -309,7 +309,7 @@ bool GetCurrentTime (struct tm *tm_p)
 
 	if (current_time != (time_t) -1)
 		{
-#ifdef _WIN32
+#ifdef WINDOWS
 		success_flag = (localtime_s (tm_p, &current_time) != 0);
 #else
 		success_flag = (localtime_r(&current_time, tm_p) != NULL);

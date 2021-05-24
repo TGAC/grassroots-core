@@ -65,7 +65,7 @@ typedef enum MEM_FLAG
 	#define IsAllocatorThreadSafe() IsAmigaAllocatorThreadSafe()
 #else
 
-	#ifdef WIN32
+	#ifdef WINDOWS
 	//	#define USE_NEDMALLOC_ALLOCATOR
 	#elif defined UNIX
 

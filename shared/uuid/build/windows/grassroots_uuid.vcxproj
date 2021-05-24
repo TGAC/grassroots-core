@@ -131,7 +131,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;WINDOWS;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WINDOWS;WIN32;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>

@@ -149,7 +149,37 @@ LinkedList *GetMatchingFiles (const char * const pattern, const bool full_path_f
 
 bool EnsureDirectoryExists (const char * const path_s)
 {
-	return MakeSureDirectoryPathExists (path_s);
+	bool success_flag = false;
+	BOOL win_res = FALSE;
+	const char* term_s = "\\";
+
+	/*
+	 * MakeSureDirectoryPathExists re	uires that the path 
+	 * ends with a \ to make sure that it is a directory
+	 */
+
+	if (DoesStringEndWith (path_s, term_s))
+		{
+			win_res = MakeSureDirectoryPathExists (path_s);
+		}
+	else
+		{
+			char *copied_name_s = ConcatenateStrings (path_s, term_s);
+	
+			if (copied_name_s)
+				{
+					win_res = MakeSureDirectoryPathExists (copied_name_s);
+					FreeCopiedString (copied_name_s);
+				}
+		}
+
+
+	if (win_res)
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
 }
 
 

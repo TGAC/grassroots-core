@@ -30,7 +30,7 @@
 
 /* Generic helper definitions for shared library support */
 
-#if defined _WIN32 || defined __CYGWIN__
+#if defined WINDOWS || defined __CYGWIN__
 	#define LIB_HELPER_SYMBOL_IMPORT __declspec(dllimport)
 	#define LIB_HELPER_SYMBOL_EXPORT __declspec(dllexport)
 	#define LIB_HELPER_SYMBOL_LOCAL
