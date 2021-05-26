@@ -208,6 +208,12 @@ bool SetUriForCurlTool (CurlTool *tool_p, const char * const uri_s)
 }
 
 
+void SetCurlToolTimeout (CurlTool *tool_p, const long timeout)
+{
+  curl_easy_setopt (tool_p  -> ct_curl_p, CURLOPT_TIMEOUT, timeout);
+}
+
+
 bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, const json_t *req_p)
 {
 	bool success_flag = false;

@@ -309,6 +309,10 @@ GRASSROOTS_NETWORK_API void FreeURLEscapedString (char *value_s);
 GRASSROOTS_NETWORK_API char *GetWebData (const char *url_s);
 
 
+
+GRASSROOTS_NETWORK_API void SetCurlToolTimeout (CurlTool *tool_p, const long timeout);
+
+
 #ifdef __cplusplus
 }
 #endif
