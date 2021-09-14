@@ -922,7 +922,7 @@ char *Strrstr (const char *haystack_s, const char *needle_s)
 bool ReplaceStringValue (char **dest_ss, const char * const value_s)
 {
 	bool success_flag = false;
-	char *new_value_s = CopyToNewString (value_s, 0, false);
+	char *new_value_s = EasyCopyToNewString (value_s);
 
 	if (new_value_s)
 		{
