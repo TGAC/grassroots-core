@@ -170,7 +170,16 @@ GRASSROOTS_UTIL_API char *ConvertDoubleToString (const double64 value);
 
 
 
-
+/**
+ * Get an size_t as a string, e.g.
+ *
+ *  1 would be converted to "1"
+ *
+ * @param value The value to convert to a string.
+ * @return The c-style string or <code>NULL</code> upon error.
+ * This needs to be freed using FreeCopiedString().
+ * @ingroup utility_group
+ */
 GRASSROOTS_UTIL_API char *ConvertSizeTToString (const size_t value);
 
 
