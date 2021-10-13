@@ -1362,6 +1362,20 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 	return res;
 }
 
+int64 GetNumberOfMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
+{
+  bson_error_t error;
+  int64_t count = mongoc_collection_count_documents (tool_p -> mt_collection_p, query_p, extra_opts_p, NULL, NULL, &error);
+
+  if (count == -1)
+  	{
+			PrintBSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, query_p, "failed to count documents: %s", error.message);
+  	}
+
+  return count;
+}
+
+
 
 json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
 {

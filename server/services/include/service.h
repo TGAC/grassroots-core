@@ -380,7 +380,7 @@ typedef struct Service
 	json_t *(*se_get_indexing_data_fn) (struct Service *service_p);
 
 
-	/*
+	/**
 	 * If the service has to have a more complex method of
 	 * creating parameters from json blobs than the standard method,
 	 * use this custom callback function
@@ -456,6 +456,7 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
  * @param service_p The Service to initialise.
  * @param get_service_name_fn The callback function that the Service will call to get its name.
  * @param get_service_description_fn The callback function that the Service will call to get its description.
+ * @param get_service_alias_fn The callback function that the Service will call to get its alias.
  * @param get_service_info_uri_fn The callback function that the Service will call to get a web address for more information about the
  * Service. This can be <code>NULL</code>.
  * @param run_fn The callback function that the Service will call to run itself.
@@ -472,6 +473,8 @@ GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plug
  * @param synchronous The synchronicity for how this Service runs.
  * @param data_p The ServiceData for this Service.
  * @param get_metadata_fn The callback function that the Service will call to create its ServiceMetadata.
+ * @param get_indexing_data_fn The callback function that the Service will call to get its JSON data for indexing..
+ * @param grassroots_p The GrassrootsServer that this Service will run on.
  * @return <code>true</code> if the Service was set up successfully, <code>false</code> otherwise.
  * @memberof Service
  */
@@ -597,8 +600,15 @@ GRASSROOTS_SERVICE_API const char *GetServiceName (const Service *service_p);
 GRASSROOTS_SERVICE_API const char *GetServiceDescription (const Service *service_p);
 
 
-
+/**
+ * Get the alias of the service.
+ *
+ * @param service_p The Service to get the alias for.
+ * @return The alias of Service.
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API const char *GetServiceAlias (const Service *service_p);
+
 
 /**
  * Get a JSON document containing the data that can be parsed by an
@@ -727,6 +737,7 @@ GRASSROOTS_SERVICE_API void FreeServiceNode (ListItem *node_p);
  * @param services_path_s The directory where the Service modules are stored.
  * @param service_name_s The name of the Service to find.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
+  * @memberof Service
  */
 GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, const char *service_alias_s, UserDetails *user_p);
 
@@ -739,6 +750,7 @@ GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (GrassrootsServer *grassr
  * @param resource_p The Resource to check for matching Services for.
  * @param handler_p The Handler that is appropriate for the given Resource.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p);
 
@@ -749,6 +761,7 @@ GRASSROOTS_SERVICE_API void LoadMatchingServices (GrassrootsServer *grassroots_p
  * @param services_p The List of Services that any keyword-aware Services will get appended to.
  * @param services_path_s The directory where the Service modules are stored.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, UserDetails *user_p);
 
@@ -762,6 +775,7 @@ GRASSROOTS_SERVICE_API void LoadKeywordServices (GrassrootsServer *grassroots_p,
  * @param operation_name_s If this value is set, only referred Services that have an Operation with this name will be added
  * to Services list. If this is <code>NULL</code> then all possible reference Services will be added.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const references_path_s, const char * const services_path_s, const char *operation_name_s, UserDetails *user_p);
 
@@ -828,6 +842,7 @@ GRASSROOTS_SERVICE_API const char *GetServiceInformationPage (const Service *ser
  *
  * @param plugin_p The Plugin to free the Services from.
  * @return <code>true</code> if the Services were successfully released, <code>false</code> otherwise.
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API bool DeallocatePluginService (Plugin * const plugin_p);
 
@@ -847,6 +862,7 @@ GRASSROOTS_SERVICE_API bool DeallocatePluginService (Plugin * const plugin_p);
  * @return The json-based representation of the Service or <code>NULL</code> if there was
  * an error.
  * @see GetServiceAsJSON
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p, UserDetails *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p);
 
@@ -970,6 +986,7 @@ GRASSROOTS_SERVICE_API bool AddPairedService (Service *service_p, PairedService 
  *
  * @param service_p The Service to add the LinkedService to.
  * @param service_config_p The json fragement defining the LinkedService to add.
+ * @param grassroots_p The GrassrootsServer that this Service will run on.
  * @return <code>true</code> if the LinkedService was added successfully, <code>false</code> otherwise.
  * @memberof Service
  */
@@ -1001,6 +1018,7 @@ GRASSROOTS_SERVICE_API bool AddLinkedService (Service *service_p, LinkedService 
  * @param run_flag Whether the Service should be run or not.
  * @return The JSON fragment to be added to an array to send to the Server or <code>NULL
  * </code> upon error.
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API json_t *GetServiceRunRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
 
@@ -1017,6 +1035,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceRunRequest (const char * const service_
  * @param run_flag Whether the Service should be run or not.
  * @return The JSON fragment to be added to an array to send to the Server or <code>NULL
  * </code> upon error.
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API json_t *GetServiceRefreshRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
 
@@ -1034,6 +1053,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceRefreshRequest (const char * const serv
  * @param run_flag Whether the Service should be run or not.
  * @return The JSON fragment to be added to an array to send to the Server or <code>NULL
  * </code> upon error.
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API json_t *GetServiceRefreshRequest (const char * const service_name_s, const ParameterSet *params_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
 
@@ -1057,6 +1077,7 @@ GRASSROOTS_SERVICE_API json_t *GetServiceRefreshRequest (const char * const serv
  * @return The JSON fragment to send to the Server or <code>NULL</code> upon error.
  * @see IsServiceMatch
  * @see GetParameterAsJSON
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API json_t *GetInterestedServiceJSON (Service *service_p, const char *keyword_s, const ParameterSet * const params_p, const bool full_definition_flag);
 
@@ -1070,6 +1091,7 @@ GRASSROOTS_SERVICE_API json_t *GetInterestedServiceJSON (Service *service_p, con
  * @param job_p The ServiceJob to customise.
  * @see ServiceJob
  * @see se_customise_service_job_fn
+ * @memberof Service
  */
 GRASSROOTS_SERVICE_API void SetServiceJobCustomFunctions (Service *service_p, struct ServiceJob *job_p);
 
@@ -1185,6 +1207,13 @@ GRASSROOTS_SERVICE_API bool SortServicesListByName (LinkedList *services_list_p)
 GRASSROOTS_SERVICE_API json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p);
 
 
+/**
+ * Get the GrassrootsServer that the Service is running on.
+ *
+ * @param service_p The Service to query
+ * @return The GrassrootsServer
+ * @memberof Service
+ */
 GRASSROOTS_SERVICE_API GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_p);
 
 

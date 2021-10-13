@@ -665,6 +665,9 @@ GRASSROOTS_MONGODB_API bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p, const
 GRASSROOTS_MONGODB_API bool AddQueryTerm (bson_t *query_p, const char *key_s, const char *value_s, bool regex_flag);
 
 
+GRASSROOTS_MONGODB_API int64 GetNumberOfMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p);
+
+
 #ifdef __cplusplus
 }
 #endif
