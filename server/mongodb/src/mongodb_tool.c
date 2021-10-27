@@ -35,9 +35,6 @@
 
 
 
-static const char * const S_OID_S = "$oid";
-
-
 static bool AddSimpleTypeToQuery (bson_t *query_p, const char *key_s, const json_t *value_p);
 
 
@@ -1938,7 +1935,7 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 bool GetIdFromJSONKeyValuePair (const json_t *id_val_p, bson_oid_t *id_p)
 {
 	bool success_flag = false;
-	const char *oid_s = GetJSONString (id_val_p, S_OID_S);
+	const char *oid_s = GetJSONString (id_val_p, MONGO_OID_KEY_S);
 
 	if (oid_s)
 		{
@@ -1970,6 +1967,18 @@ bool GetNamedIdFromJSON (const json_t *data_p, const char * const key_s, bson_oi
 }
 
 
+const char *GetNamedIdAsStringFromJSON (const json_t *data_p, const char * const key_s)
+{
+	const char *oid_s = NULL;
+	const json_t *id_val_p = json_object_get (data_p, key_s);
+
+	if (id_val_p)
+		{
+			oid_s = GetJSONString (id_val_p, MONGO_OID_KEY_S);
+		}
+
+	return oid_s;
+}
 
 
 bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
@@ -2020,7 +2029,7 @@ bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key
 
 					if (val_p)
 						{
-							if (json_object_set_new (id_json_p, S_OID_S, val_p) == 0)
+							if (json_object_set_new (id_json_p, MONGO_OID_KEY_S, val_p) == 0)
 								{
 									if (json_object_set_new (data_p, key_s, id_json_p) == 0)
 										{
@@ -2063,7 +2072,7 @@ bool AddCompoundIdToJSONArray (json_t *array_p, const bson_oid_t *id_p)
 
 					if (val_p)
 						{
-							if (json_object_set_new (id_json_p, S_OID_S, val_p) == 0)
+							if (json_object_set_new (id_json_p, MONGO_OID_KEY_S, val_p) == 0)
 								{
 									if (json_array_append_new (array_p, id_json_p) == 0)
 										{

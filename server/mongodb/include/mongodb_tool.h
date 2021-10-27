@@ -127,6 +127,9 @@ MONGODB_PREFIX const char *MONGO_CLAUSE_VALUE_S MONGODB_VAL("value");
 MONGODB_PREFIX const uint32 MONGO_OID_STRING_BUFFER_SIZE MONGODB_VAL(25);
 
 
+MONGODB_PREFIX const char *MONGO_OID_KEY_S MONGODB_VAL("$oid");
+
+
 /**
  * A MongoTool is a datatype that allows access to the data stored within
  * a MongoDB instance.
@@ -645,6 +648,9 @@ GRASSROOTS_MONGODB_API bool GetMongoIdFromJSON (const json_t *data_p, bson_oid_t
 
 
 GRASSROOTS_MONGODB_API bool GetNamedIdFromJSON (const json_t *data_p, const char * const key_s, bson_oid_t *id_p);
+
+
+GRASSROOTS_MONGODB_API const char *GetNamedIdAsStringFromJSON (const json_t *data_p, const char * const key_s);
 
 
 GRASSROOTS_MONGODB_API bool GetIdFromJSONKeyValuePair (const json_t *id_val_p, bson_oid_t *id_p);
