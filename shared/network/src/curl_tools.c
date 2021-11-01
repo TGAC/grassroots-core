@@ -283,7 +283,17 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 
 	if (res == CURLE_OK)
 		{
+			CURLcode time_res;
+			double total;
+
 			res = curl_easy_perform (tool_p -> ct_curl_p);
+
+	    time_res = curl_easy_getinfo (tool_p -> ct_curl_p, CURLINFO_TOTAL_TIME, &total);
+
+	    if (time_res == CURLE_OK)
+	    	{
+					PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Transfer took %lf seconds");
+	    	}
 		}
 
 	return res;
