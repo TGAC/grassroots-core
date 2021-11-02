@@ -168,8 +168,20 @@ GRASSROOTS_LUCENE_API OperationStatus DeleteLucene (LuceneTool *tool_p, const ch
 
 
 
-GRASSROOTS_LUCENE_API OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (json_t *document_p, const uint32 index, void *data_p), void *data_p);
+GRASSROOTS_LUCENE_API OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (const json_t *document_p, const uint32 index, void *data_p), void *data_p);
 
+
+/**
+ * Set the name of the output file that the LuceneTool will write its
+ * results to.
+ * The LuceneTool makes a copy of the specified filename so it does
+ * not need to remain in scope.
+ *
+ * @param tool_p The LuceneTool to set the output file for.
+ * @param output_s The name of the output file
+ * @return <code>true</code> if the LuceneTool's output filename was updated successfully, <code>false</code> otherwise.
+ * @memberof LuceneTool
+ */
 GRASSROOTS_LUCENE_API bool SetLuceneToolOutput (LuceneTool *tool_p, char *output_s);
 
 

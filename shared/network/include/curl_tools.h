@@ -127,7 +127,7 @@ GRASSROOTS_NETWORK_API void FreeCurlTool (CurlTool *curl_p);
  * @see AddCurlCallback
  * @return <code>true</code> upon success or <code>false</code> upon error.
  */
-GRASSROOTS_NETWORK_LOCAL bool SetupCurl (CurlTool *tool_p, ByteBuffer *buffer_p);
+GRASSROOTS_NETWORK_LOCAL bool SetupCurl (CurlTool *tool_p, CurlMode mode);
 
 
 /**
@@ -175,7 +175,7 @@ GRASSROOTS_NETWORK_API bool CallSecureUrl (const char *url_s, const char *header
  * <code>false</code> otherwise.
  * @memberof CurlTool
  */
-GRASSROOTS_NETWORK_API bool AddCurlCallback (CurlTool *curl_p, ByteBuffer *buffer_p);
+GRASSROOTS_NETWORK_API bool AddCurlCallback (CurlTool *curl_tool_p, curl_write_callback callback_fn, void *callback_data_p);
 
 
 /**

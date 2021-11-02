@@ -634,7 +634,7 @@ static bool ReplaceValidString (const char *src_s, char **dest_ss)
 }
 
 
-OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (json_t *document_p, const uint32 index, void *data_p), void *data_p)
+OperationStatus ParseLuceneResults (LuceneTool *tool_p, const uint32 from, const uint32 to, bool (*lucene_results_callback_fn) (const json_t *document_p, const uint32 index, void *data_p), void *data_p)
 {
 	OperationStatus status = OS_FAILED;
 

@@ -93,36 +93,34 @@ static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_
 
 static bool SetCurlToolJSONRequestData (CurlTool *tool_p, json_t *json_p);
 
+static bool SetupCurlForMemoryCallback (CurlTool *tool_p);
+
+static bool SetupCurlForFileCallback (CurlTool *tool_p);
+
+
 
 CurlTool *AllocateCurlTool (CurlMode mode)
 {
-	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
-	
-	if (buffer_p)
+	CurlTool *curl_tool_p = (CurlTool *) AllocMemory (sizeof (CurlTool));
+
+	if (curl_tool_p)
 		{
-			CurlTool *curl_tool_p = (CurlTool *) AllocMemory (sizeof (CurlTool));
+			curl_tool_p -> ct_buffer_p = NULL;
+			curl_tool_p -> ct_form_p = NULL;
+			curl_tool_p -> ct_last_field_p = NULL;
+			curl_tool_p -> ct_headers_list_p = NULL;
+			curl_tool_p -> ct_temp_f = NULL;
+			curl_tool_p -> ct_mode = mode;
+			curl_tool_p -> ct_username_s = NULL;
+			curl_tool_p -> ct_password_s = NULL;
 
-			if (curl_tool_p)
+			if (SetupCurl (curl_tool_p, mode))
 				{
-					if (SetupCurl (curl_tool_p, buffer_p))
-						{
-							curl_tool_p -> ct_buffer_p = buffer_p;
-							curl_tool_p -> ct_form_p = NULL;
-							curl_tool_p -> ct_last_field_p = NULL;
-							curl_tool_p -> ct_headers_list_p = NULL;
-							curl_tool_p -> ct_temp_f = NULL;
-							curl_tool_p -> ct_mode = mode;
-							curl_tool_p -> ct_username_s = NULL;
-							curl_tool_p -> ct_password_s = NULL;
+					return curl_tool_p;
+				}
 
-							return curl_tool_p;
-						}
-
-					FreeMemory (curl_tool_p);
-				}		/* if (curl_tool_p) */
-
-			FreeByteBuffer (buffer_p);
-		}		/* if (buffer_p) */
+			FreeMemory (curl_tool_p);
+		}		/* if (curl_tool_p) */
 		
 	return NULL;
 }
@@ -137,7 +135,20 @@ void FreeCurlTool (CurlTool *curl_tool_p)
 			curl_slist_free_all (curl_tool_p -> ct_headers_list_p);
 		}
 
-	FreeByteBuffer (curl_tool_p -> ct_buffer_p);
+	switch (curl_tool_p -> ct_mode)
+		{
+			case CM_MEMORY:
+				FreeByteBuffer (curl_tool_p -> ct_buffer_p);
+				break;
+
+			case CM_FILE:
+				{
+					if (curl_tool_p -> ct_temp_f)
+						{
+							fclose (curl_tool_p -> ct_temp_f);
+						}
+				}
+		}
 
 	if (curl_tool_p -> ct_username_s)
 		{
@@ -154,38 +165,85 @@ void FreeCurlTool (CurlTool *curl_tool_p)
 }
 
 
-bool SetupCurl (CurlTool *tool_p, ByteBuffer *buffer_p)
+bool SetupCurl (CurlTool *tool_p, CurlMode mode)
 {
-	tool_p -> ct_curl_p = curl_easy_init ();
-	
-	if (tool_p -> ct_curl_p)
-		{
-			if (buffer_p)
-				{
-					if (AddCurlCallback (tool_p, buffer_p))
-						{
-							#if CURL_TOOLS_DEBUG >= STM_LEVEL_FINER
-							curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_VERBOSE, 1L);
-							#endif
+	bool success_flag = false;
 
-							return true;
-						}
-					else
-						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add buffer callback for curl object\n");
-						}
+	switch (mode)
+		{
+			case CM_MEMORY:
+				success_flag = SetupCurlForMemoryCallback (tool_p);
+				break;
+
+			case CM_FILE:
+				success_flag = SetupCurlForFileCallback (tool_p);
+				break;
+
+			default:
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unsupported curl mode %ld", mode);
+				break;
+		}
+
+	return success_flag;
+}
+
+
+static bool SetupCurlForMemoryCallback (CurlTool *tool_p)
+{
+	ByteBuffer *buffer_p = AllcoateByteBuffer (1024);
+
+	if (buffer_p)
+		{
+			if (AddCurlCallback (tool_p, WriteMemoryCallback, buffer_p))
+				{
+					tool_p -> ct_buffer_p = buffer_p;
+
+					return true;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AddCurlCallback () failed in SetupCurlForMemoryCallback ()");
 				}
 
-			FreeCurl (tool_p -> ct_curl_p);
-			tool_p -> ct_curl_p = NULL;
+			FreeByteBuffer (buffer_p);
 		}
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create curl object\n");
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AllcoateByteBuffer () failed in SetupCurlForMemoryCallback ()");
 		}
 
 	return false;
 }
+
+
+static bool SetupCurlForFileCallback (CurlTool *tool_p)
+{
+	FILE *tmp_f = tmpfile ();
+
+	if (tmp_f)
+		{
+			if (AddCurlCallback (tool_p, WriteMemoryCallback, tmp_f))
+				{
+					tool_p -> ct_temp_f = tmp_f;
+
+					return true;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AddCurlCallback () failed in SetupCurlForFileCallback ()");
+				}
+
+			fclose (tmp_f);
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "tmpfile () failed in SetupCurlForFileCallback ()");
+		}
+
+	return false;
+}
+
+
 
 
 void FreeCurl (CURL *curl_p)
@@ -255,6 +313,7 @@ bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, const json_t *req_p)
 CURLcode RunCurlTool (CurlTool *tool_p)
 {
 	CURLcode res = CURLE_OK;
+	CURLcode temp;
 
 	if (tool_p -> ct_headers_list_p)
 		{
@@ -279,7 +338,14 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 		}		/* if ((tool_p -> ct_username_s) && (tool_p -> ct_password_s)) */
 
 	/* enable all supported built-in compressions */
-	curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_ACCEPT_ENCODING, "");
+	temp = curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_ACCEPT_ENCODING, "");
+
+	if (temp != CURLE_OK)
+		{
+			const char *error_s = curl_easy_strerror (temp);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "curl_easy_setopt () for CURLOPT_ACCEPT_ENCODING failed $ld: %s", temp, error_s);
+		}
+
 
 	if (res == CURLE_OK)
 		{
@@ -292,7 +358,7 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 
 	    if (time_res == CURLE_OK)
 	    	{
-					PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Transfer took %lf seconds");
+					PrintLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Transfer took %lf seconds");
 	    	}
 		}
 
@@ -330,15 +396,14 @@ bool SetSSLEngine (CurlTool *curl_p, const char *cryptograph_engine_name_s)
 }
 
 
-bool AddCurlCallback (CurlTool *curl_tool_p, ByteBuffer *buffer_p)
+bool AddCurlCallback (CurlTool *curl_tool_p, curl_write_callback callback_fn, void *callback_data_p)
 {
 	bool success_flag = true;
 
-	curl_write_callback callback_fn = WriteMemoryCallback;
 	const CURLParam params [] = 
 		{
 			{ CURLOPT_WRITEFUNCTION, (const char *)  callback_fn },
-			{ CURLOPT_WRITEDATA, (const char *) buffer_p },
+			{ CURLOPT_WRITEDATA, (const char *) callback_data_p },
 
 			/* set default user agent */
 	    { CURLOPT_USERAGENT,  "libcurl-agent/1.0" },
@@ -536,14 +601,43 @@ void FreeURLEscapedString (char *value_s)
 
 const char *GetCurlToolData (const CurlTool * const tool_p)
 {
-	return (GetByteBufferData (tool_p -> ct_buffer_p));
+	const char *data_p = NULL;
+
+	switch (tool_p -> ct_mode)
+		{
+			case CM_MEMORY:
+				{
+					data_p = GetByteBufferData (tool_p -> ct_buffer_p);
+					break;
+				}
+
+			default:
+				break;
+		}
+
+	return data_p;
 }
 
 
 size_t GetCurlToolDataSize (const CurlTool * const tool_p)
 {
-	return (GetByteBufferSize (tool_p -> ct_buffer_p));
+	size_t num = 0;
+
+	switch (tool_p -> ct_mode)
+		{
+			case CM_MEMORY:
+				{
+					num = GetByteBufferSize (tool_p -> ct_buffer_p);
+					break;
+				}
+
+			default:
+				break;
+		}
+
+	return num;
 }
+
 
 
 static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p)
