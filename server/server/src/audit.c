@@ -166,7 +166,7 @@ static json_t *AddServiceJobToJSON (ServiceJob *job_p, json_t *req_p)
 static bool LogData (const json_t *data_p, const char *uri_s)
 {
 	bool success_flag = false;
-	Connection *connection_p = AllocateWebServerConnection (uri_s);
+	Connection *connection_p = AllocateWebServerConnection (uri_s, CM_MEMORY);
 
 	if (connection_p)
 		{

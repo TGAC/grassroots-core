@@ -80,6 +80,10 @@ typedef struct CurlTool
 	FILE *ct_temp_f;
 
 	/** @private */
+	char *ct_temp_file_contents_s;
+
+
+	/** @private */
 	struct curl_httppost *ct_form_p;
 
 	/** @private */
@@ -223,7 +227,7 @@ GRASSROOTS_NETWORK_API bool SetCurlToolForJSONPost (CurlTool *tool_p);
  * @see RunCurlTool
  * @memberof CurlTool
  */
-GRASSROOTS_NETWORK_API const char *GetCurlToolData (const CurlTool * const tool_p);
+GRASSROOTS_NETWORK_API const char *GetCurlToolData (CurlTool * const tool_p);
 
 
 
@@ -238,7 +242,7 @@ GRASSROOTS_NETWORK_API const char *GetCurlToolData (const CurlTool * const tool_
  * @see RunCurlTool
  * @memberof CurlTool
  */
-GRASSROOTS_NETWORK_API size_t GetCurlToolDataSize (const CurlTool * const tool_p);
+GRASSROOTS_NETWORK_API size_t GetCurlToolDataSize (CurlTool * const tool_p);
 
 
 /**

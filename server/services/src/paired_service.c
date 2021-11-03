@@ -248,7 +248,7 @@ void FreePairedServiceNode (ListItem *node_p)
 json_t *MakeRemotePairedServiceCall (const char * const service_name_s, ParameterSet *params_p, const char * const paired_service_uri_s, ProvidersStateTable *providers_p, GrassrootsServer *grassroots_p)
 {
 	json_t *res_p = NULL;
-	Connection *connection_p = AllocateWebServerConnection (paired_service_uri_s);
+	Connection *connection_p = AllocateWebServerConnection (paired_service_uri_s, CM_FILE);
 
 	if (connection_p)
 		{

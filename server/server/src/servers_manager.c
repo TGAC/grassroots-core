@@ -614,7 +614,7 @@ ExternalServer *AllocateExternalServer (const char *name_s, const char *uri_s, c
 
 	if (ct == CT_WEB)
 		{
-			connection_p = AllocateWebServerConnection (uri_s);
+			connection_p = AllocateWebServerConnection (uri_s, CM_MEMORY);
 		}
 
 	if (connection_p)

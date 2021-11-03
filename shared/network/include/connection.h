@@ -108,7 +108,7 @@ extern "C"
  * @return A Connection to the given Server or <code>NULL</code> upon error.
  * @memberof Connection
  */
-GRASSROOTS_NETWORK_API Connection *AllocateWebServerConnection (const char * const full_uri_s);
+GRASSROOTS_NETWORK_API Connection *AllocateWebServerConnection (const char * const full_uri_s, CurlMode curl_mode);
 
 
 /**

@@ -110,6 +110,7 @@ CurlTool *AllocateCurlTool (CurlMode mode)
 			curl_tool_p -> ct_last_field_p = NULL;
 			curl_tool_p -> ct_headers_list_p = NULL;
 			curl_tool_p -> ct_temp_f = NULL;
+			curl_tool_p -> ct_temp_file_contents_s = NULL;
 			curl_tool_p -> ct_mode = mode;
 			curl_tool_p -> ct_username_s = NULL;
 			curl_tool_p -> ct_password_s = NULL;
@@ -148,6 +149,9 @@ void FreeCurlTool (CurlTool *curl_tool_p)
 							fclose (curl_tool_p -> ct_temp_f);
 						}
 				}
+
+			default:
+				break;
 		}
 
 	if (curl_tool_p -> ct_username_s)
@@ -190,7 +194,7 @@ bool SetupCurl (CurlTool *tool_p, CurlMode mode)
 
 static bool SetupCurlForMemoryCallback (CurlTool *tool_p)
 {
-	ByteBuffer *buffer_p = AllcoateByteBuffer (1024);
+	ByteBuffer *buffer_p = AllocateByteBuffer (65536);
 
 	if (buffer_p)
 		{
@@ -222,7 +226,7 @@ static bool SetupCurlForFileCallback (CurlTool *tool_p)
 
 	if (tmp_f)
 		{
-			if (AddCurlCallback (tool_p, WriteMemoryCallback, tmp_f))
+			if (AddCurlCallback (tool_p, WriteFileCallback, tmp_f))
 				{
 					tool_p -> ct_temp_f = tmp_f;
 
@@ -599,7 +603,7 @@ void FreeURLEscapedString (char *value_s)
 
 
 
-const char *GetCurlToolData (const CurlTool * const tool_p)
+const char *GetCurlToolData (CurlTool * const tool_p)
 {
 	const char *data_p = NULL;
 
@@ -612,6 +616,14 @@ const char *GetCurlToolData (const CurlTool * const tool_p)
 				}
 
 			default:
+				{
+					if (! (tool_p -> ct_temp_file_contents_s))
+						{
+							tool_p -> ct_temp_file_contents_s = GetFileContentsAsString (tool_p -> ct_temp_f);
+						}
+
+					data_p = tool_p -> ct_temp_file_contents_s;
+				}
 				break;
 		}
 
@@ -619,7 +631,7 @@ const char *GetCurlToolData (const CurlTool * const tool_p)
 }
 
 
-size_t GetCurlToolDataSize (const CurlTool * const tool_p)
+size_t GetCurlToolDataSize (CurlTool * const tool_p)
 {
 	size_t num = 0;
 

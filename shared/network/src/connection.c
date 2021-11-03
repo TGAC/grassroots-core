@@ -69,13 +69,13 @@ void ReleaseConnection (Connection * UNUSED_PARAM (connection_p))
 
 
 
-Connection *AllocateWebServerConnection (const char * const full_uri_s)
+Connection *AllocateWebServerConnection (const char * const full_uri_s, CurlMode curl_mode)
 {
 	WebConnection *connection_p = (WebConnection *) AllocMemory (sizeof (WebConnection));
 
 	if (connection_p)
 		{
-			CurlTool *curl_p = AllocateCurlTool (CM_MEMORY);
+			CurlTool *curl_p = AllocateCurlTool (curl_mode);
 
 			if (curl_p)
 				{
