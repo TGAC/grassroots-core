@@ -101,28 +101,35 @@ static bool SetupCurlForFileCallback (CurlTool *tool_p);
 
 CurlTool *AllocateCurlTool (CurlMode mode)
 {
-	CurlTool *curl_tool_p = (CurlTool *) AllocMemory (sizeof (CurlTool));
+	CURL *curl_p = curl_easy_init ();
 
-	if (curl_tool_p)
+	if (curl_p)
 		{
-			curl_tool_p -> ct_buffer_p = NULL;
-			curl_tool_p -> ct_form_p = NULL;
-			curl_tool_p -> ct_last_field_p = NULL;
-			curl_tool_p -> ct_headers_list_p = NULL;
-			curl_tool_p -> ct_temp_f = NULL;
-			curl_tool_p -> ct_temp_file_contents_s = NULL;
-			curl_tool_p -> ct_mode = mode;
-			curl_tool_p -> ct_username_s = NULL;
-			curl_tool_p -> ct_password_s = NULL;
+			CurlTool *curl_tool_p = (CurlTool *) AllocMemory (sizeof (CurlTool));
 
-			if (SetupCurl (curl_tool_p, mode))
+			if (curl_tool_p)
 				{
-					return curl_tool_p;
-				}
+					curl_tool_p -> ct_curl_p = curl_p;
+					curl_tool_p -> ct_buffer_p = NULL;
+					curl_tool_p -> ct_form_p = NULL;
+					curl_tool_p -> ct_last_field_p = NULL;
+					curl_tool_p -> ct_headers_list_p = NULL;
+					curl_tool_p -> ct_temp_file_p = NULL;
+					curl_tool_p -> ct_mode = mode;
+					curl_tool_p -> ct_username_s = NULL;
+					curl_tool_p -> ct_password_s = NULL;
 
-			FreeMemory (curl_tool_p);
-		}		/* if (curl_tool_p) */
+					if (SetupCurl (curl_tool_p, mode))
+						{
+							return curl_tool_p;
+						}
 		
+					FreeMemory (curl_tool_p);
+				}		/* if (curl_tool_p) */
+
+			curl_easy_cleanup (curl_p);
+		}
+
 	return NULL;
 }
 
@@ -144,11 +151,12 @@ void FreeCurlTool (CurlTool *curl_tool_p)
 
 			case CM_FILE:
 				{
-					if (curl_tool_p -> ct_temp_f)
+					if (curl_tool_p -> ct_temp_file_p)
 						{
-							fclose (curl_tool_p -> ct_temp_f);
+							FreeTemporaryFile (curl_tool_p -> ct_temp_file_p);
 						}
 				}
+				break;
 
 			default:
 				break;
@@ -220,15 +228,64 @@ static bool SetupCurlForMemoryCallback (CurlTool *tool_p)
 }
 
 
+
+
+TemporaryFile *AllocateTemporaryFile (void)
+{
+	TemporaryFile *temp_p = (TemporaryFile *) AllocMemory (sizeof (TemporaryFile));
+
+	if (temp_p)
+		{
+			FILE *tmp_f = tmpfile ();
+
+			if (tmp_f)
+				{
+					temp_p -> tf_temp_f = tmp_f;
+					temp_p -> tf_temp_file_contents_s = NULL;
+					temp_p -> tf_temp_file_size = 0;
+
+					return temp_p;
+				}
+
+			FreeMemory (temp_p);
+		}
+
+	return NULL;
+}
+
+
+void FreeTemporaryFile (TemporaryFile *temp_p)
+{
+	if (temp_p -> tf_temp_f)
+		{
+			fclose (temp_p -> tf_temp_f);
+		}
+
+	if (temp_p -> tf_temp_file_contents_s)
+		{
+			FreeCopiedString (temp_p -> tf_temp_file_contents_s);
+		}
+
+	FreeMemory (temp_p);
+}
+
+
+char *GetTemporaryFileContentsAsString (TemporaryFile *temp_p)
+{
+	return GetFileContentsAsString (temp_p -> tf_temp_f);
+}
+
+
+
 static bool SetupCurlForFileCallback (CurlTool *tool_p)
 {
-	FILE *tmp_f = tmpfile ();
+	TemporaryFile *temp_p = AllocateTemporaryFile ();
 
-	if (tmp_f)
+	if (temp_p)
 		{
-			if (AddCurlCallback (tool_p, WriteFileCallback, tmp_f))
+			if (AddCurlCallback (tool_p, WriteFileCallback, temp_p))
 				{
-					tool_p -> ct_temp_f = tmp_f;
+					tool_p -> ct_temp_file_p = temp_p;
 
 					return true;
 				}
@@ -237,7 +294,7 @@ static bool SetupCurlForFileCallback (CurlTool *tool_p)
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AddCurlCallback () failed in SetupCurlForFileCallback ()");
 				}
 
-			fclose (tmp_f);
+			FreeTemporaryFile (temp_p);
 		}
 	else
 		{
@@ -288,9 +345,12 @@ bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, const json_t *req_p)
 					CURLcode res;
 
 					/* if the buffer isn't empty, clear it */
-					if (GetByteBufferSize (tool_p -> ct_buffer_p) > 0)
+					if (tool_p -> ct_mode == CM_MEMORY)
 						{
-							ResetByteBuffer (tool_p -> ct_buffer_p);
+							if (GetByteBufferSize (tool_p -> ct_buffer_p) > 0)
+								{
+									ResetByteBuffer (tool_p -> ct_buffer_p);
+								}
 						}
 
 					res = RunCurlTool (tool_p);
@@ -406,9 +466,6 @@ bool AddCurlCallback (CurlTool *curl_tool_p, curl_write_callback callback_fn, vo
 
 	const CURLParam params [] = 
 		{
-			{ CURLOPT_WRITEFUNCTION, (const char *)  callback_fn },
-			{ CURLOPT_WRITEDATA, (const char *) callback_data_p },
-
 			/* set default user agent */
 	    { CURLOPT_USERAGENT,  "libcurl-agent/1.0" },
 
@@ -420,6 +477,10 @@ bool AddCurlCallback (CurlTool *curl_tool_p, curl_write_callback callback_fn, vo
 
 	    /* set maximum allowed redirects */
 	    { CURLOPT_MAXREDIRS, (const char *) 1 },
+
+			{ CURLOPT_WRITEFUNCTION, (const char *)  callback_fn },
+			{ CURLOPT_WRITEDATA, (const char *) callback_data_p },
+
 
 			{ CURLOPT_LASTENTRY, (const char *) NULL }
 		};
@@ -617,12 +678,7 @@ const char *GetCurlToolData (CurlTool * const tool_p)
 
 			default:
 				{
-					if (! (tool_p -> ct_temp_file_contents_s))
-						{
-							tool_p -> ct_temp_file_contents_s = GetFileContentsAsString (tool_p -> ct_temp_f);
-						}
-
-					data_p = tool_p -> ct_temp_file_contents_s;
+					data_p = GetTemporaryFileContentsAsString (tool_p -> ct_temp_file_p);
 				}
 				break;
 		}
@@ -643,6 +699,12 @@ size_t GetCurlToolDataSize (CurlTool * const tool_p)
 					break;
 				}
 
+			case CM_FILE:
+				{
+					num = tool_p -> ct_temp_file_p -> tf_temp_file_size;
+					break;
+				}
+
 			default:
 				break;
 		}
@@ -655,19 +717,25 @@ size_t GetCurlToolDataSize (CurlTool * const tool_p)
 static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p)
 {
 	size_t result = CURLE_OK;
-	FILE *out_f = (FILE *) store_p;
-	size_t num_written = fwrite (response_data_p, block_size, num_blocks, out_f);
+	TemporaryFile *temp_p = (TemporaryFile *) store_p;
+	size_t num_blocks_written = fwrite (response_data_p, block_size, num_blocks, temp_p -> tf_temp_f);
+	size_t num_bytes_written = block_size * num_blocks;
 
-	if (num_written != num_blocks)
+	if (num_blocks_written != num_blocks)
 		{
-			const int err_no = ferror (out_f);
+			const int err_no = ferror (temp_p -> tf_temp_f);
 
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Error writing Curl callback data to file, %s", strerror (err_no));
-			result= CURLE_WRITE_ERROR;
+//			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Error writing Curl callback data to file, %s", strerror (err_no));
+			printf ("Error writing Curl callback data to file, %s", strerror (err_no));
+			result = CURLE_WRITE_ERROR;
 		}
+	else
+		{
 
+		}
+	temp_p -> tf_temp_file_size += num_bytes_written;
 
-	return result;
+	return num_bytes_written;
 }
 
 

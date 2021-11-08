@@ -50,6 +50,20 @@ typedef enum CurlMode
 	CM_NUM_MODES
 } CurlMode;
 
+
+typedef struct TemporaryFile
+{
+	/** @private */
+	FILE *tf_temp_f;
+
+	/** @private */
+	char *tf_temp_file_contents_s;
+
+	size_t tf_temp_file_size;
+
+} TemporaryFile;
+
+
 /**
  * @brief A tool for making http(s) requests and responses.
  *
@@ -77,11 +91,7 @@ typedef struct CurlTool
 	ByteBuffer *ct_buffer_p;
 
 	/** @private */
-	FILE *ct_temp_f;
-
-	/** @private */
-	char *ct_temp_file_contents_s;
-
+	TemporaryFile *ct_temp_file_p;
 
 	/** @private */
 	struct curl_httppost *ct_form_p;
@@ -92,7 +102,6 @@ typedef struct CurlTool
 	/** @private */
 	struct curl_slist *ct_headers_list_p;
 } CurlTool;
-
 
 
 
@@ -315,6 +324,16 @@ GRASSROOTS_NETWORK_API char *GetWebData (const char *url_s);
 
 
 GRASSROOTS_NETWORK_API void SetCurlToolTimeout (CurlTool *tool_p, const long timeout);
+
+
+GRASSROOTS_NETWORK_LOCAL TemporaryFile *AllocateTemporaryFile (void);
+
+
+GRASSROOTS_NETWORK_LOCAL void FreeTemporaryFile (TemporaryFile *temp_p);
+
+
+GRASSROOTS_NETWORK_LOCAL char *GetTemporaryFileContentsAsString (TemporaryFile *temp_p);
+
 
 
 #ifdef __cplusplus

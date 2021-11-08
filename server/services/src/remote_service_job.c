@@ -326,7 +326,7 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 
 	if (schema_p)
 		{
-			Connection *connection_p = AllocateWebServerConnection (remote_job_p -> rsj_uri_s, CM_FILE);
+			Connection *connection_p = AllocateWebServerConnection (remote_job_p -> rsj_uri_s, CM_MEMORY);
 
 			if (connection_p)
 				{
