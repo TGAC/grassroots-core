@@ -422,7 +422,7 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 
 	    if (time_res == CURLE_OK)
 	    	{
-					PrintLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Transfer took %lf seconds");
+					//PrintLog (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Transfer took %lf seconds");
 	    	}
 		}
 

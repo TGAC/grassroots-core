@@ -46,8 +46,9 @@ CPPFLAGS += -DGRASSROOTS_UUID_LIBRARY_EXPORTS -DUNIX
 
 LDFLAGS += -ldl \
 	-L$(DIR_JANSSON_LIB) -ljansson \
+	-L$(DIR_PCRE_LIB) -lpcre \
 	-L$(DIR_UUID_LIB) -luuid \
-	-L$(DIR_PCRE_LIB) -lpcre
+
 
 HEADERS := $(patsubst %.c, %.h, $(SRCS))
 SWIG_HEADERS_TO_IGNORE := \

@@ -101,15 +101,18 @@ void FreeClient (Client *client_p)
 			client_p -> cl_data_p -> cd_schema_p = NULL;
 		}
 
+	/*
 	if (! (client_p -> cl_free_client_fn (client_p)))
 		{
 			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Error freeing client from plugin \"%s\"", plugin_p -> pl_name_s);
 		}
+	*/
 
 	plugin_p -> pl_value.pv_client_p = NULL;
 	plugin_p -> pl_type = PN_UNKNOWN;
 
 	FreePlugin (plugin_p);
+
 }
 
 
