@@ -53,7 +53,7 @@ bool InitStringListNode (StringListNode *node_p, const char * const value_s, con
 	switch (mem_flag)
 		{
 			case MF_DEEP_COPY:
-				dest_s = CopyToNewString (value_s, 0, false);
+				dest_s = EasyCopyToNewString (value_s);
 
 				if (dest_s)
 					{
