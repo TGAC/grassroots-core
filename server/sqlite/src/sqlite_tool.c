@@ -484,27 +484,27 @@ char *EasyRunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
 
 static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const char * table_s, const json_t *set_p, const json_t *where_p, ByteBuffer *buffer_p)
 {
-	bool success_flag = false;
-	ByteBuffer *update_buffer_p = AllocateByteBuffer (1024);
+	bool success_flag = true;
+	const size_t num_items = json_object_size (set_p);
 
-	if (update_buffer_p)
+	if (num_items > 0)
 		{
-			if (AppendStringsToByteBuffer (update_buffer_p, "UPDATE ", table_s, " SET ", NULL))
-				{
-					size_t i = json_object_size (set_p);
+			ByteBuffer *update_buffer_p = AllocateByteBuffer (1024);
 
-					if (i > 0)
+
+			if (update_buffer_p)
+				{
+					if (AppendStringsToByteBuffer (update_buffer_p, "UPDATE ", table_s, " SET ", NULL))
 						{
+							size_t i = num_items - 1;
+							size_t num_added = 0;
+
 							void *iterator_p = json_object_iter (set_p);
 
-							-- i;
-
-							while (iterator_p)
+							while (success_flag && iterator_p)
 								{
 									const char *key_s = json_object_iter_key (iterator_p);
 									json_t *value_p = json_object_iter_value (iterator_p);
-
-									success_flag = false;
 
 									if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL))
 										{
@@ -512,21 +512,29 @@ static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const cha
 												{
 													if (i != 0)
 														{
-															if (AppendStringToByteBuffer (buffer_p, ", "))
+															if (!AppendStringToByteBuffer (buffer_p, ", "))
 																{
-																	success_flag = true;
+																	success_flag = false;
 																}
 														}		/* if (i != 0) */
 													else
 														{
-															success_flag = true;
+															++ num_added;
 														}
 
 												}		/* if (AddJSONObjectToByteBuffer (buffer_p, value_p)) */
+											else
+												{
+													success_flag = false;
 
+												}
 										}		/* if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL)) */
+									else
+										{
+											success_flag = false;
+										}
 
-									if (success_flag && iterator_p)
+									if (success_flag)
 										{
 											iterator_p = json_object_iter_next (set_p, iterator_p);
 											++ i;
@@ -534,73 +542,74 @@ static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const cha
 
 								}		/* while (iterator_p) */
 
-						}		/* if (i >= 0) */
 
-					/*
-					 * Have we added all of the SET values ok?
-					 */
-					if (success_flag)
-						{
 							/*
-							 * Now add the WHERE values
+							 * Have we added all of the SET values ok?
 							 */
-							i = json_object_size (where_p) - 1;
-
-							if (i > 0)
+							if (success_flag)
 								{
-									void *iterator_p = json_object_iter (where_p);
+									/*
+									 * Now add the WHERE values
+									 */
+									i = json_object_size (where_p) - 1;
 
-									-- i;
-
-									while (iterator_p)
+									if (i > 0)
 										{
-											const char *key_s = json_object_iter_key (iterator_p);
-											json_t *value_p = json_object_iter_value (iterator_p);
+											void *iterator_p = json_object_iter (where_p);
 
+											-- i;
 
-											if (*key_s == '$')
+											while (iterator_p)
 												{
+													const char *key_s = json_object_iter_key (iterator_p);
+													json_t *value_p = json_object_iter_value (iterator_p);
 
-												}
 
-											success_flag = false;
-
-											if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL))
-												{
-													if (AddJSONObjectToByteBuffer (buffer_p, value_p))
+													if (*key_s == '$')
 														{
-															if (i != 0)
+
+														}
+
+													success_flag = false;
+
+													if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL))
+														{
+															if (AddJSONObjectToByteBuffer (buffer_p, value_p))
 																{
-																	if (AppendStringToByteBuffer (buffer_p, ", "))
+																	if (i != 0)
+																		{
+																			if (AppendStringToByteBuffer (buffer_p, ", "))
+																				{
+																					success_flag = true;
+																				}
+																		}		/* if (i != 0) */
+																	else
 																		{
 																			success_flag = true;
 																		}
-																}		/* if (i != 0) */
-															else
-																{
-																	success_flag = true;
-																}
 
-														}		/* if (AddJSONObjectToByteBuffer (buffer_p, value_p)) */
+																}		/* if (AddJSONObjectToByteBuffer (buffer_p, value_p)) */
 
-												}		/* if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL)) */
+														}		/* if (AppendStringsToByteBuffer (buffer_p, key_s, " = ", NULL)) */
 
-											if (success_flag && iterator_p)
-												{
-													iterator_p = json_object_iter_next (set_p, iterator_p);
-													++ i;
-												}
+													if (success_flag && iterator_p)
+														{
+															iterator_p = json_object_iter_next (set_p, iterator_p);
+															++ i;
+														}
 
-										}		/* while (iterator_p) */
+												}		/* while (iterator_p) */
 
-								}		/* if (i >= 0) */
+										}		/* if (i >= 0) */
 
-						}		/* if (success_flag) */
+								}		/* if (success_flag) */
 
-				}		/* if (AppendStringsToByteBuffer (update_buffer_p, "UPDATE ", table_s, NULL)) */
+						}		/* if (AppendStringsToByteBuffer (update_buffer_p, "UPDATE ", table_s, NULL)) */
 
-			FreeByteBuffer (update_buffer_p);
-		}		/* if (update_buffer_p) */
+					FreeByteBuffer (update_buffer_p);
+				}		/* if (update_buffer_p) */
+
+		}
 
 	return success_flag;
 }
