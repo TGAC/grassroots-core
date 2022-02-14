@@ -21,6 +21,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "sqlite_tool.h"
 #include "sqlite_column.h"
@@ -48,7 +49,110 @@ static json_t *GetDataToInsert (void);
 static json_t *GetDataToUpdate (void);
 
 
+
+
 int main (int argc, char *argv [])
+{
+	if (argc > 2)
+		{
+			const char *db_s = argv [1];
+			const char *table_s = argv [2];
+			SQLiteTool *tool_p = AllocateSQLiteTool (db_s, SQLITE_OPEN_READONLY);
+
+			if (tool_p)
+				{
+					if (SetSQLiteToolTable (tool_p, table_s))
+						{
+							sqlite3_stmt *statement_p = NULL;
+							const char *sql_s = "SELECT cluster FROM cluster_gene WHERE gene = ?";
+
+							if (PrepareStatement (tool_p, &statement_p, sql_s))
+								{
+									int res;
+									int i = 3;
+									const int param_index = 1;
+
+									printf ("prepared \"%s\"\n", sql_s);
+
+									printf ("argc %d\n", argc);
+
+									while (i < argc)
+										{
+											const char *param_s = argv [i];
+											const int param_length = strlen (param_s);
+
+											printf ("Binding \"%s\" (%d)\n", param_s, param_length);
+
+											res = sqlite3_bind_text (statement_p, param_index, param_s, param_length, SQLITE_STATIC);
+
+											if (res == SQLITE_OK)
+												{
+													while ((res = sqlite3_step (statement_p)) == SQLITE_ROW)
+														{
+															const int res_column = 0;
+															const char *res_s = (const char *) sqlite3_column_text (statement_p, res_column);
+
+															printf ("Searching for \"%s\" gave \"%s\"\n", param_s, res_s);
+
+														}
+												}
+											else
+												{
+													printf ("Failed to bind \"%s\": \"%s\"\n", param_s, sqlite3_errstr (res));
+												}
+
+											res = sqlite3_reset (statement_p);
+
+											if (res == SQLITE_OK)
+												{
+													++ i;
+												}
+											else
+												{
+													printf ("Failed to reset \"%s\": \"%s\"\n", sql_s, sqlite3_errstr (res));
+												}
+										}
+
+									res = sqlite3_finalize (statement_p);
+
+									if (res != SQLITE_OK)
+										{
+
+										}
+
+								}		/* if (PrepareStatement (tool_p, &statement_p, sql_s)) */
+							else
+								{
+									printf ("Failed to prepare statement \"%s\"\n", sql_s);
+								}
+
+
+						}		/* if (SetSqliteToolTable (tool_p, table_s)) */
+					else
+						{
+							printf ("Failed to set SQLiteTool table to %s", table_s);
+						}
+
+					FreeSQLiteTool (tool_p);
+				}		/* if (tool_p) */
+			else
+				{
+					puts ("Failed to allocate SQLiteTool");
+				}
+
+			puts ("exiting");
+
+		}		/* if (argc > 1) */
+	else
+		{
+			puts ("usage: sqlite_test_tool <test_database_filename>");
+		}
+
+	return 0;
+}
+
+
+int main1 (int argc, char *argv [])
 {
 	if (argc > 1)
 		{

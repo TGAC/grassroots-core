@@ -311,6 +311,9 @@ GRASSROOTS_SQLITE_API char *EasyRunSQLiteToolStatement (SQLiteTool *tool_p, cons
 GRASSROOTS_SQLITE_API bool InsertSQLiteRow (SQLiteTool *tool_p, const json_t *data_p, char **error_ss);
 
 
+GRASSROOTS_SQLITE_API bool PrepareStatement (SQLiteTool *tool_p, sqlite3_stmt **statement_pp, const char *sql_s);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -474,6 +474,21 @@ char *RunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s, int (*callb
 }
 
 
+bool PrepareStatement (SQLiteTool *tool_p, sqlite3_stmt **statement_pp, const char *sql_s)
+{
+	bool success_flag = false;
+	size_t sql_len = strlen (sql_s);
+	int res = sqlite3_prepare_v2 (tool_p -> sqlt_database_p, sql_s , sql_len + 1, statement_pp, NULL);
+
+	if (res == 0)
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
 
 char *EasyRunSQLiteToolStatement (SQLiteTool *tool_p, const char *sql_s)
 {

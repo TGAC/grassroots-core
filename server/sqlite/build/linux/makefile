@@ -54,7 +54,7 @@ include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 .PHONY: test_app run_test_app
 
 test_app: install 
-	gcc $(DIR_SRC)/sqlite_tool_test.c -o $(BUILD)/sqlite_tool_test $(INCLUDES) $(CFLAGS) -D_DEBUG $(BASE_LDFLAGS) -L$(BUILD) -lgrassroots_sqlite -DUNIX=1 -L$(DIR_PCRE_LIB) -lpcre -lpthread
+	gcc $(DIR_SRC)/sqlite_tool_test.c -o $(BUILD)/sqlite_tool_test $(INCLUDES) $(CFLAGS) -D_DEBUG $(BASE_LDFLAGS) -L$(BUILD) -lgrassroots_sqlite -DUNIX=1 -L$(DIR_PCRE_LIB) -lpcre -lpthread -ldl
 
 
 run_test_app: test_app
