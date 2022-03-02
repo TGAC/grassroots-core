@@ -903,6 +903,16 @@ GRASSROOTS_SERVICE_LOCAL int32 GetNumberOfLiveJobsFromServiceJobSet (const Servi
 GRASSROOTS_SERVICE_LOCAL bool GetOperationStatusFromServiceJobJSON (const json_t *value_p, OperationStatus *status_p);
 
 
+/**
+ * For a given ServiceJob that is running multiple tasks, update its status to reflect
+ * the given status from a task.
+ *
+ * @param job_p The ServiceJob to update.
+ * @param status The OperationStatus from one of the tasks that the ServiceJob is running.
+ */
+GRASSROOTS_SERVICE_API void MergeServiceJobStatus (ServiceJob *job_p, OperationStatus status);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -2327,6 +2327,28 @@ GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_
 }
 
 
+
+bool DefaultGetParameterTypeForNamedParameter (const char *param_name_s, ParameterType *pt_p, const NamedParameterType *params_p)
+{
+  const NamedParameterType *param_p = params_p;
+  
+  while (param_p)
+    {
+      if (strcmp (param_p -> npt_name_s, param_name_s) == 0)
+        {
+          *pt_p = param_p -> npt_type;
+          return true;
+        }
+      else
+        {
+          ++ param_p;
+        }
+    }
+  
+  return false;
+}
+
+
 static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p)
 {
 	ServicesArray *services_p = NULL;

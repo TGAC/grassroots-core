@@ -477,6 +477,53 @@ void SetServiceJobStatus (ServiceJob *job_p, OperationStatus status)
 }
 
 
+void MergeServiceJobStatus (ServiceJob *job_p, OperationStatus status)
+{
+	switch (job_p -> sj_status)
+		{
+		case OS_FAILED:
+		case OS_FAILED_TO_START:
+		case OS_ERROR:
+			{
+				if ((status == OS_SUCCEEDED) || (status == OS_PARTIALLY_SUCCEEDED))
+					{
+						job_p -> sj_status = OS_PARTIALLY_SUCCEEDED;
+					}
+			}
+			break;
+
+		case OS_IDLE:
+		case OS_PENDING:
+			{
+				job_p -> sj_status = status;
+			}
+			break;
+
+		case OS_STARTED:
+		case OS_FINISHED:
+			{
+
+			}
+			break;
+
+		case OS_PARTIALLY_SUCCEEDED:
+			{
+
+			}
+			break;
+
+		case OS_SUCCEEDED:
+			{
+				if (status != OS_SUCCEEDED)
+					{
+						job_p -> sj_status = OS_PARTIALLY_SUCCEEDED;
+					}
+			}
+			break;
+
+		}
+}
+
 
 uint32 GetNumberOfServiceJobResults (const ServiceJob *job_p)
 {

@@ -1222,6 +1222,10 @@ GRASSROOTS_SERVICE_API json_t *GetServiceRefreshRequestFromJSON (const char * co
 
 GRASSROOTS_SERVICE_API json_t *GetServiceRunRequestFromJSON (const char * const service_name_s, json_t *param_set_json_p, const SchemaVersion *sv_p, const bool run_flag, const ParameterLevel level);
 
+
+GRASSROOTS_SERVICE_API bool DefaultGetParameterTypeForNamedParameter (const char *param_name_s, ParameterType *pt_p, const NamedParameterType *params_p);
+
+
 #ifdef __cplusplus
 }
 #endif
