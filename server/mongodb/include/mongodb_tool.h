@@ -674,6 +674,9 @@ GRASSROOTS_MONGODB_API bool AddQueryTerm (bson_t *query_p, const char *key_s, co
 GRASSROOTS_MONGODB_API int64 GetNumberOfMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p);
 
 
+GRASSROOTS_MONGODB_API void ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, bool (*process_bson_fn) (const bson_t *document_p, void *data_p), void *data_p);
+
+
 #ifdef __cplusplus
 }
 #endif

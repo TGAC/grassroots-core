@@ -1434,6 +1434,66 @@ json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *ex
 }
 
 
+void ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, bool (*process_bson_fn) (const bson_t *document_p, void *data_p), void *data_p)
+{
+	bool alloc_query_flag = false;
+
+	if (!query_p)
+		{
+			query_p = bson_new ();
+
+			if (query_p != NULL)
+				{
+					alloc_query_flag = true;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate query");
+				}
+		}
+
+	if (query_p)
+		{
+			if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, extra_opts_p))
+				{
+					if (tool_p -> mt_cursor_p)
+						{
+							bool success_flag = true;
+							const bson_t *document_p = NULL;
+
+							while (success_flag && (mongoc_cursor_next (tool_p -> mt_cursor_p, &document_p)))
+								{
+									if (!process_bson_fn (document_p, data_p))
+										{
+											success_flag = false;
+										}
+								}
+
+							if (!mongoc_cursor_more (tool_p -> mt_cursor_p))
+								{
+									mongoc_cursor_destroy (tool_p -> mt_cursor_p);
+									tool_p -> mt_cursor_p = NULL;
+								}
+
+						}		/* if (tool_p -> mt_cursor_p) */
+
+				}		/* if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL)) */
+			else
+				{
+					PrintBSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "No hits found");
+				}
+
+			if (alloc_query_flag)
+				{
+					bson_destroy (query_p);
+				}
+
+		}		/* if (query_p) */
+
+}
+
+
+
 bool AddBSONDocumentToJSONArray (const bson_t *document_p, void *data_p)
 {
 	bool success_flag = false;
