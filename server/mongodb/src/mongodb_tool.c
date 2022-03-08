@@ -415,7 +415,7 @@ bson_oid_t *InsertJSONIntoMongoCollection (MongoTool *tool_p, json_t *json_p)
 bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p)
 {
 	bool success_flag = false;
-	bson_t *query_bson_p = ConvertJSONToBSON (update_p);
+	bson_t *query_bson_p = ConvertJSONToBSON (query_p);
 
 	if (query_bson_p)
 		{
@@ -1434,8 +1434,9 @@ json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *ex
 }
 
 
-void ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, bool (*process_bson_fn) (const bson_t *document_p, void *data_p), void *data_p)
+OperationStatus ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, bool (*process_bson_fn) (const bson_t *document_p, void *data_p), void *data_p)
 {
+	OperationStatus status = OS_FAILED_TO_START;
 	bool alloc_query_flag = false;
 
 	if (!query_p)
@@ -1460,13 +1461,29 @@ void ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts
 						{
 							bool success_flag = true;
 							const bson_t *document_p = NULL;
+							size_t num_docs = 0;
+							size_t num_success = 0;
 
 							while (success_flag && (mongoc_cursor_next (tool_p -> mt_cursor_p, &document_p)))
 								{
-									if (!process_bson_fn (document_p, data_p))
+									if (process_bson_fn (document_p, data_p))
 										{
-											success_flag = false;
+											++ num_success;
 										}
+									++ num_docs;
+								}
+
+							if (num_success == num_docs)
+								{
+									status = OS_SUCCEEDED;
+								}
+							else if (num_success > 0)
+								{
+									status = OS_PARTIALLY_SUCCEEDED;
+								}
+							else
+								{
+									status = OS_FAILED;
 								}
 
 							if (!mongoc_cursor_more (tool_p -> mt_cursor_p))
@@ -1490,6 +1507,7 @@ void ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts
 
 		}		/* if (query_p) */
 
+	return status;
 }
 
 

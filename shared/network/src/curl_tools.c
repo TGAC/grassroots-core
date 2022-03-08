@@ -333,6 +333,19 @@ void SetCurlToolTimeout (CurlTool *tool_p, const long timeout)
 }
 
 
+
+void ClearCurlToolData (CurlTool *tool_p)
+{
+	if (tool_p -> ct_mode == CM_MEMORY)
+		{
+			if (GetByteBufferSize (tool_p -> ct_buffer_p) > 0)
+				{
+					ResetByteBuffer (tool_p -> ct_buffer_p);
+				}
+		}
+}
+
+
 bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, const json_t *req_p)
 {
 	bool success_flag = false;
@@ -345,13 +358,7 @@ bool MakeRemoteJSONCallFromCurlTool (CurlTool *tool_p, const json_t *req_p)
 					CURLcode res;
 
 					/* if the buffer isn't empty, clear it */
-					if (tool_p -> ct_mode == CM_MEMORY)
-						{
-							if (GetByteBufferSize (tool_p -> ct_buffer_p) > 0)
-								{
-									ResetByteBuffer (tool_p -> ct_buffer_p);
-								}
-						}
+					ClearCurlToolData (tool_p);
 
 					res = RunCurlTool (tool_p);
 

@@ -335,6 +335,8 @@ GRASSROOTS_NETWORK_LOCAL void FreeTemporaryFile (TemporaryFile *temp_p);
 GRASSROOTS_NETWORK_LOCAL char *GetTemporaryFileContentsAsString (TemporaryFile *temp_p);
 
 
+GRASSROOTS_NETWORK_API void ClearCurlToolData (CurlTool *tool_p);
+
 
 #ifdef __cplusplus
 }
