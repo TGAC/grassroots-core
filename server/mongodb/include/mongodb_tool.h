@@ -279,7 +279,7 @@ GRASSROOTS_MONGODB_API bson_oid_t *InsertJSONIntoMongoCollection (MongoTool *too
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p);
+GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p, const bool multiple_flag);
 
 
 /**
@@ -293,7 +293,7 @@ GRASSROOTS_MONGODB_API bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const 
  * @memberof MongoTool
  * @see UpdateMongoDocumentByBSON
  */
-bool UpdateMongoDocument (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p);
+bool UpdateMongoDocuments (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p, const bool multiple_flag);
 
 
 /**

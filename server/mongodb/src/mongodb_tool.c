@@ -66,7 +66,7 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-static bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p);
+static bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p, const bool multiple_flag);
 
 
 
@@ -412,14 +412,14 @@ bson_oid_t *InsertJSONIntoMongoCollection (MongoTool *tool_p, json_t *json_p)
 
 
 
-bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p)
+bool UpdateMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p, const bool multiple_flag)
 {
 	bool success_flag = false;
 	bson_t *query_bson_p = ConvertJSONToBSON (query_p);
 
 	if (query_bson_p)
 		{
-			success_flag = UpdateMongoDocumentByBSON (tool_p, query_bson_p, update_p);
+			success_flag = UpdateMongoDocumentsByBSON (tool_p, query_bson_p, update_p, multiple_flag);
 
 			bson_destroy (query_bson_p);
 		}
@@ -429,14 +429,14 @@ bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const json_t *query_p, const 
 }
 
 
-bool UpdateMongoDocument (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *update_p)
+bool UpdateMongoDocuments (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *update_p, const bool multiple_flag)
 {
 	bool success_flag = false;
 	bson_t *query_p = BCON_NEW (MONGO_ID_S, BCON_OID (id_p));
 
 	if (query_p)
 		{
-			success_flag = UpdateMongoDocumentByBSON (tool_p, query_p, update_p);
+			success_flag = UpdateMongoDocumentsByBSON (tool_p, query_p, update_p, multiple_flag);
 
 			bson_destroy (query_p);
 		}		/* if (query_p) */
@@ -445,7 +445,7 @@ bool UpdateMongoDocument (MongoTool *tool_p, const bson_oid_t *id_p, const json_
 }
 
 
-bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p)
+bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p, const bool multiple_flag)
 {
 	bool success_flag = false;
 
@@ -468,11 +468,14 @@ bool UpdateMongoDocumentByBSON (MongoTool *tool_p, const bson_t *query_p, const 
 									PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, update_statement_p, "UpdateMongoDocument update_statement_p");
 #endif
 
-
-									if (mongoc_collection_update_one (tool_p -> mt_collection_p, query_p, update_statement_p, NULL, NULL, &error))
+									if (multiple_flag)
 										{
-											success_flag = true;
-										}		/* if (mongoc_collection_update (tool_p -> mt_collection_p, MONGOC_UPDATE_NONE, query_p, update_statement_p, NULL, &error)) */
+											success_flag = mongoc_collection_update_many (tool_p -> mt_collection_p, query_p, update_statement_p, NULL, NULL, &error);
+										}
+									else
+										{
+											success_flag = mongoc_collection_update_one (tool_p -> mt_collection_p, query_p, update_statement_p, NULL, NULL, &error);
+										}
 
 								}		/* if (bson_append_document (update_statement_p, "$set", -1, bson_p)) */
 
