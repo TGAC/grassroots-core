@@ -678,6 +678,22 @@ GRASSROOTS_MONGODB_API int64 GetNumberOfMongoResults (MongoTool *tool_p, bson_t 
 GRASSROOTS_MONGODB_API OperationStatus ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, bool (*process_bson_fn) (const bson_t *document_p, void *data_p), void *data_p);
 
 
+
+/**
+ * Update some MongoDB documents.
+ *
+ * @param tool_p The MongoTool that will update the MongoDB documents.
+ * @param query_p The query used to choose the MongoDB documents that will be updated.
+ * @param update_p The update statement specifying the update operation to perform.
+ * @return <code>true</code> if the MongoDB documents were updated successfully,
+ * <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p, const bool multiple_flag);
+
+
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -50,27 +50,6 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 
 
 
-
-
-
-
-
-
-/**
- * Update some MongoDB documents.
- *
- * @param tool_p The MongoTool that will update the MongoDB documents.
- * @param query_p The query used to choose the MongoDB documents that will be updated.
- * @param update_p The update statement specifying the update operation to perform.
- * @return <code>true</code> if the MongoDB documents were updated successfully,
- * <code>false</code> otherwise.
- * @memberof MongoTool
- */
-static bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p, const bool multiple_flag);
-
-
-
-
 #ifdef _DEBUG
 #define MONGODB_TOOL_DEBUG	(STM_LEVEL_INFO)
 #else
@@ -1765,7 +1744,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 										{
 											if (json_object_set (doc_p, object_key_s, values_p) == 0)
 												{
-													if (!UpdateMongoDocumentByBSON (tool_p, query_p, doc_p))
+													if (!UpdateMongoDocumentsByBSON (tool_p, query_p, doc_p, false))
 														{
 															error_s = "Failed to create update document";
 														}
@@ -1784,7 +1763,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 								}
 							else
 								{
-									if (!UpdateMongoDocumentByBSON (tool_p, query_p, values_p))
+									if (!UpdateMongoDocumentsByBSON (tool_p, query_p, values_p, false))
 										{
 											error_s = "Failed to create update document";
 										}
