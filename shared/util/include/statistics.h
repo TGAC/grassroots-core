@@ -20,9 +20,10 @@ typedef struct Statistics
 
 	double64 st_mean;
 
-	double64 st_standard_deviation;
+	double64 st_variance;
 
 } Statistics;
+
 
 typedef struct
 {

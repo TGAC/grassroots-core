@@ -55,7 +55,7 @@ SchemaTerm *AllocateExtendedSchemaTerm (const char *url_s, const char *name_s, c
 
 
 
-SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const char *description_s)
+bool SetSchemaTermValues (SchemaTerm *term_p, const char *url_s, const char *name_s, const char *description_s)
 {
 	char *copied_url_s = EasyCopyToNewString (url_s);
 
@@ -84,17 +84,12 @@ SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const cha
 
 					if (success_flag)
 						{
-							SchemaTerm *term_p = (SchemaTerm *) AllocMemory (sizeof (SchemaTerm));
+							term_p -> st_url_s = copied_url_s;
+							term_p -> st_name_s = copied_name_s;
+							term_p -> st_description_s = copied_description_s;
+							term_p -> st_abbreviation_s = NULL;
 
-							if (term_p)
-								{
-									term_p -> st_url_s = copied_url_s;
-									term_p -> st_name_s = copied_name_s;
-									term_p -> st_description_s = copied_description_s;
-									term_p -> st_abbreviation_s = NULL;
-
-									return term_p;
-								}
+							return true;
 						}
 
 					if (copied_description_s)
@@ -110,6 +105,24 @@ SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const cha
 
 
 			FreeCopiedString (copied_url_s);
+		}
+
+	return false;
+}
+
+
+SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const char *description_s)
+{
+	SchemaTerm *term_p = (SchemaTerm *) AllocMemory (sizeof (SchemaTerm));
+
+	if (term_p)
+		{
+			if (SetSchemaTermValues (term_p, url_s, name_s, description_s))
+				{
+					return term_p;
+				}
+
+			FreeMemory (term_p);
 		}
 
 	return NULL;
