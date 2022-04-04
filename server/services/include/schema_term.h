@@ -115,6 +115,9 @@ GRASSROOTS_SERVICE_API SchemaTerm *AllocateExtendedSchemaTerm (const char *url_s
 GRASSROOTS_SERVICE_API SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const char *description_s);
 
 
+GRASSROOTS_SERVICE_API bool SetSchemaTermValues (SchemaTerm *term_p, const char *url_s, const char *name_s, const char *description_s);
+
+
 /**
  * Free a SchemaTerm.
  *
@@ -122,6 +125,15 @@ GRASSROOTS_SERVICE_API SchemaTerm *AllocateSchemaTerm (const char *url_s, const 
  * @memberof SchemaTerm
  */
 GRASSROOTS_SERVICE_API void FreeSchemaTerm (SchemaTerm *term_p);
+
+
+/**
+ * Clear all of the data within a SchemaTerm.
+ *
+ * @param term_p The SchemaTerm to clear.
+ * @memberof SchemaTerm
+ */
+GRASSROOTS_SERVICE_API void ClearSchemaTerm (SchemaTerm *term_p);
 
 
 /**
