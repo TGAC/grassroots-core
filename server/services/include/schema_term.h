@@ -203,6 +203,9 @@ GRASSROOTS_SERVICE_API bool AddSchemaTermToJSON (const SchemaTerm *term_p, json_
 GRASSROOTS_SERVICE_API SchemaTerm *GetSchemaTermFromJSON (const json_t *term_json_p);
 
 
+GRASSROOTS_SERVICE_API bool SetSchemaTermValues (SchemaTerm *term_p, const char *url_s, const char *name_s, const char *description_s);
+
+
 #ifdef __cplusplus
 }
 #endif
