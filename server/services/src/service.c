@@ -1334,7 +1334,7 @@ json_t *GetBaseServiceDataAsJSONOld (Service * const service_p, UserDetails *use
 																{
 																	PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to set copied provider");
 
-																	WipeJSON (copied_provider_p);
+																	json_decref (copied_provider_p);
 																	success_flag = false;
 																}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0) */
 														}
@@ -1504,7 +1504,7 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 																				{
 																					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to set copied provider");
 
-																					WipeJSON (copied_provider_p);
+																					json_decref (copied_provider_p);
 																					success_flag = false;
 																				}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0) */
 																		}

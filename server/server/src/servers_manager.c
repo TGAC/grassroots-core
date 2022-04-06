@@ -315,7 +315,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 
 																							if (!success_flag)
 																								{
-																									WipeJSON (dest_p);
+																									json_decref (dest_p);
 																								}
 
 
@@ -340,7 +340,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 														break;
 												}
 
-											WipeJSON (server_response_p);
+											json_decref (server_response_p);
 
 										}		/* if (server_response_p) */
 									else
@@ -360,7 +360,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 					FreeLinkedList (servers_p);
 				}		/* if (servers_p) */
 
-			WipeJSON (op_p);
+			json_decref (op_p);
 		}		/* if (op_p) */
 	else
 		{

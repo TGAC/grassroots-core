@@ -187,16 +187,6 @@ GRASSROOTS_NETWORK_API json_t *MakeRemoteJsonCall (json_t *req_p, Connection *co
 
 
 /**
- * Delete a json object and all of its references to its children
- *
- * @param json_p The json object to remove.
- *
- * @ingroup network_group
- */
-GRASSROOTS_NETWORK_API void WipeJSON (json_t *json_p);
-
-
-/**
  * Get the User uuid from a JSON fragment.
  *
  * @param credentials_p The JSON fragment to parse.

@@ -1334,7 +1334,7 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 							res = HasMongoQueryResults (tool_p) ? 1 : 0;
 						}
 
-					WipeJSON (json_p);
+					json_decref (json_p);
 				}
 		}
 
@@ -1508,7 +1508,7 @@ bool AddBSONDocumentToJSONArray (const bson_t *document_p, void *data_p)
 				}		/* if (json_array_append_new (json_p, row_p) == 0) */
 			else
 				{
-					WipeJSON (row_p);
+					json_decref (row_p);
 				}
 		}		/* if (row_p) */
 
@@ -1754,7 +1754,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 													error_s = "Failed to update sub-document";
 												}
 
-											WipeJSON (doc_p);
+											json_decref (doc_p);
 										}
 									else
 										{
@@ -1810,7 +1810,7 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 
 													if (doc_p)
 														{
-															WipeJSON (doc_p);
+															json_decref (doc_p);
 														}
 												}
 											else

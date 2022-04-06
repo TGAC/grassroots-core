@@ -736,7 +736,7 @@ bool CloseServiceJob (ServiceJob *job_p)
 			PrintJSONRefCounts (STM_LEVEL_FINER, __FILE__, __LINE__, job_p -> sj_result_p, "pre wipe results");
 #endif
 
-			WipeJSON (job_p -> sj_result_p);
+			json_decref (job_p -> sj_result_p);
 
 #if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
 			PrintJSONRefCounts (STM_LEVEL_FINER, __FILE__, __LINE__, job_p -> sj_result_p, "post wipe results");
@@ -1359,7 +1359,7 @@ bool ProcessServiceJobSet (ServiceJobSet *jobs_p, json_t *res_p)
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job results %s to json response", job_p -> sj_name_s);
 								}
 
-							WipeJSON (job_json_p);
+							json_decref (job_json_p);
 						}
 				}
 			else
