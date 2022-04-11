@@ -570,7 +570,7 @@ static bool AddValuesToByteBufferForUpdate (const char *primary_key_s, const cha
 
 									if (i > 0)
 										{
-											void *iterator_p = json_object_iter (where_p);
+											iterator_p = json_object_iter (where_p);
 
 											-- i;
 

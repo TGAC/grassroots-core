@@ -170,7 +170,7 @@ static bool GetNumber (const char **str_pp, double64 *answer_p, bool fractions_f
 	int i = 0;
 	bool loop_flag = true;
 	bool got_number_flag = false;
-	size_t num_dps = 0;
+	int num_dps = 0;
 
 	/* skip past any whitespace */
 	while (loop_flag)
@@ -257,7 +257,6 @@ static bool GetNumber (const char **str_pp, double64 *answer_p, bool fractions_f
 
 			if (decimal_point_index != -1)
 				{
-					int num_dps;
 					double factor;
 					int buffer_size;
 					char *buffer_p;
