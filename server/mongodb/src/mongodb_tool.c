@@ -2062,7 +2062,7 @@ bool AddIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
 						}
 				}
 
-			FreeCopiedString (id_s);
+			FreeBSONOidString (id_s);
 		}
 
 	return success_flag;
@@ -2110,7 +2110,7 @@ bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key
 
 				}		/* if (id_json_p) */
 
-			FreeMemory (id_s);
+			FreeBSONOidString (id_s);
 		}		/* if (id_s) */
 
 	return success_flag;
@@ -2153,7 +2153,7 @@ bool AddCompoundIdToJSONArray (json_t *array_p, const bson_oid_t *id_p)
 
 				}		/* if (id_json_p) */
 
-			FreeMemory (id_s);
+			FreeBSONOidString (id_s);
 		}		/* if (id_s) */
 
 	return success_flag;
@@ -2176,6 +2176,13 @@ char *GetBSONOidAsString (const bson_oid_t *id_p)
 		}
 
 	return id_s;
+}
+
+
+
+void FreeBSONOidString (char *id_s)
+{
+	FreeMemory (id_s);
 }
 
 
