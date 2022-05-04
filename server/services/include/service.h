@@ -94,7 +94,7 @@ struct ServiceJobSet;
 
 
 /**
- * A datatye to define how a Service runs.
+ * A datatype to define how a Service runs.
  *
  * @ingroup services_group
  */

@@ -120,6 +120,19 @@ GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const
 GRASSROOTS_UTIL_API bool SetTimeFromString (struct tm * const time_p, const char *time_s);
 
 
+
+/**
+ * Set the time from a string of the form DD-MM-YYYY
+ *
+ * @param time_p The time to be set from the string
+ * @param time_s The time to be set as a c-style string or <code>NULL</code> upon error.
+ * @return <code>true</code> if the time was set successfully, <code>false</code> otherwise.
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API bool SetTimeFromDDMMYYYYString (struct tm * const time_p, const char *time_s);
+
+
+
 GRASSROOTS_UTIL_API struct tm *GetTimeFromString (const char *time_s);
 
 
