@@ -32,7 +32,7 @@
 #include "search_options.h"
 #include "mongo_client_manager.h"
 #include "string_utils.h"
-
+#include "time_util.h"
 
 
 static bool AddSimpleTypeToQuery (bson_t *query_p, const char *key_s, const json_t *value_p);
@@ -260,6 +260,45 @@ bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, co
 	return success_flag;
 
 }
+
+
+bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p, const char *timestamp_key_s)
+{
+	bool success_flag = false;
+	bson_t *doc_p = ConvertJSONToBSON (data_to_save_p);
+
+	if (doc_p)
+		{
+			struct tm tm;
+
+			if (GetCurrentTime (&tm))
+				{
+					char *time_s = GetTimeAsString (&tm, true);
+
+					if (time_s)
+						{
+							BSON_APPEND_UTF8 (doc_p, timestamp_key_s, time_s);
+
+							FreeMemory (time_s);
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time as string");
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time");
+				}
+
+			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, selector_p);
+
+			bson_destroy (doc_p);
+		}
+
+	return success_flag;
+}
+
 
 
 bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
