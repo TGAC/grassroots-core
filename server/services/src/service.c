@@ -2332,7 +2332,7 @@ bool DefaultGetParameterTypeForNamedParameter (const char *param_name_s, Paramet
 {
   const NamedParameterType *param_p = params_p;
   
-  while (param_p)
+  while ((param_p) && (param_p -> npt_name_s))
     {
       if (strcmp (param_p -> npt_name_s, param_name_s) == 0)
         {

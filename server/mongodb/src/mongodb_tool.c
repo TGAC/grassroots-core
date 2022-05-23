@@ -277,7 +277,10 @@ bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_
 
 					if (time_s)
 						{
-							BSON_APPEND_UTF8 (doc_p, timestamp_key_s, time_s);
+							if (! (BSON_APPEND_UTF8 (doc_p, timestamp_key_s, time_s)))
+								{
+									PrintBSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, doc_p, "Failed to add \"%s\": \"%s\" as timestamp", timestamp_key_s, time_s);
+								}
 
 							FreeMemory (time_s);
 						}
