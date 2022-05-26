@@ -10,17 +10,17 @@
 
 #include <stddef.h>
 
+#include "jansson.h"
+
+
 #include "typedefs.h"
 #include "grassroots_util_library.h"
 
 
+
 typedef struct Statistics
 {
-	size_t st_num_values;
-
-	double64 *st_values_p;
-
-	size_t st_current_index;
+	size_t st_population_size;
 
 	double64 st_min;
 
@@ -38,6 +38,20 @@ typedef struct Statistics
 
 
 
+typedef struct StatisticsTool
+{
+	Statistics st_stats;
+
+	size_t st_num_values;
+
+	double64 *st_values_p;
+
+	size_t st_current_index;
+
+} StatisticsTool;
+
+
+
 
 /** @publicsection */
 
@@ -47,19 +61,28 @@ extern "C"
 #endif
 
 
-GRASSROOTS_UTIL_API Statistics *AllocateStatistics (size_t num_entries);
+GRASSROOTS_UTIL_API StatisticsTool *AllocateStatisticsTool (size_t num_entries);
 
 
-GRASSROOTS_UTIL_API void FreeStatistics (Statistics *stats_p);
+GRASSROOTS_UTIL_API void FreeStatisticsTool (StatisticsTool *stats_tool_p);
 
 
-GRASSROOTS_UTIL_API bool AddStatisticsValue (Statistics *stats_p, const double64 value);
+GRASSROOTS_UTIL_API bool AddStatisticsValue (StatisticsTool *stats_tool_p, const double64 value);
 
 
-GRASSROOTS_UTIL_API void ResetStatistics (Statistics *stats_p);
+GRASSROOTS_UTIL_API void ResetStatisticsTool (StatisticsTool *stats_tool_p);
 
 
-GRASSROOTS_UTIL_API void CalculateStatistics (Statistics *stats_p);
+GRASSROOTS_UTIL_API void CalculateStatistics (StatisticsTool *stats_tool_p);
+
+
+GRASSROOTS_UTIL_API void ClearStatistics (Statistics *stats_p);
+
+
+GRASSROOTS_UTIL_API Statistics *CopyStatistics (const Statistics *src_p);
+
+
+GRASSROOTS_UTIL_API json_t *GetStatisticsAsJSON (const Statistics *stats_p);
 
 
 #ifdef __cplusplus
