@@ -79,6 +79,9 @@ GRASSROOTS_UTIL_API void CalculateStatistics (StatisticsTool *stats_tool_p);
 GRASSROOTS_UTIL_API void ClearStatistics (Statistics *stats_p);
 
 
+GRASSROOTS_UTIL_API void FreeStatistics (Statistics *stats_p);
+
+
 GRASSROOTS_UTIL_API Statistics *CopyStatistics (const Statistics *src_p);
 
 

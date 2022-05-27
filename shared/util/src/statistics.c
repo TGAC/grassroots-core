@@ -48,7 +48,7 @@ StatisticsTool *AllocateStatisticsTool (size_t num_entries)
 }
 
 
-void FreeStatistics (StatisticsTool *stats_tool_p)
+void FreeStatisticsTool (StatisticsTool *stats_tool_p)
 {
 	FreeMemory (stats_tool_p -> st_values_p);
 	FreeMemory (stats_tool_p);
@@ -74,6 +74,12 @@ void ClearStatistics (Statistics *stats_p)
 	stats_p -> st_variance = 0.0;
 	stats_p -> st_std_dev = 0.0;
 	stats_p -> st_sum = 0.0;
+}
+
+
+void FreeStatistics (Statistics *stats_p)
+{
+	FreeMemory (stats_p);
 }
 
 
