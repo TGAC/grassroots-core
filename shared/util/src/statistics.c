@@ -66,6 +66,20 @@ void ResetStatisticsTool (StatisticsTool *stats_tool_p)
 }
 
 
+Statistics *AllocateStatistics (void)
+{
+	Statistics *stats_p = (Statistics *) AllocMemory (sizeof (Statistics));
+
+	if (stats_p)
+		{
+			ClearStatistics (stats_p);
+
+			return stats_p;
+		}
+
+	return NULL;
+}
+
 void ClearStatistics (Statistics *stats_p)
 {
 	stats_p -> st_min = 0.0;
@@ -229,7 +243,79 @@ json_t *GetStatisticsAsJSON (const Statistics *stats_p)
 
 			json_decref (stats_json_p);
 		}		/* if (stats_json_p) */
-
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate statistics json object");
+		}
 
 	return NULL;
 }
+
+
+Statistics *GetStatisticsFromJSON (const json_t *stats_json_p)
+{
+	Statistics *stats_p = AllocateStatistics ();
+
+	if (stats_p)
+		{
+			if (GetJSONLong (stats_json_p, S_POP_SIZE_S, & (stats_p -> st_population_size)))
+				{
+					if (GetJSONReal (stats_json_p, S_MIN_S, & (stats_p -> st_min)))
+						{
+							if (GetJSONReal (stats_json_p, S_MAX_S, & (stats_p -> st_max)))
+								{
+									if (GetJSONReal (stats_json_p, S_SAMPLE_MEAN_S, & (stats_p -> st_mean)))
+										{
+											if (GetJSONReal (stats_json_p, S_VARIANCE_S, & (stats_p -> st_variance)))
+												{
+													if (GetJSONReal (stats_json_p, S_STD_DEV_S, & (stats_p -> st_std_dev)))
+														{
+															if (GetJSONReal (stats_json_p, S_SUM_S, & (stats_p -> st_sum)))
+																{
+																	return stats_p;
+																}		/* if (GetJSONReal (stats_json_p, S_SUM_S, stats_p -> st_sum)) */
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, stats_json_p, "Failed to get \"%s\"", S_SUM_S);
+																}
+														}
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, stats_json_p, "Failed to get \"%s\"", S_STD_DEV_S);
+														}
+												}
+											else
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, stats_json_p, "Failed to get \"%s\"", S_VARIANCE_S);
+												}
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, stats_json_p, "Failed to get \"%s\"", S_SAMPLE_MEAN_S);
+										}
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, stats_json_p, "Failed to get \"%s\"", S_MAX_S);
+								}
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, stats_json_p, "Failed to get \"%s\"", S_MIN_S);
+						}
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, stats_json_p, "Failed to get \"%s\"", S_POP_SIZE_S);
+				}
+
+			FreeStatistics (stats_p);
+		}		/* if (stats_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate statistics");
+		}
+
+	return NULL;
+}
+

@@ -88,6 +88,9 @@ GRASSROOTS_UTIL_API Statistics *CopyStatistics (const Statistics *src_p);
 GRASSROOTS_UTIL_API json_t *GetStatisticsAsJSON (const Statistics *stats_p);
 
 
+GRASSROOTS_UTIL_API Statistics *GetStatisticsFromJSON (const json_t *stats_json_p);
+
+
 #ifdef __cplusplus
 }
 #endif
