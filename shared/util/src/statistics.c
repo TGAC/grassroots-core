@@ -82,6 +82,7 @@ Statistics *AllocateStatistics (void)
 
 void ClearStatistics (Statistics *stats_p)
 {
+	stats_p -> st_population_size = 0;
 	stats_p -> st_min = 0.0;
 	stats_p -> st_max = 0.0;
 	stats_p -> st_mean = 0.0;
@@ -112,11 +113,11 @@ bool AddStatisticsValue (StatisticsTool *stats_tool_p, const double64 value)
 				}
 			else
 				{
-					if (CompareDoubles (stats_tool_p -> st_stats.st_min, value) == -1)
+					if (CompareDoubles (stats_tool_p -> st_stats.st_min, value) == 1)
 						{
 							stats_tool_p -> st_stats.st_min = value;
 						}
-					else if (CompareDoubles (stats_tool_p -> st_stats.st_max, value) == 1)
+					else if (CompareDoubles (stats_tool_p -> st_stats.st_max, value) == -1)
 						{
 							stats_tool_p -> st_stats.st_max = value;
 						}
@@ -126,6 +127,7 @@ bool AddStatisticsValue (StatisticsTool *stats_tool_p, const double64 value)
 			stats_tool_p -> st_stats.st_sum += value;
 
 			++ (stats_tool_p -> st_current_index);
+			++ (stats_tool_p -> st_stats.st_population_size);
 		}
 	else
 		{
@@ -142,12 +144,12 @@ void CalculateStatistics (StatisticsTool *stats_tool_p)
 	if (stats_tool_p -> st_current_index > 0)
 		{
 			double64 *value_p = stats_tool_p -> st_values_p;
-			size_t i = 0;
+			size_t i;
 			double64 variance = 0.0;
-			const size_t limit = 1 + (stats_tool_p -> st_current_index);
+			const size_t limit = stats_tool_p -> st_stats.st_population_size;
 			const double64 mean = (stats_tool_p -> st_stats.st_sum) / ((double64) limit);
 
-			for ( ; i < limit; ++ i, ++ value_p)
+			for (i = 0; i < limit; ++ i, ++ value_p)
 				{
 					double64 d = *value_p - mean;
 
