@@ -15,12 +15,12 @@
 #include "json_util.h"
 
 static const char * const S_SUM_S = "sum";
-static const char * const S_STD_DEV_S = "http://purl.obolibrary.org/obo/STATO_0000237";
-static const char * const S_VARIANCE_S = "http://purl.obolibrary.org/obo/STATO_0000113";
-static const char * const S_SAMPLE_MEAN_S = "http://purl.obolibrary.org/obo/STATO_0000401";
-static const char * const S_MIN_S = "http://purl.obolibrary.org/obo/STATO_0000150";
-static const char * const S_MAX_S = "http://purl.obolibrary.org/obo/STATO_0000151";
-static const char * const S_POP_SIZE_S = "http://purl.obolibrary.org/obo/STATO_0000088";
+static const char * const S_STD_DEV_S = CONTEXT_PREFIX_STATS_ONTOLOGY_S "0000237";
+static const char * const S_VARIANCE_S = CONTEXT_PREFIX_STATS_ONTOLOGY_S "0000113";
+static const char * const S_SAMPLE_MEAN_S = CONTEXT_PREFIX_STATS_ONTOLOGY_S "0000401";
+static const char * const S_MIN_S = CONTEXT_PREFIX_STATS_ONTOLOGY_S "0000150";
+static const char * const S_MAX_S = CONTEXT_PREFIX_STATS_ONTOLOGY_S "0000151";
+static const char * const S_POP_SIZE_S = CONTEXT_PREFIX_STATS_ONTOLOGY_S "0000088";
 
 
 StatisticsTool *AllocateStatisticsTool (size_t num_entries)
@@ -168,7 +168,7 @@ void CalculateStatistics (StatisticsTool *stats_tool_p)
 
 Statistics *CopyStatistics (const Statistics *src_p)
 {
-	Statistics *dest_p = (Statistics *) AllocMemory (src_p);
+	Statistics *dest_p = (Statistics *) AllocMemory (sizeof (Statistics));
 
 	if (dest_p)
 		{
