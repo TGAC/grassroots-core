@@ -131,6 +131,10 @@ SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_AGRONOMY_ONTOLOGY_S SCHEMA_KEYS_VAL("
 SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S SCHEMA_KEYS_VAL("http://purl.obolibrary.org/obo/NCIT_");
 
 
+#define CONTEXT_PREFIX_STATS_ONTOLOGY_S "stato:"
+PREFIX const char *CONTEXT_URL_STATS_ONTOLOGY_S VAL("http://purl.obolibrary.org/obo/STATO_");
+
+
 	/**
 	 *  @nosubgrouping
 	 *
