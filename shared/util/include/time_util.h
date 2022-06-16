@@ -217,6 +217,10 @@ GRASSROOTS_UTIL_API bool IsValidDate (struct tm *time_p);
 GRASSROOTS_UTIL_API int CompareDates (const struct tm *time_0_p, const struct tm *time_1_p, const bool dates_only_flag);
 
 
+
+GRASSROOTS_UTIL_API bool MayStringIncludeTime (const char * const time_s);
+
+
 #ifdef __cplusplus
 }
 #endif

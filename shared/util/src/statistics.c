@@ -145,7 +145,7 @@ void CalculateStatistics (StatisticsTool *stats_tool_p)
 		{
 			double64 *value_p = stats_tool_p -> st_values_p;
 			size_t i;
-			double64 variance = 0.0;
+			double64 sum_of_square_diffs = 0.0;
 			const size_t limit = stats_tool_p -> st_stats.st_population_size;
 			const double64 mean = (stats_tool_p -> st_stats.st_sum) / ((double64) limit);
 
@@ -154,12 +154,12 @@ void CalculateStatistics (StatisticsTool *stats_tool_p)
 					double64 d = *value_p - mean;
 
 					d *= d;
-					variance += d;
+					sum_of_square_diffs += d;
 				}
 
 
-			stats_tool_p -> st_stats.st_variance = variance;
-			stats_tool_p -> st_stats.st_std_dev = sqrt (variance);
+			stats_tool_p -> st_stats.st_variance = sum_of_square_diffs / ((double) (stats_tool_p -> st_stats.st_population_size));
+			stats_tool_p -> st_stats.st_std_dev = sqrt (stats_tool_p -> st_stats.st_variance);
 
 			stats_tool_p -> st_stats.st_mean = mean;
 		}

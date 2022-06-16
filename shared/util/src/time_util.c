@@ -391,6 +391,23 @@ int CompareDates (const struct tm *time_0_p, const struct tm *time_1_p, const bo
 }
 
 
+bool MayStringIncludeTime (const char * const time_s)
+{
+	bool time_flag = false;
+
+	if (time_s)
+		{
+			const size_t l = strlen (time_s);
+
+			if (l == S_TIME_BUFFER_SIZE - 1)
+				{
+					time_flag = true;
+				}
+		}
+
+	return time_flag;
+}
+
 
 /****************************************/
 
