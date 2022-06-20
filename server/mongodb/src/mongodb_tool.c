@@ -48,6 +48,7 @@ static int CompareStrings (const void *v0_p, const void *v1_p);
 
 static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const json_t *data_p);
 
+static bool AddCollectionIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, bson_t *keys_p, const bool unique_flag, const bool sparse_flag);
 
 
 #ifdef _DEBUG
@@ -430,7 +431,158 @@ bson_oid_t *InsertJSONIntoMongoCollection (MongoTool *tool_p, json_t *json_p)
 }
 
 
+/*
+ * Based upon the example at http://mongoc.org/libmongoc/current/create-indexes.html
+ */
 
+bool AddCollectionCompoundIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char ** const keys_ss, const bool unique_flag, const bool sparse_flag)
+{
+	bool success_flag = false;
+	bool setup_flag = true;
+	bson_t keys;
+	const char **key_ss = keys_ss;
+
+	bson_init (&keys);
+
+	while (setup_flag && (*key_ss))
+		{
+			if (BSON_APPEND_INT32 (&keys, *key_ss, 1))
+				{
+					++ key_ss;
+				}
+			else
+				{
+					setup_flag = false;
+				}
+		}
+
+	if (setup_flag)
+		{
+			success_flag = AddCollectionIndex (tool_p, database_s, collection_s, &keys, unique_flag, sparse_flag);
+		}
+
+	return success_flag;
+}
+
+
+
+bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char *key_s, const bool unique_flag, const bool sparse_flag)
+{
+	bool success_flag = false;
+	bson_t keys;
+
+	bson_init (&keys);
+
+	if (BSON_APPEND_INT32 (&keys, key_s, 1))
+		{
+			success_flag = AddCollectionIndex (tool_p, database_s, collection_s, &keys, unique_flag, sparse_flag);
+		}
+
+	return success_flag;
+}
+
+
+
+static bool AddCollectionIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, bson_t *keys_p, const bool unique_flag, const bool sparse_flag)
+{
+	bool success_flag = false;
+	bool setup_flag = false;
+
+	if (database_s)
+		{
+			setup_flag = SetMongoToolDatabaseAndCollection (tool_p, database_s, collection_s);
+		}
+	else
+		{
+			setup_flag = SetMongoToolCollection (tool_p, collection_s);
+		}
+
+	if (setup_flag)
+		{
+			char *index_s = mongoc_collection_keys_to_index_string (keys_p);
+
+			if (index_s)
+				{
+					bson_t *doc_p = bson_new ();
+
+					if (doc_p)
+						{
+							bool added_to_command_flag = false;
+
+							if (BSON_APPEND_DOCUMENT (doc_p, "key", keys_p))
+								{
+									if (BSON_APPEND_UTF8 (doc_p, "name", index_s))
+										{
+											if ((!unique_flag) || (BSON_APPEND_BOOL (doc_p, "unique", true)))
+												{
+													if ((!sparse_flag) || (BSON_APPEND_BOOL (doc_p, "sparse", true)))
+														{
+															bson_t *create_indexes_command_p = BCON_NEW ("createIndexes",
+																																					 BCON_UTF8 (collection_s),
+																																					 "indexes",
+																																					 "[",
+																																					 BCON_DOCUMENT (doc_p),
+																																					 "]");
+
+															if (create_indexes_command_p)
+																{
+																	bson_t reply;
+																	char *reply_s = NULL;
+																	bson_error_t error;
+
+																	added_to_command_flag = true;
+
+																	if (mongoc_database_write_command_with_opts (tool_p -> mt_database_p, create_indexes_command_p, NULL, &reply, &error))
+																		{
+																			success_flag = true;
+																		}
+																	else
+																		{
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "mongoc_database_write_command_with_opts () failed for \"%s\", \"%s\": \"%s\"",
+																									 database_s, collection_s, error.message);
+																		}
+
+																	reply_s = bson_as_json (&reply, NULL);
+
+																	if (reply_s)
+																		{
+																			PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "Reply for creating index for \"%s\", \"%s\": \"%s\"",
+																								database_s, collection_s, reply_s);
+
+																			bson_free (reply_s);
+																		}		/* if (reply_s) */
+
+																	bson_destroy (&reply);
+
+
+																	bson_destroy (create_indexes_command_p);
+																}		/* if (create_indexes_command_p) */
+														}
+												}
+										}
+
+								}
+
+
+							if (!added_to_command_flag)
+								{
+									bson_destroy (doc_p);
+								}
+
+						}
+
+				}		/* if (setup_flag) */
+
+
+		}		/* if (setup_flag) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetMongoToolDatabaseAndCollection () failed for \"%s\", \"%s\"",
+									 database_s ? database_s : "NULL", collection_s);
+		}
+
+	return success_flag;
+}
 
 
 bool UpdateMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p, const bool multiple_flag)
@@ -520,8 +672,8 @@ bool RemoveMongoDocuments (MongoTool *tool_p, const json_t *selector_json_p, con
 
 	if (selector_p)
 		{
-				success_flag = RemoveMongoDocumentsByBSON (tool_p, selector_p, remove_first_match_only_flag);
-				bson_destroy (selector_p);
+			success_flag = RemoveMongoDocumentsByBSON (tool_p, selector_p, remove_first_match_only_flag);
+			bson_destroy (selector_p);
 		}		/* if (selector_p) */
 
 
@@ -746,10 +898,10 @@ bool AddToQuery (bson_t *query_p, const char *key_s, const json_t *json_clause_p
 										FreeMemory (buffer_s);
 									}		/* if (buffer_s) */
 
-									if (!bson_append_array_end (query_p, in_p))
-										{
+								if (!bson_append_array_end (query_p, in_p))
+									{
 
-										}
+									}
 
 							}		/* if (bson_append_array_begin (query_p, key_s, -1, in_p)) */
 
@@ -891,9 +1043,9 @@ bson_t *GenerateQuery (const json_t *json_p)
 					json_t *value_p;
 
 					json_object_foreach (json_p, key_s, value_p)
-						{
-							AddToQuery (query_p, key_s, value_p);
-						}		/* json_object_foreach (json_p, key_p, value_p) */
+					{
+						AddToQuery (query_p, key_s, value_p);
+					}		/* json_object_foreach (json_p, key_p, value_p) */
 
 #if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, query_p, "final bson search query");
@@ -1385,15 +1537,15 @@ int32 IsKeyValuePairInCollection (MongoTool *tool_p, const char *database_s, con
 
 int64 GetNumberOfMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
 {
-  bson_error_t error;
-  int64_t count = mongoc_collection_count_documents (tool_p -> mt_collection_p, query_p, extra_opts_p, NULL, NULL, &error);
+	bson_error_t error;
+	int64_t count = mongoc_collection_count_documents (tool_p -> mt_collection_p, query_p, extra_opts_p, NULL, NULL, &error);
 
-  if (count == -1)
-  	{
+	if (count == -1)
+		{
 			PrintBSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, query_p, "failed to count documents: %s", error.message);
-  	}
+		}
 
-  return count;
+	return count;
 }
 
 
@@ -1661,56 +1813,56 @@ bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t 
 	bson_t *opts_p = NULL;
 	bson_t reply;
 	bson_error_t error;
-  bson_t *update_p = NULL;
+	bson_t *update_p = NULL;
 
 	*reply_pp = NULL;
 
 	update_p = bson_new ();
 
-  if (update_p)
-  	{
-  		if (BSON_APPEND_DOCUMENT (update_p, "$set", doc_p))
-  			{
-					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
-  					{
-							PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, update_p, "UpdateMongoDataAsBSON update_p: ");
-							PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, selector_p, "UpdateMongoDataAsBSON selector_p: ");
-  					}
-					#endif
+	if (update_p)
+		{
+			if (BSON_APPEND_DOCUMENT (update_p, "$set", doc_p))
+				{
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+					{
+						PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, update_p, "UpdateMongoDataAsBSON update_p: ");
+						PrintBSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, selector_p, "UpdateMongoDataAsBSON selector_p: ");
+					}
+#endif
 
 
-  				success_flag = mongoc_collection_update_one (tool_p -> mt_collection_p, selector_p, update_p, opts_p, &reply, &error);
+					success_flag = mongoc_collection_update_one (tool_p -> mt_collection_p, selector_p, update_p, opts_p, &reply, &error);
 
-  				if (success_flag)
-  					{
-  						bson_t *reply_p = bson_copy (&reply);
+					if (success_flag)
+						{
+							bson_t *reply_p = bson_copy (&reply);
 
-  						if (reply_p)
-  							{
-  								*reply_pp = reply_p;
-  							}
-  						else
-  							{
-  								PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to copy reply");
-  							}
+							if (reply_p)
+								{
+									*reply_pp = reply_p;
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to copy reply");
+								}
 
-  					}		/* if (success_flag) */
-  				else
-  					{
-  						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update db, error \"%s\"", error.message);
-  					}
-  			}
-  	  else
-  	  	{
-  	  		PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append doc to update statement");
-  	  	}
+						}		/* if (success_flag) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update db, error \"%s\"", error.message);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append doc to update statement");
+				}
 
-  		bson_destroy (update_p);
-  	}		/* if (update_p) */
-  else
-  	{
+			bson_destroy (update_p);
+		}		/* if (update_p) */
+	else
+		{
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create update statement");
-  	}
+		}
 
 
 	return success_flag;
@@ -1771,9 +1923,9 @@ const char *InsertOrUpdateMongoData (MongoTool *tool_p, json_t *values_p, const 
 				{
 					const bool exists_flag = FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, NULL);
 
-					#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					PrintJSONToLog (STM_LEVEL_FINE, __FILE__, __LINE__, values_p, "FindMatchingMongoDocumentsByBSON returned %s", exists_flag ? "true" : "false");
-					#endif
+#endif
 
 
 					if (exists_flag)
@@ -1913,40 +2065,40 @@ bool CreateIndexForMongoCollection (MongoTool *tool_p, char **fields_ss)
 					const char *collection_name_s = mongoc_collection_get_name (tool_p -> mt_collection_p);
 
 					bson_t *command_p = BCON_NEW ("createIndexes",
-						BCON_UTF8 (collection_name_s),
-						"indexes",
-						"[",
-						"{",
-						"key",
-						BCON_DOCUMENT (&keys),
-						"name",
-						BCON_UTF8 (index_s),
-						"}",
-						"]");
+																				BCON_UTF8 (collection_name_s),
+																				"indexes",
+																				"[",
+																				"{",
+																				"key",
+																				BCON_DOCUMENT (&keys),
+																				"name",
+																				BCON_UTF8 (index_s),
+																				"}",
+																				"]");
 
 					if (command_p)
 						{
-              bson_t reply;
-              bson_error_t error;
+							bson_t reply;
+							bson_error_t error;
 
-              success_flag = mongoc_database_write_command_with_opts (tool_p -> mt_database_p, command_p, NULL /* opts */, &reply, &error);
+							success_flag = mongoc_database_write_command_with_opts (tool_p -> mt_database_p, command_p, NULL /* opts */, &reply, &error);
 
-							#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
+							{
+								char *reply_s = bson_as_json (&reply, NULL);
+
+								if (reply_s)
+									{
+										PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "%s", reply_s);
+										bson_free (reply_s);
+									}
+							}
+#endif
+
+							if (!success_flag)
 								{
-									char *reply_s = bson_as_json (&reply, NULL);
-
-									if (reply_s)
-										{
-											PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "%s", reply_s);
-											bson_free (reply_s);
-										}
-								}
-							#endif
-
-              if (!success_flag)
-              	{
 									PrintErrors (STM_LEVEL_FINE, __FILE__, __LINE__, "Error creating MongoDB index for %s: %s", collection_name_s, error.message);
-              	}
+								}
 
 							bson_destroy (command_p);
 						}		/* if (command_p) */
@@ -1977,48 +2129,48 @@ static bson_t *MakeQuery (const char **keys_ss, const size_t num_keys, const jso
 					if (value_p)
 						{
 							switch (value_p -> type)
-								{
-									case JSON_STRING:
-										if (!BSON_APPEND_UTF8 (query_p, *keys_ss, json_string_value (value_p)))
-											{
-												success_flag = false;
-											}
-										break;
+							{
+								case JSON_STRING:
+									if (!BSON_APPEND_UTF8 (query_p, *keys_ss, json_string_value (value_p)))
+										{
+											success_flag = false;
+										}
+									break;
 
-									case JSON_INTEGER:
-										if (!BSON_APPEND_INT64 (query_p, *keys_ss, json_integer_value (value_p)))
-											{
-												success_flag = false;
-											}
-										break;
+								case JSON_INTEGER:
+									if (!BSON_APPEND_INT64 (query_p, *keys_ss, json_integer_value (value_p)))
+										{
+											success_flag = false;
+										}
+									break;
 
-									case JSON_REAL:
-										if (!BSON_APPEND_DOUBLE (query_p, *keys_ss, json_real_value (value_p)))
-											{
-												success_flag = false;
-											}
-										break;
+								case JSON_REAL:
+									if (!BSON_APPEND_DOUBLE (query_p, *keys_ss, json_real_value (value_p)))
+										{
+											success_flag = false;
+										}
+									break;
 
-									case JSON_TRUE:
-									case JSON_FALSE:
-										if (!BSON_APPEND_BOOL (query_p, *keys_ss, json_boolean_value (value_p)))
-											{
-												success_flag = false;
-											}
-										break;
+								case JSON_TRUE:
+								case JSON_FALSE:
+									if (!BSON_APPEND_BOOL (query_p, *keys_ss, json_boolean_value (value_p)))
+										{
+											success_flag = false;
+										}
+									break;
 
-									default:
-										success_flag = false;
-										break;
-								}
+								default:
+									success_flag = false;
+									break;
+							}
 
 						}		/* if (value_p) */
 
-					if (success_flag)
-						{
-							++ keys_ss;
-							++ i;
-						}
+						if (success_flag)
+							{
+								++ keys_ss;
+								++ i;
+							}
 
 				}		/* while (success_flag  && (i < num_keys)) */
 

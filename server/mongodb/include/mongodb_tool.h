@@ -699,6 +699,40 @@ GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const
 
 
 
+/**
+ * Create an index for given set of keys.
+ *
+ * @param tool_p The MongoTool that will be used to create the index.
+ * @param database_s The database to that the collection to add the index to is in.
+ * @param collection_s The collection to add the index for.
+ * @param key_ss An array of keys that will have the index. The final entry must be NULL.
+ * @param unique_flag <code>true</code> if the values for the key are unique, <code>false</code> otherwise. The default value is <code>false</code>.
+ * @param sparse_flag If <code>true</code>, the index only references documents with the specified field. These indexes use less space
+ * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
+ * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
+ */
+GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char ** const keys_ss, const bool unique_flag, const bool sparse_flag);
+
+
+
+
+/**
+ * Create an index for given key.
+ *
+ * @param tool_p The MongoTool that will be used to create the index.
+ * @param database_s The database to that the collection to add the index to is in.
+ * @param collection_s The collection to add the index for.
+ * @param key_s The key that will have the index.
+ * @param unique_flag <code>true</code> if the values for the key are unique, <code>false</code> otherwise. The default value is <code>false</code>.
+ * @param sparse_flag If <code>true</code>, the index only references documents with the specified field. These indexes use less space
+ * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
+ * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
+ */
+GRASSROOTS_MONGODB_API bool AddCollectioSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char * const key_s, const bool unique_flag, const bool sparse_flag);
+
+
+
+
 
 #ifdef __cplusplus
 }
