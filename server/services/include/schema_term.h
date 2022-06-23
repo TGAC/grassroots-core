@@ -118,6 +118,11 @@ GRASSROOTS_SERVICE_API SchemaTerm *AllocateSchemaTerm (const char *url_s, const 
 GRASSROOTS_SERVICE_API bool SetSchemaTermValues (SchemaTerm *term_p, const char *url_s, const char *name_s, const char *description_s);
 
 
+
+GRASSROOTS_SERVICE_API bool DoSchemaTermsMatch (const SchemaTerm *term0_p, const SchemaTerm *term1_p);
+
+
+
 /**
  * Free a SchemaTerm.
  *

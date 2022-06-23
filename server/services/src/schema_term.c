@@ -304,6 +304,13 @@ SchemaTerm *GetSchemaTermFromJSON (const json_t *term_json_p)
 }
 
 
+
+bool DoSchemaTermsMatch (const SchemaTerm *term0_p, const SchemaTerm *term1_p)
+{
+
+}
+
+
 static bool AddTermToJSON (json_t *root_p, const char *root_key_s, const char *type_s, const char *key_s, const char *value_s)
 {
 	json_t *data_p = json_object ();
