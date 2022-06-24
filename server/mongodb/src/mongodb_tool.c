@@ -1588,7 +1588,9 @@ json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *ex
 								}		/* if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL)) */
 							else
 								{
+									#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINER
 									PrintBSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "No hits found");
+									#endif
 								}
 
 							if (alloc_query_flag)
