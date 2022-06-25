@@ -428,6 +428,22 @@ bool IsDirectory (const char * const path_s)
 
 
 
+bool DoesFileExist (const char * const path_s)
+{
+	bool exists_flag = false;
+	FileInformation info;
+
+	InitFileInformation (&info);
+
+	if (CalculateFileInformation (path_s, &info))
+		{
+			exists_flag = true;
+		}
+
+	return exists_flag;
+}
+
+
 bool CalculateFileInformation (const char * const path_s, FileInformation *info_p)
 {
 	struct stat buf;
