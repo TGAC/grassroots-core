@@ -1,18 +1,18 @@
 /*
-** Copyright 2014-2018 The Earlham Institute
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+ ** Copyright 2014-2018 The Earlham Institute
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ **
+ **     http://www.apache.org/licenses/LICENSE-2.0
+ **
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ */
 /*
  * grassroots_server.c
  *
@@ -113,6 +113,9 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
 
 static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
+
+static int8 GetServiceIndexingInformation (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p);
+
 
 /*
  * API DEFINITIONS
@@ -267,15 +270,15 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 	if (server_p -> gs_jobs_manager_p)
 		{
 			switch (server_p -> gs_jobs_manager_mem)
-				{
-					case MF_SHALLOW_COPY:
-					case MF_DEEP_COPY:
-						FreeJobsManager (server_p -> gs_jobs_manager_p);
-						break;
+			{
+				case MF_SHALLOW_COPY:
+				case MF_DEEP_COPY:
+					FreeJobsManager (server_p -> gs_jobs_manager_p);
+					break;
 
-					default:
-						break;
-				}
+				default:
+					break;
+			}
 		}
 
 
@@ -285,15 +288,15 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 	if (server_p -> gs_servers_manager_p)
 		{
 			switch (server_p -> gs_servers_manager_mem)
-				{
-					case MF_SHALLOW_COPY:
-					case MF_DEEP_COPY:
-						FreeServersManager (server_p -> gs_servers_manager_p);
-						break;
+			{
+				case MF_SHALLOW_COPY:
+				case MF_DEEP_COPY:
+					FreeServersManager (server_p -> gs_servers_manager_p);
+					break;
 
-					default:
-						break;
-				}
+				default:
+					break;
+			}
 		}
 
 	json_decref (server_p -> gs_config_p);
@@ -381,12 +384,12 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 								}
 						}
 
-					#if SERVER_DEBUG >= STM_LEVEL_FINEST
+#if SERVER_DEBUG >= STM_LEVEL_FINEST
 					if (req_p)
 						{
 							PrintJSONToLog (req_p,"ProcessMessage - request: \n", STM_LEVEL_FINEST);
 						}
-					#endif
+#endif
 
 
 					/*
@@ -461,43 +464,43 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 					if (op != OP_NONE)
 						{
 							switch (op)
-								{
-									case OP_LIST_ALL_SERVICES:
-										res_p = GetAllServices (grassroots_p, req_p, user_p);
-										break;
+							{
+								case OP_LIST_ALL_SERVICES:
+									res_p = GetAllServices (grassroots_p, req_p, user_p);
+									break;
 
-//									case OP_IRODS_MODIFIED_DATA:
-//										{
-//											#if IRODS_ENABLED == 1
-//											res_p = GetAllModifiedData (req_p, user_p);
-//											#endif
-//										}
-//										break;
+									//									case OP_IRODS_MODIFIED_DATA:
+									//										{
+									//											#if IRODS_ENABLED == 1
+									//											res_p = GetAllModifiedData (req_p, user_p);
+									//											#endif
+									//										}
+									//										break;
 
-									case OP_LIST_INTERESTED_SERVICES:
-										res_p = GetInterestedServices (grassroots_p, req_p, user_p);
-										break;
+								case OP_LIST_INTERESTED_SERVICES:
+									res_p = GetInterestedServices (grassroots_p, req_p, user_p);
+									break;
 
-									case OP_GET_NAMED_SERVICES:
-									case OP_GET_SERVICE_INFO:
-										res_p = GetNamedServicesFunctionality (grassroots_p, req_p, user_p, op);
-										break;
+								case OP_GET_NAMED_SERVICES:
+								case OP_GET_SERVICE_INFO:
+									res_p = GetNamedServicesFunctionality (grassroots_p, req_p, user_p, op);
+									break;
 
-									case OP_GET_SERVICE_RESULTS:
-										res_p = GetServiceResultsAsJSON (grassroots_p, req_p, user_p);
-										break;
+								case OP_GET_SERVICE_RESULTS:
+									res_p = GetServiceResultsAsJSON (grassroots_p, req_p, user_p);
+									break;
 
-									case OP_GET_RESOURCE:
-										res_p = GetRequestedResource (grassroots_p, req_p, user_p);
-										break;
+								case OP_GET_RESOURCE:
+									res_p = GetRequestedResource (grassroots_p, req_p, user_p);
+									break;
 
-									case OP_SERVER_STATUS:
-										res_p = GetServerStatus (grassroots_p, req_p, user_p);
-										break;
+								case OP_SERVER_STATUS:
+									res_p = GetServerStatus (grassroots_p, req_p, user_p);
+									break;
 
-									default:
-										break;
-								}		/* switch (op) */
+								default:
+									break;
+							}		/* switch (op) */
 
 						}		/* if (op != OP_NONE) */
 					else if ((op_p = json_object_get (req_p, SERVICES_NAME_S)) != NULL)
@@ -518,24 +521,24 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 											json_t *value_p;
 
 											json_array_foreach (op_p, i, value_p)
-												{
-													int8 res = ProcessServiceFromJSON (grassroots_p, value_p, external_servers_req_p, user_p, service_results_p, user_uuid, &key_s);
+											{
+												int8 res = ProcessServiceFromJSON (grassroots_p, value_p, external_servers_req_p, user_p, service_results_p, user_uuid, &key_s);
 
-													if (res < 0)
-														{
-															char *value_s = json_dumps (value_p, JSON_INDENT (2));
+												if (res < 0)
+													{
+														char *value_s = json_dumps (value_p, JSON_INDENT (2));
 
-															if (value_s)
-																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from %s", value_s);
-																	free (value_s);
-																}
-															else
-																{
-																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from");
-																}
-														}
-												}		/* json_array_foreach (op_p, i, value_p) */
+														if (value_s)
+															{
+																PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from %s", value_s);
+																free (value_s);
+															}
+														else
+															{
+																PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to run service from");
+															}
+													}
+											}		/* json_array_foreach (op_p, i, value_p) */
 										}
 									else
 										{
@@ -789,9 +792,9 @@ void ConnectToExternalServers (GrassrootsServer *grassroots_p)
 							json_t *element_p;
 
 							json_array_foreach (servers_p, index, element_p)
-								{
-									AddExternalServerFromJSON (manager_p, element_p);
-								}
+							{
+								AddExternalServerFromJSON (manager_p, element_p);
+							}
 						}
 
 				}
@@ -911,11 +914,12 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 	int8 res = 0;
 	json_t *op_p = json_object_get (service_req_p, SERVICE_RUN_S);
 	typedef enum
-		{
-			RUN,
-			REFRESH,
-			NONE
-		} Mode;
+	{
+		RUN,
+		REFRESH,
+		INDEXING_DATA,
+		NONE
+	} Mode;
 	Mode mode = NONE;
 
 	if (op_p)
@@ -938,6 +942,18 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 				}
 		}
 
+	if (mode == NONE)
+		{
+			op_p = json_object_get (service_req_p, SERVICE_INDEXING_DATA_S);
+
+			if (json_is_true (op_p))
+				{
+					mode = INDEXING_DATA;
+					*key_ss = SERVICES_NAME_S;
+				}
+		}
+
+
 	if (mode != NONE)
 		{
 			const char *name_s = GetServiceNameFromJSON (service_req_p);
@@ -957,7 +973,10 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 								{
 									res = RefreshServiceFromJSON (grassroots_p, service_p, service_req_p, paired_servers_req_p, user_p, res_p);
 								}		/* if (mode == RUN) */
-
+							else if (mode == INDEXING_DATA)
+								{
+									res = GetServiceIndexingInformation (grassroots_p, service_p, service_req_p, paired_servers_req_p, user_p, res_p);
+								}
 						}		/* if (service_p) */
 					else
 						{
@@ -1076,9 +1095,9 @@ static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service
 				{
 					ServiceJobSet *jobs_p = NULL;
 
-					#if SERVER_DEBUG >= STM_LEVEL_FINER
+#if SERVER_DEBUG >= STM_LEVEL_FINER
 					PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "about to run service \"%s\"\n", service_name_s);
-					#endif
+#endif
 
 					/*
 					 * Now we reset the providers table back to its initial state
@@ -1096,13 +1115,13 @@ static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service
 													++ res;
 												}
 
-											#if SERVER_DEBUG >= STM_LEVEL_FINER
-												{
-													PrintJSONToLog (res_p, "initial results", STM_LEVEL_FINER, __FILE__, __LINE__);
-													FlushLog ();
-													PrintJSONRefCounts (res_p, "initial results: ",  STM_LEVEL_FINER, __FILE__, __LINE__);
-												}
-											#endif
+#if SERVER_DEBUG >= STM_LEVEL_FINER
+											{
+												PrintJSONToLog (res_p, "initial results", STM_LEVEL_FINER, __FILE__, __LINE__);
+												FlushLog ();
+												PrintJSONRefCounts (res_p, "initial results: ",  STM_LEVEL_FINER, __FILE__, __LINE__);
+											}
+#endif
 
 
 										}		/* if (jobs_p) */
@@ -1157,6 +1176,94 @@ static int8 RunServiceFromJSON (GrassrootsServer *grassroots_p, Service *service
 
 	return res;
 }
+
+
+
+
+static int8 GetServiceIndexingInformation (GrassrootsServer *grassroots_p, Service *service_p, const json_t *service_req_p, const json_t *paired_servers_req_p, UserDetails *user_p, json_t *res_p)
+{
+	int res = 0;
+	const char *server_uri_s = GetServerProviderURI (grassroots_p);
+	const char *service_name_s = GetServiceName (service_p);
+	ProvidersStateTable *providers_p = GetInitialisedProvidersStateTableForSingleService (paired_servers_req_p, server_uri_s, service_name_s);
+
+	if (providers_p)
+		{
+			ParameterSet *params_p = NULL;
+
+			AddPairedServices (grassroots_p, service_p, user_p, providers_p);
+
+			ServiceJobSet *jobs_p = AllocateSimpleServiceJobSet (service_p, "Indexing", "Indexing");
+
+			if (jobs_p)
+				{
+#if SERVER_DEBUG >= STM_LEVEL_FINER
+					PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "about to index service \"%s\"\n", service_name_s);
+#endif
+					ServiceJob *job_p = GetServiceJobFromServiceJobSet (jobs_p, 0);
+
+					/*
+					 * Now we reset the providers table back to its initial state
+					 */
+					if (ReinitProvidersStateTable (providers_p, paired_servers_req_p, server_uri_s, service_name_s))
+						{
+							if ((!IsServiceLockable (service_p)) || LockService (service_p))
+								{
+									json_t *indexing_p = GetServiceIndexingData (service_p);
+
+									if (indexing_p)
+										{
+											AddResultToServiceJob (job_p, indexing_p);
+
+											if (ProcessServiceJobSet (jobs_p, res_p))
+												{
+													++ res;
+												}
+
+#if SERVER_DEBUG >= STM_LEVEL_FINER
+											{
+												PrintJSONToLog (res_p, "initial results", STM_LEVEL_FINER, __FILE__, __LINE__);
+												FlushLog ();
+												PrintJSONRefCounts (res_p, "initial results: ",  STM_LEVEL_FINER, __FILE__, __LINE__);
+											}
+#endif
+
+
+										}		/* if (jobs_p) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, service_req_p, "No jobs from running %s", service_name_s);
+										}
+
+									/*
+									 * If the Service is asynchronous, unlock it and from this point on it
+									 * we can not assume anything about the current status of the Service
+									 * as it's controlled and live in separate threads.
+									 */
+									if (! ((!IsServiceLockable (service_p)) || UnlockService (service_p)))
+										{
+
+										}
+								}		/* if ((!IsServiceLockable ()) || LockService (service_p)) */
+							else
+								{
+									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__,  "Failed to lock Service %s", service_name_s);
+								}
+
+
+						}		/* if (ReinitProvidersStateTable (providers_p, req_p, server_uri_s, service_name_s)) */
+
+				}		/* if (jobs_p) */
+
+			FreeService (service_p);
+
+			FreeProvidersStateTable (providers_p);
+		}		/* if (providers_p) */
+
+	return res;
+}
+
+
 
 
 static json_t *LoadConfig (const char *root_path_s, const char *config_filename_s)
@@ -1556,7 +1663,7 @@ static json_t *GetNamedServiceInfo (GrassrootsServer *grassroots_p, const json_t
 {
 	return GetNamedServicesFunctionality (grassroots_p, req_p, user_p);
 }
-*/
+ */
 
 static json_t *GetNamedServicesFunctionality (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p, Operation op)
 {
@@ -1803,70 +1910,70 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 			int32 num_live_jobs = 0;
 
 			/* Has the ServiceJob changed its status since the last check? */
-//			if (current_status != old_status)
+			//			if (current_status != old_status)
+			{
+				switch (current_status)
 				{
-					switch (current_status)
+
+					/*
+					 * If the job has finished, then remove it from the jobs manager.
+					 */
+					case OS_FINISHED:
+					case OS_SUCCEEDED:
+					case OS_PARTIALLY_SUCCEEDED:
 						{
+							//RemoveServiceJobFromJobsManager (manager_p, job_id, false);
 
-							/*
-							 * If the job has finished, then remove it from the jobs manager.
-							 */
-							case OS_FINISHED:
-							case OS_SUCCEEDED:
-							case OS_PARTIALLY_SUCCEEDED:
+							if (! (job_p -> sj_result_p))
 								{
-									//RemoveServiceJobFromJobsManager (manager_p, job_id, false);
-
-									if (! (job_p -> sj_result_p))
+									if (! (CalculateServiceJobResult (job_p)))
 										{
-											if (! (CalculateServiceJobResult (job_p)))
-												{
-													char job_uuid_s [UUID_STRING_BUFFER_SIZE];
+											char job_uuid_s [UUID_STRING_BUFFER_SIZE];
 
-													ConvertUUIDToString (job_id, job_uuid_s);
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to calculate results for job \"%s\"", job_uuid_s);
-												}
+											ConvertUUIDToString (job_id, job_uuid_s);
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to calculate results for job \"%s\"", job_uuid_s);
 										}
 								}
-								break;
+						}
+						break;
 
 
-							case OS_ERROR:
-							case OS_FAILED_TO_START:
-							case OS_FAILED:
+					case OS_ERROR:
+					case OS_FAILED_TO_START:
+					case OS_FAILED:
+						{
+							if (current_status != old_status)
 								{
-									if (current_status != old_status)
+									RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+								}
+						}
+						break;
+
+						/*
+						 * If the job has updated its status but not yet finished running,
+						 * then update the value stored in the jobs manager
+						 */
+					case OS_PENDING:
+					case OS_STARTED:
+						{
+							if (current_status != old_status)
+								{
+									if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
 										{
-											RemoveServiceJobFromJobsManager (manager_p, job_id, false);
+											char job_uuid_s [UUID_STRING_BUFFER_SIZE];
+
+											ConvertUUIDToString (job_id, job_uuid_s);
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
 										}
 								}
-								break;
+						}
+						break;
 
-								/*
-								 * If the job has updated its status but not yet finished running,
-								 * then update the value stored in the jobs manager
-								 */
-							case OS_PENDING:
-							case OS_STARTED:
-								{
-									if (current_status != old_status)
-										{
-											if (!AddServiceJobToJobsManager (manager_p, job_id, job_p))
-												{
-													char job_uuid_s [UUID_STRING_BUFFER_SIZE];
+					default:
+						break;
+				}		/* switch (current_status) */
 
-													ConvertUUIDToString (job_id, job_uuid_s);
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to update job %s from status %d to %d", job_uuid_s, old_status, current_status);
-												}
-										}
-								}
-								break;
-
-							default:
-								break;
-						}		/* switch (current_status) */
-
-				}		/* if (current_status != old_status) */
+			}		/* if (current_status != old_status) */
 
 
 			job_json_p = get_job_json_fn (job_p, false);
@@ -1879,9 +1986,9 @@ static bool AddServiceDataToJSON (GrassrootsServer *grassroots_p, json_t *result
 			num_live_jobs = 0; //GetNumberOfLiveJobs (service_p);
 
 
-			#if SERVER_DEBUG >= STM_LEVEL_FINE
-				PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "num_live_jobs = " INT32_FMT " for %s", num_live_jobs, GetServiceName (service_p));
-			#endif
+#if SERVER_DEBUG >= STM_LEVEL_FINE
+			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "num_live_jobs = " INT32_FMT " for %s", num_live_jobs, GetServiceName (service_p));
+#endif
 
 			if (num_live_jobs == 0)
 				{
@@ -1948,36 +2055,36 @@ static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * co
 							size_t num_uuids = json_array_size (service_uuids_json_p);
 
 							json_array_foreach (service_uuids_json_p, i, service_uuid_json_p)
-								{
-									if (json_is_string (service_uuid_json_p))
-										{
-											const char *uuid_s = json_string_value (service_uuid_json_p);
-											uuid_t service_id;
+							{
+								if (json_is_string (service_uuid_json_p))
+									{
+										const char *uuid_s = json_string_value (service_uuid_json_p);
+										uuid_t service_id;
 
-											if (ConvertStringToUUID (uuid_s, service_id))
-												{
-													if (callback_fn (grassroots_p, results_array_p, service_id, uuid_s))
-														{
-															++ num_successes;
-														}
-													else
-														{
-															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add callback json results for \"%s\"", uuid_s);
-														}
+										if (ConvertStringToUUID (uuid_s, service_id))
+											{
+												if (callback_fn (grassroots_p, results_array_p, service_id, uuid_s))
+													{
+														++ num_successes;
+													}
+												else
+													{
+														PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add callback json results for \"%s\"", uuid_s);
+													}
 
-												}		/* if (ConvertStringToUUID (uuid_s, service_id)) */
-											else
-												{
-													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to convert \"%s\" to uuid", uuid_s);
-												}
+											}		/* if (ConvertStringToUUID (uuid_s, service_id)) */
+										else
+											{
+												PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to convert \"%s\" to uuid", uuid_s);
+											}
 
-										}		/* if (json_is_string (service_uuid_json_p)) */
-									else
-										{
-											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "service_uuid_json_p is %d not a string", json_typeof (service_uuid_json_p));
-										}
+									}		/* if (json_is_string (service_uuid_json_p)) */
+								else
+									{
+										PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "service_uuid_json_p is %d not a string", json_typeof (service_uuid_json_p));
+									}
 
-								}		/* json_array_foreach (service_uuids_json_p, i, service_uuid_json_p) */
+							}		/* json_array_foreach (service_uuids_json_p, i, service_uuid_json_p) */
 
 
 							if (num_uuids == num_successes)
