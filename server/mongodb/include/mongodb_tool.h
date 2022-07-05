@@ -728,7 +728,7 @@ GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const
  * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
  * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
  */
-GRASSROOTS_MONGODB_API bool AddCollectioSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char * const key_s, const bool unique_flag, const bool sparse_flag);
+GRASSROOTS_MONGODB_API bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char * const key_s, const bool unique_flag, const bool sparse_flag);
 
 
 
