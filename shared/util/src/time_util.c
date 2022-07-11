@@ -140,6 +140,11 @@ char *GetTimeAsString (const struct tm * const time_p, const bool include_time_f
 }
 
 
+void FreeTimeString (char *time_s)
+{
+	FreeMemory (time_s);
+}
+
 /*
  * Tue, 17 Jun 2014 14:26:52 +0000
  * "%a, %d %b %Y %H:%M:%S %z"
