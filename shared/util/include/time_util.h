@@ -105,8 +105,20 @@ GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
  * then just the date part of the string will be returned.
  * @return The time as a c-style string or <code>NULL</code> upon error.
  * @ingroup utility_group
+ * @see FreeTimeString()
  */
 GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag);
+
+
+/**
+ * @fn void FreeTimeString(char*)
+ * @brief Free a string previsouly-generated from GetTimeAsString().
+ *
+ * @param time_s The string to free.
+ * @ingroup utility_group
+ * @see GetTimeAsString()
+ */
+GRASSROOTS_UTIL_API void FreeTimeString (char *time_s);
 
 
 /**
