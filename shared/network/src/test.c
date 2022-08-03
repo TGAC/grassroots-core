@@ -30,7 +30,7 @@ int main (int argc, char *argv [])
 {
 	if (argc == 5)
 		{
-			CurlTool *tool_p = AllocateCurlTool ();
+			CurlTool *tool_p = AllocateMemoryCurlTool (0);
 
 			if (tool_p)
 				{

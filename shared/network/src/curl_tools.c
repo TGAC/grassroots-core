@@ -93,13 +93,60 @@ static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_
 
 static bool SetCurlToolJSONRequestData (CurlTool *tool_p, json_t *json_p);
 
-static bool SetupCurlForMemoryCallback (CurlTool *tool_p);
+static bool SetupCurlForMemoryCallback (CurlTool *tool_p, const size_t size);
 
-static bool SetupCurlForFileCallback (CurlTool *tool_p);
+static bool SetupCurlForFileCallback (CurlTool *tool_p, const char * const filename_s);
+
+
+/**
+ * Allocate a CurlTool.
+ *
+ * @param mode The CurlMode that this CurlTool will use.
+ * @return A newly-allocated CurlTool or <code>NULL</code> upon error.
+ * @memberof CurlTool
+ * @see FreeCurlTool
+ */
+static CurlTool *AllocateCurlTool (CurlMode mode);
+
+
+CurlTool *AllocateFileCurlTool (const char * const filename_s)
+{
+	CurlTool *tool_p = AllocateCurlTool (CM_FILE);
+
+	if (tool_p)
+		{
+			if (SetupCurlForFileCallback (tool_p, filename_s))
+				{
+					return tool_p;
+				}
+
+			FreeCurlTool (tool_p);
+		}
+
+	return NULL;
+}
+
+
+CurlTool *AllocateMemoryCurlTool (const size_t buffer_size)
+{
+	CurlTool *tool_p = AllocateCurlTool (CM_MEMORY);
+
+	if (tool_p)
+		{
+			if (SetupCurlForMemoryCallback (tool_p, buffer_size))
+				{
+					return tool_p;
+				}
+
+			FreeCurlTool (tool_p);
+		}
+
+	return NULL;
+}
 
 
 
-CurlTool *AllocateCurlTool (CurlMode mode)
+static CurlTool *AllocateCurlTool (CurlMode mode)
 {
 	CURL *curl_p = curl_easy_init ();
 
@@ -119,12 +166,7 @@ CurlTool *AllocateCurlTool (CurlMode mode)
 					curl_tool_p -> ct_username_s = NULL;
 					curl_tool_p -> ct_password_s = NULL;
 
-					if (SetupCurl (curl_tool_p, mode))
-						{
-							return curl_tool_p;
-						}
-		
-					FreeMemory (curl_tool_p);
+					return curl_tool_p;
 				}		/* if (curl_tool_p) */
 
 			curl_easy_cleanup (curl_p);
@@ -177,32 +219,10 @@ void FreeCurlTool (CurlTool *curl_tool_p)
 }
 
 
-bool SetupCurl (CurlTool *tool_p, CurlMode mode)
+
+static bool SetupCurlForMemoryCallback (CurlTool *tool_p, const size_t size)
 {
-	bool success_flag = false;
-
-	switch (mode)
-		{
-			case CM_MEMORY:
-				success_flag = SetupCurlForMemoryCallback (tool_p);
-				break;
-
-			case CM_FILE:
-				success_flag = SetupCurlForFileCallback (tool_p);
-				break;
-
-			default:
-				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unsupported curl mode %ld", mode);
-				break;
-		}
-
-	return success_flag;
-}
-
-
-static bool SetupCurlForMemoryCallback (CurlTool *tool_p)
-{
-	ByteBuffer *buffer_p = AllocateByteBuffer (65536);
+	ByteBuffer *buffer_p = AllocateByteBuffer (size);
 
 	if (buffer_p)
 		{
@@ -230,13 +250,22 @@ static bool SetupCurlForMemoryCallback (CurlTool *tool_p)
 
 
 
-TemporaryFile *AllocateTemporaryFile (void)
+TemporaryFile *AllocateTemporaryFile (const char * const filename_s)
 {
 	TemporaryFile *temp_p = (TemporaryFile *) AllocMemory (sizeof (TemporaryFile));
 
 	if (temp_p)
 		{
-			FILE *tmp_f = tmpfile ();
+			FILE *tmp_f = NULL;
+
+			if (filename_s)
+				{
+					tmp_f = fopen (filename_s, "w");
+				}
+			else
+				{
+					tmp_f = tmpfile ();
+				}
 
 			if (tmp_f)
 				{
@@ -277,9 +306,9 @@ char *GetTemporaryFileContentsAsString (TemporaryFile *temp_p)
 
 
 
-static bool SetupCurlForFileCallback (CurlTool *tool_p)
+static bool SetupCurlForFileCallback (CurlTool *tool_p, const char * const filename_s)
 {
-	TemporaryFile *temp_p = AllocateTemporaryFile ();
+	TemporaryFile *temp_p = AllocateTemporaryFile (filename_s);
 
 	if (temp_p)
 		{
@@ -422,6 +451,8 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 		{
 			CURLcode time_res;
 			double total;
+
+		  curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_NOPROGRESS, 1L);
 
 			res = curl_easy_perform (tool_p -> ct_curl_p);
 
@@ -725,8 +756,10 @@ static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_
 {
 	size_t result = CURLE_OK;
 	TemporaryFile *temp_p = (TemporaryFile *) store_p;
-	size_t num_blocks_written = fwrite (response_data_p, block_size, num_blocks, temp_p -> tf_temp_f);
 	size_t num_bytes_written = block_size * num_blocks;
+
+
+	size_t num_blocks_written = fwrite (response_data_p, block_size, num_blocks, temp_p -> tf_temp_f);
 
 	if (num_blocks_written != num_blocks)
 		{
@@ -742,8 +775,15 @@ static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_
 		}
 	temp_p -> tf_temp_file_size += num_bytes_written;
 
+
 	return num_bytes_written;
 }
+
+
+
+
+
+
 
 
 static size_t WriteMemoryCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p)

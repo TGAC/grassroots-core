@@ -109,7 +109,7 @@ bool InitWebServiceData (WebServiceData * const data_p, json_t *service_config_p
 
 											if (data_p -> wsd_params_p)
 												{
-													data_p -> wsd_curl_data_p = AllocateCurlTool (CM_MEMORY);
+													data_p -> wsd_curl_data_p = AllocateMemoryCurlTool (0);
 
 													if (data_p -> wsd_curl_data_p)
 														{

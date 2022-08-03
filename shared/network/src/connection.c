@@ -75,7 +75,22 @@ Connection *AllocateWebServerConnection (const char * const full_uri_s, CurlMode
 
 	if (connection_p)
 		{
-			CurlTool *curl_p = AllocateCurlTool (curl_mode);
+			CurlTool *curl_p = NULL;
+
+			switch (curl_mode)
+				{
+					case CM_MEMORY:
+						curl_p = AllocateMemoryCurlTool (0);
+						break;
+
+					case CM_FILE:
+						curl_p = AllocateFileCurlTool (NULL);
+						break;
+
+					default:
+						break;
+
+				}
 
 			if (curl_p)
 				{
