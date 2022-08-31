@@ -98,7 +98,7 @@ bool SetTimeFromDDMMYYYYString (struct tm * const time_p, const char *time_s)
 
 
 
-char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag)
+char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag, const char *time_delimiter_p)
 {
 	char *buffer_s = NULL;
 	int res = -1;
@@ -123,7 +123,14 @@ char *GetTimeAsString (const struct tm * const time_p, const bool include_time_f
 				{
 					if (include_time_flag)
 						{
-							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE - 1, "T%02d:%02d:%02d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
+							char time_delimiter = ':';
+
+							if (time_delimiter_p)
+								{
+									time_delimiter = *time_delimiter_p;
+								}
+
+							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE - 1, "T%02d%c%02d%c%02d", time_p -> tm_hour, time_delimiter, time_p -> tm_min, time_delimiter, time_p -> tm_sec);
 						}
 
 					if (res > 0)

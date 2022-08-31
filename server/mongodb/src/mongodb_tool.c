@@ -274,7 +274,7 @@ bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_
 
 			if (GetCurrentTime (&tm))
 				{
-					char *time_s = GetTimeAsString (&tm, true);
+					char *time_s = GetTimeAsString (&tm, true, NULL);
 
 					if (time_s)
 						{

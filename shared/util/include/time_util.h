@@ -103,12 +103,14 @@ GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
  * @param include_time_flag If this is <code>true</code> then both the date and time
  * will be included in the string in ISO 8601 format. If this is <code>false</code>,
  * then just the date part of the string will be returned.
+ * @param time_delimiter_p By default, if the time is requested as part of the string,
+ * the hours, minutes and seconds are separated by a ':'. If this value is not <code>NULL</code>
+ * then the character it points to will be used instead.
  * @return The time as a c-style string or <code>NULL</code> upon error.
  * @ingroup utility_group
  * @see FreeTimeString()
  */
-GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag);
-
+GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag, const char *time_delimiter_p);
 
 /**
  * @fn void FreeTimeString(char*)
