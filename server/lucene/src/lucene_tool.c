@@ -72,52 +72,63 @@ LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 
 													if (index_class_s)
 														{
-															const char *working_directory_s = GetJSONString (lucene_config_p, "working_directory");
+															const char *delete_class_s = GetJSONString (lucene_config_p, "delete_class");
 
-															if (working_directory_s)
+															if (delete_class_s)
 																{
-																	const char *facet_key_s = GetJSONString (lucene_config_p, "facet_key");
+																	const char *working_directory_s = GetJSONString (lucene_config_p, "working_directory");
 
-																	if (facet_key_s)
+																	if (working_directory_s)
 																		{
-																			LinkedList *facet_results_p = AllocateLinkedList (FreeLuceneFacetNode);
+																			const char *facet_key_s = GetJSONString (lucene_config_p, "facet_key");
 
-																			if (facet_results_p)
+																			if (facet_key_s)
 																				{
-																					tool_p -> lt_name_s = NULL;
-																					tool_p -> lt_search_class_s = search_class_s;
-																					tool_p -> lt_index_class_s = index_class_s;
-																					tool_p -> lt_classpath_s = classpath_s;
-																					tool_p -> lt_index_s = index_s;
-																					tool_p -> lt_taxonomy_s = taxonomy_s;
-																					tool_p -> lt_working_directory_s = working_directory_s;
-																					tool_p -> lt_facet_key_s = facet_key_s;
-																					tool_p -> lt_output_file_s = NULL;
-																					tool_p -> lt_num_total_hits = 0;
-																					tool_p -> lt_hits_from_index = 0;
-																					tool_p -> lt_hits_to_index = 0;
+																					LinkedList *facet_results_p = AllocateLinkedList (FreeLuceneFacetNode);
 
-																					uuid_copy (tool_p -> lt_id, id);
+																					if (facet_results_p)
+																						{
+																							tool_p -> lt_name_s = NULL;
+																							tool_p -> lt_search_class_s = search_class_s;
+																							tool_p -> lt_delete_class_s = delete_class_s;
+																							tool_p -> lt_index_class_s = index_class_s;
+																							tool_p -> lt_classpath_s = classpath_s;
+																							tool_p -> lt_index_s = index_s;
+																							tool_p -> lt_taxonomy_s = taxonomy_s;
+																							tool_p -> lt_working_directory_s = working_directory_s;
+																							tool_p -> lt_facet_key_s = facet_key_s;
+																							tool_p -> lt_output_file_s = NULL;
+																							tool_p -> lt_num_total_hits = 0;
+																							tool_p -> lt_hits_from_index = 0;
+																							tool_p -> lt_hits_to_index = 0;
 
-																					tool_p -> lt_facet_results_p = facet_results_p;
-																					return tool_p;
+																							uuid_copy (tool_p -> lt_id, id);
+
+																							tool_p -> lt_facet_results_p = facet_results_p;
+																							return tool_p;
+
+																						}
+																					else
+																						{
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list for storing LuceneFacets");
+																						}
 
 																				}
 																			else
 																				{
-																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list for storing LuceneFacets");
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"facet_key\" in lucene config");
 																				}
 
 																		}
 																	else
 																		{
-																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"facet_key\" in lucene config");
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"working_directory\" in lucene config");
 																		}
 
-																}
+																}		/* if (delete_class_s) */
 															else
 																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"working_directory\" in lucene config");
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"delete_class\" in lucene config");
 																}
 
 														}		/* if (index_class_s) */
@@ -332,6 +343,90 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s)
 {
 	OperationStatus status = OS_FAILED;
+	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
+
+	if (buffer_p)
+		{
+			if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_delete_class_s, " -index ", tool_p -> lt_index_s, " -query ", query_s, NULL))
+				{
+					/*
+					 * Now add the output file
+					 */
+					char uuid_s [UUID_STRING_BUFFER_SIZE];
+					char *full_filename_stem_s = NULL;
+					char *file_s = uuid_s;
+
+					ConvertUUIDToString (tool_p -> lt_id, uuid_s);
+
+					if (tool_p -> lt_name_s)
+						{
+							if (! (file_s = ConcatenateVarargsStrings (uuid_s, "_", tool_p -> lt_name_s, NULL)))
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to concatenate Varargs Strings \"%s\", \"_\", \"%s\"", uuid_s, "_", tool_p -> lt_name_s);
+								}
+						}
+
+					if (file_s)
+						{
+							full_filename_stem_s = MakeFilename (tool_p -> lt_working_directory_s, file_s);
+
+							if (full_filename_stem_s)
+								{
+									char *output_s = ConcatenateStrings (full_filename_stem_s, ".out");
+
+									if (output_s)
+										{
+											if (SetLuceneToolOutput (tool_p, output_s))
+												{
+													if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL))
+														{
+															if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL))
+																{
+																	const char *command_s = GetByteBufferData (buffer_p);
+																	int res = system (command_s);
+
+																	if (res != -1)
+																		{
+																			int process_exit_code = WEXITSTATUS (res);
+
+																			if (process_exit_code == 0)
+																				{
+																					status = OS_SUCCEEDED;
+																					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																				}
+																			else
+																				{
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_s, process_exit_code);
+																				}
+																		}
+																	else
+																		{
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_s, res);
+																		}
+
+																}		/* if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL)) */
+
+														}		/* if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " >> ", full_filename_stem_s, ".log", NULL)) */
+
+												}		/* if (SetLuceneToolOutput (tool_p, output_s)) */
+
+											FreeCopiedString (output_s);
+										}		/* if (output_s) */
+
+									FreeCopiedString (full_filename_stem_s);
+								}		/* if (full_filename_stem_s) */
+
+							if (file_s != uuid_s)
+								{
+									FreeCopiedString (file_s);
+								}
+
+						}		/* if (file_s) */
+
+				}		/* if (AppendStringsToByteBuffer (buffer_p, "java -classpath ", tool_p -> lt_classpath_s, " ", tool_p -> lt_search_class_s, " -index ", tool_p -> lt_index_s, " -tax ", tool_p -> lt_taxonomy_s, " -query ", query_s, NULL)) */
+
+			FreeByteBuffer (buffer_p);
+		}		/* if (buffer_p) */
 
 	return status;
 }

@@ -47,6 +47,8 @@ typedef struct LuceneTool
 
 	const char *lt_search_class_s;
 
+	const char *lt_delete_class_s;
+
 	const char *lt_classpath_s;
 
 	const char *lt_index_s;
@@ -86,6 +88,7 @@ typedef struct LuceneTool
 
 
 
+LUCENE_TOOL_PREFIX const char *LT_EXACT_SEARCH_OP_S LUCENE_TOOL_VAL ("=");
 
 LUCENE_TOOL_PREFIX const char *LT_NUM_TOTAL_HITS_S LUCENE_TOOL_VAL ("total_hits");
 
