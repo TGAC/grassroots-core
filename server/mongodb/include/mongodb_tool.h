@@ -293,7 +293,7 @@ GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByJSON (MongoTool *tool_p, const
  * @memberof MongoTool
  * @see UpdateMongoDocumentByBSON
  */
-bool UpdateMongoDocuments (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p, const bool multiple_flag);
+GRASSROOTS_MONGODB_API bool UpdateMongoDocuments (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p, const bool multiple_flag);
 
 
 /**

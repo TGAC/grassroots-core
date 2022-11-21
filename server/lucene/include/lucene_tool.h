@@ -32,6 +32,30 @@
 #include "grassroots_server.h"
 
 
+/**
+ * The internal method that the Lucene engine will use
+ * to build the query to search for
+ */
+typedef enum
+{
+	/**
+	 * Use a org.apache.lucene.queryparser.classic.QueryParser to
+	 * build the query by passing it a string and letting it
+	 * determine how to build thw query.
+	 */
+	QM_PARSER,
+
+	/**
+	 * Create one or more Term/Phrase queries and programmatically
+	 * combine them into a BooleanQuery
+	 */
+	QM_TERMS,
+
+	/**
+	 * The number of different QueryModes.
+	 */
+	QM_NUM_MODES
+} QueryMode;
 
 /**
  * @struct LuceneTool
@@ -70,6 +94,7 @@ typedef struct LuceneTool
 	uuid_t lt_id;
 
 	LinkedList *lt_facet_results_p;
+
 } LuceneTool;
 
 
@@ -133,6 +158,8 @@ GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroo
 GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
 
 
+
+
 /**
  * Run a Lucene Search
  *
@@ -143,7 +170,7 @@ GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
  * @return <code>true</code> if the LuceneTool ran successfully, <code>false</code> otherwise.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size);
+GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size, const QueryMode qm);
 
 
 /**
@@ -167,7 +194,7 @@ GRASSROOTS_LUCENE_API OperationStatus IndexLucene (LuceneTool *tool_p, const jso
  * @return The OperationStatus from running the deletion.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s);
+GRASSROOTS_LUCENE_API OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s, const QueryMode qm);
 
 
 

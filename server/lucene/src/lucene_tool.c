@@ -105,6 +105,7 @@ LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 																							uuid_copy (tool_p -> lt_id, id);
 
 																							tool_p -> lt_facet_results_p = facet_results_p;
+
 																							return tool_p;
 
 																						}
@@ -196,7 +197,7 @@ void FreeLuceneTool (LuceneTool *tool_p)
 }
 
 
-bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size)
+bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size, const QueryMode qm)
 {
 	bool success_flag = false;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
@@ -226,7 +227,7 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 						}
 
 					/*
-					 * Add any facets
+					 * Add Search type
 					 */
 					if (run_flag)
 						{
@@ -239,6 +240,20 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 										}
 								}
 						}
+
+
+					if (run_flag)
+						{
+							if (qm == QM_TERMS)
+								{
+									if (!AppendStringToByteBuffer (buffer_p, " -terms_query "))
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add -terms_query to lucene tool buffer");
+											run_flag = false;
+										}
+								}
+						}
+
 
 					if (run_flag)
 						{
@@ -340,7 +355,7 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 }
 
 
-OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s)
+OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s, const QueryMode qm)
 {
 	OperationStatus status = OS_FAILED;
 	ByteBuffer *buffer_p = AllocateByteBuffer (1024);
