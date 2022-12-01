@@ -719,6 +719,13 @@ bool SetLuceneToolName (LuceneTool *tool_p, const char *name_s)
 }
 
 
+void SetLuceneToolId (LuceneTool *tool_p, uuid_t id)
+{
+	uuid_copy (tool_p -> lt_id, id);
+}
+
+
+
 static bool ReplaceValidString (const char *src_s, char **dest_ss)
 {
 	bool success_flag = true;

@@ -218,6 +218,9 @@ GRASSROOTS_LUCENE_API bool SetLuceneToolOutput (LuceneTool *tool_p, char *output
 GRASSROOTS_LUCENE_API bool SetLuceneToolName (LuceneTool *tool_p, const char *name_s);
 
 
+GRASSROOTS_LUCENE_API void SetLuceneToolId (LuceneTool *tool_p, uuid_t id);
+
+
 GRASSROOTS_LUCENE_API bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p);
 
 
