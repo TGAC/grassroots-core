@@ -244,7 +244,7 @@ bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, co
 			else
 				{
 					/* it's an update */
-					if (UpdateMongoDataAsBSON (mongo_p, selector_p, data_to_save_p, &reply_p))
+					if (SetMongoDataAsBSON (mongo_p, selector_p, data_to_save_p, &reply_p))
 						{
 							success_flag = true;
 						}
@@ -1771,7 +1771,7 @@ bool InsertMongoData (MongoTool *tool_p, const json_t *values_p, bson_t **reply_
 }
 
 
-bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp)
+bool SetMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp)
 {
 	bool success_flag = false;
 	char buffer_s [MONGO_OID_STRING_BUFFER_SIZE];
@@ -1783,7 +1783,7 @@ bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_
 
 	if (selector_p)
 		{
-			success_flag = UpdateMongoDataAsBSON (tool_p, selector_p, update_p, reply_pp);
+			success_flag = SetMongoDataAsBSON (tool_p, selector_p, update_p, reply_pp);
 
 			bson_destroy (selector_p);
 		}		/* if (selector_p) */
@@ -1792,14 +1792,14 @@ bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_
 }
 
 
-bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp)
+bool SetMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (values_p);
 
 	if (doc_p)
 		{
-			success_flag = UpdateMongoDataAsBSON (tool_p, selector_p, doc_p, reply_pp);
+			success_flag = SetMongoDataAsBSON (tool_p, selector_p, doc_p, reply_pp);
 
 			bson_destroy (doc_p);
 		}		/* if (doc_p_ */
@@ -1808,8 +1808,68 @@ bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *value
 }
 
 
+bool SetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp)
+{
+	return UpdateMongoDataAsBSON (tool_p, "$set", selector_p, doc_p, reply_pp);
+}
 
-bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp)
+
+
+bool RemoveMongoFields (MongoTool *tool_p, bson_t *selector_p, const char **fields_ss, bson_t **reply_pp)
+{
+/*
+	bson_t *update_p = BCON_NEW ("$unset",
+															 "{",
+															 ST_PHENOTYPES_S,
+															 BCON_UTF8 (""),
+															 "}");
+*/
+	bool success_flag = false;
+	bson_t *doc_p = bson_new ();
+
+	if (doc_p)
+		{
+			const char **field_ss = fields_ss;
+			bool add_flag = true;
+
+			while ((*field_ss) && add_flag)
+				{
+					if (BSON_APPEND_UTF8 (doc_p, *field_ss, ""))
+						{
+							++ field_ss;
+						}
+					else
+						{
+							PrintBSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, doc_p, "Failed to add field \"%s\"", *field_ss);
+							add_flag = false;
+						}
+				}
+
+			if (add_flag)
+				{
+					if (UpdateMongoDataAsBSON (tool_p, "$unset", selector_p, doc_p, reply_pp))
+						{
+							success_flag = true;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, selector_p, "UpdateMongoDataAsBSON () failed");
+						}
+
+				}
+
+			bson_free (doc_p);
+		}		/* if (doc_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create bson query");
+		}
+
+	return success_flag;
+}
+
+
+bool UpdateMongoDataAsBSON (MongoTool *tool_p, const char * const update_s, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp)
 {
 	bool success_flag = false;
 	bson_t *opts_p = NULL;
@@ -1823,7 +1883,7 @@ bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t 
 
 	if (update_p)
 		{
-			if (BSON_APPEND_DOCUMENT (update_p, "$set", doc_p))
+			if (BSON_APPEND_DOCUMENT (update_p, update_s, doc_p))
 				{
 #if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 					{
@@ -1869,6 +1929,10 @@ bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t 
 
 	return success_flag;
 }
+
+
+
+
 
 
 

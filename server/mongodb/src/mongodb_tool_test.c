@@ -134,7 +134,7 @@ int main (int argc, char *argv [])
 										{
 	  									bson_t *reply_p = NULL;
 	  									PrintBSON (bson_doc_p, "BSON before update : ");
-	  									if (UpdateMongoDataAsBSONForGivenId (tool_p, &id, bson_doc_p, &reply_p))
+	  									if (SetMongoDataAsBSONForGivenId (tool_p, &id, bson_doc_p, &reply_p))
 	  										{
 	  											PrintBSON (reply_p, "Reply: ");
 

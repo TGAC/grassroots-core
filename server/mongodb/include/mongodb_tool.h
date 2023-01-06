@@ -623,14 +623,34 @@ GRASSROOTS_MONGODB_API bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, cons
 GRASSROOTS_MONGODB_API bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool SetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool UnsetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, const char * const update_s, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
 
+
+GRASSROOTS_MONGODB_API bool SetMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp);
+
+
+GRASSROOTS_MONGODB_API bool SetMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp);
+
+
+/**
+ * Remove the specified fields from a document.
+ *
+ * @param tool_p The MongoTool to use to remove the fields with.
+ * @param selector_p The query to find the document to alter.
+ * @param fields_ss An array of strings specifying the fields to remove. This array must
+ * have a <code>NULL</code> as its final entry.
+ * @param reply_pp If you wish to any error messages back then a pointer to a bson_t pointer
+ * can be placed here. This can be <code>NULL</code>
+ * @return <code>true</code> if the fields were removed successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool RemoveMongoFields (MongoTool *tool_p, bson_t *selector_p, const char **fields_ss, bson_t **reply_pp);
 
 
 GRASSROOTS_MONGODB_API bson_oid_t *GetNewBSONOid (void);
@@ -710,6 +730,7 @@ GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const
  * @param sparse_flag If <code>true</code>, the index only references documents with the specified field. These indexes use less space
  * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
  * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
  */
 GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char ** const keys_ss, const bool unique_flag, const bool sparse_flag);
 
@@ -727,6 +748,7 @@ GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const
  * @param sparse_flag If <code>true</code>, the index only references documents with the specified field. These indexes use less space
  * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
  * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
  */
 GRASSROOTS_MONGODB_API bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char * const key_s, const bool unique_flag, const bool sparse_flag);
 
