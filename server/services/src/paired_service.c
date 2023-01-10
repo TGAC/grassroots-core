@@ -31,7 +31,7 @@
 #include "service.h"
 #include "remote_service_job.h"
 #include "provider.h"
-
+#include "uuid_util.h"
 
 #ifdef USE_PTHREADS
 #include "pthread.h"

@@ -1334,7 +1334,7 @@ json_t *GetBaseServiceDataAsJSONOld (Service * const service_p, UserDetails *use
 																{
 																	PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to set copied provider");
 
-																	WipeJSON (copied_provider_p);
+																	json_decref (copied_provider_p);
 																	success_flag = false;
 																}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0) */
 														}
@@ -1504,7 +1504,7 @@ json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p
 																				{
 																					PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, copied_provider_p, "Failed to set copied provider");
 
-																					WipeJSON (copied_provider_p);
+																					json_decref (copied_provider_p);
 																					success_flag = false;
 																				}		/* if (json_object_set_new (root_p, SERVER_PROVIDER_S, copied_provider_p) != 0) */
 																		}
@@ -2324,6 +2324,28 @@ int32 GetNumberOfLiveJobs (Service *service_p)
 GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_p)
 {
 	return service_p -> se_plugin_p -> pl_server_p;
+}
+
+
+
+bool DefaultGetParameterTypeForNamedParameter (const char *param_name_s, ParameterType *pt_p, const NamedParameterType *params_p)
+{
+  const NamedParameterType *param_p = params_p;
+  
+  while ((param_p) && (param_p -> npt_name_s))
+    {
+      if (strcmp (param_p -> npt_name_s, param_name_s) == 0)
+        {
+          *pt_p = param_p -> npt_type;
+          return true;
+        }
+      else
+        {
+          ++ param_p;
+        }
+    }
+  
+  return false;
 }
 
 

@@ -38,6 +38,13 @@ static bool ConvertStringToTime (const char * const time_s, time_t *time_p, bool
 
 static bool IsLeapYear (const int year);
 
+
+
+static bool ParseStringToTime (struct tm * const time_p, const char *time_s,
+																 const uint32 year_start, const uint32 year_end,
+																 const uint32 month_start, const uint32 month_end,
+																 const uint32 day_start, const uint32 day_end);
+
 /***************************************/
 
 
@@ -70,71 +77,28 @@ void AddIntervalToTime (struct tm *time_p, const int days)
 
 bool SetTimeFromString (struct tm * const time_p, const char *time_s)
 {
-	bool success_flag = false;
-	const size_t l = strlen (time_s);
-
-	/*
-	 * String is of the format YYYY-MM-DD or YYYY-MM-DDThh:mm:ss
-	 */
-
-	if (l >= S_DATE_BUFFER_SIZE - 1)
-		{
-			int year;
-
-			if (ConvertNumber (time_s, 0, 3, &year))
-				{
-					int month;
-
-					if (ConvertNumber (time_s, 5, 6, &month))
-						{
-							int day;
-
-							if (ConvertNumber (time_s, 8, 9, &day))
-								{
-									int hour = 0;
-									int min = 0;
-									int sec = 0;
-
-									if (l == S_TIME_BUFFER_SIZE - 1)
-										{
-											if (ConvertNumber (time_s, 11, 12, &hour))
-												{
-													if (ConvertNumber (time_s, 14, 15, &min))
-														{
-															if (ConvertNumber (time_s, 17, 18, &sec))
-																{
-																	success_flag = true;
-																}
-														}
-												}
-										}
-									else
-										{
-											success_flag = true;
-										}
-
-									if (success_flag)
-										{
-											time_p -> tm_year = year - 1900;
-											time_p -> tm_mon = month - 1;
-											time_p -> tm_mday = day;
-
-											time_p -> tm_hour = hour;
-											time_p -> tm_min = min;
-											time_p -> tm_sec = sec;
-										}
-
-								}		/* if (ConvertNumber (time_s, 6, 7, &day)) */
-
-						}		/* if (ConvertNumber (time_s, 4, 5, &month)) */
-
-				}		/* if (ConvertNumber (time_s, 0, 3, &year)) */
-		}
-
-	return success_flag;
+	/* YYYY-MM-DD */
+	return ParseStringToTime (time_p, time_s,
+																	 0, 3,
+																	 5, 6,
+																	 8, 9);
 }
 
-char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag)
+
+bool SetTimeFromDDMMYYYYString (struct tm * const time_p, const char *time_s)
+{
+	/* DD-MM-YYYY */
+	return ParseStringToTime (time_p, time_s,
+																	 6, 9,
+																	 3, 4,
+																	 0, 1);
+}
+
+
+
+
+
+char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag, const char *time_delimiter_p)
 {
 	char *buffer_s = NULL;
 	int res = -1;
@@ -159,7 +123,14 @@ char *GetTimeAsString (const struct tm * const time_p, const bool include_time_f
 				{
 					if (include_time_flag)
 						{
-							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE - 1, "T%02d:%02d:%02d", time_p -> tm_hour, time_p -> tm_min, time_p -> tm_sec);
+							char time_delimiter = ':';
+
+							if (time_delimiter_p)
+								{
+									time_delimiter = *time_delimiter_p;
+								}
+
+							res = sprintf (buffer_s + S_DATE_BUFFER_SIZE - 1, "T%02d%c%02d%c%02d", time_p -> tm_hour, time_delimiter, time_p -> tm_min, time_delimiter, time_p -> tm_sec);
 						}
 
 					if (res > 0)
@@ -175,6 +146,11 @@ char *GetTimeAsString (const struct tm * const time_p, const bool include_time_f
 	return NULL;
 }
 
+
+void FreeTimeString (char *time_s)
+{
+	FreeMemory (time_s);
+}
 
 /*
  * Tue, 17 Jun 2014 14:26:52 +0000
@@ -427,6 +403,23 @@ int CompareDates (const struct tm *time_0_p, const struct tm *time_1_p, const bo
 }
 
 
+bool MayStringIncludeTime (const char * const time_s)
+{
+	bool time_flag = false;
+
+	if (time_s)
+		{
+			const size_t l = strlen (time_s);
+
+			if (l == S_TIME_BUFFER_SIZE - 1)
+				{
+					time_flag = true;
+				}
+		}
+
+	return time_flag;
+}
+
 
 /****************************************/
 
@@ -523,6 +516,76 @@ static bool IsLeapYear (const int year)
 		}		/* if ((year >> 2) == 0) */
 
 	return result;
+}
+
+
+static bool ParseStringToTime (struct tm * const time_p, const char *time_s,
+																 const uint32 year_start, const uint32 year_end,
+																 const uint32 month_start, const uint32 month_end,
+																 const uint32 day_start, const uint32 day_end)
+{
+	bool success_flag = false;
+	const size_t l = strlen (time_s);
+
+	/*
+	 * String is of the format DD-MM-YYYY or DD-MM-YYYYThh:mm:ss
+	 */
+
+	if (l >= S_DATE_BUFFER_SIZE - 1)
+		{
+			int year;
+
+			if (ConvertNumber (time_s, year_start, year_end, &year))
+				{
+					int month;
+
+					if (ConvertNumber (time_s, month_start, month_end, &month))
+						{
+							int day;
+
+							if (ConvertNumber (time_s, day_start, day_end, &day))
+								{
+									int hour = 0;
+									int min = 0;
+									int sec = 0;
+
+									if (l == S_TIME_BUFFER_SIZE - 1)
+										{
+											if (ConvertNumber (time_s, 11, 12, &hour))
+												{
+													if (ConvertNumber (time_s, 14, 15, &min))
+														{
+															if (ConvertNumber (time_s, 17, 18, &sec))
+																{
+																	success_flag = true;
+																}
+														}
+												}
+										}
+									else
+										{
+											success_flag = true;
+										}
+
+									if (success_flag)
+										{
+											time_p -> tm_year = year - 1900;
+											time_p -> tm_mon = month - 1;
+											time_p -> tm_mday = day;
+
+											time_p -> tm_hour = hour;
+											time_p -> tm_min = min;
+											time_p -> tm_sec = sec;
+										}
+
+								}		/* if (ConvertNumber (time_s, 6, 7, &day)) */
+
+						}		/* if (ConvertNumber (time_s, 4, 5, &month)) */
+
+				}		/* if (ConvertNumber (time_s, 0, 3, &year)) */
+		}
+
+	return success_flag;
 }
 
 

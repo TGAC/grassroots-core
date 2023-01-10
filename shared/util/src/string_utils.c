@@ -891,6 +891,32 @@ const char *Stristr (const char *value_s, const char *substring_s)
 
 
 
+bool DoStringsMatch (const char * const val_0_s, const char * const val_1_s)
+{
+	bool match_flag = false;
+
+	if (val_0_s)
+		{
+			if (val_1_s)
+				{
+					if (strcmp (val_0_s, val_1_s) == 0)
+						{
+							match_flag = true;
+						}
+				}
+		}
+	else
+		{
+			if (!val_1_s)
+				{
+					match_flag = true;
+				}
+		}
+
+	return match_flag;
+}
+
+
 char *Strrstr (const char *haystack_s, const char *needle_s)
 {
 	char *res_s = NULL;

@@ -161,6 +161,8 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 															job_p -> sj_description_s = copied_job_description_s;
 															job_p -> sj_service_name_s = copied_service_name_s;
 
+															job_p -> sj_url_s = NULL;
+
 															job_p -> sj_result_p = NULL;
 															job_p -> sj_metadata_p = NULL;
 
@@ -467,6 +469,14 @@ bool SetServiceJobDescription (ServiceJob *job_p, const char * const description
 }
 
 
+bool SetServiceJobURL (ServiceJob *job_p, const char * const url_s)
+{
+	bool success_flag = ReplaceStringValue (& (job_p -> sj_url_s), url_s);
+
+	return success_flag;
+}
+
+
 void SetServiceJobStatus (ServiceJob *job_p, OperationStatus status)
 {
 #if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
@@ -476,6 +486,53 @@ void SetServiceJobStatus (ServiceJob *job_p, OperationStatus status)
 	job_p -> sj_status = status;
 }
 
+
+void MergeServiceJobStatus (ServiceJob *job_p, OperationStatus status)
+{
+	switch (job_p -> sj_status)
+		{
+		case OS_FAILED:
+		case OS_FAILED_TO_START:
+		case OS_ERROR:
+			{
+				if ((status == OS_SUCCEEDED) || (status == OS_PARTIALLY_SUCCEEDED))
+					{
+						job_p -> sj_status = OS_PARTIALLY_SUCCEEDED;
+					}
+			}
+			break;
+
+		case OS_IDLE:
+		case OS_PENDING:
+			{
+				job_p -> sj_status = status;
+			}
+			break;
+
+		case OS_STARTED:
+		case OS_FINISHED:
+			{
+
+			}
+			break;
+
+		case OS_PARTIALLY_SUCCEEDED:
+			{
+
+			}
+			break;
+
+		case OS_SUCCEEDED:
+			{
+				if (status != OS_SUCCEEDED)
+					{
+						job_p -> sj_status = OS_PARTIALLY_SUCCEEDED;
+					}
+			}
+			break;
+
+		}
+}
 
 
 uint32 GetNumberOfServiceJobResults (const ServiceJob *job_p)
@@ -689,7 +746,7 @@ bool CloseServiceJob (ServiceJob *job_p)
 			PrintJSONRefCounts (STM_LEVEL_FINER, __FILE__, __LINE__, job_p -> sj_result_p, "pre wipe results");
 #endif
 
-			WipeJSON (job_p -> sj_result_p);
+			json_decref (job_p -> sj_result_p);
 
 #if SERVICE_JOB_DEBUG >= STM_LEVEL_FINER
 			PrintJSONRefCounts (STM_LEVEL_FINER, __FILE__, __LINE__, job_p -> sj_result_p, "post wipe results");
@@ -1162,37 +1219,45 @@ json_t *GetServiceJobAsJSON (ServiceJob *job_p, bool omit_results_flag)
 																{
 																	if (AddValidJSONString (job_json_p, JOB_DESCRIPTION_S, job_p -> sj_description_s))
 																		{
-																			if ((job_p -> sj_status == OS_SUCCEEDED) || (job_p -> sj_status == OS_PARTIALLY_SUCCEEDED))
+																			if (AddValidJSONString (job_json_p, JOB_URL_S, job_p -> sj_url_s))
 																				{
-																					/*
-																					 * If this service has any linked services, fill in the data here
-																					 */
-																					if (omit_results_flag)
+																					if ((job_p -> sj_status == OS_SUCCEEDED) || (job_p -> sj_status == OS_PARTIALLY_SUCCEEDED))
 																						{
-																							success_flag = (json_object_set_new (job_json_p, JOB_OMITTED_RESULTS_S, json_true ()) == 0);
+																							/*
+																							 * If this service has any linked services, fill in the data here
+																							 */
+																							if (omit_results_flag)
+																								{
+																									success_flag = (json_object_set_new (job_json_p, JOB_OMITTED_RESULTS_S, json_true ()) == 0);
+																								}
+																							else
+																								{
+																									if (AddValidJSON (job_json_p, JOB_RESULTS_S, job_p -> sj_result_p, false))
+																										{
+																											success_flag = true;
+																											ProcessLinkedServices (job_p);
+
+																											if (!AddLinkedServicesToServiceJobJSON (job_p, job_json_p))
+																												{
+																													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to Linked Services for %s to json", job_p -> sj_name_s ? job_p -> sj_name_s : "unnamed job");
+																												}
+																										}		/* if (AddValidJSON (job_json_p, JOB_RESULTS_S, results_json_p, false)) */
+																									else
+																										{
+																											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add results to service job json");
+																										}
+																								}
 																						}
 																					else
 																						{
-																							if (AddValidJSON (job_json_p, JOB_RESULTS_S, job_p -> sj_result_p, false))
-																								{
-																									success_flag = true;
-																									ProcessLinkedServices (job_p);
-
-																									if (!AddLinkedServicesToServiceJobJSON (job_p, job_json_p))
-																										{
-																											PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to Linked Services for %s to json", job_p -> sj_name_s ? job_p -> sj_name_s : "unnamed job");
-																										}
-																								}		/* if (AddValidJSON (job_json_p, JOB_RESULTS_S, results_json_p, false)) */
-																							else
-																								{
-																									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add results to service job json");
-																								}
+																							success_flag = true;
 																						}
-																				}
+																				}		/* if (AddValidJSONString (job_json_p, JOB_URL_S, job_p -> sj_url_s)) */
 																			else
 																				{
-																					success_flag = true;
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add url \"%s\" %s to json", job_p -> sj_url_s ? job_p -> sj_url_s : "");
 																				}
+
 																		}
 																	else
 																		{
@@ -1312,7 +1377,7 @@ bool ProcessServiceJobSet (ServiceJobSet *jobs_p, json_t *res_p)
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job results %s to json response", job_p -> sj_name_s);
 								}
 
-							WipeJSON (job_json_p);
+							json_decref (job_json_p);
 						}
 				}
 			else

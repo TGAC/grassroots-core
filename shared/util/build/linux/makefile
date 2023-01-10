@@ -58,6 +58,7 @@ SRCS 	:= \
 	schema_keys.c \
 	schema_version.c \
 	search_options.c \
+	statistics.c \
 	streams.c \
 	string_hash_table.c \
 	string_int_pair.c \

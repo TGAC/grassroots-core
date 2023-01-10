@@ -78,6 +78,8 @@ typedef struct GrassrootsServer
 	SchemaVersion *gs_schema_version_p;
 
 	struct MongoClientManager *gs_mongo_manager_p;
+
+//	struct PersistentServiceData *gs_persistent_service_data_p;
 } GrassrootsServer;
 
 

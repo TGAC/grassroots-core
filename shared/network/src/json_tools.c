@@ -47,28 +47,6 @@ static bool AddContexts (json_t *data_p);
 static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const Operation op, const char * const service_names_s, const SchemaVersion * const sv_p);
 
 
-
-void WipeJSON (json_t *json_p)
-{
-	if (json_p)
-		{
-			if (json_p -> refcount == 1)
-				{
-					if (json_is_array (json_p))
-						{
-							json_array_clear (json_p);
-						}
-					else if (json_is_object (json_p))
-						{
-							json_object_clear (json_p);
-						}
-				}
-
-			json_decref (json_p);
-		}
-}
-
-
 json_t *MakeRemoteJsonCall (json_t *req_p, Connection *connection_p)
 {
 	json_t *response_p = NULL;

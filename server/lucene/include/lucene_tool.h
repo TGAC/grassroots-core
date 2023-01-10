@@ -32,6 +32,30 @@
 #include "grassroots_server.h"
 
 
+/**
+ * The internal method that the Lucene engine will use
+ * to build the query to search for
+ */
+typedef enum
+{
+	/**
+	 * Use a org.apache.lucene.queryparser.classic.QueryParser to
+	 * build the query by passing it a string and letting it
+	 * determine how to build thw query.
+	 */
+	QM_PARSER,
+
+	/**
+	 * Create one or more Term/Phrase queries and programmatically
+	 * combine them into a BooleanQuery
+	 */
+	QM_TERMS,
+
+	/**
+	 * The number of different QueryModes.
+	 */
+	QM_NUM_MODES
+} QueryMode;
 
 /**
  * @struct LuceneTool
@@ -46,6 +70,8 @@ typedef struct LuceneTool
 	const char *lt_index_class_s;
 
 	const char *lt_search_class_s;
+
+	const char *lt_delete_class_s;
 
 	const char *lt_classpath_s;
 
@@ -68,6 +94,7 @@ typedef struct LuceneTool
 	uuid_t lt_id;
 
 	LinkedList *lt_facet_results_p;
+
 } LuceneTool;
 
 
@@ -86,6 +113,7 @@ typedef struct LuceneTool
 
 
 
+LUCENE_TOOL_PREFIX const char *LT_EXACT_SEARCH_OP_S LUCENE_TOOL_VAL ("=");
 
 LUCENE_TOOL_PREFIX const char *LT_NUM_TOTAL_HITS_S LUCENE_TOOL_VAL ("total_hits");
 
@@ -130,6 +158,8 @@ GRASSROOTS_LUCENE_API LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroo
 GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
 
 
+
+
 /**
  * Run a Lucene Search
  *
@@ -140,7 +170,7 @@ GRASSROOTS_LUCENE_API void FreeLuceneTool (LuceneTool *tool_p);
  * @return <code>true</code> if the LuceneTool ran successfully, <code>false</code> otherwise.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size);
+GRASSROOTS_LUCENE_API bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p, const char *search_type_s, const uint32 page_index, const uint32 page_size, const QueryMode qm);
 
 
 /**
@@ -164,7 +194,7 @@ GRASSROOTS_LUCENE_API OperationStatus IndexLucene (LuceneTool *tool_p, const jso
  * @return The OperationStatus from running the deletion.
  * @memberof LuceneTool
  */
-GRASSROOTS_LUCENE_API OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s);
+GRASSROOTS_LUCENE_API OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s, const QueryMode qm);
 
 
 
@@ -186,6 +216,9 @@ GRASSROOTS_LUCENE_API bool SetLuceneToolOutput (LuceneTool *tool_p, char *output
 
 
 GRASSROOTS_LUCENE_API bool SetLuceneToolName (LuceneTool *tool_p, const char *name_s);
+
+
+GRASSROOTS_LUCENE_API void SetLuceneToolId (LuceneTool *tool_p, uuid_t id);
 
 
 GRASSROOTS_LUCENE_API bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p);

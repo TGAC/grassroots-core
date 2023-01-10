@@ -405,6 +405,8 @@ GRASSROOTS_UTIL_API char *GetStringAsLowerCase (const char *value_s);
 GRASSROOTS_UTIL_API void FreeStringArray (char **values_ss);
 
 
+GRASSROOTS_UTIL_API bool DoStringsMatch (const char * const val_0_s, const char * const val_1_s);
+
 
 #ifdef __cplusplus
 }

@@ -170,6 +170,7 @@ static bool GetNumber (const char **str_pp, double64 *answer_p, bool fractions_f
 	int i = 0;
 	bool loop_flag = true;
 	bool got_number_flag = false;
+	int num_dps = 0;
 
 	/* skip past any whitespace */
 	while (loop_flag)
@@ -256,13 +257,35 @@ static bool GetNumber (const char **str_pp, double64 *answer_p, bool fractions_f
 
 			if (decimal_point_index != -1)
 				{
+					double factor;
+					int buffer_size;
+					char *buffer_p;
+
 					/* treat .xxxxx the same as 0.xxxxx */
 					if (decimal_point_index == 0)
 						{
 							++ decimal_point_index;
 						}
 
-					d *= pow (10.0, (double) (- (i - decimal_point_index)));
+					num_dps = i - decimal_point_index;
+
+					factor = pow (10.0, (double) num_dps);
+
+					d /= factor;
+
+					/* get rid of any trailing inaccuracies */
+//					d = round (d * factor) / factor;
+
+					buffer_size = 1 + snprintf (NULL, 0, "%.*f", num_dps, d);
+			    buffer_p = (char *) AllocMemory (buffer_size);
+
+			    if (buffer_p)
+			    	{
+			    		snprintf (buffer_p, buffer_size, "%.*f", num_dps, d);
+					    d = atof (buffer_p);
+					    free (buffer_p);
+			    	}
+
 				}
 
 			*answer_p = d;

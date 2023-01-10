@@ -115,6 +115,14 @@ GRASSROOTS_SERVICE_API SchemaTerm *AllocateExtendedSchemaTerm (const char *url_s
 GRASSROOTS_SERVICE_API SchemaTerm *AllocateSchemaTerm (const char *url_s, const char *name_s, const char *description_s);
 
 
+GRASSROOTS_SERVICE_API bool SetSchemaTermValues (SchemaTerm *term_p, const char *url_s, const char *name_s, const char *description_s);
+
+
+
+GRASSROOTS_SERVICE_API bool DoSchemaTermsMatch (const SchemaTerm *term0_p, const SchemaTerm *term1_p);
+
+
+
 /**
  * Free a SchemaTerm.
  *
@@ -122,6 +130,15 @@ GRASSROOTS_SERVICE_API SchemaTerm *AllocateSchemaTerm (const char *url_s, const 
  * @memberof SchemaTerm
  */
 GRASSROOTS_SERVICE_API void FreeSchemaTerm (SchemaTerm *term_p);
+
+
+/**
+ * Clear all of the data within a SchemaTerm.
+ *
+ * @param term_p The SchemaTerm to clear.
+ * @memberof SchemaTerm
+ */
+GRASSROOTS_SERVICE_API void ClearSchemaTerm (SchemaTerm *term_p);
 
 
 /**
@@ -189,6 +206,9 @@ GRASSROOTS_SERVICE_API bool AddSchemaTermToJSON (const SchemaTerm *term_p, json_
  * @memberof SchemaTerm
  */
 GRASSROOTS_SERVICE_API SchemaTerm *GetSchemaTermFromJSON (const json_t *term_json_p);
+
+
+GRASSROOTS_SERVICE_API bool SetSchemaTermValues (SchemaTerm *term_p, const char *url_s, const char *name_s, const char *description_s);
 
 
 #ifdef __cplusplus

@@ -430,7 +430,7 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 
 	if (time_param_p -> tp_current_value_p)
 		{
-			char *time_s = GetTimeAsString (time_param_p -> tp_current_value_p, true);
+			char *time_s = GetTimeAsString (time_param_p -> tp_current_value_p, true, NULL);
 
 			if (time_s)
 				{
@@ -449,7 +449,7 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 				{
 					if (time_param_p -> tp_default_value_p)
 						{
-							char *time_s = GetTimeAsString (time_param_p -> tp_default_value_p, true);
+							char *time_s = GetTimeAsString (time_param_p -> tp_default_value_p, true, NULL);
 
 							if (time_s)
 								{

@@ -110,16 +110,6 @@ typedef struct CurlTool
 #endif
 
 
-/**
- * Allocate a CurlTool.
- *
- * @param mode The CurlMode that this CurlTool will use.
- * @return A newly-allocated CurlTool or <code>NULL</code> upon error.
- * @memberof CurlTool
- * @see FreeCurlTool
- */
-GRASSROOTS_NETWORK_API CurlTool *AllocateCurlTool (CurlMode mode);
-
 
 /**
  * Free a CurlTool
@@ -128,19 +118,6 @@ GRASSROOTS_NETWORK_API CurlTool *AllocateCurlTool (CurlMode mode);
  * @memberof CurlTool
  */
 GRASSROOTS_NETWORK_API void FreeCurlTool (CurlTool *curl_p);
-
-
-/**
- * Allocate a new CURL object to a give CurlTool and add optionally add a
- * write to buffer callback.
- *
- * @param tool_p The CurlTool to set up the CURL connection for.
- * @param buffer_p If this is not NULL, then set the curl object
- * to write its response to this buffer. This can be NULL <code>NULL</code>.
- * @see AddCurlCallback
- * @return <code>true</code> upon success or <code>false</code> upon error.
- */
-GRASSROOTS_NETWORK_LOCAL bool SetupCurl (CurlTool *tool_p, CurlMode mode);
 
 
 /**
@@ -319,6 +296,13 @@ GRASSROOTS_NETWORK_API void FreeURLEscapedString (char *value_s);
 
 
 
+GRASSROOTS_NETWORK_API CurlTool *AllocateFileCurlTool (const char * const filename_s);
+
+
+
+GRASSROOTS_NETWORK_API CurlTool *AllocateMemoryCurlTool (const size_t buffer_size);
+
+
 GRASSROOTS_NETWORK_API char *GetWebData (const char *url_s);
 
 
@@ -326,7 +310,8 @@ GRASSROOTS_NETWORK_API char *GetWebData (const char *url_s);
 GRASSROOTS_NETWORK_API void SetCurlToolTimeout (CurlTool *tool_p, const long timeout);
 
 
-GRASSROOTS_NETWORK_LOCAL TemporaryFile *AllocateTemporaryFile (void);
+GRASSROOTS_NETWORK_LOCAL TemporaryFile *AllocateTemporaryFile (const char * const filename_s);
+
 
 
 GRASSROOTS_NETWORK_LOCAL void FreeTemporaryFile (TemporaryFile *temp_p);
@@ -334,6 +319,8 @@ GRASSROOTS_NETWORK_LOCAL void FreeTemporaryFile (TemporaryFile *temp_p);
 
 GRASSROOTS_NETWORK_LOCAL char *GetTemporaryFileContentsAsString (TemporaryFile *temp_p);
 
+
+GRASSROOTS_NETWORK_API void ClearCurlToolData (CurlTool *tool_p);
 
 
 #ifdef __cplusplus

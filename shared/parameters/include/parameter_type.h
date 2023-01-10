@@ -130,6 +130,11 @@ typedef enum ParameterType
 	 */
 	PT_STRING_ARRAY,
 
+
+	/** An input filename string */
+	PT_FILE_TO_UPLOAD,
+
+
 	/** The number of possible ParameterType values. */
 	PT_NUM_TYPES
 } ParameterType;

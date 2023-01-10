@@ -32,6 +32,7 @@
 #include "typedefs.h"
 #include "jansson.h"
 #include "mongodb_library.h"
+#include "operation.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -278,7 +279,7 @@ GRASSROOTS_MONGODB_API bson_oid_t *InsertJSONIntoMongoCollection (MongoTool *too
  * <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p);
+GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByJSON (MongoTool *tool_p, const json_t *query_p, const json_t *update_p, const bool multiple_flag);
 
 
 /**
@@ -292,7 +293,7 @@ GRASSROOTS_MONGODB_API bool UpdateMongoDocumentByJSON (MongoTool *tool_p, const 
  * @memberof MongoTool
  * @see UpdateMongoDocumentByBSON
  */
-bool UpdateMongoDocument (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p);
+GRASSROOTS_MONGODB_API bool UpdateMongoDocuments (MongoTool *tool_p, const bson_oid_t *id_p, const json_t *json_p, const bool multiple_flag);
 
 
 /**
@@ -607,23 +608,49 @@ GRASSROOTS_MONGODB_API bson_t *ConvertJSONToBSON (const json_t *json_p);
 GRASSROOTS_MONGODB_API char *GetBSONOidAsString (const bson_oid_t *id_p);
 
 
+GRASSROOTS_MONGODB_API void FreeBSONOidString (char *id_s);
+
+
 GRASSROOTS_MONGODB_API bson_oid_t *GetBSONOidFromString (const char *id_s);
 
 
 GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
 
 
+GRASSROOTS_MONGODB_API bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p, const char *timestamp_key_s);
+
+
 GRASSROOTS_MONGODB_API bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool SetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool UnsetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
 
 
-GRASSROOTS_MONGODB_API bool UpdateMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp);
+GRASSROOTS_MONGODB_API bool UpdateMongoDataAsBSON (MongoTool *tool_p, const char * const update_s, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);
 
+
+GRASSROOTS_MONGODB_API bool SetMongoDataAsBSONForGivenId (MongoTool *tool_p, bson_oid_t *id_p, bson_t *update_p, bson_t **reply_pp);
+
+
+GRASSROOTS_MONGODB_API bool SetMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p, bson_t **reply_pp);
+
+
+/**
+ * Remove the specified fields from a document.
+ *
+ * @param tool_p The MongoTool to use to remove the fields with.
+ * @param selector_p The query to find the document to alter.
+ * @param fields_ss An array of strings specifying the fields to remove. This array must
+ * have a <code>NULL</code> as its final entry.
+ * @param reply_pp If you wish to any error messages back then a pointer to a bson_t pointer
+ * can be placed here. This can be <code>NULL</code>
+ * @return <code>true</code> if the fields were removed successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool RemoveMongoFields (MongoTool *tool_p, bson_t *selector_p, const char **fields_ss, bson_t **reply_pp);
 
 
 GRASSROOTS_MONGODB_API bson_oid_t *GetNewBSONOid (void);
@@ -672,6 +699,61 @@ GRASSROOTS_MONGODB_API bool AddQueryTerm (bson_t *query_p, const char *key_s, co
 
 
 GRASSROOTS_MONGODB_API int64 GetNumberOfMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p);
+
+
+GRASSROOTS_MONGODB_API OperationStatus ProcessMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, bool (*process_bson_fn) (const bson_t *document_p, void *data_p), void *data_p);
+
+
+
+/**
+ * Update some MongoDB documents.
+ *
+ * @param tool_p The MongoTool that will update the MongoDB documents.
+ * @param query_p The query used to choose the MongoDB documents that will be updated.
+ * @param update_p The update statement specifying the update operation to perform.
+ * @return <code>true</code> if the MongoDB documents were updated successfully,
+ * <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p, const json_t *update_p, const bool multiple_flag);
+
+
+
+/**
+ * Create an index for given set of keys.
+ *
+ * @param tool_p The MongoTool that will be used to create the index.
+ * @param database_s The database to that the collection to add the index to is in.
+ * @param collection_s The collection to add the index for.
+ * @param key_ss An array of keys that will have the index. The final entry must be NULL.
+ * @param unique_flag <code>true</code> if the values for the key are unique, <code>false</code> otherwise. The default value is <code>false</code>.
+ * @param sparse_flag If <code>true</code>, the index only references documents with the specified field. These indexes use less space
+ * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
+ * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char ** const keys_ss, const bool unique_flag, const bool sparse_flag);
+
+
+
+
+/**
+ * Create an index for given key.
+ *
+ * @param tool_p The MongoTool that will be used to create the index.
+ * @param database_s The database to that the collection to add the index to is in.
+ * @param collection_s The collection to add the index for.
+ * @param key_s The key that will have the index.
+ * @param unique_flag <code>true</code> if the values for the key are unique, <code>false</code> otherwise. The default value is <code>false</code>.
+ * @param sparse_flag If <code>true</code>, the index only references documents with the specified field. These indexes use less space
+ * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
+ * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char * const key_s, const bool unique_flag, const bool sparse_flag);
+
+
+
 
 
 #ifdef __cplusplus

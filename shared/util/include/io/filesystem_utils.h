@@ -346,6 +346,18 @@ GRASSROOTS_UTIL_API bool IsDirectory (const char * const path_s);
 GRASSROOTS_UTIL_API bool RemoveFile (const char * const path_s);
 
 
+/**
+ * Check if a file/directory exists.
+ *
+ * @param path_s The name of the file/directory to check.
+ * @return <code>true</code> if it exists, <code>false</code>
+ * otherwise.
+ *
+ * @ingroup utility_group
+ */
+bool DoesFileExist (const char * const path_s);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -89,6 +89,9 @@ typedef struct ServiceJob
 	/** The description of the ServiceJob */
 	char *sj_description_s;
 
+	/** Any user-facing URL for showing results of running this ServiceJob. */
+	char *sj_url_s;
+
 	/**
 	 * The JSON fragment for the results of this ServiceJob.
 	 */
@@ -410,6 +413,20 @@ GRASSROOTS_SERVICE_API bool RemoveServiceJobFromServiceJobSet (ServiceJobSet *jo
  * @memberof ServiceJob
  */
 GRASSROOTS_SERVICE_API bool SetServiceJobDescription (ServiceJob *job_p, const char * const description_s);
+
+
+
+
+/**
+ * @brief Set the description of ServiceJob.
+ *
+ * @param job_p The ServiceJob to alter.
+ * @param url_s The url to set. A deep copy will be made of this string so
+ * this value does not need to stay in scope.
+ * @return <code>true</code> if the name was set successfully, <code>false</code> otherwise.
+ * @memberof ServiceJob
+ */
+GRASSROOTS_SERVICE_API bool SetServiceJobURL (ServiceJob *job_p, const char * const url_s);
 
 
 /**
@@ -901,6 +918,16 @@ GRASSROOTS_SERVICE_LOCAL int32 GetNumberOfLiveJobsFromServiceJobSet (const Servi
 
 
 GRASSROOTS_SERVICE_LOCAL bool GetOperationStatusFromServiceJobJSON (const json_t *value_p, OperationStatus *status_p);
+
+
+/**
+ * For a given ServiceJob that is running multiple tasks, update its status to reflect
+ * the given status from a task.
+ *
+ * @param job_p The ServiceJob to update.
+ * @param status The OperationStatus from one of the tasks that the ServiceJob is running.
+ */
+GRASSROOTS_SERVICE_API void MergeServiceJobStatus (ServiceJob *job_p, OperationStatus status);
 
 
 #ifdef __cplusplus

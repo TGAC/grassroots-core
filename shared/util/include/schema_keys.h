@@ -61,18 +61,18 @@
 	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
 
 		#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
-			#define PREFIX  GRASSROOTS_UTIL_API
-			#define VAL(x) = x
-			#define CONCAT_VAL(x,y) = x y
+			#define SCHEMA_KEYS_PREFIX  GRASSROOTS_UTIL_API
+			#define SCHEMA_KEYS_VAL(x) = x
+			#define SCHEMA_KEYS_CONCAT_VAL(x,y) = x y
 		#else
-			#define PREFIX extern
-			#define VAL(x)
-			#define CONCAT_VAL(x,y)
+			#define SCHEMA_KEYS_PREFIX extern
+			#define SCHEMA_KEYS_VAL(x)
+			#define SCHEMA_KEYS_CONCAT_VAL(x,y)
 		#endif
 	#else
-		#define PREFIX GRASSROOTS_UTIL_API
-		#define VAL(x)
-		#define CONCAT_VAL(x,y)
+		#define SCHEMA_KEYS_PREFIX GRASSROOTS_UTIL_API
+		#define SCHEMA_KEYS_VAL(x)
+		#define SCHEMA_KEYS_CONCAT_VAL(x,y)
 	#endif
 
 #endif //	#ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -83,14 +83,14 @@
 //
 //	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
 //
-//		#define PREFIX GRASSROOTS_UTIL_API
+//		#define SCHEMA_KEYS_PREFIX GRASSROOTS_UTIL_API
 //
 //		#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
-//			#define VAL(x)	= x
-//			#define CONCAT_VAL(x,y) = x y
+//			#define SCHEMA_KEYS_VAL(x)	= x
+//			#define SCHEMA_KEYS_CONCAT_VAL(x,y) = x y
 //		#else
-//			#define VAL(x)
-//			#define CONCAT_VAL(x,y)
+//			#define SCHEMA_KEYS_VAL(x)
+//			#define SCHEMA_KEYS_CONCAT_VAL(x,y)
 //		#endif
 //
 //	#endif		//#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS
@@ -107,28 +107,32 @@ extern "C"
 
 
 #define CONTEXT_PREFIX_SCHEMA_ORG_S "so:"
-PREFIX const char *CONTEXT_URL_SCHEMA_ORG_S VAL("http://schema.org/");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_SCHEMA_ORG_S SCHEMA_KEYS_VAL("http://schema.org/");
 
 #define CONTEXT_PREFIX_EDAM_ONTOLOGY_S "eo:"
-PREFIX const char *CONTEXT_URL_EDAM_ONOTOLOGY_S VAL("http://edamontology.org/");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_EDAM_ONOTOLOGY_S SCHEMA_KEYS_VAL("http://edamontology.org/");
 
 #define CONTEXT_PREFIX_EXPERIMENTAL_FACTOR_ONTOLOGY_S "efo:"
-PREFIX const char *CONTEXT_URL_EXPERIMENTAL_FACTOR_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/efo/");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_EXPERIMENTAL_FACTOR_ONOTOLOGY_S SCHEMA_KEYS_VAL("http://www.ebi.ac.uk/efo/");
 
 #define CONTEXT_PREFIX_SOFTWARE_ONTOLOGY_S "swo:"
-PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S VAL("http://www.ebi.ac.uk/swo/");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_SOFTWARE_ONOTOLOGY_S SCHEMA_KEYS_VAL("http://www.ebi.ac.uk/swo/");
 
 #define CONTEXT_PREFIX_CROP_ONTOLOGY_S "co:"
-PREFIX const char *CONTEXT_URL_CROP_ONTOLOGY_S VAL("http://www.cropontology.org/terms/");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_CROP_ONTOLOGY_S SCHEMA_KEYS_VAL("http://www.cropontology.org/terms/");
 
 #define CONTEXT_PREFIX_ENVIRONMENT_ONTOLOGY_S "envo:"
-PREFIX const char *CONTEXT_URL_ENVIRONMENT_ONTOLOGY_S VAL("http://purl.obolibrary.org/obo/ENVO_");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_ENVIRONMENT_ONTOLOGY_S SCHEMA_KEYS_VAL("http://purl.obolibrary.org/obo/ENVO_");
 
 #define CONTEXT_PREFIX_AGRONOMY_ONTOLOGY_S "agro:"
-PREFIX const char *CONTEXT_URL_AGRONOMY_ONTOLOGY_S VAL("http://purl.obolibrary.org/obo/AGRO_");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_AGRONOMY_ONTOLOGY_S SCHEMA_KEYS_VAL("http://purl.obolibrary.org/obo/AGRO_");
 
 #define CONTEXT_PREFIX_NCI_THESAUSUS_ONTOLOGY_S "ncit:"
-PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibrary.org/obo/NCIT_");
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S SCHEMA_KEYS_VAL("http://purl.obolibrary.org/obo/NCIT_");
+
+
+#define CONTEXT_PREFIX_STATS_ONTOLOGY_S "stato:"
+SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_STATS_ONTOLOGY_S SCHEMA_KEYS_VAL("http://purl.obolibrary.org/obo/STATO_");
 
 
 	/**
@@ -141,18 +145,18 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 *
 	 * @ingroup SCHEMA_ERROR_GROUP
 	 */
-	PREFIX const char *ERROR_S VAL("error");
+	SCHEMA_KEYS_PREFIX const char *ERROR_S SCHEMA_KEYS_VAL("error");
 
 	/**
 	 * The JSON key for the header object of the server response.
 	 */
-	PREFIX const char *HEADER_S VAL("header");
+	SCHEMA_KEYS_PREFIX const char *HEADER_S SCHEMA_KEYS_VAL("header");
 
 	/**
 	 * The JSON key for a request.
 	 */
-	PREFIX const char *REQUEST_S VAL("request");
-	PREFIX const char *REQUEST_VERBOSE_S VAL("verbose");
+	SCHEMA_KEYS_PREFIX const char *REQUEST_S SCHEMA_KEYS_VAL("request");
+	SCHEMA_KEYS_PREFIX const char *REQUEST_VERBOSE_S SCHEMA_KEYS_VAL("verbose");
 
 
 	/**
@@ -165,22 +169,22 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * The JSON key for the schema object of the server response.
 	 * This appears at the top level of JSON request objects.
 	 */
-	PREFIX const char *SCHEMA_S VAL("schema");
+	SCHEMA_KEYS_PREFIX const char *SCHEMA_S SCHEMA_KEYS_VAL("schema");
 
 	/**
 	 * The JSON key for specifying the major version of the schema.
 	 * This is a child of @link SCHEMA_S @endlink
 	 */
-	PREFIX const char *VERSION_MAJOR_S VAL("major");
+	SCHEMA_KEYS_PREFIX const char *VERSION_MAJOR_S SCHEMA_KEYS_VAL("major");
 
 	/**
 	 * The JSON key for specifying the minor version of the schema.
 	 * This is a child of @link SCHEMA_S @endlink
 	 */
-	PREFIX const char *VERSION_MINOR_S VAL("minor");
+	SCHEMA_KEYS_PREFIX const char *VERSION_MINOR_S SCHEMA_KEYS_VAL("minor");
 
 
-	PREFIX const char *VERSION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "softwareVersion");
+	SCHEMA_KEYS_PREFIX const char *VERSION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "softwareVersion");
 
 	/* End of doxygen member group */
 	/**@}*/
@@ -198,7 +202,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * ::PROVIDER_DESCRIPTION_S and ::PROVIDER_URI_S keys to describe each of the
 	 * Servers.
 	 */
-	PREFIX const char *SERVER_MULTIPLE_PROVIDERS_S VAL("providers");
+	SCHEMA_KEYS_PREFIX const char *SERVER_MULTIPLE_PROVIDERS_S SCHEMA_KEYS_VAL("providers");
 
 	/**
 	 * @brief The JSON key for specifying details about this Grassroots Server.
@@ -207,7 +211,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * ::PROVIDER_DESCRIPTION_S and ::PROVIDER_URI_S keys to describe each of the
 	 * Servers.
 	 */
-	PREFIX const char *SERVER_PROVIDER_S VAL("provider");
+	SCHEMA_KEYS_PREFIX const char *SERVER_PROVIDER_S SCHEMA_KEYS_VAL("provider");
 
 	/**
 	 * @brief The JSON key for the name of the Server to show to Clients and other connected
@@ -216,7 +220,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *PROVIDER_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 	/**
 	 * @brief The JSON key for the description of the Server to show to Clients and other connected
@@ -225,7 +229,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *PROVIDER_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 
 	/**
@@ -235,7 +239,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_LOGO_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "logo");
+	SCHEMA_KEYS_PREFIX const char *PROVIDER_LOGO_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "logo");
 
 
 	/**
@@ -244,7 +248,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * @see ::SERVER_MULTIPLE_PROVIDERS_S
 	 * @see :: SERVER_PROVIDER_S
 	 */
-	PREFIX const char *PROVIDER_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
+	SCHEMA_KEYS_PREFIX const char *PROVIDER_URI_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -252,29 +256,29 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/** @name The Schema definitions for specifying Servers. */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *SERVERS_MANAGER_S VAL("servers_manager");
-	PREFIX const char *SERVERS_S VAL("servers");
-	PREFIX const char *SERVER_UUID_S VAL("server_uuid");
-	PREFIX const char *SERVER_NAME_S VAL("server_name");
-	PREFIX const char *SERVER_CONNECTION_TYPE_S VAL("server_connection");
-	PREFIX const char *SERVER_URI_S VAL("server_uri");
+	SCHEMA_KEYS_PREFIX const char *SERVERS_MANAGER_S SCHEMA_KEYS_VAL("servers_manager");
+	SCHEMA_KEYS_PREFIX const char *SERVERS_S SCHEMA_KEYS_VAL("servers");
+	SCHEMA_KEYS_PREFIX const char *SERVER_UUID_S SCHEMA_KEYS_VAL("server_uuid");
+	SCHEMA_KEYS_PREFIX const char *SERVER_NAME_S SCHEMA_KEYS_VAL("server_name");
+	SCHEMA_KEYS_PREFIX const char *SERVER_CONNECTION_TYPE_S SCHEMA_KEYS_VAL("server_connection");
+	SCHEMA_KEYS_PREFIX const char *SERVER_URI_S SCHEMA_KEYS_VAL("server_uri");
 	/* End of doxygen member group */
 	/**@}*/
 
 
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *SERVER_PAIRED_SERVICES_S VAL("paired_services");
-	PREFIX const char *SERVER_LOCAL_PAIRED_SERVCE_S VAL("local");
-	PREFIX const char *SERVER_REMOTE_PAIRED_SERVCE_S VAL("remote");
+	SCHEMA_KEYS_PREFIX const char *SERVER_PAIRED_SERVICES_S SCHEMA_KEYS_VAL("paired_services");
+	SCHEMA_KEYS_PREFIX const char *SERVER_LOCAL_PAIRED_SERVCE_S SCHEMA_KEYS_VAL("local");
+	SCHEMA_KEYS_PREFIX const char *SERVER_REMOTE_PAIRED_SERVCE_S SCHEMA_KEYS_VAL("remote");
 	/**@}*/
 
 
 
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *CONNECTION_RAW_S VAL("connection_raw");
-	PREFIX const char *CONNECTION_WEB_S VAL("connection_web");
+	SCHEMA_KEYS_PREFIX const char *CONNECTION_RAW_S SCHEMA_KEYS_VAL("connection_raw");
+	SCHEMA_KEYS_PREFIX const char *CONNECTION_WEB_S SCHEMA_KEYS_VAL("connection_web");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -283,8 +287,8 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/**
 	 * @deprecated Use ::SERVER_OPERATION_S instead.
 	 */
-	PREFIX const char *SERVER_OPERATIONS_S VAL("operations");
-	PREFIX const char *SERVER_OPERATION_S VAL("operation");
+	SCHEMA_KEYS_PREFIX const char *SERVER_OPERATIONS_S SCHEMA_KEYS_VAL("operations");
+	SCHEMA_KEYS_PREFIX const char *SERVER_OPERATION_S SCHEMA_KEYS_VAL("operation");
 
 	/**
 	 * The key to specify the operation id.
@@ -292,7 +296,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 *
 	 * @deprecated Use ::OPERATION_S instead.
 	 */
-	PREFIX const char *OPERATION_ID_OLD_S VAL("operationId");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_ID_OLD_S SCHEMA_KEYS_VAL("operationId");
 
 	/**
 	 * The key to specify the operation id.
@@ -300,7 +304,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 *
 	 * @deprecated Use ::OPERATION_S instead.
 	 */
-	PREFIX const char *OPERATION_ID_S VAL("so:name");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_ID_S SCHEMA_KEYS_VAL("so:name");
 
 	/**
 	 * The key to specify the operation id.
@@ -308,25 +312,26 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * GetOperationAsString().
 	 *
 	 */
-	PREFIX const char *OPERATION_S VAL("operation");
-	PREFIX const char *OPERATION_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
-	PREFIX const char *OPERATION_INFORMATION_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
-	PREFIX const char *OPERATION_ICON_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
-	PREFIX const char *OPERATION_ICON_DATA_S VAL("icon_data");
-	PREFIX const char *OPERATION_SYNCHRONOUS_S VAL("synchronous");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_S SCHEMA_KEYS_VAL("operation");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_INFORMATION_URI_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_ICON_URI_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_ICON_DATA_S SCHEMA_KEYS_VAL("icon_data");
+	SCHEMA_KEYS_PREFIX const char *OPERATION_SYNCHRONOUS_S SCHEMA_KEYS_VAL("synchronous");
 	/* End of doxygen member group */
 	/**@}*/
 
 	/** @name The Schema definitions for specifying Services. */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *SERVICES_NAME_S VAL("services");
-	PREFIX const char *SERVICES_ID_S VAL("path");
-	PREFIX const char *SERVICE_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
-	PREFIX const char *SERVICE_RUN_S VAL("start_service");
-	PREFIX const char *SERVICE_REFRESH_S VAL("refresh_service");
-	PREFIX const char *SERVICES_STATUS_S VAL("status");
-	PREFIX const char *SERVICES_STATUS_DEFAULT_S VAL("default");
+	SCHEMA_KEYS_PREFIX const char *SERVICES_NAME_S SCHEMA_KEYS_VAL("services");
+	SCHEMA_KEYS_PREFIX const char *SERVICES_ID_S SCHEMA_KEYS_VAL("path");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_RUN_S SCHEMA_KEYS_VAL("start_service");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_REFRESH_S SCHEMA_KEYS_VAL("refresh_service");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_INDEXING_DATA_S SCHEMA_KEYS_VAL("indexing_data");
+	SCHEMA_KEYS_PREFIX const char *SERVICES_STATUS_S SCHEMA_KEYS_VAL("status");
+	SCHEMA_KEYS_PREFIX const char *SERVICES_STATUS_DEFAULT_S SCHEMA_KEYS_VAL("default");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -335,52 +340,52 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/* Start of doxygen member group */
 	/**@{*/
 
-	PREFIX const char *TYPE_SERVICE_S VAL("grassroots_service");
+	SCHEMA_KEYS_PREFIX const char *TYPE_SERVICE_S SCHEMA_KEYS_VAL("grassroots_service");
 
-	PREFIX const char *SERVICE_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
-	PREFIX const char *SERVICE_ALIAS_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "alternateName");
-	PREFIX const char *SERVICE_HELP_URL_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
-	PREFIX const char *SERVICE_UUID_S VAL("service_uuid");
-	PREFIX const char *SERVICE_STATUS_VALUE_S VAL("status");
-	PREFIX const char *SERVICE_STATUS_S VAL("status_text");
-	PREFIX const char *SERVICE_RESULTS_S VAL("results");
-	PREFIX const char *SERVICE_CATEGORY_S VAL("category");
-	PREFIX const char *SERVICE_JOBS_S VAL("jobs");
-	PREFIX const char *SERVICE_CONFIG_S VAL("config");
-	PREFIX const char *SERVICE_TYPE_VALUE_S VAL("Grassroots:Service");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_ALIAS_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "alternateName");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_HELP_URL_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_UUID_S SCHEMA_KEYS_VAL("service_uuid");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_STATUS_VALUE_S SCHEMA_KEYS_VAL("status");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_STATUS_S SCHEMA_KEYS_VAL("status_text");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_RESULTS_S SCHEMA_KEYS_VAL("results");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_CATEGORY_S SCHEMA_KEYS_VAL("category");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_JOBS_S SCHEMA_KEYS_VAL("jobs");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_CONFIG_S SCHEMA_KEYS_VAL("config");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_TYPE_VALUE_S SCHEMA_KEYS_VAL("Grassroots:Service");
 
-	PREFIX const char *SERVICE_RUN_MODE_S VAL("run_mode");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_RUN_MODE_S SCHEMA_KEYS_VAL("run_mode");
 
 
 	/* End of doxygen member group */
 	/**@}*/
 
 
-	PREFIX const char *SERVICE_METADATA_APPLICATION_CATEGORY_S VAL("application_category");
-	PREFIX const char *SERVICE_METADATA_APPLICATION_SUBCATEGORY_S VAL("application_subcategory");
-	PREFIX const char *SERVICE_METADATA_APPLICATION_INPUT_S VAL("input");
-	PREFIX const char *SERVICE_METADATA_APPLICATION_OUTPUT_S VAL("output");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_METADATA_APPLICATION_CATEGORY_S SCHEMA_KEYS_VAL("application_category");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_METADATA_APPLICATION_SUBCATEGORY_S SCHEMA_KEYS_VAL("application_subcategory");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_METADATA_APPLICATION_INPUT_S SCHEMA_KEYS_VAL("input");
+	SCHEMA_KEYS_PREFIX const char *SERVICE_METADATA_APPLICATION_OUTPUT_S SCHEMA_KEYS_VAL("output");
 
-	PREFIX const char *SCHEMA_TERM_URL_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "sameAs");
-	PREFIX const char *SCHEMA_TERM_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
-	PREFIX const char *SCHEMA_TERM_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
-	PREFIX const char *SCHEMA_TERM_ABBREVIATION_S VAL("abbreviation");
+	SCHEMA_KEYS_PREFIX const char *SCHEMA_TERM_URL_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "sameAs");
+	SCHEMA_KEYS_PREFIX const char *SCHEMA_TERM_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *SCHEMA_TERM_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *SCHEMA_TERM_ABBREVIATION_S SCHEMA_KEYS_VAL("abbreviation");
 
 
 
 	/** @name The Schema definitions for specifying LinkedServices. */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *LINKED_SERVICES_S VAL("linked_services");
-	PREFIX const char *LINKED_SERVICE_S VAL("linked_service");
-	PREFIX const char *LINKED_SERVICE_FUNCTION_S VAL("function");
-	PREFIX const char *LINKED_SERVICE_CONFIG_S VAL("config");
-	PREFIX const char *MAPPED_PARAMS_LIST_S VAL("mappings");
-	PREFIX const char *MAPPED_PARAM_INPUT_S VAL("input");
-	PREFIX const char *MAPPED_PARAM_OUTPUT_S VAL("output");
-	PREFIX const char *MAPPED_PARAM_REQUIRED_S VAL("required");
-	PREFIX const char *MAPPED_PARAMS_ROOT_S VAL("input_root");
-	PREFIX const char *MAPPED_PARAM_MULTI_VALUED_S VAL("multiple");
+	SCHEMA_KEYS_PREFIX const char *LINKED_SERVICES_S SCHEMA_KEYS_VAL("linked_services");
+	SCHEMA_KEYS_PREFIX const char *LINKED_SERVICE_S SCHEMA_KEYS_VAL("linked_service");
+	SCHEMA_KEYS_PREFIX const char *LINKED_SERVICE_FUNCTION_S SCHEMA_KEYS_VAL("function");
+	SCHEMA_KEYS_PREFIX const char *LINKED_SERVICE_CONFIG_S SCHEMA_KEYS_VAL("config");
+	SCHEMA_KEYS_PREFIX const char *MAPPED_PARAMS_LIST_S SCHEMA_KEYS_VAL("mappings");
+	SCHEMA_KEYS_PREFIX const char *MAPPED_PARAM_INPUT_S SCHEMA_KEYS_VAL("input");
+	SCHEMA_KEYS_PREFIX const char *MAPPED_PARAM_OUTPUT_S SCHEMA_KEYS_VAL("output");
+	SCHEMA_KEYS_PREFIX const char *MAPPED_PARAM_REQUIRED_S SCHEMA_KEYS_VAL("required");
+	SCHEMA_KEYS_PREFIX const char *MAPPED_PARAMS_ROOT_S SCHEMA_KEYS_VAL("input_root");
+	SCHEMA_KEYS_PREFIX const char *MAPPED_PARAM_MULTI_VALUED_S SCHEMA_KEYS_VAL("multiple");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -390,38 +395,39 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/**@{*/
 
 
-	PREFIX const char *JOBS_MANAGER_S VAL("jobs_manager");
+	SCHEMA_KEYS_PREFIX const char *JOBS_MANAGER_S SCHEMA_KEYS_VAL("jobs_manager");
 
 	/**
 	 * The JSON key for the name of a ServiceJob.
 	 */
-	PREFIX const char *JOB_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *JOB_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
-	PREFIX const char *JOB_S VAL("job");
+	SCHEMA_KEYS_PREFIX const char *JOB_S SCHEMA_KEYS_VAL("job");
 
 	/**
 	 * The JSON key of the Service name for a ServiceJob.
 	 */
-	PREFIX const char *JOB_SERVICE_S VAL("service_name");
-	PREFIX const char *JOB_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *JOB_SERVICE_S SCHEMA_KEYS_VAL("service_name");
+	SCHEMA_KEYS_PREFIX const char *JOB_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *JOB_URL_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
 
 
-	PREFIX const char *JOB_RESULTS_S VAL("results");
-	PREFIX const char *JOB_OMITTED_RESULTS_S VAL("results_omitted");
-	PREFIX const char *JOB_ERRORS_S VAL("errors");
-	PREFIX const char *JOB_ERROR_S VAL("error");
+	SCHEMA_KEYS_PREFIX const char *JOB_RESULTS_S SCHEMA_KEYS_VAL("results");
+	SCHEMA_KEYS_PREFIX const char *JOB_OMITTED_RESULTS_S SCHEMA_KEYS_VAL("results_omitted");
+	SCHEMA_KEYS_PREFIX const char *JOB_ERRORS_S SCHEMA_KEYS_VAL("errors");
+	SCHEMA_KEYS_PREFIX const char *JOB_ERROR_S SCHEMA_KEYS_VAL("error");
 	/**
 	 * The JSON key to specify errors for ServiceJobs where the parameters
 	 * have been valid, yet the job has failed whilst running.
 	 */
-	PREFIX const char *JOB_RUNTIME_ERRORS_S VAL("runtime_errors");
-	PREFIX const char *JOB_METADATA_S VAL("metadata");
-	PREFIX const char *JOB_UUID_S VAL("job_uuid");
-	PREFIX const char *JOB_REMOTE_URI_S  VAL("remote_uri");
-	PREFIX const char *JOB_REMOTE_UUID_S  VAL("remote_uuid");
-	PREFIX const char *JOB_REMOTE_SERVICE_S  VAL("remote_service");
-	PREFIX const char *JOB_REMOTE_S  VAL("remote_job");
-	PREFIX const char *JOB_TYPE_S  VAL("job_type");
+	SCHEMA_KEYS_PREFIX const char *JOB_RUNTIME_ERRORS_S SCHEMA_KEYS_VAL("runtime_errors");
+	SCHEMA_KEYS_PREFIX const char *JOB_METADATA_S SCHEMA_KEYS_VAL("metadata");
+	SCHEMA_KEYS_PREFIX const char *JOB_UUID_S SCHEMA_KEYS_VAL("job_uuid");
+	SCHEMA_KEYS_PREFIX const char *JOB_REMOTE_URI_S  SCHEMA_KEYS_VAL("remote_uri");
+	SCHEMA_KEYS_PREFIX const char *JOB_REMOTE_UUID_S  SCHEMA_KEYS_VAL("remote_uuid");
+	SCHEMA_KEYS_PREFIX const char *JOB_REMOTE_SERVICE_S  SCHEMA_KEYS_VAL("remote_service");
+	SCHEMA_KEYS_PREFIX const char *JOB_REMOTE_S  SCHEMA_KEYS_VAL("remote_job");
+	SCHEMA_KEYS_PREFIX const char *JOB_TYPE_S  SCHEMA_KEYS_VAL("job_type");
 
 	/* End of doxygen member group */
 	/**@}*/
@@ -429,7 +435,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *PLUGIN_NAME_S VAL("plugin");
+	SCHEMA_KEYS_PREFIX const char *PLUGIN_NAME_S SCHEMA_KEYS_VAL("plugin");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -441,26 +447,26 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/**
 	 * The JSON key for the ParameterSet object of the server response.
 	 */
-	PREFIX const char *PARAM_SET_KEY_S VAL("parameter_set");
+	SCHEMA_KEYS_PREFIX const char *PARAM_SET_KEY_S SCHEMA_KEYS_VAL("parameter_set");
 
 	/**
 	 * The JSON key for the name of ParameterSet object of the server response.
 	 * This is a child of @link PARAM_SET_KEY_S @endlink
 	 */
-	PREFIX const char *PARAM_SET_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *PARAM_SET_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 	/**
 	 * The JSON key for the description of ParameterSet object of the server response.
 	 * This is a child of @link PARAM_SET_KEY_S @endlink
 	 */
-	PREFIX const char *PARAM_SET_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *PARAM_SET_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 	/**
 	 * The JSON key for the child object detailing all of the Parameters within a ParameterSet.
 	 *
 	 * This is a child of @link PARAM_SET_KEY_S @endlink
 	 */
-	PREFIX const char *PARAM_SET_PARAMS_S VAL("parameters");
+	SCHEMA_KEYS_PREFIX const char *PARAM_SET_PARAMS_S SCHEMA_KEYS_VAL("parameters");
 
 	/**
 	 * The JSON key for the child object containing the names of all of the
@@ -468,7 +474,7 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 
 	 * This is a child of @link PARAM_SET_KEY_S @endlink
 	 */
-	PREFIX const char *PARAM_SET_GROUPS_S VAL("groups");
+	SCHEMA_KEYS_PREFIX const char *PARAM_SET_GROUPS_S SCHEMA_KEYS_VAL("groups");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -484,80 +490,80 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/**
 	 * The JSON key for the name of Parameter.
 	 */
-	PREFIX const char *PARAM_NAME_S VAL("param");
+	SCHEMA_KEYS_PREFIX const char *PARAM_NAME_S SCHEMA_KEYS_VAL("param");
 
 	/**
 	 * The JSON key for the display name of Parameter.
 	 */
-	PREFIX const char *PARAM_DISPLAY_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *PARAM_DISPLAY_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 
-	PREFIX const char *PARAM_CONCISE_DEFINITION_S VAL("concise");
+	SCHEMA_KEYS_PREFIX const char *PARAM_CONCISE_DEFINITION_S SCHEMA_KEYS_VAL("concise");
 
 	/**
 	 * The JSON key for the description of Parameter.
 	 */
-	PREFIX const char *PARAM_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *PARAM_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
-	PREFIX const char *PARAM_STORE_S VAL("store");
+	SCHEMA_KEYS_PREFIX const char *PARAM_STORE_S SCHEMA_KEYS_VAL("store");
 
-	PREFIX const char *PARAM_REMOTE_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
-
-
-	PREFIX const char *PARAM_TYPE_S VAL("type");
-	PREFIX const char *PARAM_GRASSROOTS_TYPE_INFO_S VAL("grassroots_type_number");
-	PREFIX const char *PARAM_GRASSROOTS_TYPE_INFO_TEXT_S VAL("grassroots_type");
-	PREFIX const char *PARAM_GRASSROOTS_S VAL("parameter_type");
-	PREFIX const char *PARAM_COMPOUND_TEXT_S VAL("text");
-	PREFIX const char *PARAM_COMPOUND_VALUE_S VAL("value");
+	SCHEMA_KEYS_PREFIX const char *PARAM_REMOTE_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 
-	PREFIX const char *PARAM_REFRESH_S VAL("refresh");
+	SCHEMA_KEYS_PREFIX const char *PARAM_TYPE_S SCHEMA_KEYS_VAL("type");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GRASSROOTS_TYPE_INFO_S SCHEMA_KEYS_VAL("grassroots_type_number");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GRASSROOTS_TYPE_INFO_TEXT_S SCHEMA_KEYS_VAL("grassroots_type");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GRASSROOTS_S SCHEMA_KEYS_VAL("parameter_type");
+	SCHEMA_KEYS_PREFIX const char *PARAM_COMPOUND_TEXT_S SCHEMA_KEYS_VAL("text");
+	SCHEMA_KEYS_PREFIX const char *PARAM_COMPOUND_VALUE_S SCHEMA_KEYS_VAL("value");
 
-	PREFIX const char *PARAM_REQUIRED_S VAL("required");
+
+	SCHEMA_KEYS_PREFIX const char *PARAM_REFRESH_S SCHEMA_KEYS_VAL("refresh");
+
+	SCHEMA_KEYS_PREFIX const char *PARAM_REQUIRED_S SCHEMA_KEYS_VAL("required");
 
 
-	PREFIX const char *PARAM_READ_ONLY_S VAL("read_only");
+	SCHEMA_KEYS_PREFIX const char *PARAM_READ_ONLY_S SCHEMA_KEYS_VAL("read_only");
 
 
 	/**
 	 * The JSON key for the default value of Parameter.
 	 */
-	PREFIX const char *PARAM_DEFAULT_VALUE_S  VAL("default_value");
+	SCHEMA_KEYS_PREFIX const char *PARAM_DEFAULT_VALUE_S  SCHEMA_KEYS_VAL("default_value");
 
 	/**
 	 * The JSON key for the current value of Parameter.
 	 */
-	PREFIX const char *PARAM_CURRENT_VALUE_S  VAL("current_value");
+	SCHEMA_KEYS_PREFIX const char *PARAM_CURRENT_VALUE_S  SCHEMA_KEYS_VAL("current_value");
 
-	PREFIX const char *PARAM_OPTIONS_S  VAL("enum");
-
-
-	PREFIX const char *PARAM_VISIBLE_S  VAL("visible");
+	SCHEMA_KEYS_PREFIX const char *PARAM_OPTIONS_S  SCHEMA_KEYS_VAL("enum");
 
 
-	/**
-	 * The JSON key for the name of the ParameterGroup for this Parameter.
-	 */
-	PREFIX const char *PARAM_GROUP_S VAL("group");
+	SCHEMA_KEYS_PREFIX const char *PARAM_VISIBLE_S  SCHEMA_KEYS_VAL("visible");
 
 
 	/**
 	 * The JSON key for the name of the ParameterGroup for this Parameter.
 	 */
-	PREFIX const char *PARAM_REPEATED_GROUPS_S VAL("groups");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GROUP_S SCHEMA_KEYS_VAL("group");
+
+
+	/**
+	 * The JSON key for the name of the ParameterGroup for this Parameter.
+	 */
+	SCHEMA_KEYS_PREFIX const char *PARAM_REPEATED_GROUPS_S SCHEMA_KEYS_VAL("groups");
 
 	/**
 	 * The JSON key for specifying the name of a ParameterGroup
 	 * to a user.
 	 */
-	PREFIX const char *PARAM_GROUP_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GROUP_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 
 	/**
 	 * The JSON key for specifying the default visibility of a ParameterGroup
 	 * to a user.
 	 */
-	PREFIX const char *PARAM_GROUP_VISIBLE_S VAL("visible");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GROUP_VISIBLE_S SCHEMA_KEYS_VAL("visible");
 
 
 
@@ -565,39 +571,39 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * The JSON key for specifying whether the parameters within a ParameterGroup
 	 * can be repeated multiple times.
 	 */
-	PREFIX const char *PARAM_GROUP_REPEATABLE_S VAL("repeatable");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GROUP_REPEATABLE_S SCHEMA_KEYS_VAL("repeatable");
 
 
 	/**
 	 * If the parameters are repeatable, specify the parameter to use the entry labels.
 	 */
-	PREFIX const char *PARAM_GROUP_REPEATABLE_LABEL_S VAL("repeatable_label");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GROUP_REPEATABLE_LABEL_S SCHEMA_KEYS_VAL("repeatable_label");
 
 
 	/**
 	 * If the parameters are repeatable, specify the parameter to use the entry labels.
 	 */
-	PREFIX const char *PARAM_GROUP_PARAMS_S VAL("parameters");
+	SCHEMA_KEYS_PREFIX const char *PARAM_GROUP_PARAMS_S SCHEMA_KEYS_VAL("parameters");
 
 
 	/**
 	 * The JSON key for specifying the minimum value that a numeric Parameter
 	 * can take.
 	 */
-	PREFIX const char *PARAM_MIN_S  VAL("min");
+	SCHEMA_KEYS_PREFIX const char *PARAM_MIN_S  SCHEMA_KEYS_VAL("min");
 
 
 	/**
 	 * The JSON key for specifying the maximum value that a numeric Parameter
 	 * can take.
 	 */
-	PREFIX const char *PARAM_MAX_S  VAL("max");
+	SCHEMA_KEYS_PREFIX const char *PARAM_MAX_S  SCHEMA_KEYS_VAL("max");
 
 	/**
 	 * The JSON key for specifying the level of the Parameter.
 	 */
-	PREFIX const char *PARAM_LEVEL_S  VAL("level");
-	PREFIX const char *PARAM_LEVEL_TEXT_S  VAL("level_text");
+	SCHEMA_KEYS_PREFIX const char *PARAM_LEVEL_S  SCHEMA_KEYS_VAL("level");
+	SCHEMA_KEYS_PREFIX const char *PARAM_LEVEL_TEXT_S  SCHEMA_KEYS_VAL("level_text");
 
 
 	/**
@@ -605,33 +611,33 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * all levels.
 	 */
 
-	PREFIX const char *PARAM_LEVEL_TEXT_ALL_S  VAL("all");
+	SCHEMA_KEYS_PREFIX const char *PARAM_LEVEL_TEXT_ALL_S  SCHEMA_KEYS_VAL("all");
 
 	/**
 	 * The JSON key for specifying that a Parameter to be available
 	 * for a client at the beginner level.
 	 */
-	PREFIX const char *PARAM_LEVEL_TEXT_SIMPLE_S  VAL("simple");
+	SCHEMA_KEYS_PREFIX const char *PARAM_LEVEL_TEXT_SIMPLE_S  SCHEMA_KEYS_VAL("simple");
 
 
 	/**
 	 * The JSON key for specifying that a Parameter to be available
 	 * for a client at the advanced level.
 	 */
-	PREFIX const char *PARAM_LEVEL_TEXT_ADVANCED_S  VAL("advanced");
+	SCHEMA_KEYS_PREFIX const char *PARAM_LEVEL_TEXT_ADVANCED_S  SCHEMA_KEYS_VAL("advanced");
 
-	PREFIX const char *PARAM_ERRORS_S  VAL("errors");
+	SCHEMA_KEYS_PREFIX const char *PARAM_ERRORS_S  SCHEMA_KEYS_VAL("errors");
 
-	PREFIX const char *PARAM_SERVER_ID_S  VAL("server_id");
+	SCHEMA_KEYS_PREFIX const char *PARAM_SERVER_ID_S  SCHEMA_KEYS_VAL("server_id");
 
-	PREFIX const char *PARAM_REMOTE_URI_S  VAL("remote_uri");
+	SCHEMA_KEYS_PREFIX const char *PARAM_REMOTE_URI_S  SCHEMA_KEYS_VAL("remote_uri");
 
-	PREFIX const char *PARAM_REMOTE_S  VAL("remote_details");
+	SCHEMA_KEYS_PREFIX const char *PARAM_REMOTE_S  SCHEMA_KEYS_VAL("remote_details");
 
-	PREFIX const char *PARAM_VALUE_SET_FROM_TEXT_S  VAL("value_as_text");
+	SCHEMA_KEYS_PREFIX const char *PARAM_VALUE_SET_FROM_TEXT_S  SCHEMA_KEYS_VAL("value_as_text");
 
 
-	PREFIX const char *KEYWORDS_QUERY_S VAL("query");
+	SCHEMA_KEYS_PREFIX const char *KEYWORDS_QUERY_S SCHEMA_KEYS_VAL("query");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -639,8 +645,8 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/** @name  The Schema definitions for specifying SharedType values. */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *SHARED_TYPE_DESCRIPTION_S  CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
-	PREFIX const char *SHARED_TYPE_VALUE_S  VAL("value");
+	SCHEMA_KEYS_PREFIX const char *SHARED_TYPE_DESCRIPTION_S  SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *SHARED_TYPE_VALUE_S  SCHEMA_KEYS_VAL("value");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -653,37 +659,37 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/**
 	 * The JSON key for specifying a Resource object.
 	 */
-	PREFIX const char *RESOURCE_S  VAL("resource");
+	SCHEMA_KEYS_PREFIX const char *RESOURCE_S  SCHEMA_KEYS_VAL("resource");
 
 	/**
 	 * The JSON key for specifying the protocol for a Resource.
 	 */
-	PREFIX const char *RESOURCE_PROTOCOL_S  VAL("protocol");
+	SCHEMA_KEYS_PREFIX const char *RESOURCE_PROTOCOL_S  SCHEMA_KEYS_VAL("protocol");
 
 	/**
 	 * The JSON key for specifying the value of a Resource.
 	 * This could be the filename, uri, etc. depending upon
 	 * the protocol for this Resource.
 	 */
-	PREFIX const char *RESOURCE_VALUE_S  VAL("value");
+	SCHEMA_KEYS_PREFIX const char *RESOURCE_VALUE_S  SCHEMA_KEYS_VAL("value");
 
 	/**
 	 * The JSON key for specifying the a user-friendly description
 	 * of a Resource.
 	 */
-	PREFIX const char *RESOURCE_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *RESOURCE_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
 
 	/**
 	 * The JSON key for specifying a title to display to Clients
 	 * and external Servers, rather than show the name.
 	 */
-	PREFIX const char *RESOURCE_TITLE_S  VAL("title");
+	SCHEMA_KEYS_PREFIX const char *RESOURCE_TITLE_S  SCHEMA_KEYS_VAL("title");
 
 
 	/**
 	 * The JSON key for specifying any inline data for a Resource.
 	 */
-	PREFIX const char *RESOURCE_DATA_S  VAL("data");
+	SCHEMA_KEYS_PREFIX const char *RESOURCE_DATA_S  SCHEMA_KEYS_VAL("data");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -692,29 +698,29 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	 * */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *TAG_INPUT_NAME_S VAL("input");
-	PREFIX const char *TAG_OUTPUT_NAME_S VAL("output");
+	SCHEMA_KEYS_PREFIX const char *TAG_INPUT_NAME_S SCHEMA_KEYS_VAL("input");
+	SCHEMA_KEYS_PREFIX const char *TAG_OUTPUT_NAME_S SCHEMA_KEYS_VAL("output");
 	/* End of doxygen member group */
 	/**@}*/
 
 
-	PREFIX const char *CONFIG_S VAL("config");
+	SCHEMA_KEYS_PREFIX const char *CONFIG_S SCHEMA_KEYS_VAL("config");
 
 
 	/** @name The Schema definitions for specifying user credentials. */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *CREDENTIALS_S VAL("credentials");
-	PREFIX const char *CREDENTIALS_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
-	PREFIX const char *CREDENTIALS_USERNAME_S VAL("username");
-	PREFIX const char *CREDENTIALS_PASSWORD_S VAL("password");
-	PREFIX const char *CREDENTIALS_UUID_S VAL("user_uuid");
-	PREFIX const char *CREDENTIALS_TOKEN_KEY_S VAL("token_key");
-	PREFIX const char *CREDENTIALS_TOKEN_SECRET_S VAL("token_secret");
-	PREFIX const char *CREDENTIALS_APP_KEY_S VAL("app_key");
-	PREFIX const char *CREDENTIALS_APP_SECRET_S VAL("app_secret");
-	PREFIX const char *CREDENTIALS_ENCRYPTION_METHOD_S VAL("encrypt_method");
-	PREFIX const char *CREDENTIALS_ENCRYPTION_KEY_S VAL("encrypt_key");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_S SCHEMA_KEYS_VAL("credentials");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_USERNAME_S SCHEMA_KEYS_VAL("username");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_PASSWORD_S SCHEMA_KEYS_VAL("password");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_UUID_S SCHEMA_KEYS_VAL("user_uuid");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_TOKEN_KEY_S SCHEMA_KEYS_VAL("token_key");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_TOKEN_SECRET_S SCHEMA_KEYS_VAL("token_secret");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_APP_KEY_S SCHEMA_KEYS_VAL("app_key");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_APP_SECRET_S SCHEMA_KEYS_VAL("app_secret");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_ENCRYPTION_METHOD_S SCHEMA_KEYS_VAL("encrypt_method");
+	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_ENCRYPTION_KEY_S SCHEMA_KEYS_VAL("encrypt_key");
 	/* End of doxygen member group */
 	/**@}*/
 
@@ -722,48 +728,48 @@ PREFIX const char *CONTEXT_URL_NCI_THESAUSUS_ONTOLOGY_S VAL("http://purl.obolibr
 	/** @name The Schema definitions for specifying DRMAA details. */
 	/* Start of doxygen member group */
 	/**@{*/
-	PREFIX const char *DRMAA_S VAL("drmaa");
-	PREFIX const char *DRMAA_PROGRAM_NAME_S VAL("program_name");
-	PREFIX const char *DRMAA_ENVIRONMENT_S VAL("env_vars");
-	PREFIX const char *DRMAA_JOB_NAME_S VAL("job_name");
-	PREFIX const char *DRMAA_QUEUE_S VAL("queue");
-	PREFIX const char *DRMAA_WORKING_DIR_S VAL("working_dir");
-	PREFIX const char *DRMAA_OUTPUT_FILE_S VAL("output_file");
-	PREFIX const char *DRMAA_ID_S VAL("drmma_job_id");
-	PREFIX const char *DRMAA_UUID_S VAL("drmma_grassroots_uuid");
-	PREFIX const char *DRMAA_OUT_ID_S VAL("drmma_job_out_id");
-	PREFIX const char *DRMAA_HOSTNAME_S VAL("host");
-	PREFIX const char *DRMAA_USERNAME_S VAL("user");
-	PREFIX const char *DRMAA_EMAILS_S VAL("emails");
-	PREFIX const char *DRMAA_ARGS_S VAL("args");
-	PREFIX const char *DRMAA_NUM_CORES_S VAL("num_cores");
-	PREFIX const char *DRMAA_MEM_USAGE_S VAL("mem");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_S SCHEMA_KEYS_VAL("drmaa");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_PROGRAM_NAME_S SCHEMA_KEYS_VAL("program_name");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_ENVIRONMENT_S SCHEMA_KEYS_VAL("env_vars");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_JOB_NAME_S SCHEMA_KEYS_VAL("job_name");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_QUEUE_S SCHEMA_KEYS_VAL("queue");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_WORKING_DIR_S SCHEMA_KEYS_VAL("working_dir");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_OUTPUT_FILE_S SCHEMA_KEYS_VAL("output_file");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_ID_S SCHEMA_KEYS_VAL("drmma_job_id");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_UUID_S SCHEMA_KEYS_VAL("drmma_grassroots_uuid");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_OUT_ID_S SCHEMA_KEYS_VAL("drmma_job_out_id");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_HOSTNAME_S SCHEMA_KEYS_VAL("host");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_USERNAME_S SCHEMA_KEYS_VAL("user");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_EMAILS_S SCHEMA_KEYS_VAL("emails");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_ARGS_S SCHEMA_KEYS_VAL("args");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_NUM_CORES_S SCHEMA_KEYS_VAL("num_cores");
+	SCHEMA_KEYS_PREFIX const char *DRMAA_MEM_USAGE_S SCHEMA_KEYS_VAL("mem");
 	/* End of doxygen member group */
 	/**@}*/
 
 
-	PREFIX const char *WEB_SERVICE_METHOD_S VAL("method");
-	PREFIX const char *WEB_SERVICE_URL_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
+	SCHEMA_KEYS_PREFIX const char *WEB_SERVICE_METHOD_S SCHEMA_KEYS_VAL("method");
+	SCHEMA_KEYS_PREFIX const char *WEB_SERVICE_URL_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "url");
 
 
-	PREFIX const char *KVP_KEY_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
-	PREFIX const char *KVP_VALUE_S VAL("value");
+	SCHEMA_KEYS_PREFIX const char *KVP_KEY_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *KVP_VALUE_S SCHEMA_KEYS_VAL("value");
 
 
 
 
-	PREFIX const char *INDEXING_NAME_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
-	PREFIX const char *INDEXING_SERVICE_NAME_S VAL("service");
-	PREFIX const char *INDEXING_SERVICE_ALIAS_S VAL("service_alternate_name");
-	PREFIX const char *INDEXING_DESCRIPTION_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
-	PREFIX const char *INDEXING_TYPE_S VAL("@type");
-	PREFIX const char *INDEXING_TYPE_DESCRIPTION_S VAL("type_description");
-	PREFIX const char *INDEXING_TYPE_SERVICE_GRASSROOTS_S VAL("Grassroots:Service");
-	PREFIX const char *INDEXING_TYPE_DESCRIPTION_SERVICE_GRASSROOTS_S VAL("Service");
-	PREFIX const char *INDEXING_PAYLOAD_DATA_S VAL("payload");
-	PREFIX const char *INDEXING_PAYLOAD_URL_S VAL("internal_url");
-	PREFIX const char *INDEXING_ID_S VAL("id");
-	PREFIX const char *INDEXING_ICON_URI_S CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_SERVICE_NAME_S SCHEMA_KEYS_VAL("service");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_SERVICE_ALIAS_S SCHEMA_KEYS_VAL("service_alternate_name");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_DESCRIPTION_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "description");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_TYPE_S SCHEMA_KEYS_VAL("@type");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_TYPE_DESCRIPTION_S SCHEMA_KEYS_VAL("type_description");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_TYPE_SERVICE_GRASSROOTS_S SCHEMA_KEYS_VAL("Grassroots:Service");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_TYPE_DESCRIPTION_SERVICE_GRASSROOTS_S SCHEMA_KEYS_VAL("Service");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_PAYLOAD_DATA_S SCHEMA_KEYS_VAL("payload");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_PAYLOAD_URL_S SCHEMA_KEYS_VAL("internal_url");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_ID_S SCHEMA_KEYS_VAL("id");
+	SCHEMA_KEYS_PREFIX const char *INDEXING_ICON_URI_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "image");
 
 
 

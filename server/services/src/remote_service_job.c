@@ -28,7 +28,7 @@
 #include "memory_allocations.h"
 #include "service.h"
 #include "string_utils.h"
-
+#include "uuid_util.h"
 
 #ifdef _DEBUG
 	#define REMOTE_SERVICE_JOB_DEBUG	(STM_LEVEL_FINEST)

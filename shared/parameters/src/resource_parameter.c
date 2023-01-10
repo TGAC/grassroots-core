@@ -233,15 +233,27 @@ bool SetResourceParameterCurrentValueFromJSON (ResourceParameter *param_p, const
 		{
 			if (param_p -> rp_current_value_p)
 				{
-					success_flag = CopyResource (value_p, param_p -> rp_current_value_p);
+					Resource *temp_p = GetResourceFromJSON (value_p);
+
+					if (temp_p)
+						{
+							FreeResource (param_p -> rp_current_value_p);
+							param_p -> rp_current_value_p = temp_p;
+						}
+					else
+						{
+							success_flag = false;
+							PrintJSONToErrors (STM_LEVEL_SEVERE,__FILE__, __LINE__, value_p, "SetResourceParameterCurrentValueFromJSON () for \"%s\"", param_p -> rp_base_param.pa_name_s);
+						}
 				}
 			else
 				{
-					param_p -> rp_current_value_p = CloneResource (value_p);
+					param_p -> rp_current_value_p = GetResourceFromJSON (value_p);
 
 					if (! (param_p -> rp_current_value_p))
 						{
 							success_flag = false;
+							PrintJSONToErrors (STM_LEVEL_SEVERE,__FILE__, __LINE__, value_p, "SetResourceParameterCurrentValueFromJSON () for \"%s\"", param_p -> rp_base_param.pa_name_s);
 						}
 				}
 		}

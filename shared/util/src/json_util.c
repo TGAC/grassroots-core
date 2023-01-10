@@ -133,7 +133,7 @@ json_t *LoadJSONFile (const char * const filename_s)
 
 	if (!config_p)
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to parse %s, error at line %d column %d\n", filename_s, error.line, error.column);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to parse %s, error at line %d column %d, \"%s\"\n", filename_s, error.line, error.column, error.text);
 		}
 
 	return config_p;

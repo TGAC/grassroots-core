@@ -396,7 +396,7 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 static char **CopyStringsArray (const char **src_ss)
 {
 	uint32 num_src_values = 1;		/* for the final NULL entry */
-	char **src_pp = src_ss;
+	const char **src_pp = src_ss;
 	char **dest_ss = NULL;
 
 	while (*src_pp)

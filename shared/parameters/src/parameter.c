@@ -2347,7 +2347,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 				if (value_p)
 					{
-						value_s = GetTimeAsString (value_p , true);
+						value_s = GetTimeAsString (value_p , true, NULL);
 						*alloc_flag_p = true;
 					}
 			}

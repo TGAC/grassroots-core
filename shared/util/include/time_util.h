@@ -103,10 +103,24 @@ GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
  * @param include_time_flag If this is <code>true</code> then both the date and time
  * will be included in the string in ISO 8601 format. If this is <code>false</code>,
  * then just the date part of the string will be returned.
+ * @param time_delimiter_p By default, if the time is requested as part of the string,
+ * the hours, minutes and seconds are separated by a ':'. If this value is not <code>NULL</code>
+ * then the character it points to will be used instead.
  * @return The time as a c-style string or <code>NULL</code> upon error.
  * @ingroup utility_group
+ * @see FreeTimeString()
  */
-GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag);
+GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const bool include_time_flag, const char *time_delimiter_p);
+
+/**
+ * @fn void FreeTimeString(char*)
+ * @brief Free a string previsouly-generated from GetTimeAsString().
+ *
+ * @param time_s The string to free.
+ * @ingroup utility_group
+ * @see GetTimeAsString()
+ */
+GRASSROOTS_UTIL_API void FreeTimeString (char *time_s);
 
 
 /**
@@ -118,6 +132,19 @@ GRASSROOTS_UTIL_API char *GetTimeAsString (const struct tm * const time_p, const
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API bool SetTimeFromString (struct tm * const time_p, const char *time_s);
+
+
+
+/**
+ * Set the time from a string of the form DD-MM-YYYY
+ *
+ * @param time_p The time to be set from the string
+ * @param time_s The time to be set as a c-style string or <code>NULL</code> upon error.
+ * @return <code>true</code> if the time was set successfully, <code>false</code> otherwise.
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API bool SetTimeFromDDMMYYYYString (struct tm * const time_p, const char *time_s);
+
 
 
 GRASSROOTS_UTIL_API struct tm *GetTimeFromString (const char *time_s);
@@ -202,6 +229,10 @@ GRASSROOTS_UTIL_API bool IsValidDate (struct tm *time_p);
  * @ingroup utility_group
  */
 GRASSROOTS_UTIL_API int CompareDates (const struct tm *time_0_p, const struct tm *time_1_p, const bool dates_only_flag);
+
+
+
+GRASSROOTS_UTIL_API bool MayStringIncludeTime (const char * const time_s);
 
 
 #ifdef __cplusplus
