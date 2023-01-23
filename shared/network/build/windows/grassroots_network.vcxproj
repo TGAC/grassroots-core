@@ -157,7 +157,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(GrassrootsExtrasDir)\curl\include;$(GrassrootsExtrasDir)\pcre\include;$(GrassrootsExtrasDir)\jansson\include;..\..\..\util\include\io;..\..\..\util\include;..\..\..\..\server\services\include;..\..\..\..\server\server\include;..\..\..\util\include\containers;..\..\include;..\..\..\uuid\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
