@@ -187,6 +187,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\grassroots.props" />
+    <None Include="..\..\..\..\..\build-config\windows\project.props" />
   </ItemGroup>
 </Project>
