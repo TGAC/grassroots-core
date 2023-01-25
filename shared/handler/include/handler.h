@@ -27,7 +27,7 @@
 #include "typedefs.h"
 #include "grassroots_handler_library.h"
 #include "plugin.h"
-#include "data_resource.h"
+#include "../../util/include/data_resource.h"
 #include "parameter.h"
 #include "jansson.h"
 #include "filesystem_utils.h"
@@ -97,7 +97,7 @@ typedef struct Handler
 	 * @param resource_p The Resource to check the Handler with.
 	 * @return <code>true</code> if the Handler is for the Resource, <code>false</code> false otherwise.
 	 */
-	bool (*ha_match_fn) (struct Handler *handler_p, const Resource * resource_p);
+	bool (*ha_match_fn) (struct Handler *handler_p, const DataResource * resource_p);
 
 	/**
 	 * Get the protocol of a Handler.
@@ -139,7 +139,7 @@ typedef struct Handler
 	 * the mode used with the standard c library fopen.
 	 * @return <code>true</code> upon success, <code>false</code> upon failure.
 	 */
-	bool (*ha_open_fn) (struct Handler *handler_p, Resource *resource_p, MEM_FLAG resource_mem, const char * const mode_s);
+	bool (*ha_open_fn) (struct Handler *handler_p, DataResource *resource_p, MEM_FLAG resource_mem, const char * const mode_s);
 
 
 	/**
@@ -227,7 +227,7 @@ typedef struct Handler
 	/**
 	 * The current Resource for this Handler.
 	 */
-	Resource *ha_resource_p;
+	DataResource *ha_resource_p;
 
 	/**
 	 * The MEM_FLAG for the Handler's Resource.
@@ -292,11 +292,11 @@ extern "C"
  */
 GRASSROOTS_HANDLER_API void InitialiseHandler (Handler * const handler_p,
 	bool (*init_fn) (struct Handler *handler_p, const UserDetails *user_p),
-	bool (*match_fn) (struct Handler *handler_p, const Resource * resource_p),
+	bool (*match_fn) (struct Handler *handler_p, const DataResource * resource_p),
 	const char *(*get_protocol_fn) (struct Handler *handler_p),
 	const char *(*get_name_fn) (struct Handler *handler_p),
 	const char *(*get_description_fn) (struct Handler *handler_p),
-	bool (*open_fn) (struct Handler *handler_p, Resource *resource_p, MEM_FLAG resource_mem, const char * const mode_s),
+	bool (*open_fn) (struct Handler *handler_p, DataResource *resource_p, MEM_FLAG resource_mem, const char * const mode_s),
 	size_t (*read_fn) (struct Handler *handler_p, void *buffer_p, const size_t length),
 	size_t (*write_fn) (struct Handler *handler_p, const void *buffer_p, const size_t length),
 	bool (*seek_fn) (struct Handler *handler_p, long offset, int whence),
@@ -333,7 +333,7 @@ GRASSROOTS_HANDLER_API bool InitHandler (struct Handler *handler_p, const UserDe
  * @see ha_open_fn
  * @memberof Handler
  */
-GRASSROOTS_HANDLER_API bool OpenHandler (struct Handler *handler_p, Resource *resource_p, MEM_FLAG resource_mem, const char * const mode_s);
+GRASSROOTS_HANDLER_API bool OpenHandler (struct Handler *handler_p, DataResource *resource_p, MEM_FLAG resource_mem, const char * const mode_s);
 
 
 /**
@@ -401,7 +401,7 @@ GRASSROOTS_HANDLER_API bool CloseHandler (struct Handler *handler_p);
  * @return <code>true</code> if the Handler is for the Resource, <code>false</code> false otherwise.
  * @memberof Handler
  */
-GRASSROOTS_HANDLER_API bool IsHandlerForResource (struct Handler *handler_p, const Resource * resource_p);
+GRASSROOTS_HANDLER_API bool IsHandlerForResource (struct Handler *handler_p, const DataResource * resource_p);
 
 
 /**

@@ -32,9 +32,9 @@ typedef struct ResourceParameter
 {
 	Parameter rp_base_param;
 
-	Resource *rp_current_value_p;
+	DataResource *rp_current_value_p;
 
-	Resource *rp_default_value_p;
+	DataResource *rp_default_value_p;
 } ResourceParameter;
 
 
@@ -61,7 +61,7 @@ extern "C" {
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof ResourceParameter
  */
-GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, Resource *default_value_p, Resource *current_value_p, ParameterLevel level);
+GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, DataResource *default_value_p, DataResource *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag);
@@ -70,19 +70,19 @@ GRASSROOTS_PARAMS_API ResourceParameter *AllocateResourceParameterFromJSON (cons
 GRASSROOTS_PARAMS_API void FreeResourceParameter (ResourceParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API const Resource *GetResourceParameterCurrentValue (const ResourceParameter *param_p);
+GRASSROOTS_PARAMS_API const DataResource *GetResourceParameterCurrentValue (const ResourceParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool SetResourceParameterCurrentValue (ResourceParameter *param_p, const Resource *value_p);
+GRASSROOTS_PARAMS_API bool SetResourceParameterCurrentValue (ResourceParameter *param_p, const DataResource *value_p);
 
 
-GRASSROOTS_PARAMS_API const Resource *GetResourceParameterDefaultValue (const ResourceParameter *param_p);
+GRASSROOTS_PARAMS_API const DataResource *GetResourceParameterDefaultValue (const ResourceParameter *param_p);
 
 
-GRASSROOTS_PARAMS_API bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const Resource *value_p);
+GRASSROOTS_PARAMS_API bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const DataResource *value_p);
 
 
-GRASSROOTS_PARAMS_API bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const Resource **value_pp);
+GRASSROOTS_PARAMS_API bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const DataResource **value_pp);
 
 
 GRASSROOTS_PARAMS_API bool IsResourceParameter (const Parameter *param_p);

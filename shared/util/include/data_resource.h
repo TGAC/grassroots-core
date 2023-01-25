@@ -37,7 +37,7 @@
  *
  * @ingroup utility_group
  */
-typedef struct Resource
+typedef struct DataResource
 {
 	/**
 	 * The protocol of this Resource.
@@ -67,7 +67,7 @@ typedef struct Resource
 	 * application-specific configuration details.
 	 */
 	json_t *re_data_p;
-} Resource;
+} DataResource;
 
 /*
  * The following preprocessor macros allow us to declare
@@ -168,7 +168,7 @@ extern "C" {
  * @return A newly-allocated Resource or <code>NULL</code> upon error.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API Resource *AllocateResource (const char *protocol_s, const char *value_s, const char *title_s);
+GRASSROOTS_UTIL_API DataResource *AllocateDataResource (const char *protocol_s, const char *value_s, const char *title_s);
 
 
 /**
@@ -177,7 +177,7 @@ GRASSROOTS_UTIL_API Resource *AllocateResource (const char *protocol_s, const ch
  * @param resource_p The Resource to initialise.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API void InitResource (Resource *resource_p);
+GRASSROOTS_UTIL_API void InitDataResource (DataResource *resource_p);
 
 
 /**
@@ -186,7 +186,7 @@ GRASSROOTS_UTIL_API void InitResource (Resource *resource_p);
  * @param resource_p The Resource to free.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API void FreeResource (Resource *resource_p);
+GRASSROOTS_UTIL_API void FreeDataResource (DataResource *resource_p);
 
 
 /**
@@ -197,7 +197,7 @@ GRASSROOTS_UTIL_API void FreeResource (Resource *resource_p);
  * @param resource_p The Resource to clear.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API void ClearResource (Resource *resource_p);
+GRASSROOTS_UTIL_API void ClearDataResource (DataResource *resource_p);
 
 
 /**
@@ -213,7 +213,7 @@ GRASSROOTS_UTIL_API void ClearResource (Resource *resource_p);
  * @return <code>true</code> if the Resource was updated successfully, <code>false</code> otherwise.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API bool SetResourceValue (Resource *resource_p, const char *protocol_s, const char *value_s, const char *title_s);
+GRASSROOTS_UTIL_API bool SetDataResourceValue (DataResource *resource_p, const char *protocol_s, const char *value_s, const char *title_s);
 
 
 /**
@@ -226,7 +226,7 @@ GRASSROOTS_UTIL_API bool SetResourceValue (Resource *resource_p, const char *pro
  * @return <code>true</code> if the Resource was updated successfully, <code>false</code> otherwise.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API bool SetResourceData (Resource *resource_p, json_t *data_p, const bool owns_data_flag);
+GRASSROOTS_UTIL_API bool SetDataResourceData (DataResource *resource_p, json_t *data_p, const bool owns_data_flag);
 
 
 /**
@@ -240,7 +240,7 @@ GRASSROOTS_UTIL_API bool SetResourceData (Resource *resource_p, json_t *data_p, 
  * otherwise. Upon failure, the destination Resource will remain unaltered.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API bool CopyResource (const Resource * const src_p, Resource * const dest_p);
+GRASSROOTS_UTIL_API bool CopyDataResource (const DataResource * const src_p, DataResource * const dest_p);
 
 
 /**
@@ -253,7 +253,7 @@ GRASSROOTS_UTIL_API bool CopyResource (const Resource * const src_p, Resource * 
  * otherwise. Upon failure, the destination Resource will remain unaltered.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API Resource *CloneResource (const Resource * const src_p);
+GRASSROOTS_UTIL_API DataResource *CloneDataResource (const DataResource * const src_p);
 
 
 /**
@@ -273,7 +273,7 @@ GRASSROOTS_UTIL_API Resource *CloneResource (const Resource * const src_p);
  * @see PROTOCOL_INLINE_S
  * @see RESOURCE_DELIMITER_S
  */
-GRASSROOTS_UTIL_API Resource *ParseStringToResource (const char * const resource_s);
+GRASSROOTS_UTIL_API DataResource *ParseStringToDataResource (const char * const resource_s);
 
 
 /**
@@ -289,7 +289,7 @@ GRASSROOTS_UTIL_API Resource *ParseStringToResource (const char * const resource
  * @memberof Resource
  * @see FreeCopiedString
  */
-GRASSROOTS_UTIL_API bool GetResourceProtocolAndPath (const char * const resource_s, char ** const path_ss, char ** const protocol_ss);
+GRASSROOTS_UTIL_API bool GetDataResourceProtocolAndPath (const char * const resource_s, char ** const path_ss, char ** const protocol_ss);
 
 
 /**
@@ -303,7 +303,7 @@ GRASSROOTS_UTIL_API bool GetResourceProtocolAndPath (const char * const resource
  * upon failure.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * const path_s, const char * const title_s, json_t *data_p);
+GRASSROOTS_UTIL_API json_t *GetDataResourceAsJSONByParts (const char * const protocol_s, const char * const path_s, const char * const title_s, json_t *data_p);
 
 
 /**
@@ -314,7 +314,7 @@ GRASSROOTS_UTIL_API json_t *GetResourceAsJSONByParts (const char * const protoco
  * upon failure.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API json_t *GetResourceAsJSON (const Resource *resource_p);
+GRASSROOTS_UTIL_API json_t *GetDataResourceAsJSON (const DataResource *resource_p);
 
 
 /**
@@ -325,7 +325,7 @@ GRASSROOTS_UTIL_API json_t *GetResourceAsJSON (const Resource *resource_p);
  * upon failure.
  * @memberof Resource
  */
-GRASSROOTS_UTIL_API Resource *GetResourceFromJSON (const json_t *json_p);
+GRASSROOTS_UTIL_API DataResource *GetDataResourceFromJSON (const json_t *json_p);
 
 
 #ifdef __cplusplus

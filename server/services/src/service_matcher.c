@@ -34,7 +34,7 @@ ServiceMatcher *AllocateServiceMatcher (void)
 }
 
 
-ServiceMatcher *AllocateResourceServiceMatcher (Resource *resource_p, Handler *handler_p)
+ServiceMatcher *AllocateResourceServiceMatcher (DataResource *resource_p, Handler *handler_p)
 {
 	ResourceServiceMatcher *matcher_p = (ResourceServiceMatcher *) AllocMemory (sizeof (ResourceServiceMatcher));
 	
@@ -109,7 +109,7 @@ void InitServiceMatcher (ServiceMatcher *matcher_p, bool (*match_fn) (ServiceMat
 }
 
 
-void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, Resource *resource_p, Handler *handler_p)
+void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, DataResource *resource_p, Handler *handler_p)
 {
 	InitServiceMatcher (& (matcher_p -> rsm_base_matcher), MatchServiceByResource);
 	matcher_p -> rsm_base_matcher.sm_destroy_fn = FreeResourceServiceMatcher;

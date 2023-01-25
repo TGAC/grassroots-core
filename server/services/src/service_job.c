@@ -1749,7 +1749,7 @@ bool InitServiceJobFromResultsJSON (ServiceJob *job_p, const json_t *results_p, 
 
 													title_s = ConcatenateVarargsStrings (job_p -> sj_name_s, " (", uuid_s, ")", NULL);
 
-													resource_p = GetResourceAsJSONByParts (PROTOCOL_INLINE_S, NULL, title_s ? title_s : uuid_s, data_p);
+													resource_p = GetDataResourceAsJSONByParts (PROTOCOL_INLINE_S, NULL, title_s ? title_s : uuid_s, data_p);
 
 													if (title_s)
 														{

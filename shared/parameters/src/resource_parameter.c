@@ -30,7 +30,7 @@
  * STATIC DECLARATIONS
  */
 
-static bool SetResourceParameterValue (Resource **param_value_pp, const Resource *new_value_p);
+static bool SetResourceParameterValue (DataResource **param_value_pp, const DataResource *new_value_p);
 
 static void ClearResourceParameter (Parameter *param_p);
 
@@ -38,20 +38,20 @@ static bool AddResourceParameterDetailsToJSON (const Parameter *param_p, json_t 
 
 static bool GetResourceParameterDetailsFromJSON (Parameter *param_p, const json_t *param_json_p);
 
-static bool AddResourceValueToJSON (const Resource *resource_p, json_t *param_json_p, const char *key_s);
+static bool AddResourceValueToJSON (const DataResource *resource_p, json_t *param_json_p, const char *key_s);
 
 static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
-static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *param_json_p, const char *key_s);
+static bool SetResourceParameterValueFromJSON (DataResource **res_pp, const json_t *param_json_p, const char *key_s);
 
-static ResourceParameter *GetNewResourceParameter (const Resource *current_value_p, const Resource *default_value_p);
+static ResourceParameter *GetNewResourceParameter (const DataResource *current_value_p, const DataResource *default_value_p);
 
 /*
  * API DEFINITIONS
  */
 
 
-static ResourceParameter *GetNewResourceParameter (const Resource *current_value_p, const Resource *default_value_p)
+static ResourceParameter *GetNewResourceParameter (const DataResource *current_value_p, const DataResource *default_value_p)
 {
 	ResourceParameter *param_p = (ResourceParameter *) AllocMemory (sizeof (ResourceParameter));
 
@@ -69,7 +69,7 @@ static ResourceParameter *GetNewResourceParameter (const Resource *current_value
 
 					if (param_p -> rp_current_value_p)
 						{
-							FreeResource (param_p -> rp_current_value_p);
+							FreeDataResource (param_p -> rp_current_value_p);
 						}
 				}
 
@@ -80,7 +80,7 @@ static ResourceParameter *GetNewResourceParameter (const Resource *current_value
 }
 
 
-ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, Resource *default_value_p, Resource *current_value_p, ParameterLevel level)
+ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_data_p, const ParameterType pt, const char * const name_s, const char * const display_name_s, const char * const description_s, DataResource *default_value_p, DataResource *current_value_p, ParameterLevel level)
 {
 	ResourceParameter *param_p = GetNewResourceParameter (current_value_p, default_value_p);
 
@@ -110,11 +110,11 @@ ResourceParameter *AllocateResourceParameter (const struct ServiceData *service_
 ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p, const Service *service_p, const bool concise_flag)
 {
 	ResourceParameter *param_p = NULL;
-	Resource *current_value_p = NULL;
+	DataResource *current_value_p = NULL;
 
 	if (SetResourceParameterValueFromJSON (&current_value_p, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			Resource *default_value_p = NULL;
+			DataResource *default_value_p = NULL;
 			bool success_flag = true;
 
 			if (!concise_flag)
@@ -149,13 +149,13 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 
 			if (default_value_p)
 				{
-					FreeResource (default_value_p);
+					FreeDataResource (default_value_p);
 				}
 		}
 
 	if (current_value_p)
 		{
-			FreeResource (current_value_p);
+			FreeDataResource (current_value_p);
 		}
 
 	return param_p;
@@ -163,25 +163,25 @@ ResourceParameter *AllocateResourceParameterFromJSON (const json_t *param_json_p
 
 
 
-const Resource *GetResourceParameterCurrentValue (const ResourceParameter *param_p)
+const DataResource *GetResourceParameterCurrentValue (const ResourceParameter *param_p)
 {
 	return param_p -> rp_current_value_p;
 }
 
 
-bool SetResourceParameterCurrentValue (ResourceParameter *param_p, const Resource *value_p)
+bool SetResourceParameterCurrentValue (ResourceParameter *param_p, const DataResource *value_p)
 {
 	return SetResourceParameterValue (& (param_p -> rp_current_value_p), value_p);
 }
 
 
-const Resource *GetResourceParameterDefaultValue (const ResourceParameter *param_p)
+const DataResource *GetResourceParameterDefaultValue (const ResourceParameter *param_p)
 {
 	return param_p -> rp_default_value_p;
 }
 
 
-bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const Resource *value_p)
+bool SetResourceParameterDefaultValue (ResourceParameter *param_p, const DataResource *value_p)
 {
 	return SetResourceParameterValue (& (param_p -> rp_default_value_p), value_p);
 }
@@ -207,7 +207,7 @@ bool IsResourceParameter (const Parameter *param_p)
 }
 
 
-bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const Resource **value_pp)
+bool GetCurrentResourceParameterValueFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const DataResource **value_pp)
 {
 	bool success_flag = false;
 	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
@@ -233,11 +233,11 @@ bool SetResourceParameterCurrentValueFromJSON (ResourceParameter *param_p, const
 		{
 			if (param_p -> rp_current_value_p)
 				{
-					Resource *temp_p = GetResourceFromJSON (value_p);
+					DataResource *temp_p = GetDataResourceFromJSON (value_p);
 
 					if (temp_p)
 						{
-							FreeResource (param_p -> rp_current_value_p);
+							FreeDataResource (param_p -> rp_current_value_p);
 							param_p -> rp_current_value_p = temp_p;
 						}
 					else
@@ -248,7 +248,7 @@ bool SetResourceParameterCurrentValueFromJSON (ResourceParameter *param_p, const
 				}
 			else
 				{
-					param_p -> rp_current_value_p = GetResourceFromJSON (value_p);
+					param_p -> rp_current_value_p = GetDataResourceFromJSON (value_p);
 
 					if (! (param_p -> rp_current_value_p))
 						{
@@ -261,7 +261,7 @@ bool SetResourceParameterCurrentValueFromJSON (ResourceParameter *param_p, const
 		{
 			if (param_p -> rp_current_value_p)
 				{
-					FreeResource (param_p -> rp_current_value_p);
+					FreeDataResource (param_p -> rp_current_value_p);
 					param_p -> rp_current_value_p = NULL;
 				}
 		}
@@ -275,7 +275,7 @@ bool SetResourceParameterCurrentValueFromJSON (ResourceParameter *param_p, const
  * STATIC DEFINITIONS
  */
 
-static bool SetResourceParameterValue (Resource **param_value_pp, const Resource *new_value_p)
+static bool SetResourceParameterValue (DataResource **param_value_pp, const DataResource *new_value_p)
 {
 	bool success_flag = true;
 
@@ -283,11 +283,11 @@ static bool SetResourceParameterValue (Resource **param_value_pp, const Resource
 		{
 			if (*param_value_pp)
 				{
-					success_flag = CopyResource (new_value_p, *param_value_pp);
+					success_flag = CopyDataResource (new_value_p, *param_value_pp);
 				}
 			else
 				{
-					*param_value_pp = CloneResource (new_value_p);
+					*param_value_pp = CloneDataResource (new_value_p);
 
 					if (! (*param_value_pp))
 						{
@@ -299,7 +299,7 @@ static bool SetResourceParameterValue (Resource **param_value_pp, const Resource
 		{
 			if (*param_value_pp)
 				{
-					FreeResource (*param_value_pp);
+					FreeDataResource (*param_value_pp);
 					*param_value_pp = NULL;
 				}
 		}
@@ -327,13 +327,13 @@ static void ClearResourceParameter (Parameter *param_p)
 }
 
 
-static bool AddResourceValueToJSON (const Resource *resource_p, json_t *param_json_p, const char *key_s)
+static bool AddResourceValueToJSON (const DataResource *resource_p, json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
 
 	if (resource_p)
 		{
-			json_t *res_json_p = GetResourceAsJSON (resource_p);
+			json_t *res_json_p = GetDataResourceAsJSON (resource_p);
 
 			if (res_json_p)
 				{
@@ -445,12 +445,12 @@ static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, cons
 
 	if (value_s)
 		{
-			Resource *resource_p = ParseStringToResource (value_s);
+			DataResource *resource_p = ParseStringToDataResource (value_s);
 
 			if (resource_p)
 				{
 					success_flag = SetResourceParameterCurrentValue (res_param_p, resource_p);
-					FreeResource (resource_p);
+					FreeDataResource (resource_p);
 				}
 		}
 	else
@@ -462,7 +462,7 @@ static bool SetResourceParameterCurrentValueFromString (Parameter *param_p, cons
 }
 
 
-static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *param_json_p, const char *key_s)
+static bool SetResourceParameterValueFromJSON (DataResource **res_pp, const json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
 	const json_t *value_p = json_object_get (param_json_p, key_s);
@@ -471,7 +471,7 @@ static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *
 		{
 			if (*res_pp)
 				{
-					FreeResource (*res_pp);
+					FreeDataResource (*res_pp);
 				}
 
 			*res_pp = NULL;
@@ -479,22 +479,22 @@ static bool SetResourceParameterValueFromJSON (Resource **res_pp, const json_t *
 		}
 	else
 		{
-			Resource *res_p = GetResourceFromJSON (value_p);
+			DataResource *res_p = GetDataResourceFromJSON (value_p);
 
 			if (res_p)
 				{
 					if (*res_pp)
 						{
-							success_flag = CopyResource (res_p, *res_pp);
+							success_flag = CopyDataResource (res_p, *res_pp);
 						}
 					else
 						{
-							*res_pp = CloneResource (res_p);
+							*res_pp = CloneDataResource (res_p);
 
 							success_flag = (*res_pp != NULL);
 						}
 
-					FreeResource (res_p);
+					FreeDataResource (res_p);
 				}
 		}
 
