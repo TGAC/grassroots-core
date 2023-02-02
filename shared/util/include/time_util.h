@@ -92,7 +92,7 @@ GRASSROOTS_UTIL_API bool ConvertDropboxStringToEpochTime (const char * const tim
  * @return <code>true</code> if the time was set successfully, <code>false</code> otherwise.
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
+GRASSROOTS_UTIL_API bool GetPresentTime (struct tm *tm_p);
 
 
 

@@ -272,7 +272,7 @@ bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_
 		{
 			struct tm tm;
 
-			if (GetCurrentTime (&tm))
+			if (GetPresentTime (&tm))
 				{
 					char *time_s = GetTimeAsString (&tm, true, NULL);
 
