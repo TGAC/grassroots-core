@@ -278,7 +278,7 @@ bool ConvertDropboxStringToEpochTime (const char * const time_s, time_t *time_p)
 }
 
 
-bool GetCurrentTime (struct tm *tm_p)
+bool GetPresentTime (struct tm *tm_p)
 {
 	bool success_flag = false;
 	time_t current_time = time (NULL);
@@ -288,7 +288,7 @@ bool GetCurrentTime (struct tm *tm_p)
 #ifdef WINDOWS
 		success_flag = (localtime_s (tm_p, &current_time) != 0);
 #else
-		success_flag = (localtime_r(&current_time, tm_p) != NULL);
+		success_flag = (localtime_r (&current_time, tm_p) != NULL);
 #endif
 		}
 
