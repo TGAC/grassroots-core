@@ -52,7 +52,7 @@ static bool AddServiceNameToJSON (Service * const service_p, json_t *root_p);
 
 static bool AddServiceDescriptionToJSON (Service * const service_p, json_t *root_p);
 
-static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p,  const bool full_definition_flag, Resource *resource_p, UserDetails *user_p);
+static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p,  const bool full_definition_flag, DataResource *resource_p, UserDetails *user_p);
 
 static bool AddOperationInformationURIToJSON (Service * const service_p, json_t *root_p);
 
@@ -90,8 +90,8 @@ bool InitialiseService (Service * const service_p,
 												const char *(*get_service_alias_fn) (const Service *service_p),
 												const char *(*get_service_info_uri_fn) (const Service *service_p),
 												ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
-												ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
-												ParameterSet *(*get_parameters_fn) (Service *service_p, Resource *resource_p, UserDetails *user_p),
+												ParameterSet *(*match_fn) (Service *service_p, DataResource *resource_p, Handler *handler_p),
+												ParameterSet *(*get_parameters_fn) (Service *service_p, DataResource *resource_p, UserDetails *user_p),
 												bool (*get_parameter_type_fn) (const struct Service *service_p, const char *param_name_s, ParameterType *pt_p),
 												void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
 												bool (*close_fn) (struct Service *service_p),
@@ -700,7 +700,7 @@ void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *ser
 
 
 
-void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p)
+void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, DataResource *resource_p, Handler *handler_p, UserDetails *user_p)
 {
 	ResourceServiceMatcher matcher;
 
@@ -802,7 +802,7 @@ json_t *CreateSerialisedJSONForServiceJobFromService (struct Service *service_p,
 }
 
 
-ParameterSet *IsServiceMatch (Service *service_p, Resource *resource_p, Handler *handler_p)
+ParameterSet *IsServiceMatch (Service *service_p, DataResource *resource_p, Handler *handler_p)
 {
 	ParameterSet *params_p = NULL;
 
@@ -897,7 +897,7 @@ char *GetServiceUUIDAsString (Service *service_p)
 
 
 
-ParameterSet *GetServiceParameters (Service *service_p, Resource *resource_p, UserDetails *user_p)
+ParameterSet *GetServiceParameters (Service *service_p, DataResource *resource_p, UserDetails *user_p)
 {
 	return service_p -> se_get_params_fn (service_p, resource_p, user_p);
 }
@@ -1114,7 +1114,7 @@ static json_t *GetServiceProcessRequest (const char * const service_name_s, cons
 }
 
 
-json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag)
+json_t *GetServiceAsJSON (Service * const service_p, DataResource *resource_p, UserDetails *user_p, const bool add_id_flag)
 {
 	json_t *root_p = GetBaseServiceDataAsJSON (service_p, user_p);
 
@@ -1203,7 +1203,7 @@ json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserD
 }
 
 
-json_t *GetServiceIndexingDataAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p)
+json_t *GetServiceIndexingDataAsJSON (Service * const service_p, DataResource *resource_p, UserDetails *user_p)
 {
 	json_t *res_p = GetBaseServiceDataAsJSON (service_p, user_p);
 
@@ -1673,7 +1673,7 @@ static bool AddOperationInformationURIToJSON (Service * const service_p, json_t 
 }
 
 
-static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p, const bool full_definition_flag, Resource *resource_p, UserDetails *user_p)
+static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p, const bool full_definition_flag, DataResource *resource_p, UserDetails *user_p)
 {
 	bool success_flag = false;
 	ParameterSet *param_set_p = GetServiceParameters (service_p, resource_p, user_p);
@@ -1822,7 +1822,7 @@ bool AddLinkedService (Service *service_p, LinkedService *linked_service_p)
 
 
 
-json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p, UserDetails *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p)
+json_t *GetServicesListAsJSON (LinkedList *services_list_p, DataResource *resource_p, UserDetails *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p)
 {
 	json_t *services_list_json_p = json_array ();
 

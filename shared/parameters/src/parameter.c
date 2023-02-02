@@ -2274,11 +2274,11 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 		case PT_FILE_TO_WRITE:
 			{
 				ResourceParameter *resource_param_p = (ResourceParameter *) param_p;
-				const Resource *resource_p = GetResourceParameterCurrentValue (resource_param_p);
+				const DataResource *resource_p = GetResourceParameterCurrentValue (resource_param_p);
 
 				if (resource_p)
 					{
-						json_t *resource_json_p = GetResourceAsJSON (resource_p);
+						json_t *resource_json_p = GetDataResourceAsJSON (resource_p);
 
 						if (resource_json_p)
 							{

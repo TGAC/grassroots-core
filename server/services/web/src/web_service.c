@@ -47,13 +47,13 @@ static const char *GetWebServiceAlias (Service *service_p);
 
 static const char *GetWebServiceInformationUri (Service *service_p);
 
-static ParameterSet *GetWebServiceParameters (Service *service_p, Resource *resource_p, UserDetails *user_p);
+static ParameterSet *GetWebServiceParameters (Service *service_p, DataResource *resource_p, UserDetails *user_p);
 
 static void ReleaseWebServiceParameters (Service *service_p, ParameterSet *params_p);
 
 static ServiceJobSet *RunWebService (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable * UNUSED_PARAM (providers_p));
 
-static  ParameterSet *IsResourceForWebService (Service *service_p, Resource *resource_p, Handler *handler_p);
+static  ParameterSet *IsResourceForWebService (Service *service_p, DataResource *resource_p, Handler *handler_p);
 
 
 static WebServiceData *AllocateWebServiceData (json_t *config_p);
@@ -201,7 +201,7 @@ static const char *GetWebServiceInformationUri (Service *service_p)
 
 
 
-static ParameterSet *GetWebServiceParameters (Service *service_p, Resource * UNUSED_PARAM (resource_p), UserDetails * UNUSED_PARAM (user_p))
+static ParameterSet *GetWebServiceParameters (Service *service_p, DataResource * UNUSED_PARAM (resource_p), UserDetails * UNUSED_PARAM (user_p))
 {
 	WebServiceData *data_p = (WebServiceData *) (service_p -> se_data_p);
 
@@ -280,7 +280,7 @@ static ServiceJobSet *RunWebService (Service *service_p, ParameterSet *param_set
 
 	
 
-static ParameterSet *IsResourceForWebService (Service * UNUSED_PARAM (service_p), Resource * UNUSED_PARAM (resource_p), Handler * UNUSED_PARAM (handler_p))
+static ParameterSet *IsResourceForWebService (Service * UNUSED_PARAM (service_p), DataResource * UNUSED_PARAM (resource_p), Handler * UNUSED_PARAM (handler_p))
 {
 	return NULL;
 }

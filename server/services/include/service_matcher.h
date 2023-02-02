@@ -72,7 +72,7 @@ typedef struct ResourceServiceMatcher
 	ServiceMatcher rsm_base_matcher;
 
 	/** The Resource to test if a Service can operate upon. */
-	Resource *rsm_resource_p;
+	DataResource *rsm_resource_p;
 
 	/** The Handler to access the Resource. */
 	Handler *rsm_handler_p;
@@ -175,7 +175,7 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocateServiceMatcher (void);
  * @return A newly-allocated ServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocateResourceServiceMatcher (Resource *resource_p, Handler *handler_p);
+GRASSROOTS_SERVICE_API ServiceMatcher *AllocateResourceServiceMatcher (DataResource *resource_p, Handler *handler_p);
 
 
 /**
@@ -228,7 +228,7 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocateKeywordServiceMatcher (void);
 GRASSROOTS_SERVICE_LOCAL void InitServiceMatcher (ServiceMatcher *matcher_p, RunServiceMatcherCallback match_fn);
 
 
-GRASSROOTS_SERVICE_LOCAL void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, Resource *resource_p, Handler *handler_p);
+GRASSROOTS_SERVICE_LOCAL void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, DataResource *resource_p, Handler *handler_p);
 
 GRASSROOTS_SERVICE_LOCAL void InitOperationNameServiceMatcher (NameServiceMatcher *matcher_p, const char *name_s, const char *alias_s);
 

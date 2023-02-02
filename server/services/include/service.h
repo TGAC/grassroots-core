@@ -190,7 +190,7 @@ typedef struct Service
 	 * the given Resource, this will return <code>NULL</code>.
 	 * @memberof Service
 	 */
-	ParameterSet *(*se_match_fn) (struct Service *service_p, Resource *resource_p, Handler *handler_p);
+	ParameterSet *(*se_match_fn) (struct Service *service_p, DataResource *resource_p, Handler *handler_p);
 
 	/**
 	 * Check whether the user have permissions to run the Service.
@@ -231,7 +231,7 @@ typedef struct Service
 	/**
 	 * Function to get the ParameterSet for this Service.
 	 */
-	ParameterSet *(*se_get_params_fn) (struct Service *service_p, Resource *resource_p, UserDetails *user_p);
+	ParameterSet *(*se_get_params_fn) (struct Service *service_p, DataResource *resource_p, UserDetails *user_p);
 
 
 	/**
@@ -484,8 +484,8 @@ GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
 	const char *(*get_service_alias_fn) (const Service *service_p),
 	const char *(*get_service_info_uri_fn) (const Service *service_p),
 	struct ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
-	ParameterSet *(*match_fn) (Service *service_p, Resource *resource_p, Handler *handler_p),
-	ParameterSet *(*get_parameters_fn) (Service *service_p, Resource *resource_p, UserDetails *user_p),
+	ParameterSet *(*match_fn) (Service *service_p, DataResource *resource_p, Handler *handler_p),
+	ParameterSet *(*get_parameters_fn) (Service *service_p, DataResource *resource_p, UserDetails *user_p),
 	bool (*get_parameter_type_fn) (const Service *service_p, const char *param_name_s, ParameterType *pt_p),
 	void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
 	bool (*close_fn) (Service *service_p),
@@ -577,7 +577,7 @@ GRASSROOTS_SERVICE_API Service *GetServiceByName (GrassrootsServer *grassroots_p
  * @memberof Service
  * @see se_match_fn
  */
-GRASSROOTS_SERVICE_API ParameterSet *IsServiceMatch (Service *service_p, Resource *resource_p, Handler *handler_p);
+GRASSROOTS_SERVICE_API ParameterSet *IsServiceMatch (Service *service_p, DataResource *resource_p, Handler *handler_p);
 
 
 /**
@@ -641,7 +641,7 @@ GRASSROOTS_SERVICE_API const char *GetServiceInformationURI (const Service *serv
  * @see FreeParameterSet.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API ParameterSet *GetServiceParameters (Service *service_p, Resource *resource_p,  UserDetails *user_p);
+GRASSROOTS_SERVICE_API ParameterSet *GetServiceParameters (Service *service_p, DataResource *resource_p,  UserDetails *user_p);
 
 
 
@@ -752,7 +752,7 @@ GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (GrassrootsServer *grassr
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, Resource *resource_p, Handler *handler_p, UserDetails *user_p);
+GRASSROOTS_SERVICE_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, DataResource *resource_p, Handler *handler_p, UserDetails *user_p);
 
 
 /**
@@ -813,7 +813,7 @@ GRASSROOTS_SERVICE_API  bool IsServiceLive (Service *service_p);
  * an error.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API json_t *GetServiceAsJSON (Service * const service_p, Resource *resource_p, UserDetails *user_p, const bool add_id_flag);
+GRASSROOTS_SERVICE_API json_t *GetServiceAsJSON (Service * const service_p, DataResource *resource_p, UserDetails *user_p, const bool add_id_flag);
 
 
 /**
@@ -864,7 +864,7 @@ GRASSROOTS_SERVICE_API bool DeallocatePluginService (Plugin * const plugin_p);
  * @see GetServiceAsJSON
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API json_t *GetServicesListAsJSON (LinkedList *services_list_p, Resource *resource_p, UserDetails *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p);
+GRASSROOTS_SERVICE_API json_t *GetServicesListAsJSON (LinkedList *services_list_p, DataResource *resource_p, UserDetails *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p);
 
 
 /**
