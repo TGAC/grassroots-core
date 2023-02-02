@@ -27,7 +27,7 @@
 #include "typedefs.h"
 #include "grassroots_handler_library.h"
 #include "plugin.h"
-#include "../../util/include/data_resource.h"
+#include "data_resource.h"
 #include "parameter.h"
 #include "jansson.h"
 #include "filesystem_utils.h"

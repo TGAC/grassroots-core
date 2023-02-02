@@ -30,7 +30,7 @@ static void FreeUserAuthenticationNode (ListItem *item_p);
 
 /******************************************************************/
 
-UserDetails *AllocateUserDetails (const json_t *credentials_p)
+UserDetails *AllocateUserDetails (json_t *credentials_p)
 {
 	LinkedList *list_p = AllocateLinkedList (FreeUserAuthenticationNode);
 

@@ -35,7 +35,7 @@ SRCS 	:= \
 	handler_utils.c \
 	handler.c
 
-CPPFLAGS += -DGRASSROOTS_HANDLELIBRARY_EXPORTS
+CPPFLAGS += -DGRASSROOTS_HANDLER_LIBRARY_EXPORTS
 
 LDFLAGS := -lpthread \
 	-L$(DIR_JANSSON_LIB) -ljansson \
