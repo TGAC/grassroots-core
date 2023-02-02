@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{0d14e2ca-5464-4a52-82bf-6d2d9d897e5f}</ProjectGuid>
+    <RootNamespace>grassrootsserver</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\project.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies-dev.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\project.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies-dev.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\project.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies-dev.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\project.props" />
+    <Import Project="..\..\..\..\..\build-config\windows\dependencies-dev.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\audit.c" />
+    <ClCompile Include="..\..\src\grassroots_server.c" />
+    <ClCompile Include="..\..\src\jobs_manager.c" />
+    <ClCompile Include="..\..\src\platform\windows_plugin.c" />
+    <ClCompile Include="..\..\src\plugin.c" />
+    <ClCompile Include="..\..\src\servers_manager.c" />
+    <ClCompile Include="..\..\src\system_util.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\audit.h" />
+    <ClInclude Include="..\..\include\grassroots_server.h" />
+    <ClInclude Include="..\..\include\grassroots_service_manager_library.h" />
+    <ClInclude Include="..\..\include\jobs_manager.h" />
+    <ClInclude Include="..\..\include\plugin.h" />
+    <ClInclude Include="..\..\include\servers_manager.h" />
+    <ClInclude Include="..\..\include\system_util.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

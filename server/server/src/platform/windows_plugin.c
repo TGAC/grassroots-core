@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,11 +16,10 @@
 
 #include <windows.h>
 
-#include "filesystem.h"
+#include "streams.h"
 #include "hash_table.h"
 #include "memory_allocations.h"
 #include "plugin.h"
-#include "plugin_manager.h"
 #include "string_utils.h"
 
 
@@ -89,7 +88,7 @@ bool OpenPlugin (Plugin * const plugin_p, char * const lib_path)
 {
 	WindowsPlugin *windows_plugin_p = (WindowsPlugin *) plugin_p;
 	bool success_flag = false;
-	
+
 	if (lib_path)
 		{
 			if (plugin_p -> pl_path_s)
@@ -103,15 +102,15 @@ bool OpenPlugin (Plugin * const plugin_p, char * const lib_path)
 				{
 					plugin_p -> pl_path_mem = MF_DEEP_COPY;
 					success_flag = true;
-				}					
+				}
 		}
-		
+
 	if (success_flag)
-		{	
+		{
 			windows_plugin_p -> wp_handle = LoadLibrary (lib_path);
 
 			success_flag = (windows_plugin_p -> wp_handle != NULL);
-			
+
 			if (success_flag)
 				{
 					AddPluginToPluginManager (plugin_p);
