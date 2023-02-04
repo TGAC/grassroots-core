@@ -464,7 +464,7 @@ bool RunCustomLinkedServiceGenerator (struct LinkedService *linked_service_p, js
 				}
 			else
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find function \%s\" in service \"%s\"", linked_service_p -> ls_generate_fn_s, GetServiceName (calling_service_p));
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find function \"%s\" in service \"%s\"", linked_service_p -> ls_generate_fn_s, GetServiceName (calling_service_p));
 				}
 		}
 

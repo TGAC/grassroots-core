@@ -33,7 +33,6 @@
 #include "key_value_pair.h"
 #include "handler_utils.h"
 #include "time_util.h"
-#include "user.h"
 #include "provider.h"
 #include "string_parameter.h"
 #include "uuid_util.h"
@@ -44,7 +43,9 @@
 
 
 #if IRODS_ENABLED == 1
-static json_t *GetAllModifiedData (const json_t * const req_p, UserDetails *user_p);
+#include "user.h"
+static json_t *GetAllModifiedData(const json_t *const req_p,
+                                  UserDetails *user_p);
 #endif
 
 

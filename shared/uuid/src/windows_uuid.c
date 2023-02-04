@@ -10,6 +10,33 @@ static void ConvertFromUUIDT (const uuid_t src, UUID *dest_p);
 static void ConvertToUUIDT (const UUID *src_p, uuid_t *dest_p);
 
 
+
+int uuid_compare (uuid_t uu1, uuid_t uu2)
+{
+	return memcmp (uu1.uu_data, uu2.uu_data, UUID_SIZE * sizeof (char));
+}
+
+
+void uuid_generate (uuid_t uu)
+{
+	UUID win_uuid;
+	RPC_STATUS status = UuidCreate (&win_uuid);
+
+	ConvertToUUIDT (&win_uuid, &uu);
+}
+
+
+void uuid_copy (uuid_t dst, uuid_t src)
+{
+	memcpy (dst.uu_data, src.uu_data, UUID_SIZE * sizeof (char));
+}
+
+
+void uuid_clear (uuid_t uu)
+{
+	memset (uu.uu_data, 0, UUID_SIZE);
+}
+
 int uuid_parse (char *in, uuid_t uu)
 {
 	int ret = -1;

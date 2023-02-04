@@ -912,7 +912,7 @@ bool GetParameterTypeForNamedParameter (const struct Service *service_p, const c
 
 void ReleaseServiceParameters (Service *service_p, ParameterSet *params_p)
 {
-	return service_p -> se_release_params_fn (service_p, params_p);
+	service_p -> se_release_params_fn (service_p, params_p);
 }
 
 
