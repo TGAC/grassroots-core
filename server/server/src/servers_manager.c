@@ -287,7 +287,7 @@ json_t *AddExternalServerOperationsToJSON (ServersManager *manager_p, Operation 
 
 																							if (!provider_p)
 																								{
-																									provider_p = default_external_provider_p;
+																									provider_p = (json_t *) default_external_provider_p;
 																								}
 
 																							if (provider_p)

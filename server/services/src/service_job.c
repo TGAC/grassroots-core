@@ -25,6 +25,8 @@
 #include "jobs_manager.h"
 #include "uuid_util.h"
 
+#include "data_resource.h"
+
 #ifdef _DEBUG
 #define SERVICE_JOB_DEBUG	(STM_LEVEL_INFO)
 #else

@@ -15,7 +15,7 @@
 */
 #include <string.h>
 
-#define ALLOCATE_RESOURCE_TAGS
+#define ALLOCATE_RESOURCE_TAGS (1)
 #include "data_resource.h"
 #include "string_utils.h"
 #include "memory_allocations.h"
