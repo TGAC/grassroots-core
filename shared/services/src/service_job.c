@@ -16,8 +16,8 @@
 #include <string.h>
 
 #define ALLOCATE_SERVICE_JOB_TAGS (1)
-#include "../../../shared/services/include/service_job.h"
-#include "../../../shared/services/include/service.h"
+#include "service_job.h"
+#include "service.h"
 
 #include "string_utils.h"
 #include "json_tools.h"

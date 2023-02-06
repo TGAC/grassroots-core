@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);SHARED_LIBRARY</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);SHARED_LIBRARY</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_JANSSON_INC);$(DIR_CURL_INC);$(DIR_GRASSROOTS_UTIL_INC);..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -165,7 +165,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC);..\..\..\..\server\services\include;..\..\..\..\server\server\include;$(DIR_GRASSROOTS_UTIL_INC)\containers;..\..\include;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>

@@ -106,15 +106,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\parameters;..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -123,32 +123,32 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\parameters;..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\parameters;..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,17 +157,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\parameters;..\..\include;..\..\include\platform;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_PARAMS_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -176,6 +176,21 @@
     <ClInclude Include="..\..\include\linked_service.h" />
     <ClInclude Include="..\..\include\mapped_parameter.h" />
     <ClInclude Include="..\..\include\paired_service.h" />
+    <ClInclude Include="..\..\include\parameters\boolean_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\char_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\double_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\json_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\parameter.h" />
+    <ClInclude Include="..\..\include\parameters\parameter_group.h" />
+    <ClInclude Include="..\..\include\parameters\parameter_set.h" />
+    <ClInclude Include="..\..\include\parameters\parameter_type.h" />
+    <ClInclude Include="..\..\include\parameters\remote_parameter_details.h" />
+    <ClInclude Include="..\..\include\parameters\resource_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\signed_int_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\string_array_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\string_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\time_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\unsigned_int_parameter.h" />
     <ClInclude Include="..\..\include\provider.h" />
     <ClInclude Include="..\..\include\providers_state_table.h" />
     <ClInclude Include="..\..\include\referred_service.h" />
@@ -193,6 +208,20 @@
     <ClCompile Include="..\..\src\linked_service.c" />
     <ClCompile Include="..\..\src\mapped_parameter.c" />
     <ClCompile Include="..\..\src\paired_service.c" />
+    <ClCompile Include="..\..\src\parameters\boolean_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\char_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\double_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\json_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\parameter.c" />
+    <ClCompile Include="..\..\src\parameters\parameter_group.c" />
+    <ClCompile Include="..\..\src\parameters\parameter_set.c" />
+    <ClCompile Include="..\..\src\parameters\remote_parameter_details.c" />
+    <ClCompile Include="..\..\src\parameters\resource_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\signed_int_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\string_array_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\string_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\time_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\unsigned_int_parameter.c" />
     <ClCompile Include="..\..\src\provider.c" />
     <ClCompile Include="..\..\src\providers_state_table.c" />
     <ClCompile Include="..\..\src\remote_service_job.c" />
