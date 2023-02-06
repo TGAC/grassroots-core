@@ -27,8 +27,9 @@ INCLUDES = \
 	-I$(DIR_GRASSROOTS_NETWORK_INC) \
 	-I$(DIR_GRASSROOTS_IRODS_INC) \
 	-I$(DIR_GRASSROOTS_SERVICES_INC) \
+	-I$(DIR_GRASSROOTS_SERVICES_INC)/parameters \
 	-I$(DIR_GRASSROOTS_HANDLER_INC) \
-	-I$(DIR_GRASSROOTS_PARAMS_INC) \
+	-I$(DIR_GRASSROOTS_PLUGIN_INC) \
 	-I$(DIR_GRASSROOTS_DRMAA_INC) \
 	-I$(DIR_GRASSROOTS_MONGODB_INC) \
 	-I$(DIR_GRASSROOTS_TASK_INC) \
@@ -44,9 +45,7 @@ SRCS 	= \
 	system_util.c \
 	servers_manager.c \
 	grassroots_server.c \
-	plugin.c \
-	unix_platform.c \
-	unix_plugin.c
+	unix_platform.c 
 	
 CPPFLAGS += -DGRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS 
 
