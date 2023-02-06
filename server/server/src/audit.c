@@ -29,7 +29,7 @@
 #include "connection.h"
 #include "json_tools.h"
 #include "grassroots_server.h"
-#include "service.h"
+#include "../../../shared/services/include/service.h"
 
 
 static bool LogData (const json_t *data_p, const char *uri_s);

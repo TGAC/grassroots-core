@@ -22,7 +22,7 @@
 #ifndef GRASSROOTS_TASK_SYNC_DATA_H
 #define GRASSROOTS_TASK_SYNC_DATA_H
 
-#include "grassroots_service_library.h"
+#include "../../../shared/services/include/grassroots_service_library.h"
 #include "typedefs.h"
 
 

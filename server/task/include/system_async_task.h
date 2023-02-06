@@ -31,7 +31,7 @@
 #include "grassroots_task_library.h"
 #include "typedefs.h"
 #include "operation.h"
-#include "service_job.h"
+#include "../../../shared/services/include/service_job.h"
 #include "jobs_manager.h"
 #include "async_task.h"
 #include "memory_allocations.h"

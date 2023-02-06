@@ -94,8 +94,7 @@ extern "C"
  * @return A newly-allocated UserDetails or <code>NULL</code> upon error.
  * @memberof UserDetails
  */
-GRASSROOTS_UTIL_API UserDetails *AllocateUserDetails (const json_t *credentials_p);
-
+GRASSROOTS_UTIL_API UserDetails *AllocateUserDetails (json_t *credentials_p);
 
 /**
  * Free a UserDetails.
