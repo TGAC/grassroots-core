@@ -39,13 +39,13 @@
 
 
 
-typedef struct UnixAsyncTask
+typedef struct WindowsAsyncTask
 {
 	AsyncTask uat_base_task;
 	pthread_t uat_thread;
 	bool uat_valid_thread_flag;
 	pthread_attr_t uat_attributes;
-} UnixAsyncTask;
+} WindowsAsyncTask;
 
 
 

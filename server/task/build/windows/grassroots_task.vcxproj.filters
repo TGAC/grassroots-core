@@ -53,5 +53,8 @@
     <ClCompile Include="..\..\src\system_async_task.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\platform\windows_async_task.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

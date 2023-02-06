@@ -176,6 +176,7 @@
     <ClCompile Include="..\..\src\async_tasks_manager.c" />
     <ClCompile Include="..\..\src\count_async_task.c" />
     <ClCompile Include="..\..\src\event_consumer.c" />
+    <ClCompile Include="..\..\src\platform\windows_async_task.c" />
     <ClCompile Include="..\..\src\system_async_task.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
