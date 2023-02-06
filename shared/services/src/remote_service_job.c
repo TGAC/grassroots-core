@@ -24,11 +24,13 @@
 #include <string.h>
 
 #define ALLOCATE_REMOTE_SERVICE_JOB_TAGS (1)
-#include "../../../shared/services/include/remote_service_job.h"
+#include "remote_service_job.h"
 #include "memory_allocations.h"
-#include "../../../shared/services/include/service.h"
+#include "service.h"
 #include "string_utils.h"
 #include "uuid_util.h"
+#include "data_resource.h"
+
 
 #ifdef _DEBUG
 	#define REMOTE_SERVICE_JOB_DEBUG	(STM_LEVEL_FINEST)
@@ -322,7 +324,7 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 {
 	bool success_flag = false;
 	RemoteServiceJob *remote_job_p = (RemoteServiceJob *) job_p;
-	SchemaVersion *schema_p = AllocateSchemaVersion (CURRENT_SCHEMA_VERSION_MAJOR, CURRENT_SCHEMA_VERSION_MINOR);
+	SchemaVersion *schema_p = AllocateCurrentSchemaVersion ();
 
 	if (schema_p)
 		{

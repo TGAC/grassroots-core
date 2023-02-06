@@ -176,6 +176,9 @@ GRASSROOTS_UTIL_API SchemaVersion *GetSchemaVersionFromJSON (const json_t * cons
 
 
 
+GRASSROOTS_UTIL_API  SchemaVersion *AllocateCurrentSchemaVersion (void);
+
+
 
 #ifdef __cplusplus
 }
