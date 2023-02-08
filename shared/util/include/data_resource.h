@@ -87,11 +87,11 @@ typedef struct DataResource
  */
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef ALLOCATE_RESOURCE_TAGS
+#ifdef ALLOCATE_DATA_RESOURCE_TAGS
 	#define RESOURCE_PREFIX GRASSROOTS_UTIL_API
 	#define RESOURCE_VAL(x)	= x
 #else
-	#define RESOURCE_PREFIX extern
+	#define RESOURCE_PREFIX GRASSROOTS_UTIL_API
 	#define RESOURCE_VAL(x)
 #endif
 
@@ -133,7 +133,7 @@ RESOURCE_PREFIX const char *PROTOCOL_HTTPS_S RESOURCE_VAL("https");
  * @brief The protocol for a data object stored within the Grassroots system inline.
  * @memberof Resource
  */
-RESOURCE_PREFIX const char *PROTOCOL_INLINE_S RESOURCE_VAL("inline");
+RESOURCE_PREFIX const char* PROTOCOL_INLINE_S RESOURCE_VAL ("inline");
 
 
 /**

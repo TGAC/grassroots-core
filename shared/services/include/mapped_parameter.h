@@ -30,7 +30,7 @@
 
 #include "jansson.h"
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 
 #include "linked_list.h"
 

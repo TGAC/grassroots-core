@@ -25,9 +25,8 @@
  */
 
 #include <string.h>
-#include <errno.h>
-#include <sys/wait.h>
-#include <pthread.h>
+
+#include <windows.h>
 
 #include "streams.h"
 
@@ -41,10 +40,10 @@
 
 typedef struct WindowsAsyncTask
 {
-	AsyncTask uat_base_task;
-	pthread_t uat_thread;
-	bool uat_valid_thread_flag;
-	pthread_attr_t uat_attributes;
+	AsyncTask wat_base_task;
+	HANDLE wat_thread_handle;
+	DWORD wat_thread_id;
+	bool wat_valid_thread_flag;
 } WindowsAsyncTask;
 
 
@@ -53,35 +52,34 @@ static void *DoAsyncTaskRun (void *data_p);
 
 
 #ifdef _DEBUG
-	#define UNIX_ASYNC_TASK_DEBUG	(STM_LEVEL_FINEST)
+	#define WINDOWS_ASYNC_TASK_DEBUG	(STM_LEVEL_FINEST)
 #else
-	#define UNIX_ASYNC_TASK_DEBUG	(STM_LEVEL_NONE)
+	#define WINDOWS_ASYNC_TASK_DEBUG	(STM_LEVEL_NONE)
 #endif
 
 
 
 AsyncTask *AllocateAsyncTask (const char *name_s, AsyncTasksManager *manager_p, bool add_flag)
 {
-	UnixAsyncTask *task_p = (UnixAsyncTask *) AllocMemory (sizeof (struct UnixAsyncTask));
+	WindowsAsyncTask *task_p = (WindowsAsyncTask*) AllocMemory (sizeof (struct WindowsAsyncTask));
 
 	if (task_p)
 		{
-			memset (task_p, 0, sizeof (UnixAsyncTask));
+			memset (task_p, 0, sizeof (WindowsAsyncTask));
 
-			if (InitialiseAsyncTask (& (task_p -> uat_base_task), name_s, manager_p, add_flag))
+			if (InitialiseAsyncTask (& (task_p -> wat_base_task), name_s, manager_p, add_flag))
 				{
-					task_p -> uat_thread = 0;
-					task_p -> uat_valid_thread_flag = false;
+					task_p -> wat_thread_handle = NULL;
+					task_p -> wat_thread_id = 0;
 
 					/* For portability, explicitly create threads in a joinable state */
-					pthread_attr_init (& (task_p -> uat_attributes));
-					pthread_attr_setdetachstate (& (task_p -> uat_attributes), PTHREAD_CREATE_JOINABLE);
 
-					#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+
+					#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "AllocateAsyncTask for \"%s\" at %.16X", task_p -> uat_base_task.at_name_s, task_p);
 					#endif
 
-					return (& (task_p -> uat_base_task));
+					return (& (task_p -> wat_base_task));
 				}
 
 			FreeMemory (task_p);
@@ -93,7 +91,7 @@ AsyncTask *AllocateAsyncTask (const char *name_s, AsyncTasksManager *manager_p, 
 
 void FreeAsyncTask (AsyncTask *task_p)
 {
-	#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+	#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "FreeAsyncTask for \"%s\" at %.16X", task_p -> at_name_s, task_p);
 	#endif
 
@@ -107,11 +105,11 @@ void FreeAsyncTask (AsyncTask *task_p)
 
 void CloseAsyncTask (AsyncTask *task_p)
 {
-	UnixAsyncTask *unix_task_p = (UnixAsyncTask *) task_p;
+	WindowsAsyncTask *win_task_p = (WindowsAsyncTask *) task_p;
 
-	if (unix_task_p -> uat_valid_thread_flag)
+	if (win_task_p-> wat_valid_thread_flag)
 		{
-			unix_task_p -> uat_valid_thread_flag = false;
+			win_task_p-> wat_valid_thread_flag = false;
 		}
 
 	pthread_attr_destroy (& (unix_task_p -> uat_attributes));
@@ -137,9 +135,9 @@ bool SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG me
 
 bool IsAsyncTaskRunning (const AsyncTask *task_p)
 {
-	UnixAsyncTask *unix_task_p = (UnixAsyncTask *) task_p;
+	WindowsAsyncTask *win_task_p = (WindowsAsyncTask *) task_p;
 
-	return (unix_task_p -> uat_valid_thread_flag);
+	return (win_task_p -> wat_valid_thread_flag);
 }
 
 
@@ -153,18 +151,27 @@ bool CloseAllAsyncTasks (void)
 bool RunAsyncTask (AsyncTask *task_p)
 {
 	bool success_flag = true;
-	UnixAsyncTask *unix_task_p = (UnixAsyncTask *) task_p;
-	int res = pthread_create (& (unix_task_p -> uat_thread), & (unix_task_p -> uat_attributes), DoAsyncTaskRun, task_p);
+	WindowsAsyncTask *win_task_p = (WindowsAsyncTask *) task_p;
 
-	if (res == 0)
+	win_task_p -> wat_thread_handle = CreateThread (
+		NULL,																// default security attributes
+		0,																	// use default stack size  
+		DoAsyncTaskRun,											// thread function name
+		task_p -> at_data_p,								// argument to thread function 
+		0,																	// use default creation flags 
+		& (win_task_p -> wat_thread_id)			// returns the thread identifier 
+	);
+
+	 
+	if (win_task_p-> wat_thread_handle)
 		{
-			unix_task_p -> uat_valid_thread_flag = true;
+			win_task_p -> wat_valid_thread_flag = true;
 		}
 	else
 		{
-			unix_task_p -> uat_valid_thread_flag = false;
+			win_task_p -> wat_valid_thread_flag = false;
 			success_flag = false;
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create task for RunAsyncTask %d", res);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create task for RunAsyncTask %d", GetLastError ());
 		}
 
 	return success_flag;
@@ -176,19 +183,19 @@ static void *DoAsyncTaskRun (void *data_p)
 	AsyncTask *async_task_p = (AsyncTask *) data_p;
 	void *res_p = NULL;
 
-	#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+	#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "DoAsyncTaskRun about to run for \"%s\" at %.16X", async_task_p -> at_name_s, async_task_p);
 	#endif
 
 	res_p = async_task_p -> at_run_fn (async_task_p -> at_data_p);
 
-	#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+	#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "DoAsyncTaskRun ran for \"%s\" at %.16X", async_task_p -> at_name_s, async_task_p);
 	#endif
 
 	if (async_task_p -> at_consumer_p)
 		{
-			#if UNIX_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
+			#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Sending message to EventConsumer as task \"%s\" has completed", async_task_p -> at_name_s);
 			#endif
 

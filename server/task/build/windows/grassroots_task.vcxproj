@@ -106,9 +106,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,9 +121,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,9 +136,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,9 +151,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\include\platform;$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -168,7 +168,7 @@
     <ClInclude Include="..\..\include\count_async_task.h" />
     <ClInclude Include="..\..\include\event_consumer.h" />
     <ClInclude Include="..\..\include\grassroots_task_library.h" />
-    <ClInclude Include="..\..\include\sync_data.h" />
+    <ClInclude Include="..\..\include\platform\windows_sync_data.h" />
     <ClInclude Include="..\..\include\system_async_task.h" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +177,7 @@
     <ClCompile Include="..\..\src\count_async_task.c" />
     <ClCompile Include="..\..\src\event_consumer.c" />
     <ClCompile Include="..\..\src\platform\windows_async_task.c" />
+    <ClCompile Include="..\..\src\platform\windows_sync_data.c" />
     <ClCompile Include="..\..\src\system_async_task.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

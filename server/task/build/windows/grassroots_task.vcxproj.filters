@@ -30,10 +30,10 @@
     <ClInclude Include="..\..\include\grassroots_task_library.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\sync_data.h">
+    <ClInclude Include="..\..\include\system_async_task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\system_async_task.h">
+    <ClInclude Include="..\..\include\platform\windows_sync_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -54,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\platform\windows_async_task.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\platform\windows_sync_data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
