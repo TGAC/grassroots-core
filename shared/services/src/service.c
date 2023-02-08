@@ -19,22 +19,22 @@
 
 #include <string.h>
 
-#include "../../../shared/services/include/service.h"
+#include "service.h"
 #include "plugin.h"
 #include "string_linked_list.h"
 #include "string_utils.h"
 #include "filesystem_utils.h"
-#include "../../../shared/services/include/service_matcher.h"
+#include "service_matcher.h"
 #include "json_tools.h"
 #include "json_util.h"
 #include "streams.h"
-#include "../../../shared/services/include/service_job.h"
-#include "../../../shared/services/include/paired_service.h"
-#include "../../../shared/services/include/linked_service.h"
+#include "service_job.h"
+#include "paired_service.h"
+#include "linked_service.h"
 #include "servers_manager.h"
 #include "string_utils.h"
-#include "../../../shared/services/include/service_job.h"
-#include "../../../shared/services/include/provider.h"
+#include "service_job.h"
+#include "provider.h"
 #include "uuid_util.h"
 
 #ifdef _DEBUG

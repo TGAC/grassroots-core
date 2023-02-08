@@ -22,16 +22,16 @@
 
 #include <string.h>
 
-#include "../../../shared/services/include/linked_service.h"
+#include "linked_service.h"
 #include "memory_allocations.h"
 #include "streams.h"
 
 #include "json_util.h"
 #include "string_utils.h"
-#include "../../../shared/services/include/service.h"
+#include "service.h"
 #include "schema_version.h"
 #include "user_details.h"
-#include "../../../shared/services/include/service_job.h"
+#include "service_job.h"
 //#include "resource.h"
 
 

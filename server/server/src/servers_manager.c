@@ -22,7 +22,7 @@
 #include "json_util.h"
 #include "json_tools.h"
 #include "key_value_pair.h"
-#include "../../../shared/services/include/provider.h"
+#include "provider.h"
 #include "plugin.h"
 #include "filesystem_utils.h"
 #include "uuid_util.h"

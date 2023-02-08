@@ -29,7 +29,7 @@
 #ifndef SRC_SERVICES_LIB_INCLUDE_ENCODE_DCC_METADATA_H_
 #define SRC_SERVICES_LIB_INCLUDE_ENCODE_DCC_METADATA_H_
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 #include "typedefs.h"
 
 #include "jansson.h"

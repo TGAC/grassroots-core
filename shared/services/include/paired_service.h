@@ -36,11 +36,11 @@
 
 #include "parameter_set.h"
 #include "linked_list.h"
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 
-#include "../../../shared/services/include/providers_state_table.h"
+#include "providers_state_table.h"
 #include "parameter_set.h"
-#include "../../../shared/services/include/service_job.h"
+#include "service_job.h"
 
 
 /* forward declarations */

@@ -19,7 +19,7 @@
 
 #include <curl/curl.h>
 
-#include "../../../../shared/services/web/include/web_service.h"
+#include "web_service.h"
 #include "memory_allocations.h"
 #include "parameter.h"
 #include "handler.h"
@@ -30,8 +30,8 @@
 #include "byte_buffer.h"
 #include "streams.h"
 #include "curl_tools.h"
-#include "../../../../shared/services/include/web_service_util.h"
-#include "../../../../shared/services/include/service_job.h"
+#include "web_service_util.h"
+#include "service_job.h"
 
 /*
  * STATIC PROTOTYPES

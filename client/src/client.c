@@ -30,7 +30,7 @@
 #include "filesystem_utils.h"
 #include "json_util.h"
 #include "json_tools.h"
-#include "../../shared/services/include/provider.h"
+#include "provider.h"
 
 
 #ifdef _DEBUG

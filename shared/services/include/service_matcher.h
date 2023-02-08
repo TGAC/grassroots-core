@@ -21,10 +21,10 @@
 #ifndef SERVICE_MATCHER_H
 #define SERVICE_MATCHER_H
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 #include "data_resource.h"
 #include "handler.h"
-#include "../../../shared/services/include/service.h"
+#include "service.h"
 
 struct ServiceMatcher;
 

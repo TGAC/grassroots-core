@@ -21,9 +21,9 @@
 #ifndef WEB_SERVICE_H
 #define WEB_SERVICE_H
 
-#include "../../../../shared/services/include/service.h"
+#include "service.h"
 #include "library.h"
-#include "../../../../shared/services/web/include/web_service_library.h"
+#include "web_service_library.h"
 
 #ifdef __cplusplus
 extern "C"

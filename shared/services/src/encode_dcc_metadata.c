@@ -20,7 +20,7 @@
  *      Author: tyrrells
  */
 
-#include "../../../shared/services/include/encode_dcc_metadata.h"
+#include "encode_dcc_metadata.h"
 
 
 

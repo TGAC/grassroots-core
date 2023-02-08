@@ -31,8 +31,8 @@
 
 #include "jansson.h"
 
-#include "../../../shared/services/include/service_job.h"
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "service_job.h"
+#include "grassroots_service_library.h"
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

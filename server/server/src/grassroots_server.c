@@ -27,13 +27,13 @@
 #include "memory_allocations.h"
 #include "streams.h"
 
-#include "../../../shared/services/include/service_matcher.h"
+#include "service_matcher.h"
 #include "jobs_manager.h"
 #include "mongo_client_manager.h"
 #include "key_value_pair.h"
 #include "handler_utils.h"
 #include "time_util.h"
-#include "../../../shared/services/include/provider.h"
+#include "provider.h"
 #include "string_parameter.h"
 #include "uuid_util.h"
 

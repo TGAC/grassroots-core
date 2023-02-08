@@ -20,7 +20,7 @@
  *      Author: billy
  */
 
-#include "../../../shared/services/include/schema_term.h"
+#include "schema_term.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
 #include "schema_keys.h"

@@ -22,7 +22,7 @@
 
 #include <string.h>
 
-#include "../../../shared/services/include/web_service_util.h"
+#include "web_service_util.h"
 #include "string_utils.h"
 #include "math_utils.h"
 #include "schema_keys.h"

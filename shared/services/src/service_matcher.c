@@ -15,7 +15,7 @@
 */
 #include <string.h>
 
-#include "../../../shared/services/include/service_matcher.h"
+#include "service_matcher.h"
 #include "memory_allocations.h"
 
 

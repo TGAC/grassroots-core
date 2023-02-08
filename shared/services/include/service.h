@@ -22,7 +22,7 @@
 #ifndef GRASSROOTS_SERVICE_H
 #define GRASSROOTS_SERVICE_H
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 
 #include "byte_buffer.h"
 #include "linked_list.h"
@@ -31,15 +31,15 @@
 #include "handler.h"
 #include "user_details.h"
 #include "operation.h"
-#include "../../../shared/services/include/paired_service.h"
-#include "../../../shared/services/include/linked_service.h"
+#include "paired_service.h"
+#include "linked_service.h"
 #include "uuid_defs.h"
-#include "../../../shared/services/include/service_metadata.h"
+#include "service_metadata.h"
 #include "sync_data.h"
 
 #include "jansson.h"
 
-#include "../../../shared/services/include/providers_state_table.h"
+#include "providers_state_table.h"
 
 struct ExternalServer;
 

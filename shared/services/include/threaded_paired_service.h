@@ -27,10 +27,10 @@
 #ifndef SERVER_SRC_SERVICES_LIB_INCLUDE_THREADED_PAIRED_SERVICE_H_
 #define SERVER_SRC_SERVICES_LIB_INCLUDE_THREADED_PAIRED_SERVICE_H_
 
-#include "../../../shared/services/include/paired_service.h"
+#include "paired_service.h"
 #include "parameter_set.h"
-#include "../../../shared/services/include/providers_state_table.h"
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "providers_state_table.h"
+#include "grassroots_service_library.h"
 #include "linked_list.h"
 #include "grasssroots_server.h"
 

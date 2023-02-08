@@ -20,16 +20,16 @@
  *      Author: tyrrells
  */
 
-#include "../../../shared/services/include/providers_state_table.h"
+#include "providers_state_table.h"
 
 #include "memory_allocations.h"
 #include "json_util.h"
 #include "streams.h"
-#include "../../../shared/services/include/provider.h"
+#include "provider.h"
 #include "grassroots_server.h"
 
 
-#include "../../../shared/services/include/service.h"
+#include "service.h"
 
 #ifdef _DEBUG
 	#define PROVIDERS_STATE_TABLE_DEBUG	(STM_LEVEL_FINE)

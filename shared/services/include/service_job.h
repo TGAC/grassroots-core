@@ -29,12 +29,12 @@
 #define SERVICE_JOB_H_
 
 #include "typedefs.h"
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 #include "operation.h"
 #include "jansson.h"
 #include "linked_list.h"
 #include "memory_allocations.h"
-#include "../../../shared/services/include/linked_service.h"
+#include "linked_service.h"
 
 
 #include "uuid_defs.h"

@@ -28,8 +28,8 @@
 #ifndef SERVICE_JOB_SET_ITERATOR_H_
 #define SERVICE_JOB_SET_ITERATOR_H_
 
-#include "../../../shared/services/include/grassroots_service_library.h"
-#include "../../../shared/services/include/service_job.h"
+#include "grassroots_service_library.h"
+#include "service_job.h"
 
 
 /**

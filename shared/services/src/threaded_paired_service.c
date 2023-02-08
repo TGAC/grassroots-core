@@ -21,7 +21,7 @@
  */
 
 
-#include "../../../shared/services/include/threaded_paired_service.h"
+#include "threaded_paired_service.h"
 
 
 void *RunRemoteServiceInThread (void *data_p)

@@ -24,13 +24,13 @@
 
 #include "boolean_parameter.h"
 #include "string_parameter.h"
-#include "../../../shared/services/include/mapped_parameter.h"
+#include "mapped_parameter.h"
 #include "memory_allocations.h"
 #include "streams.h"
 #include "string_utils.h"
 #include "json_util.h"
-#include "../../../shared/services/include/service_job.h"
-#include "../../../shared/services/include/service.h"
+#include "service_job.h"
+#include "service.h"
 
 
 static const char * const S_MAPPED_PARAM_THIS_VALUE_S = "$value";
