@@ -21,7 +21,7 @@
  */
 #include <string.h>
 
-#include "../../../shared/services/include/provider.h"
+#include "provider.h"
 
 #include "json_tools.h"
 #include "json_util.h"

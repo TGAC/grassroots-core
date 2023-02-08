@@ -21,7 +21,7 @@
 #ifndef GRASSROOTS_REFERRED_SERVICE_H
 #define GRASSROOTS_REFERRED_SERVICE_H
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 
 #include "linked_list.h"
 #include "parameter_set.h"

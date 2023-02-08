@@ -22,7 +22,7 @@
 
 #include "time_parameter.h"
 #include "memory_allocations.h"
-#include "../../services/include/service.h"
+#include "service.h"
 #include "json_util.h"
 #include "time_util.h"
 

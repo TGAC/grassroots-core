@@ -28,12 +28,12 @@
 #ifndef SERVER_SRC_SERVICES_LIB_INCLUDE_LINKED_SERVICE_H_
 #define SERVER_SRC_SERVICES_LIB_INCLUDE_LINKED_SERVICE_H_
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 
 #include "jansson.h"
 
 #include "linked_list.h"
-#include "../../../shared/services/include/mapped_parameter.h"
+#include "mapped_parameter.h"
 #include "grassroots_server.h"
 
 /* forward declarations */

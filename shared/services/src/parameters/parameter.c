@@ -25,7 +25,7 @@
 #include "string_utils.h"
 #include "string_hash_table.h"
 #include "parameter_set.h"
-#include "../../services/include/service.h"
+#include "service.h"
 #include "schema_version.h"
 #include "json_tools.h"
 #include "json_util.h"

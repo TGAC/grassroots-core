@@ -28,7 +28,7 @@
 #ifndef PROVIDER_H_
 #define PROVIDER_H_
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 #include "typedefs.h"
 
 #include "jansson.h"

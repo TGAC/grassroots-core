@@ -29,8 +29,8 @@
 #define JOBS_MANAGER_H
 
 #include "hash_table.h"
-#include "../../../shared/services/include/service.h"
-#include "../../../shared/services/include/service_job.h"
+#include "service.h"
+#include "service_job.h"
 #include "grassroots_service_manager_library.h"
 #include "uuid_defs.h"
 

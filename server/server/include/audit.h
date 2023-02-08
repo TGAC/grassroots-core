@@ -29,7 +29,7 @@
 
 
 #include "grassroots_service_manager_library.h"
-#include "../../../shared/services/include/service_job.h"
+#include "service_job.h"
 #include "parameter_set.h"
 
 

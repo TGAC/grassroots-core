@@ -23,9 +23,9 @@
 #ifndef CORE_SHARED_SERVICES_INCLUDE_SERVICE_METADATA_H_
 #define CORE_SHARED_SERVICES_INCLUDE_SERVICE_METADATA_H_
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 #include "typedefs.h"
-#include "../../../shared/services/include/schema_term.h"
+#include "schema_term.h"
 
 #include "jansson.h"
 

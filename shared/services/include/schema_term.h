@@ -24,7 +24,7 @@
 #define CORE_SHARED_SERVICES_INCLUDE_SCHEMA_TERM_H_
 
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 #include "linked_list.h"
 
 #include "jansson.h"

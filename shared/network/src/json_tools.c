@@ -22,7 +22,7 @@
 #include "string_utils.h"
 #include "schema_version.h"
 #include "filesystem_utils.h"
-#include "../../services/include/providers_state_table.h"
+#include "providers_state_table.h"
 
 #include "uuid_defs.h"
 #include "uuid_util.h"

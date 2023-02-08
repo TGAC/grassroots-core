@@ -23,14 +23,14 @@
 
 #include <string.h>
 
-#include "../../../shared/services/include/paired_service.h"
+#include "paired_service.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
 #include "connection.h"
 #include "json_tools.h"
-#include "../../../shared/services/include/service.h"
-#include "../../../shared/services/include/remote_service_job.h"
-#include "../../../shared/services/include/provider.h"
+#include "service.h"
+#include "remote_service_job.h"
+#include "provider.h"
 #include "uuid_util.h"
 
 #ifdef USE_PTHREADS

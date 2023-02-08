@@ -22,7 +22,7 @@
 
 #include <string.h>
 
-#include "../../../shared/services/include/service_metadata.h"
+#include "service_metadata.h"
 #include "string_utils.h"
 #include "memory_allocations.h"
 #include "schema_keys.h"

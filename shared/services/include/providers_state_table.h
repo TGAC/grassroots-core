@@ -28,7 +28,7 @@
 #ifndef SRC_NETWORK_SRC_PROVIDERS_STATE_TABLE_H_
 #define SRC_NETWORK_SRC_PROVIDERS_STATE_TABLE_H_
 
-#include "../../../shared/services/include/grassroots_service_library.h"
+#include "grassroots_service_library.h"
 #include "json_tools.h"
 #include "json_util.h"
 #include "grassroots_server.h"

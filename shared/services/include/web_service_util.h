@@ -30,12 +30,12 @@
 
 #include "jansson.h"
 
-#include "../../../shared/services/include/grassroots_service_library.h"
-#include "../../../shared/services/include/service.h"
+#include "grassroots_service_library.h"
+#include "service.h"
 #include "parameter_set.h"
 #include "byte_buffer.h"
 #include "curl_tools.h"
-#include "../../../shared/services/include/service_job.h"
+#include "service_job.h"
 
 
 /**

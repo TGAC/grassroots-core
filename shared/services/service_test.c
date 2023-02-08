@@ -15,7 +15,7 @@
 */
 
 #include "services_manager.h"
-#include "../../shared/services/include/service.h"
+#include "service.h"
 
 int main (int argc, char *argv [])
 {

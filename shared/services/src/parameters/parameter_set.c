@@ -23,7 +23,7 @@
 #include "parameter_type.h"
 #include "schema_keys.h"
 #include "schema_version.h"
-#include "../../services/include/service.h"
+#include "service.h"
 #include "streams.h"
 #include "typedefs.h"
 

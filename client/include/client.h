@@ -29,7 +29,7 @@
 #include "user_details.h"
 #include "request_tools.h"
 #include "schema_version.h"
-#include "../../shared/services/include/service_metadata.h"
+#include "service_metadata.h"
 
 
 #include "jansson.h"
