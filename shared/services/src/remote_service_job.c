@@ -213,6 +213,8 @@ RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p, Service
 										{
 											uuid_t remote_id;
 
+											uuid_clear (remote_id);
+
 											if (uuid_parse (remote_uuid_s, remote_id) == 0)
 												{
 													const char *remote_uri_s;

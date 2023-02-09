@@ -30,10 +30,11 @@
 struct SyncData
 {
 	/** @private */
-	pthread_mutex_t sd_mutex;
-
+	//HANDLE sd_mutex_p;
+	CRITICAL_SECTION sd_lock;
+	
 	/** @private */
-	pthread_cond_t sd_cond;
+	CONDITION_VARIABLE sd_cond;
 };
 
 #endif /* CORE_SERVER_TASK_INCLUDE_PLATFORM_WINDOWS_SYNC_DATA_H_ */

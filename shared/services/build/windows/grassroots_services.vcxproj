@@ -113,8 +113,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -132,8 +132,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -147,8 +147,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -166,8 +166,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

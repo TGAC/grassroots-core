@@ -979,6 +979,8 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p, Servic
 													uuid_t *id_p = NULL;
 													uuid_t id;
 
+
+
 													if (uuid_s)
 														{
 															if (uuid_parse (uuid_s, id) == 0)

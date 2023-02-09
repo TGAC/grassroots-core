@@ -105,9 +105,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;_DEBUG;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);SHARED_LIBRARY</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\projects\grassroots\core\server\services\include;$(DIR_GRASSROOTS_UUID_INC);D:\projects\grassroots\core\server\server\include;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_CURL_INC);..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC);..\..\..\..\server\services\include;..\..\..\..\server\server\include;$(DIR_GRASSROOTS_UTIL_INC)\containers;..\..\include;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);SHARED_LIBRARY</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_JANSSON_INC);$(DIR_CURL_INC);$(DIR_GRASSROOTS_UTIL_INC);..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,7 +167,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC);..\..\..\..\server\services\include;..\..\..\..\server\server\include;$(DIR_GRASSROOTS_UTIL_INC)\containers;..\..\include;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

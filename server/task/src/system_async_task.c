@@ -164,32 +164,63 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 
 	if (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p))
 		{
+			STARTUPINFO si;
+			PROCESS_INFORMATION pi;
+
+			ZeroMemory (&si, sizeof (si));
+			si.cb = sizeof (si);
+			ZeroMemory (&pi, sizeof (pi));
+
 			#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
 			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to run RunAsyncSystemTaskHook for %s with \"%s\"", uuid_s, task_p -> std_command_line_s);
 			#endif
 
-			int res = system (task_p -> std_command_line_s);
-
-			if (res != -1)
+			// Start the child process. 
+			if (CreateProcess (
+					NULL,   // No module name (use command line)
+					task_p -> std_command_line_s,        // Command line
+					NULL,           // Process handle not inheritable
+					NULL,           // Thread handle not inheritable
+					FALSE,          // Set handle inheritance to FALSE
+					0,              // No creation flags
+					NULL,           // Use parent's environment block
+					NULL,           // Use parent's starting directory 
+					&si,            // Pointer to STARTUPINFO structure
+					&pi)           // Pointer to PROCESS_INFORMATION structure
+				)
 				{
-					int process_exit_code = WEXITSTATUS (res);
+					DWORD process_exit_code;
 
-					if (process_exit_code == 0)
+					// Wait until child process exits.
+					WaitForSingleObject (pi.hProcess, INFINITE);
+
+					if (GetExitCodeProcess (pi.hProcess, &process_exit_code))
 						{
-							status = OS_SUCCEEDED;
-							PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", task_p -> std_command_line_s);
+							if (process_exit_code == 0)
+								{ 
+									status = OS_SUCCEEDED;
+									PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", task_p -> std_command_line_s);
+								}
+							else
+								{
+									status = OS_ERROR;
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", task_p -> std_command_line_s, process_exit_code);
+								}
 						}
 					else
 						{
-							status = OS_ERROR;
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", task_p -> std_command_line_s, process_exit_code);
+						status = OS_ERROR;
+						PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed to get process exit code %d", task_p->std_command_line_s, GetLastError ());
+
 						}
 				}
 			else
 				{
 					status = OS_ERROR;
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", task_p -> std_command_line_s, res);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CreateProcess () failed running \"%s\" with return code %d", task_p -> std_command_line_s, GetLastError ());
 				}
+
+
 		}
 	else
 		{

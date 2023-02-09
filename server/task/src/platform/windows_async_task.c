@@ -48,7 +48,7 @@ typedef struct WindowsAsyncTask
 
 
 
-static void *DoAsyncTaskRun (void *data_p);
+static DWORD WINAPI DoAsyncTaskRun (LPVOID data_p);
 
 
 #ifdef _DEBUG
@@ -111,9 +111,9 @@ void CloseAsyncTask (AsyncTask *task_p)
 		{
 			win_task_p-> wat_valid_thread_flag = false;
 		}
-
-	pthread_attr_destroy (& (unix_task_p -> uat_attributes));
-}
+		
+		ExitThread (0);
+	}
 
 
 bool SetAsyncTaskSyncData (AsyncTask *task_p, SyncData *sync_data_p, MEM_FLAG mem)
@@ -143,7 +143,7 @@ bool IsAsyncTaskRunning (const AsyncTask *task_p)
 
 bool CloseAllAsyncTasks (void)
 {
-	//pthread_exit (NULL);
+	
 	return true;
 }
 
@@ -163,7 +163,7 @@ bool RunAsyncTask (AsyncTask *task_p)
 	);
 
 	 
-	if (win_task_p-> wat_thread_handle)
+	if (win_task_p -> wat_thread_handle)
 		{
 			win_task_p -> wat_valid_thread_flag = true;
 		}
@@ -177,31 +177,30 @@ bool RunAsyncTask (AsyncTask *task_p)
 	return success_flag;
 }
 
-
-static void *DoAsyncTaskRun (void *data_p)
+static DWORD WINAPI DoAsyncTaskRun (LPVOID data_p)
 {
-	AsyncTask *async_task_p = (AsyncTask *) data_p;
+	WindowsAsyncTask *win_task_p = (WindowsAsyncTask *) data_p;
+	AsyncTask *base_task_p = & (win_task_p -> wat_base_task);
 	void *res_p = NULL;
 
 	#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "DoAsyncTaskRun about to run for \"%s\" at %.16X", async_task_p -> at_name_s, async_task_p);
 	#endif
 
-	res_p = async_task_p -> at_run_fn (async_task_p -> at_data_p);
+	res_p = base_task_p-> at_run_fn (base_task_p -> at_data_p);
 
 	#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "DoAsyncTaskRun ran for \"%s\" at %.16X", async_task_p -> at_name_s, async_task_p);
 	#endif
 
-	if (async_task_p -> at_consumer_p)
+	if (base_task_p-> at_consumer_p)
 		{
 			#if WINDOWS_ASYNC_TASK_DEBUG >= STM_LEVEL_FINEST
 			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "Sending message to EventConsumer as task \"%s\" has completed", async_task_p -> at_name_s);
 			#endif
 
-			RunEventConsumer (async_task_p -> at_consumer_p, async_task_p);
+			RunEventConsumer (base_task_p -> at_consumer_p, base_task_p);
 		}
-
-	pthread_exit (NULL);
-	//return res_p;
+		
+	ExitThread (0);
 }

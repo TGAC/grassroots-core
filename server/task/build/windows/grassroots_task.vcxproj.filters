@@ -36,6 +36,9 @@
     <ClInclude Include="..\..\include\platform\windows_sync_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\sync_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\async_task.c">

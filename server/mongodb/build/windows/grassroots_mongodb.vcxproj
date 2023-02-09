@@ -98,9 +98,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_MONGODB_LIBRARY_EXPORTS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DIR_JANSSON);$(DIR_BSON_INC);$(DIR_MONGODB_INC);..\..\include;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_BSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -113,9 +113,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_MONGODB_LIBRARY_EXPORTS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DIR_JANSSON);$(DIR_BSON_INC);$(DIR_MONGODB_INC);..\..\include;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_BSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,9 +128,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_MONGODB_LIBRARY_EXPORTS;WINDOWS;SHARED_LIBRARY;GRASSROOTS_MONGODB_LIBRARY_EXPORTS_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DIR_JANSSON);$(DIR_BSON_INC);$(DIR_MONGODB_INC);..\..\include;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_BSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,9 +143,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_MONGODB_LIBRARY_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DIR_JANSSON);$(DIR_BSON_INC);$(DIR_MONGODB_INC);..\..\include;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_BSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_SERVER_INC)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

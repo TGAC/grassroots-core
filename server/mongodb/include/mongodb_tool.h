@@ -34,22 +34,27 @@
 #include "mongodb_library.h"
 #include "operation.h"
 
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef ALLOCATE_MONGODB_TAGS
-	#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
-	#define MONGODB_VAL(x)	= x
-#else
-	#if GRASSROOTS_MONGODB_LIBRARY_EXPORTS
-		#define MONGODB_PREFIX GRASSROOTS_MONGODB_API extern
+	#ifdef GRASSROOTS_MONGODB_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
+
+		#ifdef ALLOCATE_MONGODB_TAGS
+			#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
+			#define MONGODB_VAL(x)	= x
+		#else
+			#define MONGODB_PREFIX  extern
+			#define MONGODB_VAL(x)
+		#endif
 	#else
 		#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
+		#define MONGODB_VAL(x)	= x
 	#endif
 
-	#define MONGODB_VAL(x)
-#endif
+#endif //	#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
+
 
 
 /** The identifier used to uniquely specify a MongoDB document.

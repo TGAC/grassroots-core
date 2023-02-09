@@ -511,7 +511,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 							if (service_results_p)
 								{
 									const char *key_s = NULL;
-									uuid_t user_uuid;
+									uuid_t user_uuid = {0};
 
 									uuid_clear (user_uuid);
 									const json_t *external_servers_req_p = json_object_get (req_p, SERVERS_S);

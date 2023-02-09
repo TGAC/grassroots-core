@@ -61,13 +61,19 @@ struct ExternalServer;
  */
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef ALLOCATE_PATH_TAGS
-	#define PATH_PREFIX GRASSROOTS_SERVICE_API
-	#define PATH_VAL(x)	= x
-#else
-	#define PATH_PREFIX extern
-	#define PATH_VAL(x)	
+	#ifdef GRASSROOTS_SERVICE_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
+		#ifdef ALLOCATE_PATH_TAGS
+			#define PATH_PREFIX GRASSROOTS_SERVICE_API
+			#define PATH_VAL(x)	= x
+		#else
+			#define PATH_PREFIX extern
+			#define PATH_VAL(x)	
+		#endif
+	#else
+		#define PATH_PREFIX GRASSROOTS_SERVICE_API
+		#define PATH_VAL(x)	
 #endif
+
 
 #endif
 
