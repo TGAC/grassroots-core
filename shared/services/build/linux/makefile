@@ -50,7 +50,6 @@ SRCS 	= \
 	service_job_set_iterator.c \
 	service_matcher.c \
 	service_metadata.c \
-	unix_sync_data.c \
 	web_service_util.c
 
 SRCS 	+= \
@@ -75,6 +74,7 @@ BASE_LDFLAGS = -lpthread \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_HANDLER_LIB) -l$(GRASSROOTS_HANDLER_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) \
+	-L$(DIR_GRASSROOTS_TASK_LIB) -l$(GRASSROOTS_TASK_LIB_NAME) \
 	-L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_UUID_LIB) -luuid
 

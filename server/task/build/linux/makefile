@@ -45,8 +45,9 @@ SRCS 	= \
 	async_tasks_manager.c \
 	count_async_task.c \
 	event_consumer.c \
-	unix_async_task.c \
 	system_async_task.c \
+	unix_async_task.c \
+	unix_sync_data.c \
 	
 CPPFLAGS += -DGRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS 
 
@@ -54,10 +55,8 @@ LDFLAGS = -lpthread -L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
 	-L$(DIR_JANSSON_LIB) -ljansson -lcurl \
 	-L$(DIR_UUID_LIB) -luuid \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) \
-	-L$(DIR_GRASSROOTS_SERVICES_LIB) -l$(GRASSROOTS_SERVICES_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_HANDLER_LIB) -l$(GRASSROOTS_HANDLER_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_PARAMS_LIB) -l$(GRASSROOTS_PARAMS_LIB_NAME) \
-	-L$(DIR_GRASSROOTS_MONGODB_LIB) -l$(GRASSROOTS_MONGODB_LIB_NAME) \
 	
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile	
 

@@ -177,6 +177,69 @@ bool RunAsyncTask (AsyncTask *task_p)
 	return success_flag;
 }
 
+
+OperationStatus ActualRunSystemAsyncTask (SystemAsyncTask *task_p)
+{
+	OperationStatus status = OS_STARTED;
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory (&si, sizeof (si));
+	si.cb = sizeof (si);
+	ZeroMemory (&pi, sizeof (pi));
+
+	#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
+	PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to run RunAsyncSystemTaskHook for %s with \"%s\"", uuid_s, task_p -> std_command_line_s);
+	#endif
+
+	// Start the child process.
+	if (CreateProcess (
+			NULL,   // No module name (use command line)
+			task_p -> std_command_line_s,        // Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory
+			&si,            // Pointer to STARTUPINFO structure
+			&pi)           // Pointer to PROCESS_INFORMATION structure
+		)
+		{
+			DWORD process_exit_code;
+
+			// Wait until child process exits.
+			WaitForSingleObject (pi.hProcess, INFINITE);
+
+			if (GetExitCodeProcess (pi.hProcess, &process_exit_code))
+				{
+					if (process_exit_code == 0)
+						{
+							status = OS_SUCCEEDED;
+							PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", task_p -> std_command_line_s);
+						}
+					else
+						{
+							status = OS_ERROR;
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", task_p -> std_command_line_s, process_exit_code);
+						}
+				}
+			else
+				{
+				status = OS_ERROR;
+				PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed to get process exit code %d", task_p->std_command_line_s, GetLastError ());
+
+				}
+		}
+	else
+		{
+			status = OS_ERROR;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "CreateProcess () failed running \"%s\" with return code %d", task_p -> std_command_line_s, GetLastError ());
+		}
+
+	return status;
+}
+
 static DWORD WINAPI DoAsyncTaskRun (LPVOID data_p)
 {
 	WindowsAsyncTask *win_task_p = (WindowsAsyncTask *) data_p;

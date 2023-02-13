@@ -48,7 +48,7 @@
 		#endif
 	#else
 		#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
-		#define MONGODB_VAL(x)	= x
+		#define MONGODB_VAL(x)
 	#endif
 
 #endif //	#ifndef DOXYGEN_SHOULD_SKIP_THIS

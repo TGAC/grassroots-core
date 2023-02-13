@@ -147,6 +147,10 @@ GRASSROOTS_TASK_API bool RunSystemAsyncTask (SystemAsyncTask *task_p);
 GRASSROOTS_TASK_LOCAL void RunSystemAsyncTaskSuccess (SystemAsyncTask *task_p, ServiceJob *job_p);
 
 
+
+
+GRASSROOTS_TASK_LOCAL OperationStatus ActualRunSystemAsyncTask (SystemAsyncTask *task_p);
+
 #ifdef __cplusplus
 }
 #endif

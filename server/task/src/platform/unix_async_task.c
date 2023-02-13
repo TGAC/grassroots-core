@@ -171,6 +171,37 @@ bool RunAsyncTask (AsyncTask *task_p)
 }
 
 
+OperationStatus ActualRunSystemAsyncTask (SystemAsyncTask *task_p)
+{
+	OperationStatus status = OS_STARTED;
+	int res = system (task_p -> std_command_line_s);
+
+	if (res != -1)
+		{
+			int process_exit_code = WEXITSTATUS (res);
+
+			if (process_exit_code == 0)
+				{
+					status = OS_SUCCEEDED;
+					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", task_p -> std_command_line_s);
+				}
+			else
+				{
+					status = OS_ERROR;
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", task_p -> std_command_line_s, process_exit_code);
+				}
+		}
+	else
+		{
+			status = OS_ERROR;
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", task_p -> std_command_line_s, res);
+		}
+
+	return status;
+}
+
+
+
 static void *DoAsyncTaskRun (void *data_p)
 {
 	AsyncTask *async_task_p = (AsyncTask *) data_p;

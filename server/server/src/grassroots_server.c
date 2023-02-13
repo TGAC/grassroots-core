@@ -37,6 +37,8 @@
 #include "string_parameter.h"
 #include "uuid_util.h"
 
+#include "service_util.h"
+
 /*
  * STATIC DECLARATIONS
  */

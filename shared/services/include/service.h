@@ -796,14 +796,6 @@ GRASSROOTS_SERVICE_API void AddReferenceServices (GrassrootsServer *grassroots_p
 GRASSROOTS_SERVICE_API bool CloseService (Service *service_p);
 
 
-/**
- * Has the Service got any jobs still running?
- *
- * @param service_p The Service to check.
- * @return <code>true</code> if the Service still has active jobs, <code>false</code> otherwise.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API  bool IsServiceLive (Service *service_p);
 
 
 /**
@@ -1136,75 +1128,7 @@ GRASSROOTS_SERVICE_API void SetMetadataForService (Service *service_p, SchemaTer
 
 
 
-/**
- * Add a ServiceJob to a Service.
- *
- * @param service_p The Service to add the ServiceJob to.
- * @param job_p The ServiceJob to add.
- * @return <code>true</code> if the ServiceJob was added to the Service successfully,
- * <code>false</code> otherwise.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API bool AddServiceJobToService (Service *service_p, ServiceJob *job_p);
 
-
-/**
- * Remove a ServiceJob from a Service.
- *
- * @param service_p The Service to remove the ServiceJob from.
- * @param job_p The ServiceJob to remove.
- * @return <code>true</code> if the ServiceJob was removed to the ServiceJob successfully,
- * <code>false</code> if could not as the ServiceJob is not a member of the Service
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API bool RemoveServiceJobFromService (Service *service_p, ServiceJob *job_p);
-
-
-
-/**
- * @brief Check if any ServiceJobs within Service are still running
- *
- * @param service_p The Service to check.
- * @return <code>true</code> if there are still some ServiceJobs in the given service
- * that are still running, <code>false</code> otherwise.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API int32 GetNumberOfLiveJobs (Service *service_p);
-
-
-/**
- * Is a given Service lockable with a mutex for use in a multi-threaded
- * situation.
- *
- * @param service_p The Service to check.
- * @return <code>true</code> if the Service is lockable, <code>false</code> otherwise.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API bool IsServiceLockable (const Service *service_p);
-
-
-/**
- * Lock a given Service with a mutex for use in a multi-threaded
- * situation.
- *
- * @param service_p The Service to check.
- * @return <code>true</code> if the Service was locked successfully,
- * <code>false</code> otherwise.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API bool LockService (Service *service_p);
-
-
-/**
- * Release the lock for a given Service in a multi-threaded
- * situation.
- *
- * @param service_p The Service to check.
- * @return <code>true</code> if the Service was unlocked successfully,
- * <code>false</code> otherwise.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API bool UnlockService (Service *service_p);
 
 
 GRASSROOTS_SERVICE_API bool SortServicesListByName (LinkedList *services_list_p);
@@ -1230,6 +1154,28 @@ GRASSROOTS_SERVICE_API json_t *GetServiceRunRequestFromJSON (const char * const 
 
 
 GRASSROOTS_SERVICE_API bool DefaultGetParameterTypeForNamedParameter (const char *param_name_s, ParameterType *pt_p, const NamedParameterType *params_p);
+
+
+/**
+ * Add a ServiceJob to a Service.
+ *
+ * @param service_p The Service to add the ServiceJob to.
+ * @param job_p The ServiceJob to add.
+ * @return <code>true</code> if the ServiceJob was added to the Service successfully,
+ * <code>false</code> otherwise.
+ */
+GRASSROOTS_SERVICE_API bool AddServiceJobToService (Service *service_p, ServiceJob *job_p);
+
+
+/**
+ * Remove a ServiceJob from a Service.
+ *
+ * @param service_p The Service to remove the ServiceJob from.
+ * @param job_p The ServiceJob to remove.
+ * @return <code>true</code> if the ServiceJob was removed to the ServiceJob successfully,
+ * <code>false</code> if could not as the ServiceJob is not a member of the Service
+ */
+GRASSROOTS_SERVICE_API bool RemoveServiceJobFromService (Service *service_p, ServiceJob *job_p);
 
 
 #ifdef __cplusplus

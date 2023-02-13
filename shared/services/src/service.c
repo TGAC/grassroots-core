@@ -282,20 +282,6 @@ void ReleaseServiceData (ServiceData *data_p)
 }
 
 
-bool IsServiceLive (Service *service_p)
-{
-	bool is_live_flag = false;
-
-	if (service_p -> se_jobs_p)
-		{
-			int32 num_jobs = GetNumberOfLiveJobs (service_p);
-
-			is_live_flag = (num_jobs != 0);
-		}
-
-	return is_live_flag;
-}
-
 
 //json_t *GetServiceResults (Service *service_p, const uuid_t service_id)
 //{
@@ -1598,6 +1584,144 @@ const char *GetServiceInformationPage (const Service *service_p)
 }
 
 
+bool AddServiceJobToService (Service *service_p, ServiceJob *job_p)
+{
+	bool added_flag = false;
+
+	ServiceJobNode *node_p = AllocateServiceJobNode (job_p);
+
+	if (node_p)
+		{
+			if (! (service_p -> se_jobs_p))
+				{
+					service_p -> se_jobs_p = AllocateServiceJobSet (service_p);
+				}
+
+			if (service_p -> se_jobs_p)
+				{
+					if (service_p -> se_sync_data_p)
+						{
+							if (AcquireSyncDataLock (service_p -> se_sync_data_p))
+								{
+									/*
+									 * Is it already in the Service's job set?
+									 */
+									if (!FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
+										{
+											LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+
+											if (ReleaseSyncDataLock (service_p -> se_sync_data_p))
+												{
+													job_p -> sj_service_p = service_p;
+													added_flag = true;
+												}
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+												}
+										}
+									else
+										{
+											added_flag = true;
+										}
+
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+								}
+						}
+					else
+						{
+							if (!FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
+								{
+									LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+									job_p -> sj_service_p = service_p;
+									added_flag = true;
+								}
+							else
+								{
+									added_flag = true;
+								}
+						}
+
+				}		/* if (service_p -> se_jobs_p) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "No ServiceJobSet for \"%s\"", GetServiceName (service_p));
+				}
+
+			if (!added_flag)
+				{
+					node_p -> sjn_job_p = NULL;
+					FreeServiceJobNode (& (node_p -> sjn_node));
+				}
+
+		}		/* if (node_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+		}
+
+	return added_flag;
+}
+
+
+bool RemoveServiceJobFromService (Service *service_p, ServiceJob *job_p)
+{
+	bool removed_flag = false;
+
+	if (service_p -> se_sync_data_p)
+		{
+			if (AcquireSyncDataLock (service_p -> se_sync_data_p))
+				{
+					if (RemoveServiceJobByUUIDFromServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
+						{
+							removed_flag = true;
+						}
+					else
+						{
+							char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+							ConvertUUIDToString (job_p -> sj_id, uuid_s);
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find job \"%s\" for service \"%s\"", uuid_s, GetServiceName (service_p));
+						}
+
+					if (ReleaseSyncDataLock (service_p -> se_sync_data_p))
+						{
+							removed_flag = false;
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for removing job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for removing job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
+				}
+		}
+	else
+		{
+			ServiceJobNode *node_p = FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id);
+
+			if (node_p)
+				{
+					LinkedListRemove (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
+					removed_flag = true;
+				}
+			else
+				{
+					char uuid_s [UUID_STRING_BUFFER_SIZE];
+
+					ConvertUUIDToString (job_p -> sj_id, uuid_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find job \"%s\" for service \"%s\"", uuid_s, GetServiceName (service_p));
+				}
+		}
+
+	return removed_flag;
+}
+
+
+
+
 static bool AddServiceNameToJSON (Service * const service_p, json_t *root_p)
 {
 	bool success_flag = false;
@@ -2115,210 +2239,7 @@ void SetMetadataForService (Service *service_p, SchemaTerm *category_p, SchemaTe
 
 
 
-bool IsServiceLockable (const Service *service_p)
-{
-	return (service_p -> se_sync_data_p != NULL);
-}
 
-
-bool LockService (Service *service_p)
-{
-	bool success_flag = true;
-
-	if (service_p -> se_sync_data_p)
-		{
-			success_flag = AcquireSyncDataLock (service_p -> se_sync_data_p);
-		}
-
-	return success_flag;
-}
-
-
-bool UnlockService (Service *service_p)
-{
-	bool success_flag = true;
-
-	if (service_p -> se_sync_data_p)
-		{
-			success_flag = ReleaseSyncDataLock (service_p -> se_sync_data_p);
-		}
-
-	return success_flag;
-}
-
-
-bool AddServiceJobToService (Service *service_p, ServiceJob *job_p)
-{
-	bool added_flag = false;
-
-	ServiceJobNode *node_p = AllocateServiceJobNode (job_p);
-
-	if (node_p)
-		{
-			if (! (service_p -> se_jobs_p))
-				{
-					service_p -> se_jobs_p = AllocateServiceJobSet (service_p);
-				}
-
-			if (service_p -> se_jobs_p)
-				{
-					if (service_p -> se_sync_data_p)
-						{
-							if (AcquireSyncDataLock (service_p -> se_sync_data_p))
-								{
-									/*
-									 * Is it already in the Service's job set?
-									 */
-									if (!FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
-										{
-											LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
-
-											if (ReleaseSyncDataLock (service_p -> se_sync_data_p))
-												{
-													job_p -> sj_service_p = service_p;
-													added_flag = true;
-												}
-											else
-												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
-												}
-										}
-									else
-										{
-											added_flag = true;
-										}
-
-								}
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for adding job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
-								}
-						}
-					else
-						{
-							if (!FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
-								{
-									LinkedListAddTail (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
-									job_p -> sj_service_p = service_p;
-									added_flag = true;
-								}
-							else
-								{
-									added_flag = true;
-								}
-						}
-
-				}		/* if (service_p -> se_jobs_p) */
-			else
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "No ServiceJobSet for \"%s\"", GetServiceName (service_p));
-				}
-
-			if (!added_flag)
-				{
-					node_p -> sjn_job_p = NULL;
-					FreeServiceJobNode (& (node_p -> sjn_node));
-				}
-
-		}		/* if (node_p) */
-	else
-		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
-		}
-
-	return added_flag;
-}
-
-
-bool RemoveServiceJobFromService (Service *service_p, ServiceJob *job_p)
-{
-	bool removed_flag = false;
-
-	if (service_p -> se_sync_data_p)
-		{
-			if (AcquireSyncDataLock (service_p -> se_sync_data_p))
-				{
-					if (RemoveServiceJobByUUIDFromServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id))
-						{
-							removed_flag = true;
-						}
-					else
-						{
-							char uuid_s [UUID_STRING_BUFFER_SIZE];
-
-							ConvertUUIDToString (job_p -> sj_id, uuid_s);
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find job \"%s\" for service \"%s\"", uuid_s, GetServiceName (service_p));
-						}
-
-					if (ReleaseSyncDataLock (service_p -> se_sync_data_p))
-						{
-							removed_flag = false;
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to unlock SyncData for removing job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
-						}
-				}
-			else
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to lock SyncData for removing job \"%s\" to \"%s\"", job_p -> sj_name_s, GetServiceName (service_p));
-				}
-		}
-	else
-		{
-			ServiceJobNode *node_p = FindServiceJobNodeByUUIDInServiceJobSet (service_p -> se_jobs_p, job_p -> sj_id);
-
-			if (node_p)
-				{
-					LinkedListRemove (service_p -> se_jobs_p -> sjs_jobs_p, (ListItem *) node_p);
-					removed_flag = true;
-				}
-			else
-				{
-					char uuid_s [UUID_STRING_BUFFER_SIZE];
-
-					ConvertUUIDToString (job_p -> sj_id, uuid_s);
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to find job \"%s\" for service \"%s\"", uuid_s, GetServiceName (service_p));
-				}
-		}
-
-	return removed_flag;
-}
-
-
-int32 GetNumberOfLiveJobs (Service *service_p)
-{
-	int32 num_live_jobs = 0;
-
-	if (service_p -> se_jobs_p)
-		{
-			if ((!IsServiceLockable (service_p)) || (LockService (service_p)))
-				{
-					ServiceJobNode *node_p = (ServiceJobNode *) (service_p -> se_jobs_p -> sjs_jobs_p -> ll_head_p);
-
-					while (node_p)
-						{
-							OperationStatus status = GetCachedServiceJobStatus (node_p -> sjn_job_p);
-
-							if ((status == OS_PENDING) || (status == OS_STARTED))
-								{
-									++ num_live_jobs;
-								}
-
-							node_p = (ServiceJobNode *) (node_p -> sjn_node.ln_next_p);
-						}
-
-					if (! ((!IsServiceLockable (service_p)) || (UnlockService (service_p))))
-						{
-							num_live_jobs = -1;
-						}
-				}
-			else
-				{
-					num_live_jobs = -1;
-				}
-
-		}		/* if (service_p -> se_jobs_p) */
-
-	return num_live_jobs;
-}
 
 
 GrassrootsServer *GetGrassrootsServerFromService (const Service * const service_p)
