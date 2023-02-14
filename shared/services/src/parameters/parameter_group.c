@@ -253,6 +253,10 @@ json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool
 												}
 										}
 								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "ParameterGroup \"%s\" is set as repeatable but no repeatable parameter defined", param_group_p -> pg_name_s);
+								}
 
 						}		/* if (SetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag)) */
 					else
