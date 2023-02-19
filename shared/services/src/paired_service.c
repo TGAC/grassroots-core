@@ -410,7 +410,7 @@ int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, Service *s
 																	const char *description_s = GetJSONString (service_result_p, JOB_DESCRIPTION_S);
 																	const char *remote_id_s = GetJSONString (service_result_p, JOB_UUID_S);
 
-																	uuid_t remote_id;
+																	uuid_t remote_id = { 0 };
 																	size_t j;
 																	json_t *job_json_p;
 

@@ -409,7 +409,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 							if (json_is_string (uri_p))
 								{
 									const char *uuid_s = json_string_value (uri_p);
-									uuid_t key;
+									uuid_t key = { 0 };
 
 									if (ConvertStringToUUID (uuid_s, key))
 										{
@@ -2062,7 +2062,7 @@ static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * co
 								if (json_is_string (service_uuid_json_p))
 									{
 										const char *uuid_s = json_string_value (service_uuid_json_p);
-										uuid_t service_id;
+										uuid_t service_id = { 0 };
 
 										if (ConvertStringToUUID (uuid_s, service_id))
 											{

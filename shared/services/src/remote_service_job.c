@@ -211,7 +211,7 @@ RemoteServiceJob *GetRemoteServiceJobFromJSON (const json_t *job_json_p, Service
 
 									if ((remote_uuid_s = GetJSONString (job_json_p, JOB_REMOTE_UUID_S)) != NULL)
 										{
-											uuid_t remote_id;
+											uuid_t remote_id = { 0 };
 
 											uuid_clear (remote_id);
 
@@ -365,8 +365,8 @@ static bool UpdateRemoteServiceJob (ServiceJob *job_p)
 													 */
 													if (uuid_s)
 														{
-															uuid_t remote_id;
-
+															uuid_t remote_id = { 0 };
+															 
 															if (uuid_parse (uuid_s, remote_id) == 0)
 																{
 																	if (uuid_compare (remote_id, remote_job_p -> rsj_remote_job_id) == 0)

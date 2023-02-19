@@ -543,7 +543,7 @@ uint32 GetNumberOfServiceJobResults (const ServiceJob *job_p)
 
 	if (job_p -> sj_result_p)
 		{
-			size = json_array_size (job_p -> sj_result_p);
+			size = (uint32) json_array_size (job_p -> sj_result_p);
 		}		/* if (job_p -> sj_result_p) */
 
 	return size;
@@ -977,7 +977,7 @@ bool InitServiceJobFromJSON (ServiceJob *job_p, const json_t *job_json_p, Servic
 											if (type_s)
 												{
 													uuid_t *id_p = NULL;
-													uuid_t id;
+													uuid_t id = { 0 };
 
 
 
