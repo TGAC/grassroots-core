@@ -1853,7 +1853,7 @@ bool RemoveMongoFields (MongoTool *tool_p, bson_t *selector_p, const char **fiel
 						}
 					else
 						{
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, selector_p, "UpdateMongoDataAsBSON () failed");
+							PrintBSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, selector_p, "UpdateMongoDataAsBSON () failed");
 						}
 
 				}

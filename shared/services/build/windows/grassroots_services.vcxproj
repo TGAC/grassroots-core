@@ -189,6 +189,7 @@
     <ClInclude Include="..\..\include\parameters\signed_int_parameter.h" />
     <ClInclude Include="..\..\include\parameters\string_array_parameter.h" />
     <ClInclude Include="..\..\include\parameters\string_parameter.h" />
+    <ClInclude Include="..\..\include\parameters\time_array_parameter.h" />
     <ClInclude Include="..\..\include\parameters\time_parameter.h" />
     <ClInclude Include="..\..\include\parameters\unsigned_int_parameter.h" />
     <ClInclude Include="..\..\include\provider.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="..\..\src\parameters\signed_int_parameter.c" />
     <ClCompile Include="..\..\src\parameters\string_array_parameter.c" />
     <ClCompile Include="..\..\src\parameters\string_parameter.c" />
+    <ClCompile Include="..\..\src\parameters\time_array_parameter.c" />
     <ClCompile Include="..\..\src\parameters\time_parameter.c" />
     <ClCompile Include="..\..\src\parameters\unsigned_int_parameter.c" />
     <ClCompile Include="..\..\src\provider.c" />
