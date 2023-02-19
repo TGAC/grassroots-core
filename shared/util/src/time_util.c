@@ -330,6 +330,36 @@ void FreeTime (struct tm *time_p)
 }
 
 
+struct tm **AllocateTimeArray (const size_t num_entries)
+{
+	struct tm **times_pp = (struct tm **) AllocMemoryArray (num_entries + 1, sizeof (struct tm *));
+
+	if (times_pp)
+		{
+			return times_pp;
+		}
+
+	return NULL;
+}
+
+
+void FreeTimeArray (struct tm **values_pp, const size_t num_values)
+{
+	size_t i;
+	struct tm **value_pp = values_pp;
+
+	for (i = num_values; i > 0; -- i, ++ value_pp)
+		{
+			if (*value_pp)
+				{
+					FreeTime (*value_pp);
+				}
+		}
+
+	FreeMemory (values_pp);
+}
+
+
 struct tm *DuplicateTime (const struct tm *src_p)
 {
 	struct tm *dest_p = AllocateTime ();
@@ -346,6 +376,62 @@ struct tm *DuplicateTime (const struct tm *src_p)
 void CopyTime (const struct tm *src_p, struct tm *dest_p)
 {
 	memcpy (dest_p, src_p, sizeof (struct tm));
+}
+
+
+bool CopyTimesArray (const struct tm **src_array_pp, struct tm **dest_array_pp, const size_t num_entries)
+{
+	const struct tm **src_pp = src_array_pp;
+	struct tm **dest_pp = dest_array_pp;
+	size_t i = 0;
+	bool success_flag = true;
+
+	while ((i < num_entries) && success_flag)
+		{
+			if (*src_pp)
+				{
+					if (*dest_pp)
+						{
+							CopyTime (*src_pp, *dest_pp);
+						}
+					else
+						{
+							struct tm *dest_p = DuplicateTime (*src_pp);
+
+							if (dest_p)
+								{
+									*dest_pp = dest_p;
+								}
+							else
+								{
+									success_flag = false;
+								}
+						}
+				}
+			else
+				{
+					*dest_pp = NULL;
+				}
+
+			++ src_pp;
+			++ dest_pp;
+		}
+
+	if (!success_flag)
+		{
+			while (dest_pp >= dest_array_pp)
+				{
+					if (*dest_pp)
+						{
+							FreeTime (*dest_pp);
+							*dest_pp = NULL;
+						}
+
+					-- dest_pp;
+				}
+		}
+
+	return success_flag;
 }
 
 

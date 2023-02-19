@@ -66,6 +66,7 @@ SRCS 	+= \
 	string_parameter.c \
 	string_array_parameter.c \
 	time_parameter.c \
+	time_array_parameter.c \
 	unsigned_int_parameter.c 
 
 CPPFLAGS += -DUNIX -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS

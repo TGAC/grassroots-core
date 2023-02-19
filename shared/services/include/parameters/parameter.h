@@ -262,6 +262,8 @@ PARAMETER_PREFIX const char * const PA_DOUBLE_PRECISION_S PARAMETER_VAL("precisi
 
 PARAMETER_PREFIX const char * const PA_TYPE_STRING_ARRAY_S PARAMETER_VAL("string_array");
 
+PARAMETER_PREFIX const char * const PA_TYPE_TIME_ARRAY_S PARAMETER_VAL("time_array");
+
 PARAMETER_PREFIX const char * const PA_TYPE_STRING_S PARAMETER_VAL("string");
 
 PARAMETER_PREFIX const char * const PA_TYPE_BOOLEAN_S PARAMETER_VAL("boolean");

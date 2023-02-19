@@ -125,7 +125,7 @@ typedef enum ParameterType
 	PT_COMPLETABLE_STRING,
 
 
-	/*
+	/**
 	 * Multiple String values
 	 */
 	PT_STRING_ARRAY,
@@ -133,6 +133,12 @@ typedef enum ParameterType
 
 	/** An input filename string */
 	PT_FILE_TO_UPLOAD,
+
+
+	/**
+	 * Multiple Time values
+	 */
+	PT_TIME_ARRAY,
 
 
 	/** The number of possible ParameterType values. */

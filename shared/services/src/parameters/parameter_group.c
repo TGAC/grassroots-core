@@ -199,58 +199,56 @@ json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool
 				{
 					if (SetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag))
 						{
-							if (param_group_p -> pg_repeatable_param_p)
+							if ((! (param_group_p -> pg_repeatable_param_p)) ||
+									(SetJSONString (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_p -> pa_name_s)))
 								{
-									if (SetJSONString (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_p -> pa_name_s))
+									if (include_params_flag && (param_group_p -> pg_params_p))
 										{
-											if (include_params_flag && (param_group_p -> pg_params_p))
+											json_t *params_json_p = json_array ();
+
+											if (params_json_p)
 												{
-													json_t *params_json_p = json_array ();
-
-													if (params_json_p)
+													if (json_object_set_new (group_json_p, PARAM_GROUP_PARAMS_S, params_json_p) == 0)
 														{
-															if (json_object_set_new (group_json_p, PARAM_GROUP_PARAMS_S, params_json_p) == 0)
+															ParameterNode *node_p = (ParameterNode *) (param_group_p -> pg_params_p -> ll_head_p);
+
+															success_flag = true;
+
+															while (node_p && success_flag)
 																{
-																	ParameterNode *node_p = (ParameterNode *) (param_group_p -> pg_params_p -> ll_head_p);
+																	Parameter *param_p = node_p -> pn_parameter_p;
+																	json_t *param_json_p = GetParameterAsJSON (param_p, sv_p, false);
 
-																	success_flag = true;
-
-																	while (node_p && success_flag)
+																	if (param_json_p)
 																		{
-																			Parameter *param_p = node_p -> pn_parameter_p;
-																			json_t *param_json_p = GetParameterAsJSON (param_p, sv_p, false);
-
-																			if (param_json_p)
+																			if (json_array_append_new (params_json_p, param_json_p) == 0)
 																				{
-																					if (json_array_append_new (params_json_p, param_json_p) == 0)
-																						{
-																							node_p = (ParameterNode *) (node_p -> pn_node.ln_next_p);
-																						}
-																					else
-																						{
-																							success_flag = false;
-																						}
+																					node_p = (ParameterNode *) (node_p -> pn_node.ln_next_p);
 																				}
 																			else
 																				{
 																					success_flag = false;
 																				}
 																		}
-
+																	else
+																		{
+																			success_flag = false;
+																		}
 																}
 
-
-
-														}		/* if (params_json_p) */
-													else
-														{
-															json_decref (params_json_p);
 														}
-												}
+
+
+
+												}		/* if (params_json_p) */
 											else
 												{
-													success_flag = true;
+													json_decref (params_json_p);
 												}
+										}
+									else
+										{
+											success_flag = true;
 										}
 								}
 							else

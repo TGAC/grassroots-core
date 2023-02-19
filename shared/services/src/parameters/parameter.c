@@ -41,6 +41,7 @@
 #include "string_parameter.h"
 #include "string_array_parameter.h"
 #include "time_parameter.h"
+#include "time_array_parameter.h"
 #include "unsigned_int_parameter.h"
 
 
@@ -298,7 +299,18 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 									{
 										param_p = & (string_array_param_p -> sap_base_param);
 									}
+							}
+							break;
 
+
+						case PT_TIME_ARRAY:
+							{
+								TimeArrayParameter *time_array_param_p = AllocateTimeArrayParameterFromJSON (root_p, service_p, concise_flag, NULL);
+
+								if (time_array_param_p)
+									{
+										param_p = & (time_array_param_p -> tap_base_param);
+									}
 							}
 							break;
 
@@ -1377,6 +1389,10 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 						success_flag = (json_object_set_new (root_p, PARAM_TYPE_S, json_string (PA_TYPE_STRING_ARRAY_S)) == 0);
 						break;
 
+					case PT_TIME_ARRAY:
+						success_flag = SetJSONString (root_p, PARAM_TYPE_S, PA_TYPE_TIME_ARRAY_S);
+						break;
+
 					case PT_NUM_TYPES:
 						PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, root_p, "Parameter has invalid type");
 						break;
@@ -2364,6 +2380,19 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 					}
 			}
 			break;
+
+		case PT_TIME_ARRAY:
+			{
+				TimeArrayParameter *time_array_param_p = (TimeArrayParameter *) param_p;
+				value_s = GetTimeArrayParameterCurrentValuesAsFlattenedString (time_array_param_p);
+
+				if (value_s)
+					{
+						*alloc_flag_p = true;
+					}
+			}
+			break;
+
 
 		case PT_NUM_TYPES:
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Parameter \"%s\" has invalid type", param_p -> pa_name_s);
