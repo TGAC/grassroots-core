@@ -84,6 +84,9 @@
     <ClCompile Include="..\..\src\user_details.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\platform\windows_shared_memory.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\amiga_debugging.h">

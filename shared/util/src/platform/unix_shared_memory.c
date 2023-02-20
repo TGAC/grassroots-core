@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,44 +30,109 @@
 #include "streams.h"
 
 
-int AllocateSharedMemory (const char *id_s, size_t size, int flags)
+struct MappedMemory
 {
-	int shm_id = -1;
-	key_t key = ftok (id_s, 'A');
+	int mm_id;
+};
 
-	if (key != (key_t) -1)
+
+
+
+
+struct MappedMemory *AllocateSharedMemory (const char *id_s, size_t size, int flags)
+{
+	struct MappedMemory *mem_p = (struct MappedMemory *) AllocMemory (sizeof (struct MappedMemory));
+
+	if (mem_p)
 		{
-			shm_id = shmget (key, size, flags | IPC_CREAT);
+			int shm_id = -1;
+			key_t key = ftok (id_s, 'A');
 
-			if (shm_id == -1)
+			if (key != (key_t) -1)
 				{
+					shm_id = shmget (key, size, flags | IPC_CREAT);
+
+					if (shm_id != -1)
+						{
+							mem_p -> mm_id = shm_id;
+
+							return mem_p;
+						}
+					else
+						{
+							const char *error_s = NULL;
+
+							/* The error strings are taken from http://linux.die.net/man/2/shmget */
+							switch (errno)
+								{
+									case EACCES:
+										error_s = "The user does not have permission to access the shared memory segment, and does not have the CAP_IPC_OWNER capability.";
+										break;
+
+									case EEXIST:
+										error_s = "IPC_CREAT | IPC_EXCL was specified and the segment exists.";
+										break;
+
+									case EINVAL:
+										error_s = "A new segment was to be created and size < SHMMIN or size > SHMMAX, or no new segment was to be created, a segment with given key existed, but size is greater than the size of that segment.";
+										break;
+
+									case ENFILE:
+										error_s = "The system limit on the total number of open files has been reached.";
+										break;
+
+									case ENOENT:
+										error_s = "No segment exists for the given key, and IPC_CREAT was not specified.";
+										break;
+
+									case ENOMEM:
+										error_s = "No memory could be allocated for segment overhead.";
+										break;
+
+									case ENOSPC:
+										error_s = "All possible shared memory IDs have been taken (SHMMNI), or allocating a segment of the requested size would cause the system to exceed the system-wide limit on shared memory (SHMALL).";
+										break;
+
+									case EPERM:
+										error_s = "The SHM_HUGETLB flag was specified, but the caller was not privileged (did not have the CAP_IPC_LOCK capability).";
+										break;
+
+									default:
+										error_s = "Unknown error occurred";
+										break;
+								}		/* switch (errno) */
+
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_s);
+						}		/* if (shm_id == -1) */
+
+				}		/* if (key != (key_t) -1) */
+			else
+				{
+					/* details taken from http://pubs.opengroup.org/onlinepubs/009695399/functions/ftok.html */
+
 					const char *error_s = NULL;
 
 					/* The error strings are taken from http://linux.die.net/man/2/shmget */
 					switch (errno)
 						{
 							case EACCES:
-								error_s = "The user does not have permission to access the shared memory segment, and does not have the CAP_IPC_OWNER capability.";
+								error_s = "Search permission is denied for a component of the path prefix.";
 								break;
 
-							case EEXIST:
-								error_s = "IPC_CREAT | IPC_EXCL was specified and the segment exists.";
+							case ELOOP:
+								error_s = "A loop exists in symbolic links encountered during resolution of the path argument.";
 								break;
 
-							case EINVAL:
-								error_s = "A new segment was to be created and size < SHMMIN or size > SHMMAX, or no new segment was to be created, a segment with given key existed, but size is greater than the size of that segment.";
-								break;
-
-							case ENFILE:
-								error_s = "The system limit on the total number of open files has been reached.";
+							case ENAMETOOLONG:
+								error_s = "The length of the path argument exceeds {PATH_MAX} or a pathname component is longer than {NAME_MAX}.";
 								break;
 
 							case ENOENT:
-								error_s = "No segment exists for the given key, and IPC_CREAT was not specified.";
+								error_s = "A component of path does not name an existing file or path is an empty string.";
 								break;
 
-							case ENOMEM:
-								error_s = "No memory could be allocated for segment overhead.";
+							case ENOTDIR:
+								error_s = "A component of the path prefix is not a directory.";
 								break;
 
 							case ENOSPC:
@@ -84,65 +149,23 @@ int AllocateSharedMemory (const char *id_s, size_t size, int flags)
 						}		/* switch (errno) */
 
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_s);
-				}		/* if (shm_id == -1) */
+				}
 
-		}		/* if (key != (key_t) -1) */
-	else
-		{
-			/* details taken from http://pubs.opengroup.org/onlinepubs/009695399/functions/ftok.html */
+			FreeMemory (mem_p);
+		}		/* if (mem_p) */
 
-			const char *error_s = NULL;
-
-			/* The error strings are taken from http://linux.die.net/man/2/shmget */
-			switch (errno)
-				{
-					case EACCES:
-						error_s = "Search permission is denied for a component of the path prefix.";
-						break;
-
-					case ELOOP:
-						error_s = "A loop exists in symbolic links encountered during resolution of the path argument.";
-						break;
-
-					case ENAMETOOLONG:
-						error_s = "The length of the path argument exceeds {PATH_MAX} or a pathname component is longer than {NAME_MAX}.";
-						break;
-
-					case ENOENT:
-						error_s = "A component of path does not name an existing file or path is an empty string.";
-						break;
-
-					case ENOTDIR:
-						error_s = "A component of the path prefix is not a directory.";
-						break;
-
-					case ENOSPC:
-						error_s = "All possible shared memory IDs have been taken (SHMMNI), or allocating a segment of the requested size would cause the system to exceed the system-wide limit on shared memory (SHMALL).";
-						break;
-
-					case EPERM:
-						error_s = "The SHM_HUGETLB flag was specified, but the caller was not privileged (did not have the CAP_IPC_LOCK capability).";
-						break;
-
-					default:
-						error_s = "Unknown error occurred";
-						break;
-				}		/* switch (errno) */
-
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_s);
-		}
-
-	return shm_id;
+	return NULL;
 }
 
 
-bool FreeSharedMemory (int id)
+bool FreeSharedMemory (struct MappedMemory *mem_p)
 {
-	int res = shmctl (id, IPC_RMID, NULL);
+	bool success_flag = false;
+	int res = shmctl (mem_p -> mm_id, IPC_RMID, NULL);
 
 	if (res != -1)
 		{
-			return true;
+			success_flag = true;
 		}
 	else
 		{
@@ -185,14 +208,16 @@ bool FreeSharedMemory (int id)
 				}
 
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_s);
-			return false;
+
 		}		/* if (res == -1) */
+
+	return success_flag;
 }
 
 
-void *OpenSharedMemory (int id, int flags)
+void *OpenSharedMemory (struct MappedMemory *mapped_mem_p, int flags)
 {
-	void *mem_p = shmat (id, NULL, flags);
+	void *mem_p = shmat (mapped_mem_p -> mm_id, NULL, flags);
 
 	if (mem_p != (char *) -1)
 		{
@@ -227,19 +252,20 @@ void *OpenSharedMemory (int id, int flags)
 				}
 
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_s);
-
-			return NULL;
 		}
+
+	return NULL;
 }
 
 
-bool CloseSharedMemory (void *value_p)
+bool CloseSharedMemory (struct MappedMemory *mapped_mem_p, void *value_p)
 {
+	bool success_flag = false;
 	int res = shmdt (value_p);
 
 	if (res != -1)
 		{
-			return true;
+			success_flag = true;
 		}
 	else
 		{
@@ -258,8 +284,8 @@ bool CloseSharedMemory (void *value_p)
 				}
 
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, error_s);
-
-			return false;
 		}
+
+	return success_flag;
 }
 

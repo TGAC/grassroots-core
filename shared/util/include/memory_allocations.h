@@ -25,6 +25,8 @@
 #define MEMORY_ALLOCATIONS_H
 
 #include "typedefs.h"
+#include "grassroots_util_library.h"
+
 
 /**
  * An enum specifying the particular status of a piece of dynamically allocated memory for
@@ -124,6 +126,8 @@ typedef enum MEM_FLAG
 #endif
 
 
+struct MappedMemory;
+
 
 /**
  * Allocate some memory that can shared between different processes.
@@ -138,7 +142,7 @@ typedef enum MEM_FLAG
  *
  * @ingroup utility_group
  */
-int AllocateSharedMemory (const char *id_s, size_t size, int flags);
+GRASSROOTS_UTIL_API struct MappedMemory *AllocateSharedMemory (const char *id_s, size_t size, int flags);
 
 
 /**
@@ -150,7 +154,7 @@ int AllocateSharedMemory (const char *id_s, size_t size, int flags);
  *
  * @ingroup utility_group
  */
-bool FreeSharedMemory (int id);
+GRASSROOTS_UTIL_API bool FreeSharedMemory (struct MappedMemory *mapped_memory_p);
 
 
 /**
@@ -162,7 +166,7 @@ bool FreeSharedMemory (int id);
  *
  * @ingroup utility_group
  */
-void *OpenSharedMemory (int id, int flags);
+GRASSROOTS_UTIL_API void *OpenSharedMemory (struct MappedMemory *mapped_memory_p, int flags);
 
 
 /**
@@ -174,7 +178,7 @@ void *OpenSharedMemory (int id, int flags);
  *
  * @ingroup utility_group
  */
-bool CloseSharedMemory (void *value_p);
+GRASSROOTS_UTIL_API bool CloseSharedMemory (struct MappedMemory *mapped_memory_p, void *value_p);
 
 
 #ifdef __cplusplus

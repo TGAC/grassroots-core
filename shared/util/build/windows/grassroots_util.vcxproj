@@ -197,6 +197,7 @@
     <ClCompile Include="..\..\src\math_utils.c" />
     <ClCompile Include="..\..\src\operation.c" />
     <ClCompile Include="..\..\src\platform\windows_filesystem.c" />
+    <ClCompile Include="..\..\src\platform\windows_shared_memory.c" />
     <ClCompile Include="..\..\src\regular_expressions.c" />
     <ClCompile Include="..\..\src\resource.c" />
     <ClCompile Include="..\..\src\schema_keys.c" />
