@@ -113,7 +113,7 @@
 #define INT16_FMT_IDENT "hd"
 
 /** The C I/O length field for sizet datatypes. */
-#define SIZET_FMT_IDENT "lu"
+#define SIZET_FMT_IDENT "zu"
 
 
 

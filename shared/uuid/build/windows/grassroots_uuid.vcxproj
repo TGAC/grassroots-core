@@ -120,7 +120,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;WINDOWS;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WIN32;_DEBUG;WINDOWS;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -143,7 +143,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;WINDOWS;WIN32;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;_DEBUG;WINDOWS;WIN32;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -168,7 +168,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;WINDOWS;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WIN32;NDEBUG;WINDOWS;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -195,7 +195,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;WINDOWS;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;NDEBUG;WINDOWS;_USRDLL;%(PreprocessorDefinitions);SHARED_LIBRARY;_WINDOWS;GRASSROOTS_UUID_LIBRARY_EXPORTS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>

@@ -235,7 +235,7 @@ typedef struct ParameterNode
 	#define PARAMETER_PREFIX GRASSROOTS_SERVICE_API
 	#define PARAMETER_VAL(x)	= x
 #else
-	#define PARAMETER_PREFIX extern
+	#define PARAMETER_PREFIX GRASSROOTS_SERVICE_API
 	#define PARAMETER_VAL(x)
 #endif
 

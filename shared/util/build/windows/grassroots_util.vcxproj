@@ -105,7 +105,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(DIR_JANSSON_INC);$(DIR_PCRE_INC);..\..\include\io;..\..\include\containers;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -123,7 +123,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(DIR_JANSSON_INC);$(DIR_PCRE_INC);..\..\include\io;..\..\include\containers;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(DIR_JANSSON_INC);$(DIR_PCRE_INC);..\..\include\io;..\..\include\containers;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -165,7 +165,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WINDOWS;GRASSROOTS_UTIL_LIBRARY_EXPORTS;SHARED_LIBRARY;ALLOCATE_RESOURCE_TAGS;ALLOCATE_SEARCH_TAGS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(DIR_JANSSON_INC);$(DIR_PCRE_INC);..\..\include\io;..\..\include\containers;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -203,6 +203,7 @@
     <ClCompile Include="..\..\src\schema_keys.c" />
     <ClCompile Include="..\..\src\schema_version.c" />
     <ClCompile Include="..\..\src\search_options.c" />
+    <ClCompile Include="..\..\src\statistics.c" />
     <ClCompile Include="..\..\src\string_utils.c" />
     <ClCompile Include="..\..\src\time_util.c" />
     <ClCompile Include="..\..\src\user_details.c" />
@@ -236,6 +237,7 @@
     <ClInclude Include="..\..\include\schema_keys.h" />
     <ClInclude Include="..\..\include\schema_version.h" />
     <ClInclude Include="..\..\include\search_options.h" />
+    <ClInclude Include="..\..\include\statistics.h" />
     <ClInclude Include="..\..\include\string_utils.h" />
     <ClInclude Include="..\..\include\temp_file.hpp" />
     <ClInclude Include="..\..\include\time_util.h" />
