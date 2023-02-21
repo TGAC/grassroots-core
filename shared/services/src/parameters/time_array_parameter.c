@@ -39,6 +39,9 @@ static struct tm **GetTimeArrayFromJSON (const json_t *times_json_p);
 
 static bool SetTimeArrayParameterValues (const struct tm **src_values_pp, struct tm ***dest_ppp, const size_t num_values);
 
+
+static bool AddNonTrivialTimeArrayValuesToJSON (struct tm **times_pp, json_t *param_json_p, const char *key_s, const uint32 num_values);
+
 /*
  * API DEFINITIONS
  */
@@ -47,7 +50,7 @@ static bool SetTimeArrayParameterValues (const struct tm **src_values_pp, struct
 
 TimeArrayParameter *AllocateTimeArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s,
 																								const char * const display_name_s, const char * const description_s,
-																								const struct tm **default_values_pp, const struct tm **current_values_pp,
+																								struct tm **default_values_pp, struct tm **current_values_pp,
 																								const size_t num_values, ParameterLevel level)
 {
 	TimeArrayParameter *param_p = GetNewTimeArrayParameter (current_values_pp, default_values_pp, num_values);
@@ -160,7 +163,7 @@ TimeArrayParameter *AllocateTimeArrayParameterFromJSON (const json_t *param_json
 
 Parameter *EasyCreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const struct tm **default_values_pp, const size_t num_values, uint8 level)
+																											struct tm **default_values_pp, const size_t num_values, uint8 level)
 {
 	return CreateAndAddTimeArrayParameterToParameterSet (service_data_p, params_p, group_p,
 																										name_s, display_name_s, description_s,
@@ -169,7 +172,7 @@ Parameter *EasyCreateAndAddTimeArrayParameterToParameterSet (const ServiceData *
 
 Parameter *CreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const struct tm **default_values_pp, const struct tm **current_values_pp,
+																											struct tm **default_values_pp, struct tm **current_values_pp,
 																											const size_t num_values, uint8 level)
 {
 	Parameter *base_param_p = NULL;
@@ -462,18 +465,29 @@ static struct tm **CopyTimeArray (const struct tm **src_array_pp, const size_t n
 
 			while (success_flag && (i > 0))
 				{
-					struct tm *dest_p = DuplicateTime (*src_pp);
-
-					if (dest_p)
+					if (*src_pp)
 						{
-							*dest_pp = dest_p;
-							++ dest_pp;
-							++ src_pp;
-							-- i;
+							struct tm *dest_p = DuplicateTime (*src_pp);
+
+							if (dest_p)
+								{
+									*dest_pp = dest_p;
+								}
+							else
+								{
+									success_flag = false;
+								}
 						}
 					else
 						{
-							success_flag = false;
+							*dest_pp = NULL;
+						}
+
+					if (success_flag)
+						{
+							++ dest_pp;
+							++ src_pp;
+							-- i;
 						}
 				}
 
@@ -591,43 +605,68 @@ static json_t *ConvertTimeArrayToJSON (struct tm **times_pp, const size_t num_va
 }
 
 
+static bool AddNonTrivialTimeArrayValuesToJSON (struct tm **times_pp, json_t *param_json_p, const char *key_s, const uint32 num_values)
+{
+	bool success_flag = false;
+
+	if (times_pp)
+		{
+			json_t *values_json_p = ConvertTimeArrayToJSON (times_pp, num_values);
+
+			if (values_json_p)
+				{
+					if (json_object_set_new (param_json_p, key_s, values_json_p) == 0)
+						{
+							success_flag = true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to add \"%s\" key", key_s);
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, values_json_p, "with value:");
+							json_decref (values_json_p);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, " ConvertTimeArrayToJSON () Failed for \"%s\" key", key_s);
+				}
+		}
+	else
+		{
+			if (json_object_set_new (param_json_p, key_s, json_null ()) == 0)
+				{
+					success_flag = true;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to add \"%s\": null", key_s);
+				}
+		}
+
+	return success_flag;
+}
+
+
+
 static bool AddTimeArrayParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	bool success_flag = false;
 	TimeArrayParameter *time_array_param_p = (TimeArrayParameter *) param_p;
 
-	json_t *current_values_json_p = NULL;
-
-	if ((! (time_array_param_p -> tap_current_values_pp)) || ((current_values_json_p = ConvertTimeArrayToJSON (time_array_param_p -> tap_current_values_pp, time_array_param_p -> tap_num_values)) != NULL))
+	if (AddNonTrivialTimeArrayValuesToJSON (time_array_param_p -> tap_current_values_pp, param_json_p, PARAM_CURRENT_VALUE_S, time_array_param_p -> tap_num_values))
 		{
-			if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0)
+			if (full_definition_flag)
 				{
-					if (full_definition_flag)
+					if (AddNonTrivialTimeArrayValuesToJSON (time_array_param_p -> tap_default_values_pp, param_json_p, PARAM_DEFAULT_VALUE_S, time_array_param_p -> tap_num_values))
 						{
-							json_t *default_values_json_p = NULL;
+							success_flag = true;
+						}		/* if (AddNonTrivialTimeArrayValuesToJSON (time_array_param_p -> sp_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S)) */
 
-							if ((! (time_array_param_p -> tap_default_values_pp)) || ((default_values_json_p = ConvertTimeArrayToJSON (time_array_param_p -> tap_default_values_pp, time_array_param_p -> tap_num_values)) != NULL))
-								{
-									if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0)
-										{
-											success_flag = true;
-										}		/* if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0) */
-									else
-										{
-											json_decref (default_values_json_p);
-										}
+				}		/* if (full_definition_flag) */
 
-								}		/* if ((! (string_array_param_p -> sp_default_values_ss)) || ((default_values_json_p = ConvertStringArray (string_array_param_p -> sp_default_values_ss)) != NULL)) */
+		}		/* if (AddNonTrivialTimeArrayValuesToJSON (time_array_param_p -> sp_current_values_ss, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
-						}		/* if (full_definition_flag) */
-
-				}		/* if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0) */
-			else
-				{
-					json_decref (current_values_json_p);
-				}
-
-		}		/* if ((! (string_array_param_p -> sp_current_values_ss)) || (current_values_json_p = ConvertStringArray (string_array_param_p -> sp_current_values_ss))) */
+	return success_flag;
 
 
 	return success_flag;

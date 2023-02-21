@@ -64,11 +64,11 @@ GRASSROOTS_SERVICE_API StringArrayParameter *AllocateStringArrayParameterFromJSO
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char **default_values_ss, uint8 level);
+																											char **default_values_ss, uint32 num_entries, uint8 level);
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char **default_value_ss, const char **current_value_ss, uint8 level);
+																											char **default_value_ss, char **current_value_ss, uint32 num_entries, uint8 level);
 
 
 GRASSROOTS_SERVICE_API char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayParameter *param_p);

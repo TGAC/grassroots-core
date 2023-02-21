@@ -23,6 +23,8 @@ static Parameter *CloneStringArrayParameter (const Parameter *param_p, const Ser
 
 static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
+static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, json_t *param_json_p, const char *key_s);
+
 
 /*
  * API DEFINITIONS
@@ -129,16 +131,16 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 
 Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char **default_values_ss, uint8 level)
+																											char **default_values_ss, uint32 num_entries, uint8 level)
 {
 	return CreateAndAddStringArrayParameterToParameterSet (service_data_p, params_p, group_p,
 																										name_s, display_name_s, description_s,
-																										default_values_ss, default_values_ss, level);
+																										default_values_ss, default_values_ss, num_entries, level);
 }
 
 Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char **default_values_ss, const char **current_values_ss, uint8 level)
+																											char **default_values_ss, char **current_values_ss, uint32 num_entries, uint8 level)
 {
 	Parameter *base_param_p = NULL;
 	StringArrayParameter *string_array_param_p = AllocateStringArrayParameter (service_data_p, name_s, display_name_s, description_s, default_values_ss, current_values_ss, level);
@@ -482,45 +484,65 @@ static bool SetStringArrayParameterValue (char ***param_value_sss, const char **
 
 
 
+static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, json_t *param_json_p, const char *key_s)
+{
+	bool success_flag = false;
+
+	if (values_ss)
+		{
+			json_t *values_json_p = ConvertStringArrayToJSON (values_ss);
+
+			if (values_json_p)
+				{
+					if (json_object_set_new (param_json_p, key_s, values_json_p) == 0)
+						{
+							success_flag = true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to add \"%s\" key", key_s);
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, values_json_p, "with value:");
+							json_decref (values_json_p);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, " ConvertTimeArrayToJSON () Failed for \"%s\" key", key_s);
+				}
+		}
+	else
+		{
+			if (json_object_set_new (param_json_p, key_s, json_null ()) == 0)
+				{
+					success_flag = true;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to add \"%s\": null", key_s);
+				}
+		}
+
+	return success_flag;
+}
+
 
 static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	bool success_flag = false;
 	StringArrayParameter *string_array_param_p = (StringArrayParameter *) param_p;
 
-	json_t *current_values_json_p = NULL;
-
-	if ((! (string_array_param_p -> sp_current_values_ss)) || ((current_values_json_p = ConvertStringArrayToJSON (string_array_param_p -> sp_current_values_ss)) != NULL))
+	if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_current_values_ss, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0)
+			if (full_definition_flag)
 				{
-					if (full_definition_flag)
+					if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
-							json_t *default_values_json_p = NULL;
+							success_flag = true;
+						}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S)) */
 
-							if ((! (string_array_param_p -> sp_default_values_ss)) || ((default_values_json_p = ConvertStringArrayToJSON (string_array_param_p -> sp_default_values_ss)) != NULL))
-								{
-									if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0)
-										{
-											success_flag = true;
-										}		/* if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0) */
-									else
-										{
-											json_decref (default_values_json_p);
-										}
+				}		/* if (full_definition_flag) */
 
-								}		/* if ((! (string_array_param_p -> sp_default_values_ss)) || ((default_values_json_p = ConvertStringArray (string_array_param_p -> sp_default_values_ss)) != NULL)) */
-
-						}		/* if (full_definition_flag) */
-
-				}		/* if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0) */
-			else
-				{
-					json_decref (current_values_json_p);
-				}
-
-		}		/* if ((! (string_array_param_p -> sp_current_values_ss)) || (current_values_json_p = ConvertStringArray (string_array_param_p -> sp_current_values_ss))) */
-
+		}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_current_values_ss, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
 	return success_flag;
 }
