@@ -143,9 +143,6 @@
     <ClInclude Include="..\..\include\io\streams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io_utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\json_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>

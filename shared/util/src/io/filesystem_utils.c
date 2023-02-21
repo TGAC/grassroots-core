@@ -1,12 +1,12 @@
 /*
 ** Copyright 2014-2016 The Earlham Institute
-** 
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
-** 
+**
 **     http://www.apache.org/licenses/LICENSE-2.0
-** 
+**
 ** Unless required by applicable law or agreed to in writing, software
 ** distributed under the License is distributed on an "AS IS" BASIS,
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,6 +64,21 @@ char *GetPathOnly (const char * const full_path_to_file)
 }
 
 
+bool DoesFileExist (const char * const path_s)
+{
+	bool exists_flag = false;
+	FileInformation info;
+
+	InitFileInformation (&info);
+
+	if (CalculateFileInformation (path_s, &info))
+		{
+			exists_flag = true;
+		}
+
+	return exists_flag;
+}
+
 bool DeterminePathAndFile (const char * const full_path_s, char ** const path_ss, char ** const filename_ss)
 {
 	bool success_flag = false;
@@ -99,7 +114,7 @@ bool DeterminePathAndFile (const char * const full_path_s, char ** const path_ss
 						}
 
 				}		/* if (path_s) */
-		
+
 		}		/* if (last_sep_p) */
 	else
 		{
@@ -128,7 +143,7 @@ void UsePlatformFileSeparator (char *value_s)
 							*c_p = FS_SEPARATOR;
 							++ c_p;
 						}
-					else 
+					else
 						{
 							loop_flag = false;
 						}
@@ -152,7 +167,7 @@ char *SetFileExtension (const char * const filename_s, const char * const extens
 	char *dot_p = replace_flag ? strrchr (filename_s, '.') : NULL;
 	size_t l;
 	const size_t extension_length = strlen (extension_s);
-	
+
 	if (dot_p)
 		{
 			l = dot_p - filename_s;
@@ -161,10 +176,10 @@ char *SetFileExtension (const char * const filename_s, const char * const extens
 		{
 			l = strlen (filename_s);
 		}
-		
-		
+
+
 	new_filename_s = AllocMemory (sizeof (char) * (l + extension_length + 2));
-	
+
 	if (new_filename_s)
 		{
 			strncpy (new_filename_s, filename_s, l);
@@ -172,7 +187,7 @@ char *SetFileExtension (const char * const filename_s, const char * const extens
 			*dot_p = '.';
 			strcpy (dot_p + 1, extension_s);
 		}
-		
+
 	return new_filename_s;
 }
 
@@ -188,7 +203,7 @@ char *MakeFilename (const char * const path, const char * const filename)
 	if (path_length > 0)
 		{
 			const char c = * (path + path_length - 1);
-			
+
 			if ((c != FS_SEPARATOR) && (c != '/'))
 				{
 					needs_separator_flag = true;
