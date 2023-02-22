@@ -1196,14 +1196,17 @@ char *GetStringAsLowerCase (const char *value_s)
 }
 
 
-void FreeStringArray (char **values_ss)
+void FreeStringArray (char **values_ss, const size_t num_values)
 {
+	size_t i;
 	char **value_ss = values_ss;
 
-	while (*value_ss)
+	for (i = num_values; i > 0; -- i, ++ value_ss)
 		{
-			FreeCopiedString (*value_ss);
-			++ value_ss;
+			if (*value_ss)
+				{
+					FreeCopiedString (*value_ss);
+				}
 		}
 
 	FreeMemory (values_ss);

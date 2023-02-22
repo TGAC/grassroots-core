@@ -563,7 +563,7 @@ static json_t *ConvertTimeArrayToJSON (struct tm **times_pp, const size_t num_va
 
 									if (time_json_p)
 										{
-											if (json_array_append_new (times_json_p, json_null ()) != 0)
+											if (json_array_append_new (times_json_p, time_json_p) != 0)
 												{
 													json_decref (time_json_p);
 													success_flag = false;

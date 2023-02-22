@@ -21,11 +21,12 @@ typedef struct StringArrayParameter
 {
 	Parameter sap_base_param;
 
-	char **sp_current_values_ss;
+	char **sap_current_values_ss;
 
 
-	char **sp_default_values_ss;
+	char **sap_default_values_ss;
 
+	size_t sap_num_values;
 
 } StringArrayParameter;
 
@@ -55,7 +56,7 @@ extern "C"
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof BooleanParameter
  */
-GRASSROOTS_SERVICE_API StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s, const char * const display_name_s, const char * const description_s, const char **default_value_ss, const char **current_value_ss, ParameterLevel level);
+GRASSROOTS_SERVICE_API StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s, const char * const display_name_s, const char * const description_s, char **default_value_ss, char **current_value_ss, const size_t num_values, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p);
@@ -83,10 +84,9 @@ GRASSROOTS_SERVICE_API const char **GetStringArrayParameterCurrentValues (const 
 GRASSROOTS_SERVICE_API const char **GetStringArrayParameterDefaultValues (const StringArrayParameter *param_p);
 
 
-GRASSROOTS_SERVICE_API bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char **values_ss);
+GRASSROOTS_SERVICE_API bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char **values_ss, const size_t num_values);
 
-
-GRASSROOTS_SERVICE_API bool SetStringArrayParameterDefaultValues (StringArrayParameter *param_p, char **values_ss);
+GRASSROOTS_SERVICE_API bool SetStringArrayParameterDefaultValues (StringArrayParameter *param_p, char **values_ss, const size_t num_values);
 
 
 GRASSROOTS_SERVICE_API size_t GetNumberOfStringArrayCurrentParameterValues (const StringArrayParameter *param_p);
