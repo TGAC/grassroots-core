@@ -38,6 +38,14 @@ static const char S_REPEATABLE_GROUP_DELIMITER_SUFFIX_S [] = "]";
 static const char S_REPEATABLE_GROUP_DELIMITER_PREFIX_ESCAPED_REGEX_S [] = "\\[";
 static const char S_REPEATABLE_GROUP_DELIMITER_SUFFIX_ESCAPED_REGEX_S [] = "\\]";
 
+
+static bool AddRepeatableLabelParamsToJSON (const ParameterGroup * const group_p, json_t *json_p);
+
+static bool SetRepeatableLabelParamsFromJSON (ParameterGroup * const group_p, const json_t *json_p);
+
+
+
+
 ParameterGroupNode *AllocateParameterGroupNode (ParameterGroup *group_p)
 {
 	ParameterGroupNode *param_group_node_p = (ParameterGroupNode *) AllocMemory (sizeof (ParameterGroupNode));
@@ -85,28 +93,35 @@ ParameterGroup *AllocateParameterGroup (const char *name_s, const bool repeatabl
 
 					if (params_p)
 						{
-							ParameterGroup *param_group_p = (ParameterGroup *) AllocMemory (sizeof (ParameterGroup));
+							LinkedList *repeatable_label_params_p = AllocateLinkedList (NULL);
 
-							if (param_group_p)
+							if (repeatable_label_params_p)
 								{
-									param_group_p -> pg_name_s = copied_name_s;
-									param_group_p -> pg_params_p = params_p;
-									param_group_p -> pg_visible_flag = true;
+									ParameterGroup *param_group_p = (ParameterGroup *) AllocMemory (sizeof (ParameterGroup));
 
-									param_group_p -> pg_full_display_flag = true;
-									param_group_p -> pg_vertical_layout_flag = true;
-									param_group_p -> pg_child_groups_p = children_p;
-									param_group_p -> pg_repeatable_flag = repeatable_flag;
-									param_group_p -> pg_current_repeatable_group_index = 0;
-									param_group_p -> pg_service_data_p = service_data_p;
-									param_group_p -> pg_repeatable_param_p = NULL;
-
-									if (service_data_p)
+									if (param_group_p)
 										{
-											GetParameterGroupVisibility (service_data_p, name_s, & (param_group_p -> pg_visible_flag));
+											param_group_p -> pg_name_s = copied_name_s;
+											param_group_p -> pg_params_p = params_p;
+											param_group_p -> pg_visible_flag = true;
+
+											param_group_p -> pg_full_display_flag = true;
+											param_group_p -> pg_vertical_layout_flag = true;
+											param_group_p -> pg_child_groups_p = children_p;
+											param_group_p -> pg_repeatable_flag = repeatable_flag;
+											param_group_p -> pg_current_repeatable_group_index = 0;
+											param_group_p -> pg_service_data_p = service_data_p;
+											param_group_p -> pg_repeatable_label_params_p = repeatable_label_params_p;
+
+											if (service_data_p)
+												{
+													GetParameterGroupVisibility (service_data_p, name_s, & (param_group_p -> pg_visible_flag));
+												}
+
+											return param_group_p;
 										}
 
-									return param_group_p;
+									FreeLinkedList (repeatable_label_params_p);
 								}
 
 							FreeLinkedList (params_p);
@@ -129,6 +144,8 @@ void FreeParameterGroup (ParameterGroup *param_group_p)
 	FreeLinkedList (param_group_p -> pg_child_groups_p);
 
 	FreeLinkedList (param_group_p -> pg_params_p);
+
+	FreeLinkedList (param_group_p -> pg_repeatable_label_params_p);
 
 	FreeMemory (param_group_p);
 }
@@ -186,6 +203,99 @@ bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_arra
 
 
 
+//ParameterGroup *GetParameterGroupFromJSON (const json_t *group_json_p, const Service *service_p)
+//{
+//	size_t num_group_params = 0;
+//	size_t j = 0;
+//	const char *group_name_s = GetJSONString (group_json_p, PARAM_GROUP_NAME_S);
+//	bool repeatable_flag = false;
+//	ParameterGroup *param_group_p = NULL;
+//
+//	GetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, &repeatable_flag);
+//
+//	param_group_p = CreateAndAddParameterGroupToParameterSet (group_name_s, repeatable_flag, service_p ? service_p -> se_data_p : NULL, params_p);
+//
+//
+//	if (param_group_p)
+//		{
+//			bool visible_flag = true;
+//			ParameterNode *param_node_p = (ParameterNode *) (params_p -> ps_params_p -> ll_head_p);
+//			json_t *param_labels_p = NULL;
+//
+//			if (repeatable_flag)
+//				{
+//					param_labels_p = json_object_get (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S);
+//				}
+//
+//			/* Get the number of Parameters needed */
+//			for (j = 0; j < num_params; ++ j)
+//				{
+//					json_t *param_json_p = json_array_get (params_json_p, j);
+//					const char *param_group_name_s = GetJSONString (param_json_p, PARAM_GROUP_S);
+//
+//					if ((param_group_name_s) && (strcmp (param_group_name_s, group_name_s) == 0))
+//						{
+//							Parameter *param_p = param_node_p -> pn_parameter_p;
+//
+//							if (!AddParameterToParameterGroup (param_group_p, param_p))
+//								{
+//									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add parameter \"%s\" to group \"%s\"",  param_node_p -> pn_parameter_p -> pa_name_s, group_name_s);
+//								}
+//						}
+//
+//					param_node_p = (ParameterNode *) (param_node_p -> pn_node.ln_next_p);
+//
+//				}		/* for (j = 0; j < num_params; ++ j) */
+//
+//
+//			if (param_labels_p)
+//				{
+//					size_t i;
+//					json_t *param_label_p;
+//
+//					json_array_for_each (param_labels_p, i, param_label_p)
+//						{
+//							if (json_is_string (param_label_p))
+//								{
+//									const char *param_s = json_string_value (param_label_p);
+//									Parameter *param_p = GetParameterFromParameterGroupByName (param_group_p, param_s);
+//
+//									if (param_p)
+//										{
+//											if (!AddRepeatableParameterGroupLabelParam (param_group_p, param_p))
+//												{
+//
+//												}
+//										}
+//									else
+//										{
+//
+//										}
+//								}
+//							else
+//								{
+//
+//								}
+//
+//						}
+//
+//				}
+//
+//
+//			if (GetJSONBoolean (group_json_p, PARAM_GROUP_VISIBLE_S, &visible_flag))
+//				{
+//					param_group_p -> pg_visible_flag = visible_flag;
+//				}
+//
+//		}		/* if (param_group_p) */
+//	else
+//		{
+//			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to create parameter group \"%s\"", group_name_s);
+//		}
+//
+//}
+
+
 json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool include_params_flag, const bool full_definition_flag, const SchemaVersion * const sv_p)
 {
 	json_error_t err;
@@ -199,8 +309,7 @@ json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool
 				{
 					if (SetJSONBoolean (group_json_p, PARAM_GROUP_REPEATABLE_S, param_group_p -> pg_repeatable_flag))
 						{
-							if ((! (param_group_p -> pg_repeatable_param_p)) ||
-									(SetJSONString (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S, param_group_p -> pg_repeatable_param_p -> pa_name_s)))
+							if (AddRepeatableLabelParamsToJSON (param_group_p, group_json_p))
 								{
 									if (include_params_flag && (param_group_p -> pg_params_p))
 										{
@@ -543,3 +652,137 @@ char *GetRepeatableParameterGroupName (ParameterGroup * const group_p)
 
 	return value_s;
 }
+
+
+bool AddRepeatableParameterGroupLabelParam (ParameterGroup *group_p, Parameter *param_p)
+{
+	bool success_flag = false;
+	ParameterNode *node_p = AllocateParameterNode (param_p);
+
+	if (node_p)
+		{
+			LinkedListAddTail (group_p -> pg_repeatable_label_params_p, & (node_p -> pn_node));
+			success_flag = true;
+		}
+	else
+		{
+
+		}
+
+	return success_flag;
+}
+
+
+
+static bool AddRepeatableLabelParamsToJSON (const ParameterGroup * const group_p, json_t *json_p)
+{
+	if (group_p -> pg_repeatable_label_params_p -> ll_size > 0)
+		{
+			json_t *params_json_p = json_array ();
+
+			if (params_json_p)
+				{
+					ParameterNode *node_p = (ParameterNode *) (group_p -> pg_repeatable_label_params_p -> ll_head_p);
+					bool loop_flag = true;
+
+					while (node_p && loop_flag)
+						{
+							const Parameter *param_p = node_p -> pn_parameter_p;
+							json_t *param_json_p = json_string (param_p -> pa_name_s);
+
+							if (param_json_p)
+								{
+									if (json_array_append_new (params_json_p, param_json_p) == 0)
+										{
+											node_p = (ParameterNode *) (node_p -> pn_node.ln_next_p);
+										}
+									else
+										{
+											json_decref (param_json_p);
+											loop_flag = false;
+										}
+								}
+							else
+								{
+									loop_flag = false;
+								}
+
+						}		/* while (node_p && loop_flag) */
+
+					if (loop_flag)
+						{
+							if (json_object_set_new (json_p, PARAM_GROUP_REPEATABLE_LABEL_S, params_json_p) == 0)
+								{
+									return true;
+								}
+							else
+								{
+
+								}
+
+						}
+
+					json_decref (params_json_p);
+				}		/* if (params_json_p) */
+
+		}
+	else
+		{
+			return true;
+		}
+
+	return false;
+}
+
+
+static bool SetRepeatableLabelParamsFromJSON (ParameterGroup * const group_p, const json_t *json_p)
+{
+	bool success_flag = false;
+	json_t *labels_p = json_object_get (json_p, PARAM_GROUP_REPEATABLE_LABEL_S);
+
+	if (labels_p)
+		{
+			if (json_is_array (labels_p))
+				{
+					size_t num_labels = json_array_size (labels_p);
+					size_t i;
+					size_t num_done = 0;
+
+					for (i = 0; i < num_labels; ++ i)
+						{
+							json_t *label_p = json_array_get (labels_p, i);
+
+							if (json_is_string (label_p))
+								{
+									const char *param_s = json_string_value (label_p);
+									Parameter *param_p = GetParameterFromParameterGroupByName (group_p, param_s);
+
+									if (param_p)
+										{
+											if (AddRepeatableParameterGroupLabelParam (group_p, param_p))
+												{
+													++ num_done;
+												}
+										}
+								}
+							else
+								{
+
+								}
+						}		/* for (i = 0; i < num_labels; ++ i) */
+
+					if (num_done == num_labels)
+						{
+							success_flag = true;
+						}
+				}
+		}
+	else
+		{
+			/* nothing to do */
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+

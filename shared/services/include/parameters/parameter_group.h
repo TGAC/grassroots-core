@@ -59,7 +59,7 @@
 	#define PARAMETER_GROUP_PREFIX GRASSROOTS_SERVICE_API
 	#define PARAMETER_GROUP_VAL(x)	= x
 #else
-	#define PARAMETER_GROUP_PREFIX extern
+	#define PARAMETER_GROUP_PREFIX GRASSROOTS_SERVICE_API
 	#define PARAMETER_GROUP_VAL(x)
 #endif
 
@@ -113,11 +113,11 @@ typedef struct ParameterGroup
 
 
 	/**
-	 * If the ParameterGroup is repeatable, use this named
-	 * parameter as the label in the list of the parameters
-	 * in this ParameterGroup.
+	 * If the ParameterGroup is repeatable, use these named
+	 * parameters as the label in the list of the parameters
+	 * for this ParameterGroup.
 	 */
-	Parameter *pg_repeatable_param_p;
+	LinkedList *pg_repeatable_label_params_p;
 
 	/**
 	 * If the parameters can be repeated, this is the current
@@ -125,9 +125,6 @@ typedef struct ParameterGroup
 	 */
 	uint32 pg_current_repeatable_group_index;
 
-
-	/** The number of Parameters in this ParameterGroup */
-	uint32 pg_num_params;
 
 	/**
 	 * A list of ParameterNodes for the parameters in this group
@@ -184,6 +181,8 @@ extern "C"
  * @memberof ParameterGroupNode
  */
 GRASSROOTS_SERVICE_API ParameterGroupNode *AllocateParameterGroupNode (ParameterGroup *group_p);
+
+
 
 
 /**
@@ -353,12 +352,24 @@ GRASSROOTS_SERVICE_API char *GetRepeatableParameterGroupName (ParameterGroup * c
  * Get the string to use for matching ParameterGroups as children of
  * a repeatable ParameterGroup.
  *
- * @param group_p The ParameterSet to get the regular expresion string from.
+ * @param group_p The ParameterGroup to get the regular expresion string from.
  * @return  The newly-allocated regular expression string or <code>NULL</code> if there was an error.
  * This value will need to be freed using FreeCopiedString() to avoid a memory leak.
  * @memberof ParameterGroup
  */
 GRASSROOTS_SERVICE_API char *GetRepeatableParameterGroupRegularExpression (const ParameterGroup * const group_p);
+
+
+
+/**
+ * Add a Parameter to those used for labelling entries in a repeated ParameterGroup.
+ *
+ * @param group_p The ParameterGroup that the label will be amended for
+ * @param param_p The Parameter to use for the label
+ * @return <code>true</code> if the ParameterGroup label was updated successfully, <code>false</code> otherwise.
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_SERVICE_API bool AddRepeatableParameterGroupLabelParam (ParameterGroup *group_p, Parameter *param_p);
 
 
 #ifdef __cplusplus

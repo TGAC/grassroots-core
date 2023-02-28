@@ -75,7 +75,9 @@ static const char *S_PARAM_TYPE_NAMES_SS [PT_NUM_TYPES] =
 		"xsd:date",
 		"params:json_array",
 		"params:completable_string",
-		"params:string_array"
+		"params:string_array",
+		"params:upload_filename",
+		"params:time_array"
 };
 
 
@@ -1390,7 +1392,7 @@ static bool AddParameterTypeToJSON (const ParameterType param_type, json_t *root
 						break;
 
 					case PT_TIME_ARRAY:
-						success_flag = SetJSONString (root_p, PARAM_TYPE_S, PA_TYPE_TIME_ARRAY_S);
+						success_flag = SetJSONStringOrNull (root_p, PARAM_TYPE_S, PA_TYPE_TIME_ARRAY_S, false);
 						break;
 
 					case PT_NUM_TYPES:

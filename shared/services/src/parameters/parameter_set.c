@@ -432,7 +432,7 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 															json_t *group_json_p = json_array_get (groups_json_p, i);
 
 															const char *group_name_s = GetJSONString (group_json_p, PARAM_GROUP_NAME_S);
-															const char *param_label_name_s = GetJSONString (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S);
+
 															bool repeatable_flag = false;
 															ParameterGroup *param_group_p = NULL;
 
@@ -445,6 +445,12 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 																{
 																	bool visible_flag = true;
 																	ParameterNode *param_node_p = (ParameterNode *) (params_p -> ps_params_p -> ll_head_p);
+																	json_t *param_labels_p = NULL;
+
+																	if (repeatable_flag)
+																		{
+																			param_labels_p = json_object_get (group_json_p, PARAM_GROUP_REPEATABLE_LABEL_S);
+																		}
 
 																	/* Get the number of Parameters needed */
 																	for (j = 0; j < num_params; ++ j)
@@ -456,14 +462,7 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 																				{
 																					Parameter *param_p = param_node_p -> pn_parameter_p;
 
-																					if (AddParameterToParameterGroup (param_group_p, param_p))
-																						{
-																							if (param_label_name_s && (strcmp (param_p -> pa_name_s, param_label_name_s) == 0))
-																								{
-																									param_group_p -> pg_repeatable_param_p = param_p;
-																								}
-																						}
-																					else
+																					if (!AddParameterToParameterGroup (param_group_p, param_p))
 																						{
 																							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add parameter \"%s\" to group \"%s\"",  param_node_p -> pn_parameter_p -> pa_name_s, group_name_s);
 																						}
@@ -472,6 +471,40 @@ ParameterSet *CreateParameterSetFromJSON (const json_t * const op_p, Service *se
 																			param_node_p = (ParameterNode *) (param_node_p -> pn_node.ln_next_p);
 
 																		}		/* for (j = 0; j < num_params; ++ j) */
+
+
+																	if (param_labels_p)
+																		{
+																			size_t k;
+																			json_t *param_label_p;
+
+																			json_array_foreach (param_labels_p, k, param_label_p)
+																				{
+																					if (json_is_string (param_label_p))
+																						{
+																							const char *param_s = json_string_value (param_label_p);
+																							Parameter *param_p = GetParameterFromParameterGroupByName (param_group_p, param_s);
+
+																							if (param_p)
+																								{
+																									if (!AddRepeatableParameterGroupLabelParam (param_group_p, param_p))
+																										{
+
+																										}
+																								}
+																							else
+																								{
+
+																								}
+																						}
+																					else
+																						{
+
+																						}
+
+																				}
+
+																		}
 
 
 																	if (GetJSONBoolean (group_json_p, PARAM_GROUP_VISIBLE_S, &visible_flag))

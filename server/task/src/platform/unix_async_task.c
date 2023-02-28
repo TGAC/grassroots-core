@@ -201,6 +201,34 @@ OperationStatus ActualRunSystemAsyncTask (SystemAsyncTask *task_p)
 }
 
 
+OperationStatus RunProcess (const char * const command_line_s)
+{
+	OperationStatus status = OS_FAILED;
+	int res = system (command_line_s);
+
+	if (res != -1)
+		{
+			int process_exit_code = WEXITSTATUS (res);
+
+			if (process_exit_code == 0)
+				{
+					status = OS_SUCCEEDED;
+					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_line_s);
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", command_line_s, process_exit_code);
+				}
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", command_line_s, res);
+		}
+
+	return status;
+}
+
+
 
 static void *DoAsyncTaskRun (void *data_p)
 {

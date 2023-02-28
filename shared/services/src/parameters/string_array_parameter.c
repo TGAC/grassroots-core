@@ -8,13 +8,14 @@
 /*
  * STATIC DECLARATIONS
  */
-static char **CopyStringsArray (const char **src_ss);
+static char **CopyStringArray (char **src_ss, const size_t num_values);
 
 static void ClearStringArrayParameter (Parameter *param_p);
 
-static StringArrayParameter *GetNewStringArrayParameter (const char **current_values_ss, const char **default_values_ss);
 
-static bool SetStringArrayParameterValue (char ***param_value_sss, const char **new_values_ss);
+static StringArrayParameter *GetNewStringArrayParameter (char **current_values_ss, char **default_values_ss, const size_t num_values);
+
+static bool SetStringArrayParameterValue (char ***param_value_sss, const size_t num_existing_value, char **new_values_ss, const size_t num_new_values);
 
 static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag);
 
@@ -22,6 +23,8 @@ static Parameter *CloneStringArrayParameter (const Parameter *param_p, const Ser
 
 
 static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
+
+static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, json_t *param_json_p, const char *key_s);
 
 
 /*
@@ -32,10 +35,11 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 StringArrayParameter *AllocateStringArrayParameter (const struct ServiceData *service_data_p,
 																					const char * const name_s, const char * const display_name_s,
 																					const char * const description_s,
-																					const char **default_values_ss, const char **current_values_ss,
+																					char **default_values_ss, char **current_values_ss,
+																					const size_t num_values,
 																					ParameterLevel level)
 {
-	StringArrayParameter *param_p = GetNewStringArrayParameter (current_values_ss, default_values_ss);
+	StringArrayParameter *param_p = GetNewStringArrayParameter (current_values_ss, default_values_ss, num_values);
 
 	if (param_p)
 		{
@@ -66,6 +70,7 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 	StringArrayParameter *param_p = NULL;
 	char **current_value_ss = NULL;
 	char **default_value_ss = NULL;
+	size_t num_values = 0;
 
 	const json_t *value_p = json_object_get (param_json_p, PARAM_CURRENT_VALUE_S);
 
@@ -74,6 +79,7 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 			if (json_is_array (value_p))
 				{
 					current_value_ss = GetStringArrayFromJSON (value_p, true);
+					num_values = json_array_size (value_p);
 				}
 		}
 
@@ -87,20 +93,25 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 					if (json_is_array (value_p))
 						{
 							default_value_ss = GetStringArrayFromJSON (value_p, true);
+
+							if (num_values == 0)
+								{
+									num_values = json_array_size (value_p);
+								}
 						}
 				}
 		}
 
-	param_p = GetNewStringArrayParameter (current_value_ss, default_value_ss);
+	param_p = GetNewStringArrayParameter (current_value_ss, default_value_ss, num_values);
 
 	if (current_value_ss)
 		{
-			FreeStringArray (current_value_ss);
+			FreeStringArray (current_value_ss, num_values);
 		}
 
 	if (default_value_ss)
 		{
-			FreeStringArray (default_value_ss);
+			FreeStringArray (default_value_ss, num_values);
 		}
 
 
@@ -129,19 +140,19 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 
 Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char **default_values_ss, uint8 level)
+																											char **default_values_ss, uint32 num_entries, uint8 level)
 {
 	return CreateAndAddStringArrayParameterToParameterSet (service_data_p, params_p, group_p,
 																										name_s, display_name_s, description_s,
-																										default_values_ss, default_values_ss, level);
+																										default_values_ss, default_values_ss, num_entries, level);
 }
 
 Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char **default_values_ss, const char **current_values_ss, uint8 level)
+																											char **default_values_ss, char **current_values_ss, uint32 num_entries, uint8 level)
 {
 	Parameter *base_param_p = NULL;
-	StringArrayParameter *string_array_param_p = AllocateStringArrayParameter (service_data_p, name_s, display_name_s, description_s, default_values_ss, current_values_ss, level);
+	StringArrayParameter *string_array_param_p = AllocateStringArrayParameter (service_data_p, name_s, display_name_s, description_s, default_values_ss, current_values_ss, num_entries, level);
 
 	if (string_array_param_p)
 		{
@@ -174,23 +185,24 @@ Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *se
 
 const char **GetStringArrayParameterCurrentValues (const StringArrayParameter *param_p)
 {
-	return (const char **) (param_p -> sp_current_values_ss);
+	return (const char **) (param_p -> sap_current_values_ss);
 }
 
 
-bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char **values_ss)
+bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char **values_ss, const size_t num_values)
 {
 	bool success_flag = false;
-	char **copied_values_ss = CopyStringsArray (values_ss);
+	char **copied_values_ss = CopyStringArray (values_ss, num_values);
 
 	if (copied_values_ss)
 		{
-			if (param_p -> sp_current_values_ss)
+			if (param_p -> sap_current_values_ss)
 				{
-					FreeStringArray (param_p -> sp_current_values_ss);
+					FreeStringArray (param_p -> sap_current_values_ss, param_p -> sap_num_values);
 				}
 
-			param_p -> sp_current_values_ss = copied_values_ss;
+			param_p -> sap_current_values_ss = copied_values_ss;
+			param_p -> sap_num_values = num_values;
 			success_flag = true;
 		}
 
@@ -200,23 +212,24 @@ bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char *
 
 const char **GetStringArrayParameterDefaultValues (const StringArrayParameter *param_p)
 {
-	return (const char **) (param_p -> sp_default_values_ss);
+	return (const char **) (param_p -> sap_default_values_ss);
 }
 
 
-bool SetStringArrayParameterDefaultValues (StringArrayParameter *param_p, char **values_ss)
+bool SetStringArrayParameterDefaultValues (StringArrayParameter *param_p, char **values_ss, const size_t num_values)
 {
 	bool success_flag = false;
-	char **copied_values_ss = CopyStringsArray (values_ss);
+	char **copied_values_ss = CopyStringArray (values_ss, num_values);
 
 	if (copied_values_ss)
 		{
-			if (param_p -> sp_default_values_ss)
+			if (param_p -> sap_default_values_ss)
 				{
-					FreeStringArray (param_p -> sp_default_values_ss);
+					FreeStringArray (param_p -> sap_default_values_ss, param_p -> sap_num_values);
 				}
 
-			param_p -> sp_default_values_ss = copied_values_ss;
+			param_p -> sap_default_values_ss = copied_values_ss;
+			param_p -> sap_num_values = num_values;
 			success_flag = true;
 		}
 
@@ -241,9 +254,9 @@ size_t GetNumberOfStringArrayCurrentParameterValues (const StringArrayParameter 
 {
 	size_t i = 0;
 
-	if (param_p -> sp_current_values_ss)
+	if (param_p -> sap_current_values_ss)
 		{
-			char **temp_pp = param_p -> sp_current_values_ss;
+			char **temp_pp = param_p -> sap_current_values_ss;
 
 			while (*temp_pp)
 				{
@@ -260,7 +273,7 @@ char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayPa
 {
 	char *flattened_s = NULL;
 
-	if (param_p -> sp_current_values_ss)
+	if (param_p -> sap_current_values_ss)
 		{
 			ByteBuffer *buffer_p = AllocateByteBuffer (1024);
 
@@ -268,7 +281,7 @@ char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayPa
 				{
 					bool loop_flag = true;
 					bool success_flag = true;
-					char **value_pp = param_p -> sp_current_values_ss;
+					char **value_pp = param_p -> sap_current_values_ss;
 					const char *delimiter_s = "\n";
 
 					while (loop_flag && success_flag)
@@ -314,25 +327,27 @@ char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayPa
  * STATIC DEFINITIONS
  */
 
-static StringArrayParameter *GetNewStringArrayParameter (const char **current_values_ss, const char **default_values_ss)
+static StringArrayParameter *GetNewStringArrayParameter (char **current_values_ss, char **default_values_ss, const size_t num_values)
 {
 	StringArrayParameter *param_p = (StringArrayParameter *) AllocMemory (sizeof (StringArrayParameter));
 
 	if (param_p)
 		{
-			param_p -> sp_current_values_ss = NULL;
-			param_p -> sp_default_values_ss = NULL;
+			param_p -> sap_current_values_ss = NULL;
+			param_p -> sap_default_values_ss = NULL;
 
-			if (SetStringArrayParameterValue (& (param_p -> sp_current_values_ss), current_values_ss))
+			if (SetStringArrayParameterValue (& (param_p -> sap_current_values_ss), 0, current_values_ss, num_values))
 				{
-					if (SetStringArrayParameterValue (& (param_p -> sp_default_values_ss), default_values_ss))
+					if (SetStringArrayParameterValue (& (param_p -> sap_default_values_ss), 0, default_values_ss, num_values))
 						{
+							param_p -> sap_num_values = num_values;
+
 							return param_p;
 						}
 
-					if (param_p -> sp_current_values_ss)
+					if (param_p -> sap_current_values_ss)
 						{
-							FreeStringArray (param_p -> sp_current_values_ss);
+							FreeStringArray (param_p -> sap_current_values_ss, num_values);
 						}
 				}
 
@@ -359,7 +374,8 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 
 	if (lines_p)
 		{
-			char **values_ss = AllocMemoryArray ((lines_p -> ll_size) + 1, sizeof (char *));
+			const size_t num_values = lines_p -> ll_size;
+			char **values_ss = AllocMemoryArray (num_values, sizeof (char *));
 
 			if (values_ss)
 				{
@@ -368,19 +384,19 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 
 					while (node_p)
 						{
-							*value_pp = DetachStringFromStringListNode (node_p);;
+							*value_pp = DetachStringFromStringListNode (node_p);
 
 							node_p = (StringListNode *) (node_p -> sln_node.ln_next_p);
 							++ value_pp;
 						}
 
-					if (SetStringArrayParameterCurrentValues (string_param_p, values_ss))
+					if (SetStringArrayParameterCurrentValues (string_param_p, values_ss, num_values))
 						{
 							success_flag = true;
 						}
 					else
 						{
-							FreeStringArray (values_ss);
+							FreeStringArray (values_ss, num_values);
 						}
 
 				}
@@ -393,51 +409,52 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 
 
 
-static char **CopyStringsArray (const char **src_ss)
+static char **CopyStringArray (char **src_array_ss, const size_t num_values)
 {
-	uint32 num_src_values = 1;		/* for the final NULL entry */
-	const char **src_pp = src_ss;
-	char **dest_ss = NULL;
+	char **dest_array_ss = (char **) AllocMemoryArray (num_values, sizeof (char *));
 
-	while (*src_pp)
+	if (dest_array_ss)
 		{
-			++ src_pp;
-			++ num_src_values;
-		}
-
-	dest_ss = (char **) AllocMemoryArray (num_src_values, sizeof (char *));
-
-	if (dest_ss)
-		{
-			char **dest_pp = dest_ss;
+			char **dest_ss = dest_array_ss;
 			bool success_flag = true;
+			const char **src_ss = src_array_ss;
+			size_t i = num_values;
 
-			src_pp = src_ss;
-
-
-			while (success_flag && (*src_pp))
+			while (success_flag && (i > 0))
 				{
-					char *dest_s = EasyCopyToNewString (*src_pp);
-
-					if (dest_s)
+					if (*src_ss)
 						{
-							*dest_pp = dest_s;
-							++ dest_pp;
-							++ src_pp;
+							char *dest_s = EasyCopyToNewString (*src_ss);
+
+							if (dest_s)
+								{
+									*dest_ss = dest_s;
+								}
+							else
+								{
+									success_flag = false;
+								}
 						}
 					else
 						{
-							success_flag = false;
+							*dest_ss = NULL;
+						}
+
+					if (success_flag)
+						{
+							++ dest_ss;
+							++ src_ss;
+							-- i;
 						}
 				}
 
 			if (success_flag)
 				{
-					return dest_ss;
+					return dest_array_ss;
 				}
 			else
 				{
-					FreeStringArray (dest_ss);
+					FreeStringArray (dest_array_ss, num_values);
 				}
 
 		}		/* if (dest_ss) */
@@ -447,19 +464,21 @@ static char **CopyStringsArray (const char **src_ss)
 
 
 
-static bool SetStringArrayParameterValue (char ***param_value_sss, const char **new_values_ss)
+
+
+static bool SetStringArrayParameterValue (char ***param_value_sss, const size_t num_existing_values, char **new_values_ss, const size_t num_new_values)
 {
 	bool success_flag = false;
 
 	if (new_values_ss)
 		{
-			char **copied_values_ss = CopyStringsArray (new_values_ss);
+			char **copied_values_ss = CopyStringArray (new_values_ss, num_new_values);
 
 			if (copied_values_ss)
 				{
 					if (*param_value_sss)
 						{
-							FreeStringArray (*param_value_sss);
+							FreeStringArray (*param_value_sss, num_existing_values);
 						}
 
 					*param_value_sss = copied_values_ss;
@@ -470,7 +489,7 @@ static bool SetStringArrayParameterValue (char ***param_value_sss, const char **
 		{
 			if (*param_value_sss)
 				{
-					FreeStringArray (*param_value_sss);
+					FreeStringArray (*param_value_sss, num_existing_values);
 					*param_value_sss = NULL;
 				}
 
@@ -482,45 +501,65 @@ static bool SetStringArrayParameterValue (char ***param_value_sss, const char **
 
 
 
+static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, json_t *param_json_p, const char *key_s)
+{
+	bool success_flag = false;
+
+	if (values_ss)
+		{
+			json_t *values_json_p = ConvertStringArrayToJSON (values_ss);
+
+			if (values_json_p)
+				{
+					if (json_object_set_new (param_json_p, key_s, values_json_p) == 0)
+						{
+							success_flag = true;
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to add \"%s\" key", key_s);
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, values_json_p, "with value:");
+							json_decref (values_json_p);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, " ConvertTimeArrayToJSON () Failed for \"%s\" key", key_s);
+				}
+		}
+	else
+		{
+			if (json_object_set_new (param_json_p, key_s, json_null ()) == 0)
+				{
+					success_flag = true;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to add \"%s\": null", key_s);
+				}
+		}
+
+	return success_flag;
+}
+
 
 static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json_t *param_json_p, const bool full_definition_flag)
 {
 	bool success_flag = false;
 	StringArrayParameter *string_array_param_p = (StringArrayParameter *) param_p;
 
-	json_t *current_values_json_p = NULL;
-
-	if ((! (string_array_param_p -> sp_current_values_ss)) || ((current_values_json_p = ConvertStringArrayToJSON (string_array_param_p -> sp_current_values_ss)) != NULL))
+	if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sap_current_values_ss, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
-			if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0)
+			if (full_definition_flag)
 				{
-					if (full_definition_flag)
+					if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sap_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
-							json_t *default_values_json_p = NULL;
+							success_flag = true;
+						}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S)) */
 
-							if ((! (string_array_param_p -> sp_default_values_ss)) || ((default_values_json_p = ConvertStringArrayToJSON (string_array_param_p -> sp_default_values_ss)) != NULL))
-								{
-									if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0)
-										{
-											success_flag = true;
-										}		/* if (json_object_set_new (param_json_p, PARAM_DEFAULT_VALUE_S, default_values_json_p) == 0) */
-									else
-										{
-											json_decref (default_values_json_p);
-										}
+				}		/* if (full_definition_flag) */
 
-								}		/* if ((! (string_array_param_p -> sp_default_values_ss)) || ((default_values_json_p = ConvertStringArray (string_array_param_p -> sp_default_values_ss)) != NULL)) */
-
-						}		/* if (full_definition_flag) */
-
-				}		/* if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, current_values_json_p) == 0) */
-			else
-				{
-					json_decref (current_values_json_p);
-				}
-
-		}		/* if ((! (string_array_param_p -> sp_current_values_ss)) || (current_values_json_p = ConvertStringArray (string_array_param_p -> sp_current_values_ss))) */
-
+		}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_current_values_ss, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
 	return success_flag;
 }
@@ -530,16 +569,15 @@ static void ClearStringArrayParameter (Parameter *param_p)
 {
 	StringArrayParameter *string_array_param_p = (StringArrayParameter *) param_p;
 
-	if (string_array_param_p -> sp_current_values_ss)
+	if (string_array_param_p -> sap_current_values_ss)
 		{
-			FreeStringArray (string_array_param_p -> sp_current_values_ss);
+			FreeStringArray (string_array_param_p -> sap_current_values_ss, string_array_param_p -> sap_num_values);
 		}
 
 
-	if (string_array_param_p -> sp_default_values_ss)
+	if (string_array_param_p -> sap_default_values_ss)
 		{
-			FreeStringArray (string_array_param_p -> sp_default_values_ss);
+			FreeStringArray (string_array_param_p -> sap_default_values_ss, string_array_param_p -> sap_num_values);
 		}
 }
-
 

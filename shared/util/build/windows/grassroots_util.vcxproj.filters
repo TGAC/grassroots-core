@@ -195,4 +195,7 @@
   <ItemGroup>
     <None Include="..\..\..\..\..\build-config\windows\project.props" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\build-config\windows\project.props" />
+  </ItemGroup>
 </Project>

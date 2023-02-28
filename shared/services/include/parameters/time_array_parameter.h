@@ -54,7 +54,7 @@ extern "C"
  * @return A newly-allocated Parameter or <code>NULL</code> upon error.
  * @memberof BooleanParameter
  */
-GRASSROOTS_SERVICE_API TimeArrayParameter *AllocateTimeArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s, const char * const display_name_s, const char * const description_s, const struct tm **default_values_pp, const struct tm **current_values_pp, const size_t num_values, ParameterLevel level);
+GRASSROOTS_SERVICE_API TimeArrayParameter *AllocateTimeArrayParameter (const struct ServiceData *service_data_p,  const char * const name_s, const char * const display_name_s, const char * const description_s, struct tm **default_values_pp, struct tm **current_values_pp, const size_t num_values, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API TimeArrayParameter *AllocateTimeArrayParameterFromJSON (const json_t *param_json_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p);
@@ -63,11 +63,11 @@ GRASSROOTS_SERVICE_API TimeArrayParameter *AllocateTimeArrayParameterFromJSON (c
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const struct tm **default_values_pp, const size_t num_values, uint8 level);
+																											struct tm **default_values_pp, const size_t num_values, uint8 level);
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const struct tm **default_values_pp, const struct tm **current_values_pp,
+																											struct tm **default_values_pp, struct tm **current_values_pp,
 																											const size_t num_values, uint8 level);
 
 
