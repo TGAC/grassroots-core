@@ -15,7 +15,7 @@
 */
 #include <string.h>
 
-#define ALLOCATE_RESOURCE_TAGS
+#define ALLOCATE_DATA_RESOURCE_TAGS (1)
 #include "data_resource.h"
 #include "string_utils.h"
 #include "memory_allocations.h"
@@ -26,7 +26,7 @@
 static bool ReplaceValue (const char * const src_s, char **dest_ss);
 
 
-bool GetResourceProtocolAndPath (const char * const resource_s, char ** const protocol_ss, char ** const path_ss)
+bool GetDataResourceProtocolAndPath (const char * const resource_s, char ** const protocol_ss, char ** const path_ss)
 {
 	char *delimiter_p = strstr (resource_s, RESOURCE_DELIMITER_S);
 
@@ -65,18 +65,18 @@ bool GetResourceProtocolAndPath (const char * const resource_s, char ** const pr
 }
 
 
-Resource *ParseStringToResource (const char * const resource_s)
+DataResource *ParseStringToDataResource (const char * const resource_s)
 {
-	Resource *resource_p = NULL;
+	DataResource *resource_p = NULL;
 
 	if (resource_s)
 		{
 			char *protocol_s = NULL;
 			char *path_s = NULL;
 
-			if (GetResourceProtocolAndPath (resource_s, &protocol_s, &path_s))
+			if (GetDataResourceProtocolAndPath (resource_s, &protocol_s, &path_s))
 				{
-					resource_p = AllocateResource (NULL, NULL, NULL);
+					resource_p = AllocateDataResource (NULL, NULL, NULL);
 
 					if (resource_p)
 						{
@@ -92,17 +92,17 @@ Resource *ParseStringToResource (const char * const resource_s)
 }
 
 
-Resource *AllocateResource (const char *protocol_s, const char *value_s, const char *title_s)
+DataResource *AllocateDataResource (const char *protocol_s, const char *value_s, const char *title_s)
 {
-	Resource *resource_p = (Resource *) AllocMemory (sizeof (Resource));
+	DataResource *resource_p = (DataResource *) AllocMemory (sizeof (DataResource));
 
 	if (resource_p)
 		{
-			InitResource (resource_p);
+			InitDataResource (resource_p);
 
-			if (!SetResourceValue (resource_p, protocol_s, value_s, title_s))
+			if (!SetDataResourceValue (resource_p, protocol_s, value_s, title_s))
 				{
-					FreeResource (resource_p);
+					FreeDataResource (resource_p);
 					resource_p = NULL;
 				}
 		}
@@ -111,7 +111,7 @@ Resource *AllocateResource (const char *protocol_s, const char *value_s, const c
 }
 
 
-void InitResource (Resource *resource_p)
+void InitDataResource (DataResource *resource_p)
 {
 	resource_p -> re_title_s = NULL;
 	resource_p -> re_protocol_s = NULL;
@@ -120,14 +120,14 @@ void InitResource (Resource *resource_p)
 }
 
 
-void FreeResource (Resource *resource_p)
+void FreeDataResource (DataResource *resource_p)
 {
-	ClearResource (resource_p);
+	ClearDataResource (resource_p);
 	FreeMemory (resource_p);
 }
 
 
-void ClearResource (Resource *resource_p)
+void ClearDataResource (DataResource *resource_p)
 {
 	if (resource_p -> re_protocol_s)
 		{
@@ -155,7 +155,7 @@ void ClearResource (Resource *resource_p)
 }
 
 
-bool SetResourceValue (Resource *resource_p, const char *protocol_s, const char *value_s, const char *title_s)
+bool SetDataResourceValue (DataResource *resource_p, const char *protocol_s, const char *value_s, const char *title_s)
 {
 	bool success_flag = false;
 	char *new_protocol_s = NULL;
@@ -183,7 +183,7 @@ bool SetResourceValue (Resource *resource_p, const char *protocol_s, const char 
 }
 
 
-bool SetResourceData (Resource *resource_p, json_t *data_p, const bool owns_data_flag)
+bool SetDataResourceData (DataResource *resource_p, json_t *data_p, const bool owns_data_flag)
 {
 	bool success_flag = false;
 
@@ -218,27 +218,27 @@ bool SetResourceData (Resource *resource_p, json_t *data_p, const bool owns_data
 }
 
 
-Resource *CloneResource (const Resource * const src_p)
+DataResource *CloneDataResource (const DataResource * const src_p)
 {
-	Resource *resource_p = (Resource *) AllocMemory (sizeof (Resource));
+	DataResource *resource_p = (DataResource *) AllocMemory (sizeof (DataResource));
 
 	if (resource_p)
 		{
-			if (CopyResource (src_p, resource_p))
+			if (CopyDataResource (src_p, resource_p))
 				{
 					return resource_p;
 				}
 
-			FreeResource (resource_p);
+			FreeDataResource (resource_p);
 		}		/* if (resource_p) */
 
 	return NULL;
 }
 
 
-bool CopyResource (const Resource * const src_p, Resource * const dest_p)
+bool CopyDataResource (const DataResource * const src_p, DataResource * const dest_p)
 {
-	bool success_flag = SetResourceValue (dest_p, src_p -> re_protocol_s, src_p -> re_value_s, src_p -> re_title_s);
+	bool success_flag = SetDataResourceValue (dest_p, src_p -> re_protocol_s, src_p -> re_value_s, src_p -> re_title_s);
 
 	if (src_p -> re_data_p)
 		{
@@ -263,7 +263,7 @@ bool CopyResource (const Resource * const src_p, Resource * const dest_p)
 }
 
 
-json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * const path_s, const char * const title_s, json_t *data_p)
+json_t *GetDataResourceAsJSONByParts (const char * const protocol_s, const char * const path_s, const char * const title_s, json_t *data_p)
 {
 	json_t *json_p = json_object ();
 
@@ -291,13 +291,13 @@ json_t *GetResourceAsJSONByParts (const char * const protocol_s, const char * co
 }
 
 
-json_t *GetResourceAsJSON (const Resource *resource_p)
+json_t *GetDataResourceAsJSON (const DataResource *resource_p)
 {
-	return GetResourceAsJSONByParts (resource_p -> re_protocol_s, resource_p -> re_value_s, resource_p -> re_title_s, resource_p -> re_data_p);
+	return GetDataResourceAsJSONByParts (resource_p -> re_protocol_s, resource_p -> re_value_s, resource_p -> re_title_s, resource_p -> re_data_p);
 }
 
 
-Resource *GetResourceFromJSON (const json_t *json_p)
+DataResource *GetDataResourceFromJSON (const json_t *json_p)
 {
 	const char *protocol_s = GetJSONString (json_p, RESOURCE_PROTOCOL_S);
 
@@ -307,7 +307,7 @@ Resource *GetResourceFromJSON (const json_t *json_p)
 			const char *title_s = GetJSONString (json_p, RESOURCE_TITLE_S);
 			const char *description_s = GetJSONString (json_p, RESOURCE_DESCRIPTION_S);
 			json_t *data_p = NULL;
-			Resource *resource_p = AllocateResource (protocol_s, value_s, title_s);
+			DataResource *resource_p = AllocateDataResource (protocol_s, value_s, title_s);
 
 
 			if (resource_p)
@@ -319,14 +319,14 @@ Resource *GetResourceFromJSON (const json_t *json_p)
 
 							if (data_p)
 								{
-									if (SetResourceData (resource_p, data_p, true))
+									if (SetDataResourceData (resource_p, data_p, true))
 										{
 											return resource_p;
 										}
 								}
 						}
 
-					FreeResource (resource_p);
+					FreeDataResource (resource_p);
 				}
 
 		}		/* if (protocol_s) */

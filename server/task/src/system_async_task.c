@@ -164,32 +164,7 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 
 	if (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p))
 		{
-			#if ASYNC_SYSTEM_BLAST_TOOL_DEBUG >= STM_LEVEL_FINE
-			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "About to run RunAsyncSystemTaskHook for %s with \"%s\"", uuid_s, task_p -> std_command_line_s);
-			#endif
-
-			int res = system (task_p -> std_command_line_s);
-
-			if (res != -1)
-				{
-					int process_exit_code = WEXITSTATUS (res);
-
-					if (process_exit_code == 0)
-						{
-							status = OS_SUCCEEDED;
-							PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", task_p -> std_command_line_s);
-						}
-					else
-						{
-							status = OS_ERROR;
-							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with return code %d", task_p -> std_command_line_s, process_exit_code);
-						}
-				}
-			else
-				{
-					status = OS_ERROR;
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed running \"%s\" with return code %d", task_p -> std_command_line_s, res);
-				}
+			status = ActualRunSystemAsyncTask (task_p);
 		}
 	else
 		{

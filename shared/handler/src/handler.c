@@ -20,7 +20,7 @@
 
 /*********************/
 
-static bool SetResourceForHandler (struct Handler *handler_p, Resource *resource_p, MEM_FLAG resource_mem);
+static bool SetResourceForHandler (struct Handler *handler_p, DataResource *resource_p, MEM_FLAG resource_mem);
 
 static void RemoveResourceFromHandler (struct Handler *handler_p);
 
@@ -28,11 +28,11 @@ static void RemoveResourceFromHandler (struct Handler *handler_p);
 
 void InitialiseHandler (Handler * const handler_p,
 	bool (*init_fn) (struct Handler *handler_p, const UserDetails *user_p),
-	bool (*match_fn) (struct Handler *handler_p, const Resource * resource_p),
+	bool (*match_fn) (struct Handler *handler_p, const DataResource * resource_p),
 	const char *(*get_protocol_fn) (struct Handler *handler_p),
 	const char *(*get_name_fn) (struct Handler *handler_p),
 	const char *(*get_description_fn) (struct Handler *handler_p),
-	bool (*open_fn) (struct Handler *handler_p, Resource *resource_p, MEM_FLAG resource_mem, const char * const mode_s),
+	bool (*open_fn) (struct Handler *handler_p, DataResource *resource_p, MEM_FLAG resource_mem, const char * const mode_s),
 	size_t (*read_fn) (struct Handler *handler_p, void *buffer_p, const size_t length),
 	size_t (*write_fn) (struct Handler *handler_p, const void *buffer_p, const size_t length),
 	bool (*seek_fn) (struct Handler *handler_p, long offset, int whence),
@@ -68,7 +68,7 @@ bool InitHandler (struct Handler *handler_p, const UserDetails *user_p)
 }
 
 
-bool OpenHandler (struct Handler *handler_p, Resource *resource_p, MEM_FLAG resource_mem, const char * const mode_s)
+bool OpenHandler (struct Handler *handler_p, DataResource *resource_p, MEM_FLAG resource_mem, const char * const mode_s)
 {
 	bool success_flag = false;
 	
@@ -143,7 +143,7 @@ const char *GetHandlerProtocol (struct Handler *handler_p)
 }
 
 
-bool IsHandlerForResource (struct Handler *handler_p, const Resource * resource_p)
+bool IsHandlerForResource (struct Handler *handler_p, const DataResource * resource_p)
 {
 	return (handler_p -> ha_match_fn (handler_p, resource_p));
 }
@@ -261,7 +261,7 @@ GrassrootsServer *GetGrassrootsServerFromHandler (const Handler * const handler_
 /*********************************/
 
 
-static bool SetResourceForHandler (struct Handler * UNUSED_PARAM (handler_p), Resource * UNUSED_PARAM (resource_p), MEM_FLAG UNUSED_PARAM (resource_mem))
+static bool SetResourceForHandler (struct Handler * UNUSED_PARAM (handler_p), DataResource * UNUSED_PARAM (resource_p), MEM_FLAG UNUSED_PARAM (resource_mem))
 {
 	bool success_flag = false;
 
@@ -277,7 +277,7 @@ static void RemoveResourceFromHandler (struct Handler *handler_p)
 				{
 					case MF_SHALLOW_COPY:
 					case MF_DEEP_COPY:
-						FreeResource (handler_p -> ha_resource_p);
+						FreeDataResource (handler_p -> ha_resource_p);
 						break;
 
 					default:

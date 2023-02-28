@@ -33,10 +33,11 @@
 #include "key_value_pair.h"
 #include "handler_utils.h"
 #include "time_util.h"
-#include "user.h"
 #include "provider.h"
 #include "string_parameter.h"
 #include "uuid_util.h"
+
+#include "service_util.h"
 
 /*
  * STATIC DECLARATIONS
@@ -44,7 +45,9 @@
 
 
 #if IRODS_ENABLED == 1
-static json_t *GetAllModifiedData (const json_t * const req_p, UserDetails *user_p);
+#include "user.h"
+static json_t *GetAllModifiedData(const json_t *const req_p,
+                                  UserDetails *user_p);
 #endif
 
 
@@ -65,7 +68,7 @@ static json_t *RunKeywordServices (GrassrootsServer *grassroots_p, const json_t 
 
 static json_t *GetServiceResultsAsJSON (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
 
-static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, Resource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
+static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
 
 //static json_t *GetNamedServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
 
@@ -96,17 +99,17 @@ static int32 AddAllPairedServices (GrassrootsServer *grassroots_p, LinkedList *i
 
 static json_t *GenerateServiceIndexingData (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p);
 
-static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, Resource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
+static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
 
 static bool IsRequiredExternalOperation (const json_t *external_op_p, const char *op_name_s);
 
-static Resource *GetResourceOfInterest (const json_t * const req_p);
+static DataResource *GetResourceOfInterest (const json_t * const req_p);
 
 static const char *GetProviderElement (const GrassrootsServer *grassroots_p, const char * const element_s);
 
 static struct MongoClientManager *GetMongoClientManager (const json_t *config_p);
 
-static Resource *GetResourceFromRequest (const json_t *req_p);
+static DataResource *GetResourceFromRequest (const json_t *req_p);
 
 static void ProcessServiceRequest (const json_t *service_req_p, json_t *services_res_p, GrassrootsServer *grassroots_p, ProvidersStateTable *providers_p, const char *server_s, UserDetails *user_p, Operation op);
 
@@ -406,7 +409,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 							if (json_is_string (uri_p))
 								{
 									const char *uuid_s = json_string_value (uri_p);
-									uuid_t key;
+									uuid_t key = { 0 };
 
 									if (ConvertStringToUUID (uuid_s, key))
 										{
@@ -510,7 +513,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 							if (service_results_p)
 								{
 									const char *key_s = NULL;
-									uuid_t user_uuid;
+									uuid_t user_uuid = {0};
 
 									uuid_clear (user_uuid);
 									const json_t *external_servers_req_p = json_object_get (req_p, SERVERS_S);
@@ -1016,11 +1019,11 @@ static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *ser
 		{
 			AddPairedServices (grassroots_p, service_p, user_p, providers_p);
 
-			Resource *resource_p = AllocateResource (NULL, NULL, NULL);
+			DataResource *resource_p = AllocateDataResource (NULL, NULL, NULL);
 
 			if (resource_p)
 				{
-					if (SetResourceData (resource_p, service_req_p, false))
+					if (SetDataResourceData (resource_p, service_req_p, false))
 						{
 							json_t *service_json_p = GetServiceAsJSON (service_p, resource_p, user_p, false);
 
@@ -1045,7 +1048,7 @@ static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *ser
 
 						}		/* if (SetResourceData (resource_p, service_req_p, false)) */
 
-					FreeResource (resource_p);
+					FreeDataResource (resource_p);
 				}		/* if (resource_p) */
 
 			FreeProvidersStateTable (providers_p);
@@ -1370,7 +1373,7 @@ static SchemaVersion *InitSchemaVersionDetails (json_t *config_p)
 static json_t *GetInterestedServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p)
 {
 	json_t *res_p = NULL;
-	Resource *resource_p = GetResourceOfInterest (req_p);
+	DataResource *resource_p = GetResourceOfInterest (req_p);
 
 	if (resource_p)
 		{
@@ -1413,21 +1416,21 @@ static json_t *GetInterestedServices (GrassrootsServer *grassroots_p, const json
 					FreeHandler (handler_p);
 				}
 
-			FreeResource (resource_p);
+			FreeDataResource (resource_p);
 		}
 
 	return res_p;
 }
 
 
-static Resource *GetResourceFromRequest (const json_t *req_p)
+static DataResource *GetResourceFromRequest (const json_t *req_p)
 {
-	Resource *resource_p = NULL;
+	DataResource *resource_p = NULL;
 	const json_t *resource_json_p = json_object_get (req_p, RESOURCE_S);
 
 	if (resource_json_p)
 		{
-			resource_p = GetResourceFromJSON (resource_json_p);
+			resource_p = GetDataResourceFromJSON (resource_json_p);
 
 			if (!resource_p)
 				{
@@ -1447,7 +1450,7 @@ static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * co
 
 	if (providers_p)
 		{
-			Resource *resource_p = GetResourceFromRequest (req_p);
+			DataResource *resource_p = GetResourceFromRequest (req_p);
 
 			/* Get the local services */
 			json_t *services_p = GetServicesAsJSON (grassroots_p, SERVICES_PATH_S, user_p, resource_p, NULL, providers_p);
@@ -1476,7 +1479,7 @@ static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * co
 
 			if (resource_p)
 				{
-					FreeResource (resource_p);
+					FreeDataResource (resource_p);
 				}
 
 		}		/* if (providers_p) */
@@ -1500,7 +1503,7 @@ static json_t *RunKeywordServices (GrassrootsServer *grassroots_p, const json_t 
 
 			if (res_p)
 				{
-					Resource *resource_p = AllocateResource (PROTOCOL_TEXT_S, keyword_s, keyword_s);
+					DataResource *resource_p = AllocateDataResource (PROTOCOL_TEXT_S, keyword_s, keyword_s);
 
 					if (resource_p)
 						{
@@ -1641,7 +1644,7 @@ static json_t *RunKeywordServices (GrassrootsServer *grassroots_p, const json_t 
 									FreeUserDetails (user_p);
 								}
 
-							FreeResource (resource_p);
+							FreeDataResource (resource_p);
 						}		/* if (resource_p) */
 
 				}		/* if (res_p) */
@@ -1728,7 +1731,7 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 
 	if (service_name_s || service_alias_s)
 		{
-			Resource *resource_p = GetResourceFromRequest (service_req_p);
+			DataResource *resource_p = GetResourceFromRequest (service_req_p);
 			Service *service_p = GetServiceByName (grassroots_p, service_name_s, service_alias_s);
 
 			if (service_p)
@@ -1781,7 +1784,7 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 
 			if (resource_p)
 				{
-					FreeResource (resource_p);
+					FreeDataResource (resource_p);
 				}
 		}
 	else
@@ -1791,7 +1794,7 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 }
 
 
-static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, Resource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
+static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
 {
 	json_t *json_p = NULL;
 	LinkedList *services_p = GetServicesList (grassroots_p, services_path_s, user_p, resource_p, handler_p, providers_p);
@@ -1816,7 +1819,7 @@ static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * c
 }
 
 
-static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, Resource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
+static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
 {
 	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
 
@@ -2059,7 +2062,7 @@ static json_t *GetServiceData (GrassrootsServer *grassroots_p, const json_t * co
 								if (json_is_string (service_uuid_json_p))
 									{
 										const char *uuid_s = json_string_value (service_uuid_json_p);
-										uuid_t service_id;
+										uuid_t service_id = { 0 };
 
 										if (ConvertStringToUUID (uuid_s, service_id))
 											{
@@ -2438,9 +2441,9 @@ static json_t *GenerateServiceIndexingData (GrassrootsServer *grassroots_p, Link
 }
 
 
-static Resource *GetResourceOfInterest (const json_t * const req_p)
+static DataResource *GetResourceOfInterest (const json_t * const req_p)
 {
-	Resource *resource_p = NULL;
+	DataResource *resource_p = NULL;
 	json_t *file_data_p = json_object_get (req_p, RESOURCE_S);
 
 	if (file_data_p)
@@ -2458,7 +2461,7 @@ static Resource *GetResourceOfInterest (const json_t * const req_p)
 									const char *protocol_s = json_string_value (protocol_p);
 									const char *data_name_s = json_string_value (data_name_p);
 
-									resource_p = AllocateResource (protocol_s, data_name_s, NULL);
+									resource_p = AllocateDataResource (protocol_s, data_name_s, NULL);
 								}
 
 						}		/* if (json_is_string (protocol_p)) */

@@ -14,6 +14,7 @@
 #include "sync_data.h"
 #include "memory_allocations.h"
 #include "event_consumer.h"
+#include "operation.h"
 
 struct AsyncTasksManager;
 
@@ -256,6 +257,8 @@ GRASSROOTS_TASK_API void SetAsyncTaskConsumer (AsyncTask *task_p, EventConsumer 
 GRASSROOTS_TASK_API void RunEventConsumerFromAsyncTask (AsyncTask *task_p);
 
 
+
+GRASSROOTS_TASK_API OperationStatus RunProcess (const char *const command_line_s);
 
 
 

@@ -156,12 +156,12 @@ json_t *GetStringIntPairAsResourceJSON (const StringIntPair *pair_p, const char 
 
 	if (title_s)
 		{
-			resource_p = GetResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, title_s, NULL);
+			resource_p = GetDataResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, title_s, NULL);
 			FreeCopiedString (title_s);
 		}
 	else
 		{
-			resource_p = GetResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, pair_p -> sip_string_s, NULL);
+			resource_p = GetDataResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, pair_p -> sip_string_s, NULL);
 		}
 
 	return resource_p;
@@ -184,12 +184,12 @@ json_t *GetStringIntPairsAsResourceJSON (const StringIntPairArray *pairs_p, cons
 
 					if (title_s)
 						{
-							resource_p = GetResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, title_s, NULL);
+							resource_p = GetDataResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, title_s, NULL);
 							FreeCopiedString (title_s);
 						}
 					else
 						{
-							resource_p = GetResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, pair_p -> sip_string_s, NULL);
+							resource_p = GetDataResourceAsJSONByParts (protocol_s, pair_p -> sip_string_s, pair_p -> sip_string_s, NULL);
 						}
 
 					if (resource_p)

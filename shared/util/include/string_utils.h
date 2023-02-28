@@ -402,7 +402,7 @@ GRASSROOTS_UTIL_API bool DoesStringStartWith (const char *value_s, const char *s
 GRASSROOTS_UTIL_API char *GetStringAsLowerCase (const char *value_s);
 
 
-GRASSROOTS_UTIL_API void FreeStringArray (char **values_ss);
+GRASSROOTS_UTIL_API void FreeStringArray (char **values_ss, const size_t num_values);
 
 
 GRASSROOTS_UTIL_API bool DoStringsMatch (const char * const val_0_s, const char * const val_1_s);

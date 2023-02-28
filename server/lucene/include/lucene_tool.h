@@ -105,7 +105,7 @@ typedef struct LuceneTool
 	#define LUCENE_TOOL_PREFIX GRASSROOTS_LUCENE_API
 	#define LUCENE_TOOL_VAL(x)	= x
 #else
-	#define LUCENE_TOOL_PREFIX extern
+	#define LUCENE_TOOL_PREFIX GRASSROOTS_LUCENE_API
 	#define LUCENE_TOOL_VAL(x)
 #endif
 

@@ -34,17 +34,27 @@
 #include "mongodb_library.h"
 #include "operation.h"
 
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#ifdef ALLOCATE_MONGODB_TAGS
-	#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
-	#define MONGODB_VAL(x)	= x
-#else
-	#define MONGODB_PREFIX extern
-	#define MONGODB_VAL(x)
-#endif
+	#ifdef GRASSROOTS_MONGODB_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
 
-#endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+		#ifdef ALLOCATE_MONGODB_TAGS
+			#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
+			#define MONGODB_VAL(x)	= x
+		#else
+			#define MONGODB_PREFIX  extern
+			#define MONGODB_VAL(x)
+		#endif
+	#else
+		#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
+		#define MONGODB_VAL(x)
+	#endif
+
+#endif //	#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+
+
 
 
 /** The identifier used to uniquely specify a MongoDB document.
@@ -125,8 +135,9 @@ MONGODB_PREFIX const char *MONGO_CLAUSE_OPERATOR_S MONGODB_VAL("operator");
 MONGODB_PREFIX const char *MONGO_CLAUSE_VALUE_S MONGODB_VAL("value");
 
 
-MONGODB_PREFIX const uint32 MONGO_OID_STRING_BUFFER_SIZE MONGODB_VAL(25);
+//MONGODB_PREFIX const uint32 MONGO_OID_STRING_BUFFER_SIZE MONGODB_VAL(25);
 
+#define MONGO_OID_STRING_BUFFER_SIZE (25)
 
 MONGODB_PREFIX const char *MONGO_OID_KEY_S MONGODB_VAL("$oid");
 

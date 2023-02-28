@@ -160,7 +160,7 @@ size_t GetDocumentFieldSize (const LuceneDocument *doc_p, const char *key_s)
 
 const char *GetDocumentFieldMultiValue (const LuceneDocument *doc_p, const char *key_s, size_t index)
 {
-	const char *value_s;
+	const char *value_s = NULL;
 	json_t *value_p = json_object_get (doc_p -> ld_store_p, key_s);
 
 	if (value_p)

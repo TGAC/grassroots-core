@@ -26,7 +26,7 @@
  * CURRENT_SCHEMA_VERSION_MINOR
  * in schema_version.h
  */
-#define ALLOCATE_SCHEMA_VERSION_TAGS
+#define ALLOCATE_SCHEMA_VERSION_TAGS (1)
 
 #include <string.h>
 
@@ -158,6 +158,11 @@ bool SetSchemaVersionDetails (SchemaVersion *sv_p, const int major, const int mi
 	return success_flag;
 }
 
+
+SchemaVersion *AllocateCurrentSchemaVersion (void)
+{
+	return AllocateSchemaVersion (CURRENT_SCHEMA_VERSION_MAJOR, CURRENT_SCHEMA_VERSION_MINOR);
+}
 
 SchemaVersion *AllocateSchemaVersion (const int major, const int minor)
 {

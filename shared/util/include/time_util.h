@@ -92,7 +92,7 @@ GRASSROOTS_UTIL_API bool ConvertDropboxStringToEpochTime (const char * const tim
  * @return <code>true</code> if the time was set successfully, <code>false</code> otherwise.
  * @ingroup utility_group
  */
-GRASSROOTS_UTIL_API bool GetCurrentTime (struct tm *tm_p);
+GRASSROOTS_UTIL_API bool GetPresentTime (struct tm *tm_p);
 
 
 
@@ -234,6 +234,8 @@ GRASSROOTS_UTIL_API int CompareDates (const struct tm *time_0_p, const struct tm
 
 GRASSROOTS_UTIL_API bool MayStringIncludeTime (const char * const time_s);
 
+
+GRASSROOTS_UTIL_API void FreeTimeArray (struct tm **values_pp, const size_t num_values);
 
 #ifdef __cplusplus
 }

@@ -54,7 +54,7 @@
 	#define SEARCH_PREFIX GRASSROOTS_UTIL_API
 	#define SEARCH_VAL(x)	= x
 #else
-	#define SEARCH_PREFIX extern
+	#define SEARCH_PREFIX GRASSROOTS_UTIL_API
 	#define SEARCH_VAL(x)
 #endif
 

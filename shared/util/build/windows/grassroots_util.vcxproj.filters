@@ -84,6 +84,12 @@
     <ClCompile Include="..\..\src\user_details.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\platform\windows_shared_memory.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\statistics.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\amiga_debugging.h">
@@ -137,9 +143,6 @@
     <ClInclude Include="..\..\include\io\streams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io_utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\json_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -185,6 +188,12 @@
     <ClInclude Include="..\..\include\user_details.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\statistics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\build-config\windows\project.props" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\build-config\windows\project.props" />

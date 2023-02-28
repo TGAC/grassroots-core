@@ -686,7 +686,7 @@ static bool AddQueryResultsAsResourcesJSON (const char *full_path_s, const char 
 {
 	bool success_flag = false;
 	json_t *root_p = (json_t *) data_p;
-	json_t *resource_p = GetResourceAsJSONByParts (PROTOCOL_IRODS_S, full_path_s, data_s, NULL);
+	json_t *resource_p = GetDataResourceAsJSONByParts (PROTOCOL_IRODS_S, full_path_s, data_s, NULL);
 
 
 	if (resource_p)

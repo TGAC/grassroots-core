@@ -38,9 +38,11 @@
 	#undef uuid_t
 #endif
 
+#define UUID_SIZE (16)
+
 typedef struct
 {
-	unsigned char uu_data [16];
+	unsigned char uu_data [UUID_SIZE];
 } uuid_t;
 
 
@@ -49,11 +51,19 @@ extern "C"
 {
 #endif
 
+GRASSROOTS_UUID_API int uuid_compare (uuid_t uu1, uuid_t uu2);
+
+GRASSROOTS_UUID_API void uuid_clear (uuid_t uu);
+
 GRASSROOTS_UUID_API int uuid_parse (char *in, uuid_t uu);
 
 GRASSROOTS_UUID_API int uuid_is_null (uuid_t uu);
 
 GRASSROOTS_UUID_API void uuid_unparse_lower (uuid_t uu, char* out);
+
+GRASSROOTS_UUID_API void uuid_generate (uuid_t uu);
+
+GRASSROOTS_UUID_API void uuid_copy (uuid_t dst, uuid_t src);
 
 #ifdef __cplusplus
 }

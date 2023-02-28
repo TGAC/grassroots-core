@@ -82,7 +82,7 @@ typedef struct SchemaVersion
 	#define SV_PREFIX GRASSROOTS_UTIL_API
 	#define SV_VAL(x)	= x
 #else
-	#define SV_PREFIX extern
+	#define SV_PREFIX GRASSROOTS_UTIL_API
 	#define SV_VAL(x)
 #endif
 
@@ -174,6 +174,9 @@ GRASSROOTS_UTIL_API json_t *GetSchemaVersionAsJSON (const SchemaVersion * const 
  */
 GRASSROOTS_UTIL_API SchemaVersion *GetSchemaVersionFromJSON (const json_t * const json_p);
 
+
+
+GRASSROOTS_UTIL_API  SchemaVersion *AllocateCurrentSchemaVersion (void);
 
 
 

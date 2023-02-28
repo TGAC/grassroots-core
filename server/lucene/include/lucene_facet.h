@@ -54,7 +54,7 @@ typedef struct LuceneFacetNode
 	#define LUCENE_FACET_VAL(x)	= x
 	#define LUCENE_CONCAT_VAL(x,y) = x y
 #else
-	#define LUCENE_FACET_PREFIX extern
+	#define LUCENE_FACET_PREFIX GRASSROOTS_LUCENE_API
 	#define LUCENE_FACET_VAL(x)
 	#define LUCENE_CONCAT_VAL(x,y)
 #endif

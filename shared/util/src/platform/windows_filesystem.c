@@ -154,7 +154,7 @@ bool EnsureDirectoryExists (const char * const path_s)
 	const char* term_s = "\\";
 
 	/*
-	 * MakeSureDirectoryPathExists re	uires that the path 
+	 * MakeSureDirectoryPathExists re	uires that the path
 	 * ends with a \ to make sure that it is a directory
 	 */
 
@@ -165,7 +165,7 @@ bool EnsureDirectoryExists (const char * const path_s)
 	else
 		{
 			char *copied_name_s = ConcatenateStrings (path_s, term_s);
-	
+
 			if (copied_name_s)
 				{
 					win_res = MakeSureDirectoryPathExists (copied_name_s);
@@ -433,6 +433,55 @@ void WindowsFileSystem :: appendSeparator (STRING &str) const
 }
 */
 
+
+bool CalculateFileInformation (const char * const path_s, FileInformation *info_p)
+{
+	bool success_flag = false;
+	HANDLE file_handle_p = CreateFile2 (path_s, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, NULL);
+
+	if (file_handle_p)
+		{
+			LARGE_INTEGER l;
+
+			if (GetFileSizeEx (file_handle_p,  &l))
+				{
+					FILETIME ft;
+
+					if (GetFileTime (file_handle_p,  NULL, NULL, &ft))
+						{
+							SYSTEMTIME st;
+
+							if (FileTimeToSystemTime (&ft, &st))
+								{
+									struct tm tm;
+
+									memset (&tm, 0, sizeof (struct tm));
+
+									tm.tm_year = st.wYear - 1900;
+									tm.tm_mon = st.wMonth - 1;
+									tm.tm_mday = st.wDay;
+
+									tm.tm_hour = st.wHour;
+									tm.tm_min = st.wMinute;
+									tm.tm_sec = st.wSecond;
+									tm.tm_isdst = -1;
+
+
+									info_p -> fi_size = l.QuadPart;
+									info_p -> fi_last_modified = mktime (&tm);
+
+									success_flag = true;
+								}
+						}
+
+				}
+
+
+			CloseHandle (file_handle_p);
+		}		/* if (file_handle_p) */
+
+	return success_flag;
+}
 
 bool RemoveFile (const char * const path_s)
 {
