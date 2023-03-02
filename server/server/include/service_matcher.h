@@ -21,7 +21,7 @@
 #ifndef SERVICE_MATCHER_H
 #define SERVICE_MATCHER_H
 
-#include "grassroots_service_library.h"
+#include "grassroots_service_manager_library.h"
 #include "data_resource.h"
 #include "handler.h"
 #include "service.h"
@@ -165,7 +165,7 @@ extern "C"
  * @return A newly-allocated ServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocateServiceMatcher (void);
+GRASSROOTS_SERVICE_MANAGER_API ServiceMatcher *AllocateServiceMatcher(void);
 
 /**
  * Allocate a ResourceServiceMatcher.
@@ -175,7 +175,8 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocateServiceMatcher (void);
  * @return A newly-allocated ServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocateResourceServiceMatcher (DataResource *resource_p, Handler *handler_p);
+GRASSROOTS_SERVICE_MANAGER_API ServiceMatcher *
+AllocateResourceServiceMatcher(DataResource *resource_p, Handler *handler_p);
 
 
 /**
@@ -185,7 +186,8 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocateResourceServiceMatcher (DataResou
  * @return A newly-allocated NameServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocateOperationNameServiceMatcher (const char *name_s, const char *alias_s);
+GRASSROOTS_SERVICE_MANAGER_API ServiceMatcher *
+AllocateOperationNameServiceMatcher(const char *name_s, const char *alias_s);
 
 
 /**
@@ -195,7 +197,8 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocateOperationNameServiceMatcher (cons
  * @return A newly-allocated ServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocatePluginNameServiceMatcher (const char *plugin_name_s);
+GRASSROOTS_SERVICE_MANAGER_API ServiceMatcher *
+AllocatePluginNameServiceMatcher(const char *plugin_name_s);
 
 
 /**
@@ -206,7 +209,7 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocatePluginNameServiceMatcher (const c
  * @return A newly-allocated ServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocatePluginOperationNameServiceMatcher (const char *plugin_name_s, const char *service_name_s);
+GRASSROOTS_SERVICE_MANAGER_API ServiceMatcher *AllocatePluginOperationNameServiceMatcher(const char *plugin_name_s, const char *service_name_s);
 
 
 /**
@@ -215,7 +218,7 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocatePluginOperationNameServiceMatcher
  * @return A newly-allocated ServiceMatcher or <code>NULL</code> upon error.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API ServiceMatcher *AllocateKeywordServiceMatcher (void);
+GRASSROOTS_SERVICE_MANAGER_API ServiceMatcher *AllocateKeywordServiceMatcher (void);
 
 
 /**
@@ -225,20 +228,20 @@ GRASSROOTS_SERVICE_API ServiceMatcher *AllocateKeywordServiceMatcher (void);
  * @param match_fn The callback function to use for determining matching Services.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_LOCAL void InitServiceMatcher (ServiceMatcher *matcher_p, RunServiceMatcherCallback match_fn);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void InitServiceMatcher(ServiceMatcher *matcher_p, RunServiceMatcherCallback match_fn);
 
 
-GRASSROOTS_SERVICE_LOCAL void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, DataResource *resource_p, Handler *handler_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void InitResourceServiceMatcher (ResourceServiceMatcher *matcher_p, DataResource *resource_p, Handler *handler_p);
 
-GRASSROOTS_SERVICE_LOCAL void InitOperationNameServiceMatcher (NameServiceMatcher *matcher_p, const char *name_s, const char *alias_s);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void InitOperationNameServiceMatcher (NameServiceMatcher *matcher_p, const char *name_s, const char *alias_s);
 
-GRASSROOTS_SERVICE_LOCAL void InitPluginNameServiceMatcher (PluginNameServiceMatcher *matcher_p, const char *plugin_name_s);
-
-
-GRASSROOTS_SERVICE_LOCAL void InitPluginOperationNameServiceMatcher (PluginOperationNameServiceMatcher *matcher_p, const char *plugin_name_s, const char *operation_name_s);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void InitPluginNameServiceMatcher (PluginNameServiceMatcher *matcher_p, const char *plugin_name_s);
 
 
-GRASSROOTS_SERVICE_LOCAL void InitKeywordServiceMatcher (KeywordServiceMatcher *matcher_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void InitPluginOperationNameServiceMatcher (PluginOperationNameServiceMatcher *matcher_p, const char *plugin_name_s, const char *operation_name_s);
+
+
+GRASSROOTS_SERVICE_MANAGER_LOCAL void InitKeywordServiceMatcher (KeywordServiceMatcher *matcher_p);
 
 
 /**
@@ -248,7 +251,7 @@ GRASSROOTS_SERVICE_LOCAL void InitKeywordServiceMatcher (KeywordServiceMatcher *
  * @param plugin_name_s The Plugin name to search for.
  * @memberof PluginNameServiceMatcher
  */
-GRASSROOTS_SERVICE_API void SetPluginNameForServiceMatcher (PluginNameServiceMatcher *matcher_p, const char *plugin_name_s);
+GRASSROOTS_SERVICE_MANAGER_API void SetPluginNameForServiceMatcher (PluginNameServiceMatcher *matcher_p, const char *plugin_name_s);
 
 
 /**
@@ -258,19 +261,19 @@ GRASSROOTS_SERVICE_API void SetPluginNameForServiceMatcher (PluginNameServiceMat
  * @return <code>true</code> if the Service was a match, <code>false</code> otherwise.
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API bool RunServiceMatcher (ServiceMatcher *matcher_p, Service *service_p);
+GRASSROOTS_SERVICE_MANAGER_API bool RunServiceMatcher (ServiceMatcher *matcher_p, Service *service_p);
 
-GRASSROOTS_SERVICE_LOCAL bool MatchServiceByName (ServiceMatcher *matcher_p, Service *service_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL bool MatchServiceByName (ServiceMatcher *matcher_p, Service *service_p);
 
-GRASSROOTS_SERVICE_LOCAL bool MatchServiceByNameOrAlias (ServiceMatcher *matcher_p, Service *service_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL bool MatchServiceByNameOrAlias (ServiceMatcher *matcher_p, Service *service_p);
 
-GRASSROOTS_SERVICE_LOCAL bool MatchServiceByResource (ServiceMatcher *matcher_p, Service *service_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL bool MatchServiceByResource (ServiceMatcher *matcher_p, Service *service_p);
 
-GRASSROOTS_SERVICE_LOCAL bool MatchServiceByPluginName (ServiceMatcher *matcher_p, Service *service_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL bool MatchServiceByPluginName (ServiceMatcher *matcher_p, Service *service_p);
 
-GRASSROOTS_SERVICE_LOCAL bool MatchServiceByPluginAndOperationsName (ServiceMatcher *matcher_p, Service *service_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL bool MatchServiceByPluginAndOperationsName (ServiceMatcher *matcher_p, Service *service_p);
 
-GRASSROOTS_SERVICE_LOCAL bool MatchServiceByKeyword (ServiceMatcher *matcher_p, Service *service_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL bool MatchServiceByKeyword (ServiceMatcher *matcher_p, Service *service_p);
 
 
 /**
@@ -278,17 +281,17 @@ GRASSROOTS_SERVICE_LOCAL bool MatchServiceByKeyword (ServiceMatcher *matcher_p, 
  * @param matcher_p The ServiceMatcher to free
  * @memberof ServiceMatcher
  */
-GRASSROOTS_SERVICE_API void FreeServiceMatcher (ServiceMatcher *matcher_p);
+GRASSROOTS_SERVICE_MANAGER_API void FreeServiceMatcher (ServiceMatcher *matcher_p);
 
-GRASSROOTS_SERVICE_LOCAL void FreeResourceServiceMatcher (ServiceMatcher *matcher_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void FreeResourceServiceMatcher (ServiceMatcher *matcher_p);
 
-GRASSROOTS_SERVICE_LOCAL void FreeNameServiceMatcher (ServiceMatcher *matcher_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void FreeNameServiceMatcher (ServiceMatcher *matcher_p);
 
-GRASSROOTS_SERVICE_LOCAL void FreePluginNameServiceMatcher (ServiceMatcher *matcher_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void FreePluginNameServiceMatcher (ServiceMatcher *matcher_p);
 
-GRASSROOTS_SERVICE_LOCAL void FreePluginOperationNameServiceMatcher (ServiceMatcher *matcher_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void FreePluginOperationNameServiceMatcher (ServiceMatcher *matcher_p);
 
-GRASSROOTS_SERVICE_LOCAL void FreeKeywordServiceMatcher (ServiceMatcher *matcher_p);
+GRASSROOTS_SERVICE_MANAGER_LOCAL void FreeKeywordServiceMatcher (ServiceMatcher *matcher_p);
 
 
 #ifdef __cplusplus

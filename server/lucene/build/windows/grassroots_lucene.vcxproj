@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;WINDOWS;SHARED_LIBRARY;GRASSROOTS_LUCENE_LIBRARY_EXPORTS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,6 +116,9 @@
       <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -125,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;WINDOWS;SHARED_LIBRARY;GRASSROOTS_LUCENE_LIBRARY_EXPORTS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +138,9 @@
       <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -142,7 +148,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;WINDOWS;SHARED_LIBRARY;GRASSROOTS_LUCENE_LIBRARY_EXPORTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +156,9 @@
       <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -159,7 +168,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>HAVE_STDBOOL_H;_CRT_SECURE_NO_WARNINGS;WINDOWS;SHARED_LIBRARY;GRASSROOTS_LUCENE_LIBRARY_EXPORTS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -169,6 +178,9 @@
       <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\lucene_document.c" />

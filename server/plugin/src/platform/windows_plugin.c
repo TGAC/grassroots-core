@@ -22,6 +22,7 @@
 #include "plugin.h"
 #include "string_utils.h"
 #include "filesystem_utils.h"
+#include "grassroots_server.h"
 
 
 typedef struct WindowsPlugin

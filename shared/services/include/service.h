@@ -737,56 +737,6 @@ GRASSROOTS_SERVICE_API void FreeServiceNode (ListItem *node_p);
 
 
 /**
- * Load the Service that matches a given service name
- *
- * @param services_p The List of Services that the named Services will get appended to if it is found successfully.
- * @param services_path_s The directory where the Service modules are stored.
- * @param service_name_s The name of the Service to find.
- * @param user_p Any user configuration details, this can be <code>NULL</code>.
-  * @memberof Service
- */
-GRASSROOTS_SERVICE_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, const char *service_alias_s, UserDetails *user_p);
-
-
-/**
- * Load the Services that are able to act upon a given Resource.
- *
- * @param services_p The List of Services that the named Services will get appended to if it is found successfully.
- * @param services_path_s The directory where the Service modules are stored.
- * @param resource_p The Resource to check for matching Services for.
- * @param handler_p The Handler that is appropriate for the given Resource.
- * @param user_p Any user configuration details, this can be <code>NULL</code>.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, DataResource *resource_p, Handler *handler_p, UserDetails *user_p);
-
-
-/**
- * Load all Services that can be run upon a keyword parameter.
- *
- * @param services_p The List of Services that any keyword-aware Services will get appended to.
- * @param services_path_s The directory where the Service modules are stored.
- * @param user_p Any user configuration details, this can be <code>NULL</code>.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, UserDetails *user_p);
-
-
-/**
- * Add any reference Services to the list of available Services.
- *
- * @param services_p The LinkedList of ServiceNodes to add any referred Services to.
- * @param references_path_s The directory containing the JSON definitions of reference services.
- * @param services_path_s The directory containing the Service plugins.
- * @param operation_name_s If this value is set, only referred Services that have an Operation with this name will be added
- * to Services list. If this is <code>NULL</code> then all possible reference Services will be added.
- * @param user_p Any user configuration details, this can be <code>NULL</code>.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const references_path_s, const char * const services_path_s, const char *operation_name_s, UserDetails *user_p);
-
-
-/**
  * @brief Close a Service
  *
  * @param service_p The Service to close.

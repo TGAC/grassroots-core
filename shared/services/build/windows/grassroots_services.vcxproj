@@ -113,9 +113,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -132,9 +135,12 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -147,9 +153,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -166,9 +175,12 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVER_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\encode_dcc_metadata.h" />
@@ -200,7 +212,6 @@
     <ClInclude Include="..\..\include\service.h" />
     <ClInclude Include="..\..\include\service_job.h" />
     <ClInclude Include="..\..\include\service_job_set_iterator.h" />
-    <ClInclude Include="..\..\include\service_matcher.h" />
     <ClInclude Include="..\..\include\service_metadata.h" />
     <ClInclude Include="..\..\include\web_service_util.h" />
   </ItemGroup>
@@ -231,7 +242,6 @@
     <ClCompile Include="..\..\src\service.c" />
     <ClCompile Include="..\..\src\service_job.c" />
     <ClCompile Include="..\..\src\service_job_set_iterator.c" />
-    <ClCompile Include="..\..\src\service_matcher.c" />
     <ClCompile Include="..\..\src\service_metadata.c" />
     <ClCompile Include="..\..\src\web_service_util.c" />
   </ItemGroup>

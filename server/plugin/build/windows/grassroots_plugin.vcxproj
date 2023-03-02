@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;SHARED_LIBRARY;WINDOWS;_CRT_SECURE_NO_WARNINGS;GRASSROOTS_PLUGIN_LIBRARY_EXPORTS;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,6 +116,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -125,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;SHARED_LIBRARY;WINDOWS;_CRT_SECURE_NO_WARNINGS;GRASSROOTS_PLUGIN_LIBRARY_EXPORTS;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +138,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -142,7 +148,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;SHARED_LIBRARY;WINDOWS;_CRT_SECURE_NO_WARNING;SGRASSROOTS_PLUGIN_LIBRARY_EXPORTS;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +156,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -159,7 +168,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;SHARED_LIBRARY;WINDOWS;_CRT_SECURE_NO_WARNINGS;GRASSROOTS_PLUGIN_LIBRARY_EXPORTS;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_NETWORK_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -169,6 +178,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\grassroots_plugin_library.h" />

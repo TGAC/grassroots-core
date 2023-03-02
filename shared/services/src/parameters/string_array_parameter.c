@@ -8,7 +8,6 @@
 /*
  * STATIC DECLARATIONS
  */
-static char **CopyStringArray (char **src_ss, const size_t num_values);
 
 static void ClearStringArrayParameter (Parameter *param_p);
 
@@ -409,7 +408,7 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 
 
 
-static char **CopyStringArray (char **src_array_ss, const size_t num_values)
+char **CopyStringArray (char **src_array_ss, const size_t num_values)
 {
 	char **dest_array_ss = (char **) AllocMemoryArray (num_values, sizeof (char *));
 

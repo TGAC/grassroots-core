@@ -28,7 +28,6 @@
 #include "grassroots_plugin_library.h"
 #include "linked_list.h"
 #include "memory_allocations.h"
-#include "grassroots_server.h"
 
 
 #ifdef __cplusplus
@@ -41,7 +40,7 @@ struct ServicesArray;
 struct Client;
 struct Handler;
 struct JobsManager;
-
+struct GrassrootsServer;
 
 /**
  * The current status of a Plugin
@@ -187,7 +186,7 @@ typedef struct Plugin
 	int32 pl_open_count;
 
 
-	GrassrootsServer *pl_server_p;
+	struct GrassrootsServer *pl_server_p;
 } Plugin;
 
 
@@ -243,7 +242,7 @@ GRASSROOTS_PLUGIN_API const char *GetPluginConfigName (const Plugin * const plug
  * @memberof Plugin
  * @see FreePlugin
  */
-GRASSROOTS_PLUGIN_API Plugin *AllocatePlugin (const char * const path_s, GrassrootsServer *server_p);
+GRASSROOTS_PLUGIN_API Plugin *AllocatePlugin (const char * const path_s, struct GrassrootsServer *server_p);
 
 
 /**
@@ -379,7 +378,7 @@ GRASSROOTS_PLUGIN_API void ClearPluginValue (Plugin * const plugin_p);
 /***********************************/
 
 
-GRASSROOTS_PLUGIN_LOCAL bool InitBasePlugin (Plugin * const plugin_p, const char * const path_p, GrassrootsServer *server_p);
+GRASSROOTS_PLUGIN_LOCAL bool InitBasePlugin (Plugin * const plugin_p, const char * const path_p, struct GrassrootsServer *server_p);
 
 GRASSROOTS_PLUGIN_LOCAL void ClearBasePlugin (Plugin * const plugin_p);
 

@@ -499,7 +499,7 @@ GRASSROOTS_HANDLER_API void FreeHandlerNode (ListItem *node_p);
  * @param user_p An optional UserDetails for the user. This can be <code>NULL</code>.
  * @return The Handler or <code>NULL</code> if one could not be loaded successfully.
  */
-GRASSROOTS_HANDLER_API Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const UserDetails *user_p, GrassrootsServer *grassroots_p);
+GRASSROOTS_HANDLER_API Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const UserDetails *user_p, struct GrassrootsServer *grassroots_p);
 
 
 /**
@@ -512,7 +512,7 @@ GRASSROOTS_HANDLER_API bool DeallocatePluginHandler (Plugin * const plugin_p);
 
 
 
-GRASSROOTS_HANDLER_API GrassrootsServer *GetGrassrootsServerFromHandler (const Handler * const handler_p);
+GRASSROOTS_HANDLER_API struct GrassrootsServer *GetGrassrootsServerFromHandler (const Handler * const handler_p);
 
 
 #ifdef __cplusplus

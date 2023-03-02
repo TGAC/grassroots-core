@@ -24,7 +24,8 @@
 
 #include "grassroots_handler_library.h"
 #include "handler.h"
-
+#include "user_details.h"
+#include "grassroots_server.h"
 
 
 
@@ -42,7 +43,7 @@ extern "C"
  * @return The matching Handler or <code>NULL</code> if none could be found.
  * @ingroup handler_group
  */
-GRASSROOTS_HANDLER_API Handler *GetResourceHandler (const DataResource *resource_p, GrassrootsServer *server_p, const UserDetails *user_p);
+GRASSROOTS_HANDLER_API Handler *GetResourceHandler (const DataResource *resource_p, struct GrassrootsServer *server_p, const UserDetails *user_p);
 
 
 /**

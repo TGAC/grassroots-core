@@ -16,6 +16,7 @@
 #include "handler.h"
 
 #include "string_utils.h"
+#include "grassroots_server.h"
 
 
 /*********************/

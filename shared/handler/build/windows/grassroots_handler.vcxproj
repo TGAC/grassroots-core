@@ -116,6 +116,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -135,6 +138,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -150,6 +156,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -169,6 +178,9 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\handler.c" />

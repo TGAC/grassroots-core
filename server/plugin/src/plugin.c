@@ -19,6 +19,7 @@
 
 #include "string_utils.h"
 #include "streams.h"
+#include "grassroots_server.h"
 
 
 #ifdef _DEBUG
