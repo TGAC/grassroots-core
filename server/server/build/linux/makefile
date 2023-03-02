@@ -44,6 +44,7 @@ SRCS 	= \
 	jobs_manager.c \
 	system_util.c \
 	servers_manager.c \
+	service_matcher.c \
 	grassroots_server.c \
 	service_util.c \
 	unix_platform.c 

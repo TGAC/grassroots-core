@@ -48,7 +48,6 @@ SRCS 	= \
 	service.c \
 	service_job.c \
 	service_job_set_iterator.c \
-	service_matcher.c \
 	service_metadata.c \
 	web_service_util.c
 
