@@ -23,6 +23,8 @@
 #include "plugin.h"
 #include "string_utils.h"
 #include "streams.h"
+#include "grassroots_server.h"
+
 
 #define USING_VALGRIND (1)
 
