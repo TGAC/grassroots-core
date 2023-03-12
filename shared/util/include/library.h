@@ -35,13 +35,14 @@
 	#define LIB_HELPER_SYMBOL_EXPORT __declspec(dllexport)
 	#define LIB_HELPER_SYMBOL_LOCAL
 #elif __GNUC__ >= 4
-	#define LIB_HELPER_SYMBOL_IMPORT extern //__attribute__ ((visibility("default")))
+	#define LIB_HELPER_SYMBOL_IMPORT __attribute__ ((visibility("default")))
 	#define LIB_HELPER_SYMBOL_EXPORT __attribute__ ((visibility("default")))
 	#define LIB_HELPER_SYMBOL_LOCAL  __attribute__ ((visibility("hidden")))
 #else
 	#define LIB_HELPER_SYMBOL_IMPORT
 	#define LIB_HELPER_SYMBOL_EXPORT
 	#define LIB_HELPER_SYMBOL_LOCAL
+	#define LIB_HELPER_SYMBOL_CONSTANT
 #endif
 
 #ifdef __cplusplus

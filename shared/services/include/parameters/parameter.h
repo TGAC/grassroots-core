@@ -231,12 +231,7 @@ typedef struct ParameterNode
 	#define PARAMETER_PREFIX GRASSROOTS_SERVICE_API
 	#define PARAMETER_VAL(x)	= x
 #else
-	#ifdef UNIX
-		#define PARAMETER_PREFIX extern //GRASSROOTS_SERVICE_API
-	#elif defined WINDOWS
-		#define PARAMETER_PREFIX GRASSROOTS_SERVICE_API
-	#endif
-                
+	#define PARAMETER_PREFIX extern GRASSROOTS_SERVICE_API
 	#define PARAMETER_VAL(x)
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
 

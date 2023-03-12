@@ -32,7 +32,7 @@
 	#define OPERATION_PREFIX GRASSROOTS_UTIL_API
 	#define OPERATION_VAL(x)	= x
 #else
-	#define OPERATION_PREFIX extern
+	#define OPERATION_PREFIX extern GRASSROOTS_UTIL_API
 	#define OPERATION_VAL(x)
 #endif
 

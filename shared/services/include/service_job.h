@@ -51,7 +51,7 @@ struct LinkedService;
 	#define SERVICE_JOB_PREFIX GRASSROOTS_SERVICE_API
 	#define SERVICE_JOB_VAL(x)	= x
 #else
-	#define SERVICE_JOB_PREFIX extern
+	#define SERVICE_JOB_PREFIX extern GRASSROOTS_SERVICE_API
 	#define SERVICE_JOB_VAL(x)
 #endif
 
