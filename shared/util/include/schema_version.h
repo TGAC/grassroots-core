@@ -82,7 +82,7 @@ typedef struct SchemaVersion
 	#define SV_PREFIX GRASSROOTS_UTIL_API
 	#define SV_VAL(x)	= x
 #else
-    #define SV_PREFIX extern GRASSROOTS_UTIL_API
+	#define SV_PREFIX extern GRASSROOTS_UTIL_API
 	#define SV_VAL(x)
 #endif
 

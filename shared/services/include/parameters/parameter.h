@@ -227,32 +227,22 @@ typedef struct ParameterNode
 
 
 
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 
-#ifdef GRASSROOTS_SERVICES_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
+#ifdef ALLOCATE_PARAMETER_TAGS	
+	#define PARAMETER_PREFIX  GRASSROOTS_SERVICE_API
+	#define PARAMETER_VAL(x) = x
+	#define PARAMETER_CONCAT_VAL(x,y) = x y
+#else
+	#define PARAMETER_PREFIX extern GRASSROOTS_SERVICE_API
+	#define PARAMETER_VAL(x)
+	#define PARAMETER_CONCAT_VAL(x,y)
 
-#ifdef ALLOCATE_PARAMETER_TAGS
-#define PARAMETER_PREFIX  GRASSROOTS_SERVICE_API
-#define PARAMETER_VAL(x) = x
-#define PARAMETER_CONCAT_VAL(x,y) = x y
-#else
-#define PARAMETER_PREFIX extern
-#define PARAMETER_VAL(x)
-#define PARAMETER_CONCAT_VAL(x,y)
-#endif
-#else
-    #ifdef WINDOWS
-        #define PARAMETER_PREFIX extern GRASSROOTS_SERVICE_API
-    #else
-        #define PARAMETER_PREFIX GRASSROOTS_SERVICE_API
-    #endif
-#define PARAMETER_VAL(x)
-#define PARAMETER_CONCAT_VAL(x,y)
 #endif
 
-#endif //	#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
+
 
 PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_S PARAMETER_VAL("Column Headers Placement");
 
