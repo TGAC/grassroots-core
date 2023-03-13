@@ -151,7 +151,9 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 {
 	SystemAsyncTask *task_p = ((SystemAsyncTask *) data_p);
 	ServiceJob *job_p = task_p -> std_service_job_p;
-	GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+
+	/* Windows complains that it can't find the function as it's a cicular dependency*/
+	GrassrootsServer *grassroots_p = job_p -> sj_service_p -> se_plugin_p -> pl_server_p; // GetGrassrootsServerFromService (job_p -> sj_service_p);
 	JobsManager *jobs_manager_p = GetJobsManager (grassroots_p);
 	OperationStatus status = OS_STARTED;
 	char uuid_s [UUID_STRING_BUFFER_SIZE];
@@ -159,7 +161,10 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	ConvertUUIDToString (job_p -> sj_id, uuid_s);
 
 	/* Set the job to having started */
-	SetServiceJobStatus (job_p, status);
+  /* Windows complains that it can't find the function as it's a cicular
+    * dependency*/
+	// SetServiceJobStatus (job_p, status);
+  job_p -> sj_status = status;
 
 
 	if (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p))
@@ -175,7 +180,10 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	/* has the job status changed? */
 	if (status != OS_STARTED)
 		{
-			SetServiceJobStatus (job_p, status);
+      /* Windows complains that it can't find the function as
+        * it's a cicular dependency*/
+      // SetServiceJobStatus (job_p, status);
+      job_p -> sj_status = status;
 
 			/* If the job ran successfully, run any specified callbacks to update the results */
 			if ((status == OS_SUCCEEDED) || (status == OS_PARTIALLY_SUCCEEDED))
