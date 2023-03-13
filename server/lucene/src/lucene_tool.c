@@ -390,7 +390,7 @@ OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s, const Que
 															if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL))
 																{
 																	const char *command_s = GetByteBufferData (buffer_p);
-																	OperationStatus status = RunProcess (command_s);
+																	status = RunProcess (command_s);
 
 																	if (status == OS_SUCCEEDED)
 																		{
