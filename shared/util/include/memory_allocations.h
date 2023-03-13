@@ -85,9 +85,9 @@ typedef enum MEM_FLAG
 		#define IsAllocatorThreadSafe() IsNedmallocAllocatorThreadSafe()
 	#else
 		#if defined _DEBUG && defined _MSC_VER
-				#define _CRTDBG_MAP_ALLOC
+                #undef _CRTDBG_MAP_ALLOC
 				#include <stdlib.h>
-				#include <crtdbg.h>
+                //#include <crtdbg.h>
 		#else
 			#include <stdlib.h>
 		#endif

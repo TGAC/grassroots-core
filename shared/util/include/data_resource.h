@@ -91,7 +91,7 @@ typedef struct DataResource
 	#define RESOURCE_PREFIX GRASSROOTS_UTIL_API
 	#define RESOURCE_VAL(x)	= x
 #else
-	#define RESOURCE_PREFIX GRASSROOTS_UTIL_API
+	#define RESOURCE_PREFIX extern GRASSROOTS_UTIL_API
 	#define RESOURCE_VAL(x)
 #endif
 

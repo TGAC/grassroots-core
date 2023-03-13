@@ -58,22 +58,16 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 
-	#ifdef GRASSROOTS_UTIL_LIBRARY_EXPORTS // defined if we are building the LIB DLL (instead of using it)
 
-		#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
-			#define SCHEMA_KEYS_PREFIX  GRASSROOTS_UTIL_API
-			#define SCHEMA_KEYS_VAL(x) = x
-			#define SCHEMA_KEYS_CONCAT_VAL(x,y) = x y
-		#else
-			#define SCHEMA_KEYS_PREFIX extern
-			#define SCHEMA_KEYS_VAL(x)
-			#define SCHEMA_KEYS_CONCAT_VAL(x,y)
-		#endif
-	#else
-		#define SCHEMA_KEYS_PREFIX GRASSROOTS_UTIL_API
-		#define SCHEMA_KEYS_VAL(x)
-		#define SCHEMA_KEYS_CONCAT_VAL(x,y)
-	#endif
+#ifdef ALLOCATE_SCHEMA_KEYS_TAGS
+	#define SCHEMA_KEYS_PREFIX  GRASSROOTS_UTIL_API
+	#define SCHEMA_KEYS_VAL(x) = x
+	#define SCHEMA_KEYS_CONCAT_VAL(x,y) = x y
+#else
+	#define SCHEMA_KEYS_PREFIX extern GRASSROOTS_UTIL_API
+	#define SCHEMA_KEYS_VAL(x)
+	#define SCHEMA_KEYS_CONCAT_VAL(x,y)
+#endif
 
 #endif //	#ifndef DOXYGEN_SHOULD_SKIP_THIS
 

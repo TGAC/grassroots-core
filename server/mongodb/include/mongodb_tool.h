@@ -43,11 +43,11 @@
 			#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
 			#define MONGODB_VAL(x)	= x
 		#else
-			#define MONGODB_PREFIX  extern
+			#define MONGODB_PREFIX  extern GRASSROOTS_MONGODB_API
 			#define MONGODB_VAL(x)
 		#endif
 	#else
-		#define MONGODB_PREFIX GRASSROOTS_MONGODB_API
+		#define MONGODB_PREFIX extern GRASSROOTS_MONGODB_API
 		#define MONGODB_VAL(x)
 	#endif
 

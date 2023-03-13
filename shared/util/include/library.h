@@ -42,6 +42,7 @@
 	#define LIB_HELPER_SYMBOL_IMPORT
 	#define LIB_HELPER_SYMBOL_EXPORT
 	#define LIB_HELPER_SYMBOL_LOCAL
+	#define LIB_HELPER_SYMBOL_CONSTANT
 #endif
 
 #ifdef __cplusplus

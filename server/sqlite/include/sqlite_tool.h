@@ -41,7 +41,7 @@
 	#define SQLITE_PREFIX GRASSROOTS_SQLITE_API
 	#define SQLITE_VAL(x)	= x
 #else
-	#define SQLITE_PREFIX extern
+	#define SQLITE_PREFIX extern GRASSROOTS_SQLITE_API
 	#define SQLITE_VAL(x)
 #endif
 
