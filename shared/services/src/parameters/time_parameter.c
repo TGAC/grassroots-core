@@ -442,6 +442,10 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 					success_flag = false;
 				}
 		}
+	else
+		{
+			success_flag = SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, json_null ());
+		}
 
 	if (success_flag)
 		{
