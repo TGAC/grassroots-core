@@ -52,6 +52,9 @@ typedef struct JSONParameter
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -59,9 +62,6 @@ JSON_PARAM_PREFIX const char *TABLE_PARAM_ROW_S JSON_PARAM_VAL("row");
 JSON_PARAM_PREFIX const char *TABLE_PARAM_COLUMN_S JSON_PARAM_VAL("column");
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * Allocate a JSONParameter

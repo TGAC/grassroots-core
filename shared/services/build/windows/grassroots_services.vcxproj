@@ -117,7 +117,8 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)
+copy $(OutDir)$(TargetName).lib $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -139,7 +140,8 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)
+copy $(OutDir)$(TargetName).lib $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -157,7 +159,8 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)
+copy $(OutDir)$(TargetName).lib $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -179,7 +182,8 @@
       <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_SERVER_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_CURL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)
+copy $(OutDir)$(TargetName).lib $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

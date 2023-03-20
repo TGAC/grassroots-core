@@ -97,6 +97,12 @@ typedef struct DataResource
 
 #endif		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 /**
  * @brief The string used to separate the protocol and values of a Resource.
  * This is used to build string representations of the form
@@ -150,10 +156,6 @@ RESOURCE_PREFIX const char *PROTOCOL_TEXT_S RESOURCE_VAL("text");
 RESOURCE_PREFIX const char *PROTOCOL_SERVICE_S RESOURCE_VAL("service");
 
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 
 /**

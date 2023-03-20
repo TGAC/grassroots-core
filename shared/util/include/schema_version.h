@@ -88,6 +88,12 @@ typedef struct SchemaVersion
 
 #endif		/* ifndef DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 /**
  * The current major revision of the Grassroots schema.
  *
@@ -102,11 +108,6 @@ SV_PREFIX const uint32 CURRENT_SCHEMA_VERSION_MAJOR SV_VAL(0);
  * @ingroup utility_group
  */
 SV_PREFIX const uint32 CURRENT_SCHEMA_VERSION_MINOR SV_VAL(10);
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 
 /**

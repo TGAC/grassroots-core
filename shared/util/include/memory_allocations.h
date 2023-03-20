@@ -87,7 +87,7 @@ typedef enum MEM_FLAG
 		#if defined _DEBUG && defined _MSC_VER
                 //#undef _CRTDBG_MAP_ALLOC
 				#include <stdlib.h>
-                //#include <crtdbg.h>
+                #include <crtdbg.h>
 		#else
 			#include <stdlib.h>
 		#endif

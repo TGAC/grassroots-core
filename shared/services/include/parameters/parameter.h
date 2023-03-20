@@ -242,6 +242,12 @@ typedef struct ParameterNode
 
 #endif 		/* #ifndef DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 
 PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_S PARAMETER_VAL("Column Headers Placement");
 
@@ -278,10 +284,6 @@ PARAMETER_PREFIX const char * const PA_TYPE_CHARACTER_S PARAMETER_VAL("character
 
 PARAMETER_PREFIX const char * const PA_TABLE_COLUMN_HEADERS_PLACEMENT_FIRST_ROW_S PARAMETER_VAL("Column Headers Placement On First Row");
 
-
-#ifdef __cplusplus
-	extern "C" {
-#endif
 
 
 
