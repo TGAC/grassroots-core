@@ -23,7 +23,7 @@ static Parameter *CloneStringArrayParameter (const Parameter *param_p, const Ser
 
 static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
-static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, json_t *param_json_p, const char *key_s);
+static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, const size_t num_values, json_t *param_json_p, const char *key_s);
 
 
 /*
@@ -500,13 +500,13 @@ static bool SetStringArrayParameterValue (char ***param_value_sss, const size_t 
 
 
 
-static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, json_t *param_json_p, const char *key_s)
+static bool AddNonTrivialStringArrayValuesToJSON (char **values_ss, const size_t num_values, json_t *param_json_p, const char *key_s)
 {
 	bool success_flag = false;
 
 	if (values_ss)
 		{
-			json_t *values_json_p = ConvertStringArrayToJSON (values_ss);
+			json_t *values_json_p = ConvertStringArrayToJSON (values_ss, num_values);
 
 			if (values_json_p)
 				{
@@ -547,11 +547,11 @@ static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json
 	bool success_flag = false;
 	StringArrayParameter *string_array_param_p = (StringArrayParameter *) param_p;
 
-	if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sap_current_values_ss, param_json_p, PARAM_CURRENT_VALUE_S))
+	if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sap_current_values_ss, string_array_param_p -> sap_num_values, param_json_p, PARAM_CURRENT_VALUE_S))
 		{
 			if (full_definition_flag)
 				{
-					if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sap_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S))
+					if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sap_default_values_ss, string_array_param_p -> sap_num_values, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
 							success_flag = true;
 						}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S)) */

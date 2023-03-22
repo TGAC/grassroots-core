@@ -658,7 +658,7 @@ GRASSROOTS_UTIL_API bool GetJSONUnsignedInteger (const json_t *json_p, const cha
 GRASSROOTS_UTIL_API bool GetRealValueFromJSONString (const json_t *json_p, double64 *answer_p);
 
 
-GRASSROOTS_UTIL_API json_t *ConvertStringArrayToJSON (char **values_ss);
+GRASSROOTS_UTIL_API json_t *ConvertStringArrayToJSON (char **values_ss, const size_t num_values);
 
 GRASSROOTS_UTIL_API bool SetNonTrivialUnsignedInt (json_t *json_p, const char *key_s, const uint32 *value_p, const bool null_flag);
 

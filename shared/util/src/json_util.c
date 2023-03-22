@@ -257,7 +257,7 @@ char **GetStringArrayFromJSON (const json_t * const array_json_p, bool add_termi
 }
 
 
-json_t *ConvertStringArrayToJSON (char **values_ss)
+json_t *ConvertStringArrayToJSON (char **values_ss, const size_t num_values)
 {
 	json_t *array_p = json_array ();
 
@@ -265,25 +265,38 @@ json_t *ConvertStringArrayToJSON (char **values_ss)
 		{
 			bool success_flag = true;
 			char **value_pp = values_ss;
+			size_t i = num_values;
 
-			while ((*value_pp) && success_flag)
+			while ((i > 0) && success_flag)
 				{
-					json_t *str_p = json_string (*value_pp);
+					json_t *entry_p = NULL;
 
-					if (str_p)
+					if (*value_pp)
 						{
-							if (json_array_append_new (array_p, str_p) == 0)
+							entry_p = json_string (*value_pp);
+						}
+					else
+						{
+							entry_p = json_null ();
+						}
+
+					if (entry_p)
+						{
+							if (json_array_append_new (array_p, entry_p) == 0)
 								{
 									++ value_pp;
+									-- i;
 								}
 							else
 								{
 									success_flag = false;
+									PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, array_p, "Failed to append \"%s\"", *value_pp);
 								}
 						}
 					else
 						{
 							success_flag = false;
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, array_p, "Failed to create string for \"%s\"", *value_pp);
 						}
 				}
 
@@ -293,6 +306,10 @@ json_t *ConvertStringArrayToJSON (char **values_ss)
 				}
 
 			json_decref (array_p);
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create json array");
 		}
 
 	return NULL;

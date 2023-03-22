@@ -444,7 +444,14 @@ static bool AddTimeParameterDetailsToJSON (const Parameter *param_p, json_t *par
 		}
 	else
 		{
-			success_flag = SetJSONString (param_json_p, PARAM_CURRENT_VALUE_S, json_null ());
+			if (json_object_set_new (param_json_p, PARAM_CURRENT_VALUE_S, json_null ()) == 0)
+				{
+					success_flag = true;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, param_json_p, "Failed to set \"%s\": null");
+				}
 		}
 
 	if (success_flag)

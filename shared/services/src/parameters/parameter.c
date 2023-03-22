@@ -906,6 +906,14 @@ json_t *GetRunnableParameterAsJSON (const Parameter *param_p, const SchemaVersio
 						{
 							return root_p;
 						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AddParameterValuesToJSON () failed  for \"%s\"", param_p -> pa_name_s);
+						}
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AddParameterNameToJSON () failed  for \"%s\"", param_p -> pa_name_s);
 				}
 
 			json_decref (root_p);
