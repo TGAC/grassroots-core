@@ -75,7 +75,7 @@ struct ExternalServer;
  * This specifies the relative filesystem path to where the Service
  * plugins are stored.
  */
-PATH_PREFIX const char *SERVICES_PATH_S PATH_VAL("services");
+//PATH_PREFIX const char *SERVICES_PATH_S PATH_VAL("services");
 
 
 #define SERVICE_GROUP_ALIAS_SEPARATOR "-"

@@ -53,7 +53,6 @@
  * This specifies the relative filesystem path to where the Service
  * plugins are stored.
  */
-JOBS_MANAGER_PREFIX const char *JOBS_MANAGERS_PATH_S JOBS_MANAGER_VAL("jobs_managers");
 
 
 

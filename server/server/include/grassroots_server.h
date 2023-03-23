@@ -44,6 +44,9 @@ struct MongoClientManager;
 
 typedef struct GrassrootsServer
 {
+	/**
+	 * The path to the root directory for this GrassrootsServer.
+	 */
 	char *gs_path_s;
 
 	/**
@@ -64,6 +67,27 @@ typedef struct GrassrootsServer
 	 * containing the reference services
 	 */
 	char *gs_references_path_s;
+
+	/**
+   * The relative path from gs_path_s to the folder
+   * containing the service modules.
+   */
+	char *gs_services_path_s;
+
+
+	/**
+   * The relative path from gs_path_s to the folder
+   * containing the jobs managers modules.
+   */
+	char *gs_jobs_managers_path_s;
+
+
+	/**
+   * The relative path from gs_path_s to the folder
+   * containing the servers managers modules.
+   */
+  char *gs_servers_managers_path_s;
+
 
 
 	struct JobsManager *gs_jobs_manager_p;
@@ -98,7 +122,8 @@ extern "C"
  * @memberof GrassrootsServer
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, const char *references_path_s, struct JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, struct ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
+GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, const char *services_path_s, const char *references_path_s,
+	const char *jobs_managers_path_s, const char *servers_managers_path_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
 
 
 /**
@@ -153,7 +178,7 @@ GRASSROOTS_SERVICE_MANAGER_LOCAL void DisconnectFromExternalServers (GrassrootsS
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
   * @memberof Service
  */
-GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, const char *service_alias_s, UserDetails *user_p);
+GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char *service_name_s, const char *service_alias_s, UserDetails *user_p);
 
 
 /**
@@ -166,18 +191,17 @@ GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServicesByName (GrassrootsServer
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, DataResource *resource_p, Handler *handler_p, UserDetails *user_p);
+GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, DataResource *resource_p, Handler *handler_p, UserDetails *user_p);
 
 
 /**
  * Load all Services that can be run upon a keyword parameter.
  *
  * @param services_p The List of Services that any keyword-aware Services will get appended to.
- * @param services_path_s The directory where the Service modules are stored.
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_MANAGER_API void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, UserDetails *user_p);
+GRASSROOTS_SERVICE_MANAGER_API void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, UserDetails *user_p);
 
 
 /**
@@ -308,8 +332,6 @@ GRASSROOTS_SERVICE_MANAGER_API bool IsServiceEnabled (const GrassrootsServer *gr
  * @memberof Service
  */
 GRASSROOTS_SERVICE_MANAGER_API void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p,
-                     const char *const references_path_s,
-                     const char *const services_path_s,
                      const char *operation_name_s, UserDetails *user_p);
 
 

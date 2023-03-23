@@ -108,7 +108,7 @@ ServersManager *LoadServersManager (const char *servers_manager_s, GrassrootsSer
 			*file_sep_s = GetFileSeparatorChar ();
 			* (file_sep_s + 1) = '\0';
 
-			full_servers_managers_path_s = ConcatenateVarargsStrings (root_path_s, file_sep_s, "servers", file_sep_s, plugin_name_s, NULL);
+			full_servers_managers_path_s = ConcatenateVarargsStrings (root_path_s, file_sep_s, server_p -> gs_servers_managers_path_s, file_sep_s, plugin_name_s, NULL);
 
 			if (full_servers_managers_path_s)
 				{

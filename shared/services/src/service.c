@@ -362,7 +362,7 @@ Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const se
 
 	if (services_p)
 		{
-			LoadMatchingServicesByName (grassroots_p, services_p, SERVICES_PATH_S, service_name_s, service_alias_s, NULL);
+			LoadMatchingServicesByName (grassroots_p, services_p, service_name_s, service_alias_s, NULL);
 
 			if (services_p -> ll_size == 1)
 				{

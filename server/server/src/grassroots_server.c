@@ -68,7 +68,7 @@ static json_t *RunKeywordServices (GrassrootsServer *grassroots_p, const json_t 
 
 static json_t *GetServiceResultsAsJSON (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
 
-static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
+static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
 
 //static json_t *GetNamedServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p);
 
@@ -99,7 +99,7 @@ static int32 AddAllPairedServices (GrassrootsServer *grassroots_p, LinkedList *i
 
 static json_t *GenerateServiceIndexingData (GrassrootsServer *grassroots_p, LinkedList *services_p, const json_t * const req_p, UserDetails *user_p, ProvidersStateTable *providers_p);
 
-static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
+static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p);
 
 static bool IsRequiredExternalOperation (const json_t *external_op_p, const char *op_name_s);
 
@@ -146,7 +146,8 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
  * API DEFINITIONS
  */
 
-GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, const char *references_path_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag)
+GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, const char *services_path_s, const char *references_path_s,
+	const char *jobs_managers_path_s, const char *servers_managers_path_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag)
 {
 	char *copied_path_s = EasyCopyToNewString (grassroots_path_s);
 
@@ -160,118 +161,142 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 					if (copied_service_config_path_s)
 						{
+              char *copied_services_path_s = EasyCopyToNewString (services_path_s ? services_path_s: "services");
 
-							char *copied_references_path_s = EasyCopyToNewString (references_path_s ? references_path_s: "references");
-
-							if (copied_references_path_s)
+              if (copied_services_path_s)
 								{
-									json_t *config_p = LoadConfig (copied_path_s, copied_config_filename_s);
+									char *copied_references_path_s = EasyCopyToNewString (references_path_s ? references_path_s: "references");
 
-									if (config_p)
+									if (copied_references_path_s)
 										{
-											SchemaVersion *sv_p = InitSchemaVersionDetails (config_p);
+											char *copied_jobs_managers_path_s = EasyCopyToNewString (jobs_managers_path_s ? jobs_managers_path_s: "jobs_managers");
 
-											if (sv_p)
+											if (copied_jobs_managers_path_s)
 												{
-													struct MongoClientManager *mongo_manager_p = GetMongoClientManager (config_p);
+													char *copied_servers_managers_path_s = EasyCopyToNewString (servers_managers_path_s ? servers_managers_path_s: "servers");
 
-													if (mongo_manager_p)
+													if (copied_servers_managers_path_s)
 														{
-															GrassrootsServer *grassroots_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
+															json_t *config_p = LoadConfig (copied_path_s, copied_config_filename_s);
 
-															if (grassroots_p)
+															if (config_p)
 																{
-																	grassroots_p -> gs_path_s = copied_path_s;
-																	grassroots_p -> gs_config_filename_s = copied_config_filename_s;
-																	grassroots_p -> gs_config_p = config_p;
-																	grassroots_p -> gs_config_path_s = copied_service_config_path_s;
-																	grassroots_p -> gs_references_path_s = copied_references_path_s;
+																	SchemaVersion *sv_p = InitSchemaVersionDetails (config_p);
 
-																	grassroots_p -> gs_jobs_manager_p = external_jobs_manager_p;
-																	grassroots_p -> gs_jobs_manager_mem = jobs_manager_flag;
-
-																	grassroots_p -> gs_servers_manager_p = external_servers_manager_p;
-																	grassroots_p -> gs_servers_manager_mem = servers_manager_flag;
-
-																	grassroots_p -> gs_schema_version_p = sv_p;
-
-																	grassroots_p -> gs_mongo_manager_p = mongo_manager_p;
-
-																	/*
-																	 * Load the jobs manager
-																	 */
-																	if (!external_jobs_manager_p)
+																	if (sv_p)
 																		{
-																			JobsManager *jobs_manager_p = LoadJobsManagerFromConfig (grassroots_p);
+																			struct MongoClientManager *mongo_manager_p = GetMongoClientManager (config_p);
 
-																			if (jobs_manager_p)
+																			if (mongo_manager_p)
 																				{
-																					grassroots_p -> gs_jobs_manager_p = jobs_manager_p;
-																					grassroots_p -> gs_jobs_manager_mem = MF_SHALLOW_COPY;
-																				}
-																		}
+																					GrassrootsServer *grassroots_p = (GrassrootsServer *) AllocMemory (sizeof (GrassrootsServer));
+
+																					if (grassroots_p)
+																						{
+																							grassroots_p -> gs_path_s = copied_path_s;
+																							grassroots_p -> gs_config_filename_s = copied_config_filename_s;
+																							grassroots_p -> gs_config_p = config_p;
+																							grassroots_p -> gs_config_path_s = copied_service_config_path_s;
+																							grassroots_p -> gs_services_path_s = copied_services_path_s;
+																							grassroots_p -> gs_references_path_s = copied_references_path_s;
+
+																							grassroots_p -> gs_jobs_managers_path_s = copied_jobs_managers_path_s;
+
+																							grassroots_p -> gs_jobs_manager_p = external_jobs_manager_p;
+																							grassroots_p -> gs_jobs_manager_mem = jobs_manager_flag;
+
+																							grassroots_p -> gs_servers_managers_path_s = copied_servers_managers_path_s;
+
+																							grassroots_p -> gs_servers_manager_p = external_servers_manager_p;
+																							grassroots_p -> gs_servers_manager_mem = servers_manager_flag;
+
+																							grassroots_p -> gs_schema_version_p = sv_p;
+
+																							grassroots_p -> gs_mongo_manager_p = mongo_manager_p;
+
+																							/*
+																							 * Load the jobs manager
+																							 */
+																							if (!external_jobs_manager_p)
+																								{
+																									JobsManager *jobs_manager_p = LoadJobsManagerFromConfig (grassroots_p);
+
+																									if (jobs_manager_p)
+																										{
+																											grassroots_p -> gs_jobs_manager_p = jobs_manager_p;
+																											grassroots_p -> gs_jobs_manager_mem = MF_SHALLOW_COPY;
+																										}
+																								}
 
 
-																	/*
-																	 * Load the servers manager
-																	 */
-																	if (!external_servers_manager_p)
-																		{
-																			ServersManager *servers_manager_p = LoadServersManagerFromConfig (grassroots_p);
+																							/*
+																							 * Load the servers manager
+																							 */
+																							if (!external_servers_manager_p)
+																								{
+																									ServersManager *servers_manager_p = LoadServersManagerFromConfig (grassroots_p);
 
-																			if (servers_manager_p)
-																				{
-																					grassroots_p -> gs_servers_manager_p = servers_manager_p;
-																					grassroots_p -> gs_servers_manager_mem = MF_SHALLOW_COPY;
-																				}
+																									if (servers_manager_p)
+																										{
+																											grassroots_p -> gs_servers_manager_p = servers_manager_p;
+																											grassroots_p -> gs_servers_manager_mem = MF_SHALLOW_COPY;
+																										}
 
-																		}
+																								}
 
-																	if (grassroots_p -> gs_servers_manager_p)
-																		{
-																			ConnectToExternalServers (grassroots_p);
-																		}
-
-
-
-																	/*
-																		#ifdef DRMAA_ENABLED
-																		if (res_flag)
-																			{
-																				res_flag = InitDrmaaEnvironment ();
-																			}
-																		#endif
+																							if (grassroots_p -> gs_servers_manager_p)
+																								{
+																									ConnectToExternalServers (grassroots_p);
+																								}
 
 
-																		#ifdef IRODS_ENABLED
-																		if (res_flag)
-																			{
-																				InitRodsEnv ();
-																			}
-																		#endif
-																	 */
 
-																	/*
-																	ConnectToExternalServers (grassroots_p);
-																	 */
-
-																	return grassroots_p;
-																}		/* if (grassroots_p) */
+																							/*
+																								#ifdef DRMAA_ENABLED
+																								if (res_flag)
+																									{
+																										res_flag = InitDrmaaEnvironment ();
+																									}
+																								#endif
 
 
-															FreeMongoClientManager (mongo_manager_p);
-														}		/* if (mongo_manager_p) */
+																								#ifdef IRODS_ENABLED
+																								if (res_flag)
+																									{
+																										InitRodsEnv ();
+																									}
+																								#endif
+																							 */
+
+																							/*
+																							ConnectToExternalServers (grassroots_p);
+																							 */
+
+																							return grassroots_p;
+																						}		/* if (grassroots_p) */
 
 
-													FreeSchemaVersion (sv_p);
-												}		/* if (sv_p) */
-
-											json_decref (config_p);
-										}		/* if (config_p) */
+																					FreeMongoClientManager (mongo_manager_p);
+																				}		/* if (mongo_manager_p) */
 
 
-									FreeCopiedString (copied_references_path_s);
-								}		/* if (copied_service_config_path_s) */
+																			FreeSchemaVersion (sv_p);
+																		}		/* if (sv_p) */
+
+																	json_decref (config_p);
+																}		/* if (config_p) */
+
+															FreeCopiedString (copied_servers_managers_path_s);
+														}		/* if (copied_servers_managers_path_s) */
+
+													FreeCopiedString (copied_jobs_managers_path_s);
+												}		/* if (copied_jobs_managers_path_s) */
+
+											FreeCopiedString (copied_references_path_s);
+										}		/* if (copied_service_config_path_s) */
+
+									FreeCopiedString (copied_services_path_s);
+								}		/* if (copied_services_path_s) */
 
 							FreeCopiedString (copied_service_config_path_s);
 						}		/* if (copied_service_config_path_s) */
@@ -330,6 +355,11 @@ void FreeGrassrootsServer (GrassrootsServer *server_p)
 	FreeCopiedString (server_p -> gs_config_filename_s);
 	FreeCopiedString (server_p -> gs_config_path_s);
 	FreeCopiedString (server_p -> gs_references_path_s);
+	FreeCopiedString (server_p -> gs_services_path_s);
+
+	FreeCopiedString (server_p -> gs_jobs_managers_path_s);
+	FreeCopiedString (server_p -> gs_servers_managers_path_s);
+
 
 	if (server_p -> gs_mongo_manager_p)
 		{
@@ -349,7 +379,7 @@ const char *GetServerRootDirectory (const GrassrootsServer * const grassroots_p)
 }
 
 
-void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, const char *service_name_s, const char *service_alias_s, UserDetails *user_p)
+void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char *service_name_s, const char *service_alias_s, UserDetails *user_p)
 {
 	NameServiceMatcher matcher;
 
@@ -360,13 +390,13 @@ void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *ser
 
 	if (services_p -> ll_size == 0)
 		{
-			AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, service_name_s, user_p);
+			AddReferenceServices (grassroots_p, services_p, service_name_s, user_p);
 		}
 }
 
 
 
-void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, DataResource *resource_p, Handler *handler_p, UserDetails *user_p)
+void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, DataResource *resource_p, Handler *handler_p, UserDetails *user_p)
 {
 	ResourceServiceMatcher matcher;
 
@@ -374,11 +404,11 @@ void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_
 
 	GetMatchingServices (grassroots_p, & (matcher.rsm_base_matcher), user_p, services_p, true);
 
-	AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, NULL, user_p);
+	AddReferenceServices (grassroots_p, services_p, NULL, user_p);
 }
 
 
-void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const services_path_s, UserDetails *user_p)
+void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, UserDetails *user_p)
 {
 	KeywordServiceMatcher matcher;
 
@@ -386,7 +416,7 @@ void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p
 
 	GetMatchingServices (grassroots_p, & (matcher.ksm_base_matcher), user_p, services_p, true);
 
-	AddReferenceServices (grassroots_p, services_p, grassroots_p -> gs_references_path_s, services_path_s, NULL, user_p);
+	AddReferenceServices (grassroots_p, services_p, NULL, user_p);
 }
 
 
@@ -394,10 +424,10 @@ void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p
  * Load any json stubs for external services that are used to configure generic services,
  * e.g. web services
  */
-void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char * const references_path_s, const char * const services_path_s, const char *operation_name_s, UserDetails *user_p)
+void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p, const char *operation_name_s, UserDetails *user_p)
 {
 	const char *root_path_s = GetServerRootDirectory (grassroots_p);
-	char *full_references_path_s = MakeFilename (root_path_s, references_path_s);
+	char *full_references_path_s = MakeFilename (root_path_s, grassroots_p -> gs_references_path_s);
 
 	if (full_references_path_s)
 		{
@@ -1547,7 +1577,7 @@ static json_t *GetInterestedServices (GrassrootsServer *grassroots_p, const json
 
 					if (providers_p)
 						{
-							json_t *services_p = GetServicesAsJSON (grassroots_p, SERVICES_PATH_S, user_p, resource_p, handler_p, providers_p);
+							json_t *services_p = GetServicesAsJSON (grassroots_p, user_p, resource_p, handler_p, providers_p);
 
 							if (services_p)
 								{
@@ -1614,7 +1644,7 @@ static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * co
 			DataResource *resource_p = GetResourceFromRequest (req_p);
 
 			/* Get the local services */
-			json_t *services_p = GetServicesAsJSON (grassroots_p, SERVICES_PATH_S, user_p, resource_p, NULL, providers_p);
+			json_t *services_p = GetServicesAsJSON (grassroots_p, user_p, resource_p, NULL, providers_p);
 
 			FreeProvidersStateTable (providers_p);
 
@@ -1673,7 +1703,7 @@ static json_t *RunKeywordServices (GrassrootsServer *grassroots_p, const json_t 
 
 							if (providers_p)
 								{
-									LinkedList *services_p = GetServicesList (grassroots_p, SERVICES_PATH_S, user_p, resource_p, NULL, providers_p);
+									LinkedList *services_p = GetServicesList (grassroots_p, user_p, resource_p, NULL, providers_p);
 
 									if (services_p)
 										{
@@ -1955,10 +1985,10 @@ static void ProcessServiceRequest (const json_t *service_req_p, json_t *services
 }
 
 
-static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
+static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
 {
 	json_t *json_p = NULL;
-	LinkedList *services_p = GetServicesList (grassroots_p, services_path_s, user_p, resource_p, handler_p, providers_p);
+	LinkedList *services_p = GetServicesList (grassroots_p, user_p, resource_p, handler_p, providers_p);
 
 	if (services_p)
 		{
@@ -1980,13 +2010,13 @@ static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, const char * c
 }
 
 
-static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, const char * const services_path_s, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
+static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, UserDetails *user_p, DataResource *resource_p, Handler *handler_p, ProvidersStateTable *providers_p)
 {
 	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
 
 	if (services_p)
 		{
-			LoadMatchingServices (grassroots_p, services_p, services_path_s, resource_p, handler_p, user_p);
+			LoadMatchingServices (grassroots_p, services_p, resource_p, handler_p, user_p);
 
 			if (services_p -> ll_size > 0)
 				{
@@ -2766,7 +2796,7 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 	if (plugin_pattern_s)
 		{
 			const char *root_path_s = GetServerRootDirectory (grassroots_p);
-			char *full_services_path_s = MakeFilename (root_path_s, "services");
+			char *full_services_path_s = MakeFilename (root_path_s, grassroots_p -> gs_services_path_s);
 
 			if (full_services_path_s)
 				{
@@ -2927,7 +2957,7 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 }
 
 
-static const char *GetPluginNameFromJSON (const json_t *const root_p) 
+static const char *GetPluginNameFromJSON (const json_t *const root_p)
 {
 	return GetJSONString(root_p, PLUGIN_NAME_S);
 }
