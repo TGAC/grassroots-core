@@ -123,7 +123,7 @@ extern "C"
  * @ingroup server_group
  */
 GRASSROOTS_SERVICE_MANAGER_API GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const char *config_filename_s, const char *service_config_path_s, const char *services_path_s, const char *references_path_s,
-	const char *jobs_managers_path_s, const char *servers_managers_path_s, JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
+	const char *jobs_managers_path_s, const char *servers_managers_path_s, struct JobsManager *external_jobs_manager_p, MEM_FLAG jobs_manager_flag, struct ServersManager *external_servers_manager_p, MEM_FLAG servers_manager_flag);
 
 
 /**
