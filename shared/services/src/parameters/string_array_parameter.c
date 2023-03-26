@@ -557,7 +557,10 @@ static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json
 						}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S)) */
 
 				}		/* if (full_definition_flag) */
-
+			else
+				{
+					success_flag = true;
+				}
 		}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_current_values_ss, param_json_p, PARAM_CURRENT_VALUE_S)) */
 
 	return success_flag;
