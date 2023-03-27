@@ -142,6 +142,8 @@ static const char *GetPluginNameFromJSON (const json_t *const root_p);
 
 static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, LinkedList *matching_services_p, ServiceMatcher *matcher_p, bool multiple_match_flag);
 
+static void PrintGrassrootsServer (const GrassrootsServer *grassroots_p);
+
 /*
  * API DEFINITIONS
  */
@@ -274,35 +276,74 @@ GrassrootsServer *AllocateGrassrootsServer (const char *grassroots_path_s, const
 
 																							return grassroots_p;
 																						}		/* if (grassroots_p) */
+																					else
+																						{
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate grassroots server");
+																						}
 
 
 																					FreeMongoClientManager (mongo_manager_p);
 																				}		/* if (mongo_manager_p) */
-
+																			else
+																				{
+																					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get mongo client manager");
+																				}
 
 																			FreeSchemaVersion (sv_p);
 																		}		/* if (sv_p) */
+																	else
+																		{
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate SchemaVersion");
+																		}
 
 																	json_decref (config_p);
 																}		/* if (config_p) */
+															else
+																{
+																	PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to load config from  \"%s\" \"%s\"", copied_path_s, copied_config_filename_s);
+																}
 
 															FreeCopiedString (copied_servers_managers_path_s);
 														}		/* if (copied_servers_managers_path_s) */
+													else
+														{
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy servers_managers_path_s \"%s\"", servers_managers_path_s);
+														}
 
 													FreeCopiedString (copied_jobs_managers_path_s);
 												}		/* if (copied_jobs_managers_path_s) */
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy jobs_managers_path_s \"%s\"", jobs_managers_path_s);
+												}
 
 											FreeCopiedString (copied_references_path_s);
 										}		/* if (copied_service_config_path_s) */
+									else
+										{
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy references_path_s \"%s\"", references_path_s);
+										}
 
 									FreeCopiedString (copied_services_path_s);
 								}		/* if (copied_services_path_s) */
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy services_path_s \"%s\"", services_path_s);
+								}
 
 							FreeCopiedString (copied_service_config_path_s);
 						}		/* if (copied_service_config_path_s) */
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy service config path \"%s\"", service_config_path_s);
+						}
 
 					FreeCopiedString (copied_config_filename_s);
 				}		/* if (copied_config_filename_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy config filename \"%s\"", config_filename_s);
+				}
 
 			FreeCopiedString (copied_path_s);
 		}		/* if (copied_path_s) */
@@ -1599,6 +1640,8 @@ static json_t *GetInterestedServices (GrassrootsServer *grassroots_p, const json
 										{
 											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "GetInitialisedMessage failed");
 										}
+
+									PrintGrassrootsServer (grassroots_p);
 								}
 
 							FreeProvidersStateTable (providers_p);
@@ -1634,6 +1677,15 @@ static DataResource *GetResourceFromRequest (const json_t *req_p)
 
 
 
+static void PrintGrassrootsServer (const GrassrootsServer *grassroots_p)
+{
+	PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "grassroots_p -> gs_path_s \"%s\"", grassroots_p -> gs_path_s);
+	PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "grassroots_p -> gs_config_filename_s \"%s\"", grassroots_p -> gs_config_filename_s);
+	PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "grassroots_p -> gs_config_path_s \"%s\"", grassroots_p -> gs_config_path_s);
+	PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "grassroots_p -> gs_services_path_s \"%s\"", grassroots_p -> gs_services_path_s);
+}
+
+
 static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * const req_p, UserDetails *user_p)
 {
 	json_t *paired_servers_p = (req_p != NULL) ? json_object_get (req_p, SERVERS_S) : NULL;
@@ -1666,6 +1718,7 @@ static json_t *GetAllServices (GrassrootsServer *grassroots_p, const json_t * co
 			else
 				{
 					PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "GetServicesAsJSON returned no services");
+					PrintGrassrootsServer (grassroots_p);
 				}
 
 			if (resource_p)
