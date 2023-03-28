@@ -4,6 +4,8 @@
 
 #include "string_utils.h"
 
+#include "uuid_defs.h"
+#include "streams.h"
 
 
 static void ConvertFromUUIDT (const uuid_t src, UUID *dest_p);
@@ -73,23 +75,21 @@ void uuid_unparse_lower (uuid_t uu, char *out_s)
 {
 	UUID win_uuid;
 	RPC_STATUS status;
-	RPC_CSTR str;
+	unsigned char str [UUID_STRING_BUFFER_SIZE];
 
 	ConvertFromUUIDT (uu, &win_uuid);
 
-	status = UuidToString (&win_uuid, &str);
+	status = UuidToString (&win_uuid, (RPC_CSTR *) &str);
 
 	if (status == RPC_S_OK)
 		{
-			out_s = EasyCopyToNewString ((char*) str);
-
-			if (!out_s)
-				{
-				}
-
-
-			RpcStringFree (&str);
+			memcpy (out_s, str, UUID_STRING_BUFFER_SIZE);
 		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "UuidToString () failed");
+		}
+
 }
 
 
