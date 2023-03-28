@@ -20,12 +20,18 @@
 #include <windows.h>
 #include <WinBase.h>
 #include <Dbghelp.h>
+#include <shlwapi.h>
+#include <pathcch.h>
 
 #include "filesystem_utils.h"
 #include "linked_list.h"
 #include "memory_allocations.h"
 #include "string_utils.h"
 #include "string_linked_list.h"
+#include "streams.h"
+
+
+#define WINDOWS_FS_DEBUG (STM_LEVEL_FINEST)
 
 
 
@@ -82,29 +88,53 @@ bool IsPathAbsolute (const char * const path_s)
 }
 
 
-LinkedList *GetMatchingFiles (const char * const pattern, const bool full_path_flag)
+LinkedList *GetMatchingFiles (const char * const pattern_s, const bool full_path_flag)
 {
 	LinkedList *list_p = AllocateLinkedList (FreeStringListNode);
 
 	if (list_p)
 		{
 			WIN32_FIND_DATA file_data;
-			char filename [MAX_PATH + 1];
 			HANDLE handle;
-			size_t len = strlen (pattern);
+			size_t len = strlen (pattern_s);
 
 			if (len <= MAX_PATH)
 				{
-					strcpy (filename, pattern);
+					char root_path_s [MAX_PATH + 1];
+					wchar_t root_path [MAX_PATH + 1];
+					
+					mbstowcs (root_path, pattern_s, MAX_PATH);
+					PathCchRemoveFileSpec (root_path, MAX_PATH);
+					wcstombs (root_path_s, root_path, MAX_PATH);
 
-					if ((handle = FindFirstFile (filename, &file_data)) != INVALID_HANDLE_VALUE)
+
+#if WINDOWS_FS_DEBUG >= STM_LEVEL_FINEST
+					PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "Searching pattern \"%s\", root_path \"%s\" full_path_flag %d", pattern_s, root_path_s, full_path_flag);
+#endif
+
+
+					if ((handle = FindFirstFile (pattern_s, &file_data)) != INVALID_HANDLE_VALUE)
 						{
 							uint32 value = (file_data.dwFileAttributes) & FILE_ATTRIBUTE_DIRECTORY;
 
 							if (value != FILE_ATTRIBUTE_DIRECTORY)
 								{
-									const char* c_p = file_data.cFileName;
-									StringListNode *node_p = AllocateStringListNode (c_p, MF_DEEP_COPY);
+									StringListNode *node_p = NULL;
+									char *filename_s = MakeFilename (root_path_s, file_data.cFileName);
+
+									if (filename_s)
+										{
+											node_p = AllocateStringListNode (filename_s, MF_SHALLOW_COPY);
+										}
+									else
+										{
+											PrintErrors (STM_LEVEL_FINEST, __FILE__, __LINE__, "MakeFilename () failed for \"%s\", \"%S\"", root_path_s, file_data.cFileName);
+										}
+
+#if WINDOWS_FS_DEBUG >= STM_LEVEL_FINEST
+									PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "Found \"%s\" \"%s\"", root_path_s, file_data.cFileName, filename_s);
+#endif
+
 
 									if (node_p)
 										{
@@ -116,7 +146,21 @@ LinkedList *GetMatchingFiles (const char * const pattern, const bool full_path_f
 											value = (file_data.dwFileAttributes) & FILE_ATTRIBUTE_DIRECTORY;
 											if (value != FILE_ATTRIBUTE_DIRECTORY)
 												{
-													node_p = AllocateStringListNode (file_data.cFileName, MF_DEEP_COPY);
+													char *filename_s = MakeFilename (root_path_s, file_data.cFileName);
+
+													if (filename_s)
+													{
+														node_p = AllocateStringListNode (filename_s, MF_SHALLOW_COPY);
+													}
+													else
+													{
+														PrintErrors (STM_LEVEL_FINEST, __FILE__, __LINE__, "MakeFilename () failed for \"%s\", \"%S\"", root_path_s, file_data.cFileName);
+													}
+
+#if WINDOWS_FS_DEBUG >= STM_LEVEL_FINEST
+													PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "Found \"%s\" \"%s\"", root_path_s, file_data.cFileName, filename_s);
+#endif
+
 													if (node_p)
 														{
 															LinkedListAddTail (list_p, (ListItem *) node_p);
@@ -437,7 +481,12 @@ void WindowsFileSystem :: appendSeparator (STRING &str) const
 bool CalculateFileInformation (const char * const path_s, FileInformation *info_p)
 {
 	bool success_flag = false;
-	HANDLE file_handle_p = CreateFile2 (path_s, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, NULL);
+	HANDLE file_handle_p;
+	wchar_t wc_path [MAX_PATH + 1];
+
+	mbstowcs (wc_path, path_s, MAX_PATH);
+
+	file_handle_p = CreateFile2 (wc_path, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, NULL);
 
 	if (file_handle_p)
 		{

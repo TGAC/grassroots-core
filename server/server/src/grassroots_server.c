@@ -39,6 +39,9 @@
 
 #include "service_util.h"
 
+
+#define GRASSROOTS_SERVE_DEBUG (STM_LEVEL_FINEST)
+
 /*
  * STATIC DECLARATIONS
  */
@@ -2052,6 +2055,8 @@ static json_t *GetServicesAsJSON (GrassrootsServer *grassroots_p, UserDetails *u
 		{
 			ServersManager *servers_manager_p = GetServersManager (grassroots_p);
 
+			PrintLog (STM_LEVEL_WARNING, __FILE__, __LINE__, "GetServicesList () returned no services");
+
 			if (servers_manager_p)
 				{
 					json_p = AddExternalServerOperationsToJSON (servers_manager_p, OP_LIST_ALL_SERVICES);
@@ -2086,9 +2091,17 @@ static LinkedList *GetServicesList (GrassrootsServer *grassroots_p, UserDetails 
 
 					return services_p;
 				}
+			else
+				{
+					PrintLog (STM_LEVEL_WARNING, __FILE__, __LINE__, "LoadMatchingServices () didn't find any services");
+				}
 
 			FreeLinkedList (services_p);
 		}		/* if (services_p) */
+	else
+		{
+			PrintLog(STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to allocate services list");
+		}
 
 	return NULL;
 }
@@ -2867,6 +2880,10 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 										{
 											Plugin *plugin_p = AllocatePlugin (node_p -> sln_string_s, grassroots_p);
 
+#if GRASSROOTS_SERVE_DEBUG >= STM_LEVEL_FINEST
+											PrintLog (STM_LEVEL_FINEST, __FILE__, __LINE__, "AllocatePlugin () for \"%s\"", node_p -> sln_string_s);
+#endif
+
 											if (plugin_p)
 												{
 													bool using_plugin_flag = false;
@@ -2912,10 +2929,14 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 															else
 																{
 																	/* failed to get service from plugin */
+																	PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get services from \"%s\"", node_p -> sln_string_s);
 																}
 
 														}		/* if (OpenPlugin (plugin_p)) */
-
+													else
+														{
+															PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "OpenPlugin () failed for \"%s\"", node_p -> sln_string_s);
+														}
 
 													if (plugin_p && (!using_plugin_flag))
 														{
@@ -2924,6 +2945,10 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 
 
 												}		/* if (plugin_p) */
+											else
+												{
+													PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to allocated plugin for \"%s\"", node_p -> sln_string_s);
+												}
 
 											if (node_p)
 												{
@@ -2933,14 +2958,30 @@ static uint32 FindMatchingServices (GrassrootsServer *grassroots_p, ServiceMatch
 
 									FreeLinkedList (matching_filenames_p);
 								}		/* if (matching_filenames_p) */
+							else
+								{
+									PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "No matching filenames for \"%s\"", path_and_pattern_s);
+								}
 
 							FreeCopiedString (path_and_pattern_s);
 						}		/* if (path_and_pattern_s) */
+					else
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, " MakeFilename () failed for \"%s\" and \"%s\"", full_services_path_s, plugin_pattern_s);
+						}
 
 					FreeCopiedString (full_services_path_s);
 				}		/* if (full_services_path_s) */
+			else
+				{
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, " MakeFilename () failed for \"%s\" and \"%s\"", root_path_s, grassroots_p -> gs_services_path_s);
+				}
 
 		}		/* if (plugin_pattern_s) */
+	else
+		{
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get plugin pattern");
+		}
 
 	return num_matched_services;
 }

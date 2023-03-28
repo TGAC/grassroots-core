@@ -101,6 +101,22 @@ bool OpenPlugin (Plugin *const plugin_p)
 		}
 	else
 		{
+			DWORD err_code = GetLastError ();
+			LPTSTR buffer_s;
+
+			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+				NULL, err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR) &buffer_s, 0, NULL);
+
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "LoadLibraryA () failed for \"%s\", error (%lu) \"%s\" ", plugin_p -> pl_path_s, err_code, buffer_s);
+
+
+			LocalFree (buffer_s);
+
+//			char s[_MAX_PATH];
+//			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
+//				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), s, 0, NULL);
+
     }
 
 
