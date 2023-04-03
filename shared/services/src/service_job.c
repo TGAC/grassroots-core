@@ -126,11 +126,16 @@ bool InitServiceJob (ServiceJob *job_p, Service *service_p, const char *job_name
 
 	if (id_p)
 		{
+			PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "InitServiceJob () for \"%s\" with name \"%s\" calling uuid_copy", GetServiceName (service_p), job_name_s ? job_name_s : "NULL");
 			uuid_copy (job_p -> sj_id, *id_p);
+			PrintUUIDT (& (job_p -> sj_id), "InitServiceJob () with uuid_copy dest");
+			PrintUUIDT (id_p, "InitServiceJob () with uuid_copy src");
 		}
 	else
 		{
+			PrintLog (STM_LEVEL_INFO, __FILE__, __LINE__, "InitServiceJob () for \"%s\" with name \"%s\" calling uuid_generate ()", GetServiceName (service_p), job_name_s ? job_name_s : "NULL");
 			uuid_generate (job_p -> sj_id);
+			PrintUUIDT (& (job_p -> sj_id), "InitServiceJob () with uuid_generate ()");
 		}
 
 	SetServiceJobStatus (job_p, OS_IDLE);

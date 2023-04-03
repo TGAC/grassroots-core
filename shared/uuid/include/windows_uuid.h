@@ -26,6 +26,7 @@
 #include <rpc.h>
 
 #include "uuid_util_library.h"
+#include "uuid_defs.h"
 
 /*
  * We want to use the Unix uuid_t as the standard
@@ -38,11 +39,10 @@
 	#undef uuid_t
 #endif
 
-#define UUID_SIZE (16)
 
 typedef struct
 {
-	unsigned char uu_data [UUID_SIZE];
+	unsigned char uu_data [UUID_RAW_SIZE];
 } uuid_t;
 
 
@@ -64,6 +64,8 @@ GRASSROOTS_UUID_API void uuid_unparse_lower (uuid_t uu, char* out);
 GRASSROOTS_UUID_API void uuid_generate (uuid_t uu);
 
 GRASSROOTS_UUID_API void uuid_copy (uuid_t dst, uuid_t src);
+
+
 
 #ifdef __cplusplus
 }

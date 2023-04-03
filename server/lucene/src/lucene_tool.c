@@ -103,6 +103,7 @@ LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 																							tool_p -> lt_hits_from_index = 0;
 																							tool_p -> lt_hits_to_index = 0;
 
+																							PrintUUIDT (&id, "AllocateLuceneTool () about to call uuid_copy ()");
 																							uuid_copy (tool_p -> lt_id, id);
 
 																							tool_p -> lt_facet_results_p = facet_results_p;
