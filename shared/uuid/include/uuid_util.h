@@ -108,9 +108,12 @@ GRASSROOTS_UUID_API bool IsUUIDSet (uuid_t id);
 GRASSROOTS_UUID_API LinkedList *GetUUIDSList (const char *ids_s);
 
 
-
-GRASSROOTS_UUID_API void PrintUUID (const UUID *w_p, const char *prefix_s);
 GRASSROOTS_UUID_API void PrintUUIDT (const uuid_t *u_p, const char *prefix_s);
+
+
+#ifdef UUID
+	GRASSROOTS_UUID_API void PrintUUID (const UUID *w_p, const char *prefix_s);
+#endif
 
 
 #ifdef __cplusplus
