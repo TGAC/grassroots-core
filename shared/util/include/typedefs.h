@@ -56,7 +56,23 @@
 
 
 /* the datatypes that we will use */
-#ifdef UNIX
+#ifdef LINUX
+	#include <inttypes.h>
+
+	typedef uint32_t uint32;
+	typedef int32_t int32;
+	typedef uint64_t uint64;
+	typedef int64_t int64;
+	typedef double double64;
+	typedef uint8_t uint8;
+	typedef int8_t int8;
+	typedef int16_t int16;
+	typedef uint16_t uint16;
+
+	/** The C I/O length field for uint64 datatypes. */
+	#define INT64_FMT_IDENT "ld"
+
+#elif defined MAC
 	#include <inttypes.h>
 
 	typedef uint32_t uint32;
@@ -170,16 +186,14 @@ typedef enum FileLocation
  */
 #ifndef UNUSED_PARAM
 
-#ifdef __GNUC__
-	#define ATTR_UNUSED __attribute__((unused))
-#define UNUSED_PARAM(name) unused_ ## name ATTR_UNUSED
-#else
-#define UNUSED_PARAM(x) x
-#endif
-
-
-
+	#ifdef __GNUC__
+		#define ATTR_UNUSED __attribute__((unused))
+		#define UNUSED_PARAM(name) unused_ ## name ATTR_UNUSED
+	#else
+		#define UNUSED_PARAM(x) x
+	#endif
 
 #endif		/* #ifndef UNUSED_PARAM */
+
 
 #endif		/* #ifndef TYPEDEFS_H */

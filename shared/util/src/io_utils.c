@@ -32,9 +32,12 @@
  */
 #include <syslog.h>
 
-#include <linux/magic.h>
+#ifdef LINUX
+	#include <linux/magic.h>
+	#include <sys/statfs.h>
+#endif
 
-#include <sys/statfs.h>
+
 
 /*
  * irods includes

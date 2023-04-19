@@ -1,10 +1,11 @@
 NAME := grassroots_util
-DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-DIR_SRC := $(realpath $(DIR_BUILD)/../../src)
-DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../include)
+DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/$(PLATFORM))
+DIR_SRC := $(realpath $(DIR_BUILD)/../../../src)
+DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../../include)
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../build-config/linux)
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../../build-config/unix/$(PLATFORM))
+#export DIR_BUILD_CONFIG = /Users/tyrrells/Projects/grassroots/build-config/unix/
 endif
 
 include $(DIR_BUILD_CONFIG)/project.properties
@@ -41,13 +42,12 @@ INCLUDES += \
 	-I$(DIR_SHARED_IRODS_INC)/server/re/include 
 endif	
 	
-SRCS 	:= \
+SRCS := \
 	byte_buffer.c \
 	file_output_stream.c \
 	filesystem_utils.c \
 	hash_table.c \
 	int_linked_list.c \
-	io_utils.c  \
 	json_util.c \
 	linked_list.c \
 	linked_list_iterator.c \
@@ -65,11 +65,12 @@ SRCS 	:= \
 	string_linked_list.c \
 	string_utils.c \
 	time_util.c \
-	unix_filesystem.c \
-	unix_shared_memory.c \
 	user_details.c \
+#	unix_filesystem.c \
+#	unix_shared_memory.c \
 #	alloc_failure.cpp \
-	
+
+SRCS += $(PLATFORM_SRCS)
 
 ifeq ($(BUILD),release)
 	CFLAGS 	+= -O3 -s
@@ -80,7 +81,7 @@ else
 endif
 	
 
-CPPFLAGS += -DGRASSROOTS_UTIL_LIBRARY_EXPORTS -DUNIX 
+CPPFLAGS += -DGRASSROOTS_UTIL_LIBRARY_EXPORTS -D$(PLATFORM) 
 
 LDFLAGS += -ldl \
 	-L$(DIR_JANSSON_LIB) -ljansson \
@@ -95,7 +96,7 @@ SWIG_HEADERS_TO_IGNORE := \
 SWIG_HEADERS := $(filter-out $(SWIG_HEADERS_TO_IGNORE),$(HEADERS))
 
 SWIG := /home/billy/Applications/swig/bin/swig
-include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
+include $(DIR_BUILD_CONFIG)/../generic_makefiles/shared_library.makefile
 
 .PHONY:	util all test info swig-interface
 

@@ -5,7 +5,7 @@ DELETE := rm
 
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG := $(realpath ../build-config/linux)
+export DIR_BUILD_CONFIG := $(realpath ../build-config/$(PLATFORM)
 endif
 
 include $(DIR_BUILD_CONFIG)/project.properties
