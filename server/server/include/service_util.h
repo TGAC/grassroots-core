@@ -73,6 +73,8 @@ GRASSROOTS_SERVICE_MANAGER_API bool UnlockService (Service *service_p);
 
 
 
+GRASSROOTS_SERVICE_MANAGER_API void *RunAsyncSystemTaskHook (void *data_p);
+
 
 
 #ifdef __cplusplus

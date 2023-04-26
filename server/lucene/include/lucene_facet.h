@@ -56,6 +56,8 @@ typedef struct LuceneFacetNode
 #else
 	#ifdef UNIX
 		#define LUCENE_FACET_PREFIX extern //GRASSROOTS_SERVICE_API
+	#elif defined MAC
+		#define LUCENE_FACET_PREFIX extern //GRASSROOTS_SERVICE_API
 	#elif defined WINDOWS
 		#define LUCENE_FACET_PREFIX GRASSROOTS_SERVICE_API
 	#endif

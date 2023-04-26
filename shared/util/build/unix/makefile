@@ -4,7 +4,7 @@ DIR_SRC := $(realpath $(DIR_BUILD)/../../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../../include)
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../../build-config/unix/$(PLATFORM))
+export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../../build-config/unix/)
 #export DIR_BUILD_CONFIG = /Users/tyrrells/Projects/grassroots/build-config/unix/
 endif
 
@@ -96,7 +96,7 @@ SWIG_HEADERS_TO_IGNORE := \
 SWIG_HEADERS := $(filter-out $(SWIG_HEADERS_TO_IGNORE),$(HEADERS))
 
 SWIG := /home/billy/Applications/swig/bin/swig
-include $(DIR_BUILD_CONFIG)/../generic_makefiles/shared_library.makefile
+include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
 .PHONY:	util all test info swig-interface
 

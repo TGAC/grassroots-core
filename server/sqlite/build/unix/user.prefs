@@ -1,0 +1,1 @@
+export SQLITE_HOME := $(DIR_GRASSROOTS_EXTRAS)/sqlite

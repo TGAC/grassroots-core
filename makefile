@@ -5,7 +5,7 @@ DELETE := rm
 
 
 ifeq ($(DIR_BUILD_CONFIG),)
-export DIR_BUILD_CONFIG := $(realpath ../build-config/$(PLATFORM)
+export DIR_BUILD_CONFIG = $(realpath ../build-config/unix/)
 endif
 
 include $(DIR_BUILD_CONFIG)/project.properties
@@ -15,9 +15,9 @@ include $(DIR_BUILD_CONFIG)/project.properties
 
 DIRS := 	\
 	$(DIR_GRASSROOTS_UTIL_BUILD) \
-	$(DIR_GRASSROOTS_NETWORK_BUILD) \
-	$(DIR_GRASSROOTS_PLUGIN_BUILD) \
 	$(DIR_GRASSROOTS_UUID_BUILD) \
+	$(DIR_GRASSROOTS_PLUGIN_BUILD) \
+	$(DIR_GRASSROOTS_NETWORK_BUILD) \
 	$(DIR_GRASSROOTS_HANDLER_BUILD) \
 	$(DIR_GRASSROOTS_TASK_BUILD) \
 	$(DIR_GRASSROOTS_SERVICES_BUILD) \

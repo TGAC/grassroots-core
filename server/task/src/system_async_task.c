@@ -157,7 +157,8 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	JobsManager *jobs_manager_p = GetJobsManager (grassroots_p);
 	OperationStatus status = OS_STARTED;
 	char uuid_s [UUID_STRING_BUFFER_SIZE];
-
+	AddServiceJobToJobsManager;
+	
 	ConvertUUIDToString (job_p -> sj_id, uuid_s);
 
 	/* Set the job to having started */
