@@ -2,4 +2,4 @@ PLATFORM := linux
 CFLAGS += -DLINUX
 
 
-include ../makefile
+include makefile

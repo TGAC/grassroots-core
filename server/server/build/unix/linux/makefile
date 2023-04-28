@@ -1,4 +1,4 @@
-PLATFORM := unix
+PLATFORM := linux
 CFLAGS += -DLINUX
 
 

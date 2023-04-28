@@ -1,4 +1,4 @@
-PLATFORM := unix
+PLATFORM := linux
 PLATFORM_SRCS := \
 	io_utils.c  \
 	unix_filesystem.c \

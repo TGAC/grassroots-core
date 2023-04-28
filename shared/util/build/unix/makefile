@@ -96,6 +96,7 @@ SWIG_HEADERS_TO_IGNORE := \
 SWIG_HEADERS := $(filter-out $(SWIG_HEADERS_TO_IGNORE),$(HEADERS))
 
 SWIG := /home/billy/Applications/swig/bin/swig
+
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
 
 .PHONY:	util all test info swig-interface
@@ -106,8 +107,11 @@ test:
 	$(COMP) $(CFLAGS) $(CPPFLAGS) -Wl,--no-as-needed -L$(DIR_OBJS)/ -l$(NAME) -lm  $(INCLUDES)  test.c -o test
 
 
-info:
-	@echo $(SWIG_HEADERS)
+show-config: 
+	@echo "DIR_BUILD: $(DIR_BUILD)"
+	@echo "DIR_SRC: $(DIR_SRC)"
+	@echo "DIR_INCLUDE: $(DIR_INCLUDE)"
+	@echo "DIR_BUILD_CONFIG: $(DIR_BUILD_CONFIG)"
 
 swig-interface:
 	@echo "%module util" > util.i

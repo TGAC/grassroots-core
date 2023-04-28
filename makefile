@@ -42,6 +42,7 @@ endif
 
 	
 DIRS +=	$(DIR_GRASSROOTS_SERVER_BUILD) \
+	$(DIR_GRASSROOTS_LUCENE_BUILD) \
 
 
 
@@ -58,6 +59,10 @@ DIRS_CLEAN := $(DIRS:%=clean-%)
 all: $(DIRS_ALL)
 install: $(DIRS_INSTALL)
 clean: $(DIRS_CLEAN)
+
+show-config: 
+	@echo "DIR_GRASSROOTS_UTIL_BUILD: $(DIR_GRASSROOTS_UTIL_BUILD)"
+	@echo "DIR_GRASSROOTS_UUID_BUILD: $(DIR_GRASSROOTS_UUID_BUILD)"
 
 
 # remove the fake prefix and call the target
