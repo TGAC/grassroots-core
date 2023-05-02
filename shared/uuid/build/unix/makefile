@@ -31,8 +31,8 @@ INCLUDES = \
 	
 	
 SRCS 	:= \
-	uuid_util.c
-	
+	uuid_util.c \
+	unix_uuid.c 
 
 ifeq ($(BUILD),release)
 	CFLAGS 	+= -O3 -s
