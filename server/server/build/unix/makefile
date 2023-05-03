@@ -52,18 +52,20 @@ SRCS 	= \
 	service_matcher.c \
 	grassroots_server.c \
 	service_util.c \
-	unix_platform.c 
 	
+ifeq ($(INCLUDE_TASK), 1)
 SRCS 	+= \
 	async_task.c \
 	async_tasks_manager.c \
 	count_async_task.c \
 	event_consumer.c \
-	system_async_task.c \
-	unix_async_task.c \
-	unix_sync_data.c \
-	
-	
+	system_async_task.c 
+endif
+
+
+
+SRCS += $(PLATFORM_SRCS)
+
 CPPFLAGS += -DGRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS 
 
 LDFLAGS = -lpthread \
@@ -74,6 +76,7 @@ LDFLAGS = -lpthread \
 	-L$(DIR_GRASSROOTS_NETWORK_LIB) -l$(GRASSROOTS_NETWORK_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_HANDLER_LIB) -l$(GRASSROOTS_HANDLER_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_MONGODB_LIB) -l$(GRASSROOTS_MONGODB_LIB_NAME) \
+	-L$(DIR_GRASSROOTS_PLUGIN_LIB) -l$(GRASSROOTS_PLUGIN_LIB_NAME) \
 	-lcurl
 	
 
