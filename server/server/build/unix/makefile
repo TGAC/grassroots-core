@@ -17,22 +17,17 @@ BUILD		= debug
 
 VPATH	= \
 	$(DIR_SRC) \
-	$(DIR_SRC)/task \
 	$(DIR_SRC)/platform 
 	
 INCLUDES = \
 	-I$(DIR_INCLUDE) \
 	-I$(DIR_INCLUDE)/platform \
-	-I$(DIR_INCLUDE)/task \
-	-I$(DIR_INCLUDE)/task/platform \
 	-I$(DIR_GRASSROOTS_UUID_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/io \
 	-I$(DIR_GRASSROOTS_NETWORK_INC) \
 	-I$(DIR_GRASSROOTS_IRODS_INC) \
-	-I$(DIR_GRASSROOTS_SERVICES_INC) \
-	-I$(DIR_GRASSROOTS_SERVICES_INC)/parameters \
 	-I$(DIR_GRASSROOTS_HANDLER_INC) \
 	-I$(DIR_GRASSROOTS_PLUGIN_INC) \
 	-I$(DIR_GRASSROOTS_DRMAA_INC) \
@@ -54,6 +49,13 @@ SRCS 	= \
 	service_util.c \
 	
 ifeq ($(INCLUDE_TASK), 1)
+VPATH += 	$(DIR_SRC)/task
+
+INCLUDES = \
+	-I$(DIR_INCLUDE)/task \
+	-I$(DIR_INCLUDE)/task/platform \
+
+
 SRCS 	+= \
 	async_task.c \
 	async_tasks_manager.c \
@@ -61,6 +63,57 @@ SRCS 	+= \
 	event_consumer.c \
 	system_async_task.c 
 endif
+
+
+ifeq ($(INCLUDE_SERVICES), 1)
+VPATH += \
+	$(DIR_SRC)/services \
+	$(DIR_SRC)/parameters
+
+INCLUDES += 	\
+	-I$(DIR_INCLUDE)/services \
+	-I$(DIR_INCLUDE)/parameters
+
+
+SRCS 	= \
+	encode_dcc_metadata.c \
+	linked_service.c \
+	mapped_parameter.c \
+	paired_service.c \
+	provider.c \
+	providers_state_table.c \
+	remote_service_job.c \
+	schema_term.c \
+	service.c \
+	service_job.c \
+	service_job_set_iterator.c \
+	service_metadata.c \
+	web_service_util.c
+
+SRCS 	+= \
+	boolean_parameter.c \
+	char_parameter.c \
+	double_parameter.c \
+	json_parameter.c \
+	parameter.c \
+	parameter_group.c \
+	parameter_set.c \
+	remote_parameter_details.c \
+	resource_parameter.c \
+	signed_int_parameter.c \
+	string_parameter.c \
+	string_array_parameter.c \
+	time_parameter.c \
+	time_array_parameter.c \
+	unsigned_int_parameter.c 
+
+
+else
+INCLUDES +=	\
+	-I$(DIR_GRASSROOTS_SERVICES_INC) \
+	-I$(DIR_GRASSROOTS_SERVICES_INC)/parameters
+endif
+
 
 
 

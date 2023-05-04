@@ -1,0 +1,221 @@
+/*
+** Copyright 2014-2016 The Earlham Institute
+** 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+** 
+**     http://www.apache.org/licenses/LICENSE-2.0
+** 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+
+/**
+ * @file
+ * @brief
+ */
+
+/*
+ * paired_service.h
+ *
+ *  Created on: 1 Feb 2016
+ *      Author: billy
+ */
+
+#ifndef PAIRED_SERVICE_H_
+#define PAIRED_SERVICE_H_
+
+
+
+#include "jansson.h"
+#include "uuid_defs.h"
+
+#include "parameter_set.h"
+#include "linked_list.h"
+#include "grassroots_service_manager_library.h"
+#include "providers_state_table.h"
+#include "parameter_set.h"
+#include "service_job.h"
+
+
+/* forward declarations */
+struct Service;
+struct ServiceData;
+struct RemoteServiceJob;
+
+
+/**
+ * A datatype for describing a remote Service
+ * that can be used in conjunction with a local
+ * Service.
+ *
+ * @ingroup services_group
+ */
+typedef struct PairedService
+{
+	/** The UUID for the ExternalServer that runs the PairedService. */
+	uuid_t ps_extenal_server_id;
+
+	/** The name of the PairedService. */
+	char *ps_name_s;
+
+	/** The name of the ExternalServer. */
+	char *ps_server_name_s;
+
+	/** The URI of the ExternalServer's Grassroots service. */
+	char *ps_server_uri_s;
+
+	/** The JSON fragment detailing the Provider of this PairedService. */
+	json_t *ps_provider_p;
+
+	/** The ParameterSet for this PairedService. */
+	ParameterSet *ps_params_p;
+} PairedService;
+
+
+/**
+ * A datatype for storing PairedServices on
+ * a LinkedList.
+ *
+ * @extends ListItem
+ * @ingroup services_group
+ */
+typedef struct PairedServiceNode
+{
+	/** The base list node. */
+	ListItem psn_node;
+
+	/** The PairedService. */
+	PairedService *psn_paired_service_p;
+} PairedServiceNode;
+
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
+/**
+ * Allocate a PairedService.
+ *
+ * @param id The UUID of the ExternalServer that has the PairedService.
+ * @param name_s The name of the PairedService.
+ * @param server_uri_s The URI for the ExternalServer's Grassroots access.
+ * @param server_name_s The name of the ExternalServer.
+ * @param service_json_p The JSON fragment for the Service.
+ * @param provider_p The JSON fragment from the server configuration file detailing the Provider of this PairedService.
+ * @return The new PairedService or <code>NULL</code> upon error.
+ * @memberof PairedService
+ */
+GRASSROOTS_SERVICE_MANAGER_API PairedService *AllocatePairedService (const uuid_t id, const char *name_s, const char *server_uri_s, const char *server_name_s, const json_t *service_json_p, const json_t *provider_p);
+
+
+/**
+ * Free a PairedService.
+ *
+ * @param paired_service_p The PairedService to free.
+ * @memberof PairedService
+ */
+GRASSROOTS_SERVICE_MANAGER_API void FreePairedService (PairedService *paired_service_p);
+
+
+/**
+ * Allocate a PairedServiceNode.
+ *
+ * @param paired_service_p The PairedService to store in the new PairedServiceNode.
+ * @return The new PairedServiceNode or <code>NULL</code> upon error.
+ * @memberof PairedServiceNode
+ */
+GRASSROOTS_SERVICE_MANAGER_API PairedServiceNode *AllocatePairedServiceNode (PairedService *paired_service_p);
+
+
+/**
+ * Allocate a PairedService and attach it to a PairedServiceNode.
+ *
+ * @param id The UUID of the ExternalServer that has the PairedService.
+ * @param name_s The name of the PairedService.
+ * @param server_uri_s The URI for the ExternalServer's Grassroots access.
+ * @param server_name_s The name of the ExternalServer.
+ * @param op_p The JSON fragment for the Service.
+ * @param provider_p The JSON fragment representing the Provider.
+ * @return The new PairedServiceNode or <code>NULL</code> upon error.
+ * @memberof PairedServiceNode
+ * @see AllocatePairedService
+ */
+GRASSROOTS_SERVICE_MANAGER_API PairedServiceNode *AllocatePairedServiceNodeByParts (const uuid_t id, const char *name_s, const char *server_uri_s, const char *server_name_s, const json_t *op_p, const json_t *provider_p);
+
+
+/**
+ * Free a PairedServiceNode.
+ *
+ * @param node_p The PairedServiceNode to free.
+ * @memberof PairedServiceNode
+ */
+GRASSROOTS_SERVICE_MANAGER_API void FreePairedServiceNode (ListItem *node_p);
+
+
+/**
+ * Call the PairedService and get its JSON response.
+ *
+ * @param service_name_s The name of the PairedServce to call.
+ * @param params_p The ParameterSet to send to the PairedService.
+ * @param paired_service_uri_s The URI of the ExternalServer to send the request to.
+ * @param providers_p The details of ExternalServers for any paired or external Services.
+ * @return The JSON fragment of the results of the PairedService or <code>NULL</code> upon error.
+ * @memberof PairedService
+ */
+GRASSROOTS_SERVICE_MANAGER_API json_t *MakeRemotePairedServiceCall (const char * const service_name_s, ParameterSet *params_p, const char * const paired_service_uri_s, ProvidersStateTable *providers_p, GrassrootsServer *grassroots_p);
+
+
+
+/**
+ * Run all of the PairedServices for a given Service.
+ *
+ * These will be added as RemoteServiceJobs to the ServiceJobSet of
+ * this Service by calling AddRemoteResultsToServiceJobs().
+ *
+ * @param service_p The Service to run the PairedServices for.
+ * @param param_set_p The ParameterSet to send to the PairedService.
+ * @param providers_p The details of ExternalServers for any paired or external Services.
+ * @param save_job_fn If you need any extra processing of the resulting RemoteServiceJobs
+ * this function can be used. It will be called passing each RemoteServiceJob in turn along
+ * with the ServiceData for this Service. if the processing was successful it will return <code>
+ * true</code>, with <code>false</code> upon failure.
+ * @return The number of PairedServices that were ran successfully.
+ * @memberof PairedService
+ */
+GRASSROOTS_SERVICE_MANAGER_API int32 RunPairedServices (struct Service *service_p, ParameterSet *param_set_p, ProvidersStateTable *providers_p, bool (*save_job_fn) (struct RemoteServiceJob *job_p, const struct ServiceData *service_data_p));
+
+
+/**
+ * Add the results of running PairedServices as  RemoteServiceJobs to the ServiceJobSet of
+ * a given Service.
+ *
+ * @param server_response_p The response from the remote Grassroots Server that was called to run
+ * the PairedServices.
+ * @param service_p The Service that will have the RemoteServiceJobs added to it.
+ * @param remote_service_s The name of the remote Service that was called.
+ * @param remote_uri_s The URL of the remote Grassroots Server that was called to run
+ * the PairedServices.
+ * @param service_data_p The ServiceData for the given Service.
+ * @param save_job_fn If you need any extra processing of the resulting RemoteServiceJobs
+ * this function can be used. It will be called passing each RemoteServiceJob in turn along
+ * with the ServiceData for this Service. if the processing was successful it will return <code>
+ * true</code>, with <code>false</code> upon failure.
+ * @return The number of PairedServices that were ran successfully.
+ * @memberof PairedService
+ */
+GRASSROOTS_SERVICE_MANAGER_API int32 AddRemoteResultsToServiceJobs (const json_t *server_response_p, struct Service *service_p, const char * const remote_service_s, const char * const remote_uri_s, const struct ServiceData *service_data_p, bool (*save_job_fn) (struct RemoteServiceJob *job_p, const struct ServiceData *service_data_p));
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PAIRED_SERVICE_H_ */
