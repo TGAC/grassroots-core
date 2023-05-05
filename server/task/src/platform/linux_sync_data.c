@@ -7,7 +7,7 @@
 
 #include <errno.h>
 
-#include "unix_sync_data.h"
+#include "linux_sync_data.h"
 #include "streams.h"
 #include "memory_allocations.h"
 

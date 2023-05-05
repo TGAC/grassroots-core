@@ -22,6 +22,8 @@ VPATH	= \
 INCLUDES = \
 	-I$(DIR_INCLUDE) \
 	-I$(DIR_INCLUDE)/platform \
+	-I$(DIR_GRASSROOTS_SERVICES_INC) \
+	-I$(DIR_GRASSROOTS_SERVICES_INC)/parameters \
 	-I$(DIR_GRASSROOTS_UUID_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
@@ -48,33 +50,27 @@ SRCS 	= \
 	grassroots_server.c \
 	service_util.c \
 	
-ifeq ($(INCLUDE_TASK), 1)
-VPATH += 	$(DIR_SRC)/task
+ifeq ($(BUILD_COMBINED), 1)
 
-INCLUDES = \
-	-I$(DIR_INCLUDE)/task \
-	-I$(DIR_INCLUDE)/task/platform \
+VPATH += \
+	$(DIR_GRASSROOTS_SERVICES)/src \
+	$(DIR_GRASSROOTS_SERVICES)/src/parameters \
+	$(DIR_GRASSROOTS_TASK)/src \
+	$(DIR_GRASSROOTS_TASK)/src/platform \
+
+INCLUDES += \
+	-I$(DIR_GRASSROOTS_TASK_INC)/platform \
 
 
+# TASK
 SRCS 	+= \
 	async_task.c \
 	async_tasks_manager.c \
 	count_async_task.c \
 	event_consumer.c \
 	system_async_task.c 
-endif
 
-
-ifeq ($(INCLUDE_SERVICES), 1)
-VPATH += \
-	$(DIR_SRC)/services \
-	$(DIR_SRC)/parameters
-
-INCLUDES += 	\
-	-I$(DIR_INCLUDE)/services \
-	-I$(DIR_INCLUDE)/parameters
-
-
+# SERVICES
 SRCS 	= \
 	encode_dcc_metadata.c \
 	linked_service.c \
@@ -90,6 +86,7 @@ SRCS 	= \
 	service_metadata.c \
 	web_service_util.c
 
+# PARAMETERS
 SRCS 	+= \
 	boolean_parameter.c \
 	char_parameter.c \
@@ -108,10 +105,9 @@ SRCS 	+= \
 	unsigned_int_parameter.c 
 
 
-else
-INCLUDES +=	\
-	-I$(DIR_GRASSROOTS_SERVICES_INC) \
-	-I$(DIR_GRASSROOTS_SERVICES_INC)/parameters
+CPPFLAGS += -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS -DGRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS 
+
+
 endif
 
 
