@@ -7,15 +7,15 @@
 
 #include <errno.h>
 
-#include "unix_sync_data.h"
+#include "mac_sync_data.h"
 #include "streams.h"
 #include "memory_allocations.h"
 
 
 #ifdef _DEBUG
-	#define UNIX_SYNC_DATA_DEBUG	(STM_LEVEL_FINEST)
+	#define MAC_SYNC_DATA_DEBUG	(STM_LEVEL_FINEST)
 #else
-	#define UNIX_SYNC_DATA_DEBUG	(STM_LEVEL_NONE)
+	#define MAC_SYNC_DATA_DEBUG	(STM_LEVEL_NONE)
 #endif
 
 

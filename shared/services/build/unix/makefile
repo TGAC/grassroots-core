@@ -37,6 +37,8 @@ INCLUDES = \
 	-I$(DIR_JANSSON_INC) \
 	-I$(DIR_UUID_INC)
 	
+ifneq ($(BUILD_COMBINED), 1)
+	
 SRCS 	= \
 	encode_dcc_metadata.c \
 	linked_service.c \
@@ -69,7 +71,11 @@ SRCS 	+= \
 	time_array_parameter.c \
 	unsigned_int_parameter.c 
 
-CPPFLAGS += -DUNIX -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS
+
+endif	
+		
+
+CPPFLAGS +=  -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS
 
 BASE_LDFLAGS = -lpthread \
 	-L$(DIR_GRASSROOTS_PLUGIN_LIB) -l$(GRASSROOTS_PLUGIN_LIB_NAME) \

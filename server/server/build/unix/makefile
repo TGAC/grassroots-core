@@ -71,7 +71,7 @@ SRCS 	+= \
 	system_async_task.c 
 
 # SERVICES
-SRCS 	= \
+SRCS 	+= \
 	encode_dcc_metadata.c \
 	linked_service.c \
 	mapped_parameter.c \
@@ -105,7 +105,7 @@ SRCS 	+= \
 	unsigned_int_parameter.c 
 
 
-CPPFLAGS += -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS -DGRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS 
+CPPFLAGS += -DGRASSROOTS_SERVICE_LIBRARY_EXPORTS -DGRASSROOTS_TASK_LIBRARY_EXPORTS
 
 
 endif

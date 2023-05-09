@@ -41,16 +41,21 @@ INCLUDES = \
 	-I$(DIR_MONGODB_INC) \
 	-I$(DIR_BSON_INC) \
 	
+	
+
+ifneq ($(BUILD_COMBINED), 1)
 SRCS 	= \
 	async_task.c \
 	async_tasks_manager.c \
 	count_async_task.c \
 	event_consumer.c \
 	system_async_task.c \
-	unix_async_task.c \
-	unix_sync_data.c \
+
+SRCS += $(PLATFORM_SRCS)
+endif	
 	
-CPPFLAGS += -DGRASSROOTS_TASK_MANAGER_LIBRARY_EXPORTS 
+	
+CPPFLAGS += -DGRASSROOTS_TASK_LIBRARY_EXPORTS 
 
 LDFLAGS = -lpthread \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \

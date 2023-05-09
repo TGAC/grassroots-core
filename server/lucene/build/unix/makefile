@@ -55,5 +55,10 @@ LDFLAGS = -lpthread \
 	-lcurl \
 	-L$(DIR_UUID_LIB) -luuid \
 
+
+ifeq ($(BUILD_COMBINED), 1)
+LDFLAGS += 	-L$(DIR_GRASSROOTS_SERVER_LIB) -l$(GRASSROOTS_SERVER_LIB_NAME)
+endif
+
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile	
 
