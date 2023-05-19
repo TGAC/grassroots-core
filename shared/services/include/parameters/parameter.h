@@ -320,6 +320,18 @@ GRASSROOTS_SERVICE_API bool InitParameter (Parameter *param_p, const struct Serv
 );
 
 
+
+/**
+ * Set a given Parameter's member variables to initial empty, NULL or false values.
+ * This is used for the different types of Parameters to initialise the base
+ * Parameter values.
+ *
+ * @param param_p The Parameter to initialise.
+ * @memberof Parameter
+ */
+GRASSROOTS_SERVICE_API void NullifyParameter (Parameter *param_p);
+
+
 GRASSROOTS_SERVICE_API bool InitParameterFromJSON (Parameter *param_p, const json_t * const root_p, const struct Service *service_p, const bool concise_flag, const ParameterType *pt_p);
 
 

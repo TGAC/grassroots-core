@@ -328,6 +328,41 @@ Parameter *CreateParameterFromJSON (const json_t * const root_p, Service *servic
 }
 
 
+void NullifyParameter (Parameter *param_p)
+{
+	param_p -> pa_type = PT_NUM_TYPES;
+
+	param_p -> pa_name_s = NULL;
+
+	param_p -> pa_display_name_s = NULL;
+
+	param_p -> pa_description_s = NULL;
+
+	param_p -> pa_options_p = NULL;
+
+	param_p -> pa_level = PL_ALL;
+
+	param_p -> pa_store_p = NULL;
+
+	param_p -> pa_group_p = NULL;
+
+	param_p -> pa_remote_parameter_details_p = NULL;
+
+	param_p -> pa_visible_flag = false;
+
+	param_p -> pa_refresh_service_flag = false;
+
+	param_p -> pa_required_flag = false;
+
+	param_p -> pa_clear_fn = NULL;
+	param_p -> pa_add_values_to_json_fn = NULL;
+	param_p -> pa_clone_fn = NULL;
+	param_p -> pa_set_value_from_string_fn = NULL;
+
+	param_p -> pa_read_only_flag = false;
+}
+
+
 /*
  bool InitParameterWithoutCallbacks (Parameter *param_p, const struct ServiceData *service_data_p, ParameterType type, const char * const name_s,
 																					const char * const display_name_s, const char * const description_s, LinkedList *options_p, ParameterLevel level)
