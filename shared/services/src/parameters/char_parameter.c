@@ -562,6 +562,9 @@ static CharParameter *GetNewCharParameter (const char *current_value_p, const ch
 			param_p -> cp_current_value_p = NULL;
 			param_p -> cp_default_value_p = NULL;
 
+			NullifyParameter (& (param_p -> cp_base_param));
+
+
 			if (SetCharParameterValue (& (param_p -> cp_current_value_p), current_value_p))
 				{
 					if (SetCharParameterValue (& (param_p -> cp_default_value_p), default_value_p))

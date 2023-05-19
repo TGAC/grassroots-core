@@ -659,6 +659,9 @@ static StringParameter *GetNewStringParameter (const char *current_value_s, cons
 			param_p -> sp_min_value_s = NULL;
 			param_p -> sp_max_value_s = NULL;
 
+			NullifyParameter (& (param_p -> sp_base_param));
+
+
 			if (SetStringParameterValue (& (param_p -> sp_current_value_s), current_value_s))
 				{
 					if (SetStringParameterValue (& (param_p -> sp_default_value_s), default_value_s))

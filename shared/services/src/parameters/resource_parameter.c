@@ -60,6 +60,9 @@ static ResourceParameter *GetNewResourceParameter (const DataResource *current_v
 			param_p -> rp_current_value_p = NULL;
 			param_p -> rp_default_value_p = NULL;
 
+			NullifyParameter (& (param_p -> rp_base_param));
+
+
 			if (SetResourceParameterValue (& (param_p -> rp_current_value_p), current_value_p))
 				{
 					if (SetResourceParameterValue (& (param_p -> rp_default_value_p), default_value_p))

@@ -363,6 +363,8 @@ static TimeArrayParameter *GetNewTimeArrayParameter (const struct tm **current_v
 			param_p -> tap_current_values_pp = NULL;
 			param_p -> tap_default_values_pp = NULL;
 
+			NullifyParameter (& (param_p -> tap_base_param));
+
 			if (SetTimeArrayParameterValue (& (param_p -> tap_current_values_pp), 0, current_values_pp, num_values))
 				{
 					if (SetTimeArrayParameterValue (& (param_p -> tap_default_values_pp), 0, default_values_pp, num_values))

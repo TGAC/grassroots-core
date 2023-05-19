@@ -58,6 +58,9 @@ static TimeParameter *GetNewTimeParameter (const struct tm *current_value_p, con
 			param_p -> tp_current_value_p = NULL;
 			param_p -> tp_default_value_p = NULL;
 
+			NullifyParameter (& (param_p -> tp_base_param));
+
+
 			if (SetTimeParameterValue (& (param_p -> tp_current_value_p), current_value_p))
 				{
 					if (SetTimeParameterValue (& (param_p -> tp_default_value_p), default_value_p))

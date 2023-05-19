@@ -531,6 +531,9 @@ static DoubleParameter *GetNewDoubleParameter (const double64 *current_value_p, 
 			param_p -> dp_current_value_p = NULL;
 			param_p -> dp_default_value_p = NULL;
 
+			NullifyParameter (& (param_p -> dp_base_param));
+
+
 			if (SetDoubleParameterValue (& (param_p -> dp_current_value_p), current_value_p))
 				{
 					if (SetDoubleParameterValue (& (param_p -> dp_default_value_p), default_value_p))

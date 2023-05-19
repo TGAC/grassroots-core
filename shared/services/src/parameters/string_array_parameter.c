@@ -335,6 +335,9 @@ static StringArrayParameter *GetNewStringArrayParameter (char **current_values_s
 			param_p -> sap_current_values_ss = NULL;
 			param_p -> sap_default_values_ss = NULL;
 
+			NullifyParameter (& (param_p -> sap_base_param));
+
+
 			if (SetStringArrayParameterValue (& (param_p -> sap_current_values_ss), 0, current_values_ss, num_values))
 				{
 					if (SetStringArrayParameterValue (& (param_p -> sap_default_values_ss), 0, default_values_ss, num_values))

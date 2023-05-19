@@ -76,6 +76,7 @@ static UnsignedIntParameter *GetNewUnsignedIntParameter (const uint32 *current_v
 			param_p -> uip_min_value_p = NULL;
 			param_p -> uip_max_value_p = NULL;
 
+			NullifyParameter (& (param_p -> uip_base_param));
 
 			if (SetUnsignedIntParameterValue (& (param_p -> uip_current_value_p), current_value_p))
 				{

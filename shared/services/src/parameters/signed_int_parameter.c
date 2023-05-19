@@ -69,6 +69,8 @@ static SignedIntParameter *GetNewSignedIntParameter (const int32 *current_value_
 			param_p -> sip_min_value_p = NULL;
 			param_p -> sip_max_value_p = NULL;
 
+			NullifyParameter (& (param_p -> sip_base_param));
+
 
 			if (SetSignedIntParameterValue (& (param_p -> sip_current_value_p), current_value_p))
 				{

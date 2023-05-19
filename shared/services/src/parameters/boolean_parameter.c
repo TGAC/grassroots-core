@@ -464,6 +464,9 @@ static BooleanParameter *GetNewBooleanParameter (const bool *current_value_p, co
 			param_p -> bp_current_value_p = NULL;
 			param_p -> bp_default_value_p = NULL;
 
+			NullifyParameter (& (param_p -> bp_base_param));
+
+
 			if (SetBooleanParameterValue (& (param_p -> bp_current_value_p), current_value_p))
 				{
 					if (SetBooleanParameterValue (& (param_p -> bp_default_value_p), default_value_p))

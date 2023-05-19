@@ -424,6 +424,9 @@ static JSONParameter *GetNewJSONParameter (const json_t *current_value_p, const 
 			param_p -> jp_current_value_p = NULL;
 			param_p -> jp_default_value_p = NULL;
 
+			NullifyParameter (& (param_p -> jp_base_param));
+
+
 			if (SetJSONParameterValue (& (param_p -> jp_current_value_p), current_value_p))
 				{
 					if (SetJSONParameterValue (& (param_p -> jp_default_value_p), default_value_p))
