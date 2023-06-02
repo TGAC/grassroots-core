@@ -1517,7 +1517,7 @@ static json_t *LoadConfig (const char *root_path_s, const char *config_filename_
 
 			if (!config_p)
 				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to load config from %s", full_config_path_s);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to load config from %s: %d,%d \"%s\"", full_config_path_s, error.line, error.column, error.text);
 				}
 
 			FreeCopiedString (full_config_path_s);
