@@ -264,20 +264,7 @@ bool IsTimeArrayParameter (const Parameter *param_p)
 
 size_t GetNumberOfTimeArrayCurrentParameterValues (const TimeArrayParameter *param_p)
 {
-	size_t i = 0;
-
-	if (param_p -> tap_current_values_pp)
-		{
-			struct tm **temp_pp = param_p -> tap_current_values_pp;
-
-			while (*temp_pp)
-				{
-					++ temp_pp;
-					++ i;
-				}
-		}
-
-	return i;
+	return (param_p -> tap_num_values);
 }
 
 
