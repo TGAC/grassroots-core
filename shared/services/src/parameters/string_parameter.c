@@ -433,7 +433,11 @@ bool SetStringParameterCurrentValueFromJSON (StringParameter *param_p, const jso
 {
 	bool success_flag = false;
 
-	if (json_is_string (value_p))
+	if ((value_p == NULL) || (json_is_null (value_p)))
+		{
+			success_flag = SetStringParameterValue (& (param_p -> sp_current_value_s), NULL);
+		}
+	else if (json_is_string (value_p))
 		{
 			success_flag = SetStringParameterValue (& (param_p -> sp_current_value_s), json_string_value (value_p));
 		}
