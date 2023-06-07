@@ -143,7 +143,7 @@ TimeArrayParameter *AllocateTimeArrayParameterFromJSON (const json_t *param_json
 			Parameter *base_param_p = & (param_p -> tap_base_param);
 			ParameterType pt = pt_p ? *pt_p : PT_TIME_ARRAY;
 
-			if (InitParameterFromJSON (base_param_p, param_json_p, service_p, concise_flag, NULL))
+			if (InitParameterFromJSON (base_param_p, param_json_p, service_p, concise_flag, &pt))
 				{
 					SetParameterCallbacks (base_param_p, ClearTimeArrayParameter, AddTimeArrayParameterDetailsToJSON,
 																 CloneTimeArrayParameter, SetTimeArrayParameterCurrentValueFromString);
