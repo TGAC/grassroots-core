@@ -74,6 +74,9 @@ GRASSROOTS_SERVICE_API Parameter *CreateAndAddStringArrayParameterToParameterSet
 
 GRASSROOTS_SERVICE_API char *GetStringArrayParameterCurrentValuesAsFlattenedString (const StringArrayParameter *param_p);
 
+GRASSROOTS_SERVICE_API const char **GetStringArrayValuesForParameter (ParameterSet *param_set_p, const char *param_s, size_t *num_entries_p);
+
+
 GRASSROOTS_SERVICE_API void FreeStringArrayParameter (StringArrayParameter *param_p);
 
 GRASSROOTS_SERVICE_API bool IsStringArrayParameter (const Parameter *param_p);
