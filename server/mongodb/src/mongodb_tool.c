@@ -216,7 +216,7 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 }
 
 
-bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
+bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p)
 {
 	bool success_flag = false;
 	bool prepare_flag = true;
@@ -243,6 +243,42 @@ bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, co
 				}		/* if (insert_flag) */
 			else
 				{
+					/*
+					 * Are we backing up the current version of the document so that we can access its
+					 * full history?
+					 */
+					if (backup_collection_s)
+						{
+							/* Get the existing current document */
+							json_t *existing_docs_p = GetAllMongoResultsAsJSON (mongo_p, selector_p, NULL);
+
+							if (existing_docs_p)
+								{
+									if (json_is_array (existing_docs_p))
+										{
+											if (json_array_size (existing_docs_p) == 1)
+												{
+													if (SetMongoToolCollection (mongo_p, backup_collection_s))
+														{
+															bson_t *reply_p = NULL;
+															bson_t error_val;
+															json_t *existing_doc_p = json_array_get (existing_docs_p, 0);
+
+															if (InsertMongoData (mongo_p, existing_doc_p, &reply_p, &error_val))
+																{
+
+																}
+														}
+
+												}
+										}
+
+									json_decref (existing_docs_p);
+								}
+
+							if (prep)
+						}
+
 					/* it's an update */
 					if (SetMongoDataAsBSON (mongo_p, selector_p, data_to_save_p, &reply_p))
 						{
@@ -263,7 +299,7 @@ bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, co
 }
 
 
-bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p, const char *timestamp_key_s)
+bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p, const char *timestamp_key_s)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (data_to_save_p);
@@ -295,7 +331,7 @@ bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_
 					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time");
 				}
 
-			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, selector_p);
+			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, selector_p);
 
 			bson_destroy (doc_p);
 		}
@@ -1810,6 +1846,8 @@ bool SetMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p
 
 bool SetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp)
 {
+	if
+
 	return UpdateMongoDataAsBSON (tool_p, "$set", selector_p, doc_p, reply_pp);
 }
 
