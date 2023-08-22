@@ -625,7 +625,7 @@ GRASSROOTS_MONGODB_API void FreeBSONOidString (char *id_s);
 GRASSROOTS_MONGODB_API bson_oid_t *GetBSONOidFromString (const char *id_s);
 
 
-GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
+GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p);
 
 
 GRASSROOTS_MONGODB_API bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p, const char *timestamp_key_s);
@@ -747,8 +747,6 @@ GRASSROOTS_MONGODB_API bool UpdateMongoDocumentsByBSON (MongoTool *tool_p, const
 GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char ** const keys_ss, const bool unique_flag, const bool sparse_flag);
 
 
-
-
 /**
  * Create an index for given key.
  *
@@ -765,6 +763,29 @@ GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const
 GRASSROOTS_MONGODB_API bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char * const key_s, const bool unique_flag, const bool sparse_flag);
 
 
+/**
+ * Create a Collection.
+ *
+ * @param tool_p The MongoTool that will be used to create the index.
+ * @param collection_s The name of the collection to create.
+ * @param opts_p The MongoDB options for creating the collection. Leave this as <code>NULL</code>
+ * to use the defaults. See https://www.mongodb.com/docs/manual/reference/command/create/ for
+ * more information.
+ * @return <code>true</code> if the collection was created successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool CreateMongoToolCollection (MongoTool *tool_p, const char *collection_s, bson_t *opts_p);
+
+
+/**
+ * Drop an index with a given name from a Collection
+ *
+ * @param tool_p The MongoTool that will be used to create the index.
+ * @param index_s The index to remove.
+ * @return <code>true</code> if the index was dropped successfully, <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool DropCollectionIndex (MongoTool *tool_p, const char *index_s);
 
 
 

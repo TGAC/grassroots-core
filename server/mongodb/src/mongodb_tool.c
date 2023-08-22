@@ -186,6 +186,28 @@ bool SetMongoToolDatabase (MongoTool *tool_p, const char *db_s)
 }
 
 
+bool CreateMongoToolCollection (MongoTool *tool_p, const char *collection_s, bson_t *opts_p)
+{
+	bool success_flag = false;
+
+	if (tool_p -> mt_database_p)
+		{
+			bson_error_t err;
+			mongoc_collection_t *collection_p =  mongoc_client_create_collection (tool_p -> mt_database_p, collection_s, opts_p, &err);
+
+			if (collection_p)
+				{
+					success_flag = true;
+				}
+			else
+				{
+					PrintErrors(STM_LEVEL_SEVERE, __FILE__, _LINE__, "mongoc_client_create_collection () failed for \"%s\", err: \"%s\", code %d", collection_s, err.message, err.code);
+				}
+		}
+
+	return success_flag;
+}
+
 
 bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 {
@@ -254,18 +276,26 @@ bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, co
 
 							if (existing_docs_p)
 								{
+									prepare_flag = false;
+
 									if (json_is_array (existing_docs_p))
 										{
 											if (json_array_size (existing_docs_p) == 1)
 												{
+													/* save it to the backup collection */
 													if (SetMongoToolCollection (mongo_p, backup_collection_s))
 														{
 															bson_t *reply_p = NULL;
 															bson_t error_val;
 															json_t *existing_doc_p = json_array_get (existing_docs_p, 0);
 
+
 															if (InsertMongoData (mongo_p, existing_doc_p, &reply_p, &error_val))
 																{
+																	if (SetMongoToolCollection (mongo_p, collection_s))
+																		{
+																			prepare_flag = true;
+																		}
 
 																}
 														}
@@ -276,14 +306,18 @@ bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, co
 									json_decref (existing_docs_p);
 								}
 
-							if (prep)
+						}		/* if (backup_collection_s) */
+
+					if (prepare_flag)
+						{
+							/* it's an update */
+							if (SetMongoDataAsBSON (mongo_p, selector_p, data_to_save_p, &reply_p))
+								{
+									success_flag = true;
+								}
 						}
 
-					/* it's an update */
-					if (SetMongoDataAsBSON (mongo_p, selector_p, data_to_save_p, &reply_p))
-						{
-							success_flag = true;
-						}
+
 				}
 
 
@@ -341,14 +375,14 @@ bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_
 
 
 
-bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
+bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (data_to_save_p);
 
 	if (doc_p)
 		{
-			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, selector_p);
+			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, selector_p);
 
 			bson_destroy (doc_p);
 		}
@@ -512,6 +546,24 @@ bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const 
 	if (BSON_APPEND_INT32 (&keys, key_s, 1))
 		{
 			success_flag = AddCollectionIndex (tool_p, database_s, collection_s, &keys, unique_flag, sparse_flag);
+		}
+
+	return success_flag;
+}
+
+
+bool DropCollectionIndex (MongoTool *tool_p, const char *index_s)
+{
+	bool success_flag = false;
+	bson_error_t err;
+
+	if (mongoc_collection_drop_index (tool_p -> mt_collection_p, MONGO_ID_S, &err))
+		{
+			success_flag = true;
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "mongoc_collection_drop_index () failed, error domain: " UINT32_FMT " code: " UINT32_FMT " message: \"%s\"", err.domain, err.code, err.message);
 		}
 
 	return success_flag;
@@ -1846,8 +1898,6 @@ bool SetMongoData (MongoTool *tool_p, bson_t *selector_p, const json_t *values_p
 
 bool SetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp)
 {
-	if
-
 	return UpdateMongoDataAsBSON (tool_p, "$set", selector_p, doc_p, reply_pp);
 }
 
