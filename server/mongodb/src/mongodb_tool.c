@@ -426,6 +426,11 @@ bool SaveAndBackupMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data
 }
 
 
+bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
+{
+	return SaveAndBackupMongoData (mongo_p, data_to_save_p, collection_s, NULL, NULL, selector_p);
+}
+
 
 bool SaveAndBackupMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p)
 {
