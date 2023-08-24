@@ -258,7 +258,7 @@ bool AddServicesListToProvidersStateTable (ProvidersStateTable *providers_p, Lin
 
 bool AddToProvidersStateTable (ProvidersStateTable *providers_p, const char *server_uri_s, const char *service_s)
 {
-	bool success_flag;
+	bool success_flag = false;
 	json_t *server_json_p = json_object_get (providers_p -> pst_values_p, server_uri_s);
 
 	if (server_json_p)

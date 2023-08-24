@@ -142,7 +142,7 @@ static json_t *AddServiceJobToJSON (ServiceJob *job_p, json_t *req_p)
 
 	if (job_json_p)
 		{
-			if (!json_object_set_new (req_p, JOB_S, job_json_p) == 0)
+			if (json_object_set_new (req_p, JOB_S, job_json_p) != 0)
 				{
 					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to add service job JSON to logging object");
 					json_decref (job_json_p);

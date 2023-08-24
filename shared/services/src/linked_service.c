@@ -416,7 +416,7 @@ json_t *GetLinkedServiceAsJSON (LinkedService *linked_service_p)
 
 							if (params_json_p)
 								{
-									if (!json_object_set_new (res_p, PARAM_SET_KEY_S, params_json_p) == 0)
+									if (json_object_set_new (res_p, PARAM_SET_KEY_S, params_json_p) != 0)
 										{
 											json_decref (params_json_p);
 											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add parameters JSON to InterestedServiceJSON");

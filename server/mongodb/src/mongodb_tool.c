@@ -201,7 +201,7 @@ bool CreateMongoToolCollection (MongoTool *tool_p, const char *collection_s, bso
 				}
 			else
 				{
-					PrintErrors(STM_LEVEL_SEVERE, __FILE__, __LINE__, "mongoc_client_create_collection () failed for \"%s\", err: \"%s\", code %d", collection_s, err.message, err.code);
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "mongoc_client_create_collection () failed for \"%s\", err: \"%s\", code %d", collection_s, err.message, err.code);
 				}
 		}
 
@@ -239,7 +239,7 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 
 
 
-bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p)
+bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, bson_t *selector_p)
 {
 	return SaveAndBackupMongoDataFromBSON (mongo_p, data_to_save_p, collection_s, NULL, NULL, selector_p);
 }
@@ -261,11 +261,11 @@ bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_s
 	if (prepare_flag)
 		{
 			bson_t *reply_p = NULL;
-			bson_error_t err;
+			bson_error_t error_val;
 
 			if (!selector_p)
 				{
-					if (InsertMongoDataAsBSON (mongo_p, data_to_save_p, &reply_p, &err))
+					if (InsertMongoDataAsBSON (mongo_p, data_to_save_p, &reply_p, &error_val))
 						{
 							success_flag = true;
 						}
@@ -276,7 +276,7 @@ bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_s
 					 * Are we backing up the current version of the document so that we can access its
 					 * full history?
 					 */
-					if (backup_collection_s)
+					if (backup_collection_s && id_key_s)
 						{
 							/* Get the existing current document */
 							json_t *existing_docs_p = GetAllMongoResultsAsJSON (mongo_p, selector_p, NULL);
@@ -285,29 +285,65 @@ bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_s
 								{
 									prepare_flag = false;
 
-									if (json_is_array (existing_docs_p))
+									if ((json_is_array (existing_docs_p)) && (json_array_size (existing_docs_p) == 1))
 										{
-											if (json_array_size (existing_docs_p) == 1)
+											/* save it to the backup collection */
+											if (SetMongoToolCollection (mongo_p, backup_collection_s))
 												{
-													/* save it to the backup collection */
-													if (SetMongoToolCollection (mongo_p, backup_collection_s))
+													json_t *existing_doc_p = json_array_get (existing_docs_p, 0);															
+													json_t *id_p = json_object_get (existing_doc_p, MONGO_ID_S);
+										
+													if (id_p)
 														{
-															bson_t *reply_p = NULL;
-															bson_t error_val;
-															json_t *existing_doc_p = json_array_get (existing_docs_p, 0);
-
-
-															if (InsertMongoData (mongo_p, existing_doc_p, &reply_p, &error_val))
+															if (json_object_set (existing_doc_p, id_key_s, id_p) == 0)
 																{
-																	if (SetMongoToolCollection (mongo_p, collection_s))
+																	if (json_object_del (existing_doc_p, MONGO_ID_S) == 0)
 																		{
-																			prepare_flag = true;
+																			if (InsertMongoData (mongo_p, existing_doc_p, &reply_p, &error_val))
+																				{
+																					if (SetMongoToolCollection (mongo_p, collection_s))
+																						{
+																							prepare_flag = true;
+																						}
+																					else
+																						{
+																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetMongoToolCollection () failed for \"%s\"", collection_s);
+																						}
+																				}
+																			else
+																				{
+																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, existing_doc_p, 
+																						"InsertMongoData () failed for \"%s\", err: \"%s\", code %d", backup_collection_s, error_val.message, error_val.code);																						
+																				}
+																	
+																		}	
+																	else
+																		{
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, existing_doc_p, 
+																						"json_object_del () failed for \"%s\"", MONGO_ID_S);																						
 																		}
-
+		
+																}
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, existing_doc_p, 
+																				"json_object_set () failed for \"%s\"", id_key_s);																					
 																}
 														}
-
+													else
+														{
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, existing_doc_p, "json_object_get () failed for \"%s\"", MONGO_ID_S);																			
+														}
 												}
+											else
+												{
+													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "SetMongoToolCollection () failed for \"%s\"", backup_collection_s);
+												}
+
+										}		/* if ((json_is_array (existing_docs_p)) && (json_array_size (existing_docs_p) == 1)) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, existing_docs_p, "existing docs aren't an array of size 1");																														
 										}
 
 									json_decref (existing_docs_p);
@@ -321,6 +357,10 @@ bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_s
 							if (SetMongoDataAsBSON (mongo_p, selector_p, data_to_save_p, &reply_p))
 								{
 									success_flag = true;
+								}
+							else
+								{
+									PrintBSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_to_save_p, "SetMongoDataAsBSON () failed");																																							
 								}
 						}
 
@@ -339,7 +379,7 @@ bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_s
 
 }
 
-bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p, const char *timestamp_key_s)
+bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p, const char *timestamp_key_s)
 {
 	return SaveAndBackupMongoDataWithTimestamp (mongo_p, data_to_save_p, collection_s, NULL, NULL, selector_p, timestamp_key_s);
 }
@@ -377,7 +417,7 @@ bool SaveAndBackupMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data
 					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time");
 				}
 
-			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, selector_p);
+			success_flag = SaveAndBackupMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, id_key_s, selector_p);
 
 			bson_destroy (doc_p);
 		}
@@ -387,14 +427,14 @@ bool SaveAndBackupMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data
 
 
 
-bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p)
+bool SaveAndBackupMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (data_to_save_p);
 
 	if (doc_p)
 		{
-			success_flag = SaveAndBackupMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, selector_p);
+			success_flag = SaveAndBackupMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, id_key_s, selector_p);
 
 			bson_destroy (doc_p);
 		}
