@@ -193,7 +193,7 @@ bool CreateMongoToolCollection (MongoTool *tool_p, const char *collection_s, bso
 	if (tool_p -> mt_database_p)
 		{
 			bson_error_t err;
-			mongoc_collection_t *collection_p =  mongoc_client_create_collection (tool_p -> mt_database_p, collection_s, opts_p, &err);
+			mongoc_collection_t *collection_p =  mongoc_database_create_collection (tool_p -> mt_database_p, collection_s, opts_p, &err);
 
 			if (collection_p)
 				{
@@ -201,7 +201,7 @@ bool CreateMongoToolCollection (MongoTool *tool_p, const char *collection_s, bso
 				}
 			else
 				{
-					PrintErrors(STM_LEVEL_SEVERE, __FILE__, _LINE__, "mongoc_client_create_collection () failed for \"%s\", err: \"%s\", code %d", collection_s, err.message, err.code);
+					PrintErrors(STM_LEVEL_SEVERE, __FILE__, __LINE__, "mongoc_client_create_collection () failed for \"%s\", err: \"%s\", code %d", collection_s, err.message, err.code);
 				}
 		}
 
