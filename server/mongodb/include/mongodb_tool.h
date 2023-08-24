@@ -630,9 +630,12 @@ GRASSROOTS_MONGODB_API bool SaveMongoData (MongoTool *mongo_p, const json_t *dat
 
 GRASSROOTS_MONGODB_API bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p, const char *timestamp_key_s);
 
+GRASSROOTS_MONGODB_API bool SaveAndBackupMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p, const char *timestamp_key_s);
 
 
-GRASSROOTS_MONGODB_API bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p);
+GRASSROOTS_MONGODB_API bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, bson_t *selector_p);
+
+GRASSROOTS_MONGODB_API bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p);
 
 
 GRASSROOTS_MONGODB_API bool SetMongoDataAsBSON (MongoTool *tool_p, bson_t *selector_p, const bson_t *doc_p, bson_t **reply_pp);

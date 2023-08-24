@@ -238,7 +238,14 @@ bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 }
 
 
-bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p)
+
+bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p)
+{
+	return SaveAndBackupMongoDataFromBSON (mongo_p, data_to_save_p, collection_s, NULL, NULL, selector_p);
+}
+
+
+bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p)
 {
 	bool success_flag = false;
 	bool prepare_flag = true;
@@ -332,8 +339,13 @@ bool SaveMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_save_p, co
 
 }
 
-
 bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, bson_t *selector_p, const char *timestamp_key_s)
+{
+	return SaveAndBackupMongoDataWithTimestamp (mongo_p, data_to_save_p, collection_s, NULL, NULL, selector_p, timestamp_key_s);
+}
+
+
+bool SaveAndBackupMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p, const char *timestamp_key_s)
 {
 	bool success_flag = false;
 	bson_t *doc_p = ConvertJSONToBSON (data_to_save_p);
@@ -382,7 +394,7 @@ bool SaveMongoData (MongoTool *mongo_p, const json_t *data_to_save_p, const char
 
 	if (doc_p)
 		{
-			success_flag = SaveMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, selector_p);
+			success_flag = SaveAndBackupMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, selector_p);
 
 			bson_destroy (doc_p);
 		}
