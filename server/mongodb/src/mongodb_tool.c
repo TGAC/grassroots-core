@@ -209,6 +209,30 @@ bool CreateMongoToolCollection (MongoTool *tool_p, const char *collection_s, bso
 }
 
 
+int DoesCollectionExist (MongoTool *tool_p, const char *collection_s)
+{
+	bson_error_t error_val;
+	int res = 0;
+	bool exists_flag = mongoc_database_has_collection (tool_p -> mt_database_p, collection_s, &error_val);
+
+	if (exists_flag)
+		{
+			res = 1;
+		}
+	else
+		{
+			/* Was there an error? */
+			if (error_val.code)
+				{
+					res = -1;
+				}
+		}
+
+	return res;
+}
+
+
+
 bool SetMongoToolCollection (MongoTool *tool_p, const char *collection_s)
 {
 	bool success_flag = false;

@@ -784,6 +784,18 @@ GRASSROOTS_MONGODB_API bool CreateMongoToolCollection (MongoTool *tool_p, const 
 
 
 /**
+ * Check if a named Collection exists.
+ *
+ * @param tool_p The MongoTool that will be used to create the index.
+ * @param collection_s The name of the collection to check.
+ * @return 1 if the collection already exists, 0 if it does not or -1 upon error.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API int DoesCollectionExist (MongoTool *tool_p, const char *collection_s);
+
+
+
+/**
  * Drop an index with a given name from a Collection
  *
  * @param tool_p The MongoTool that will be used to create the index.
