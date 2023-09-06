@@ -391,6 +391,18 @@ GRASSROOTS_MONGODB_API json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson
 
 
 /**
+ * Fill an existing json array with all the results from searching a mongodb collection.
+ *
+ * @param tool_p The MongoTool to get the results with.
+ * @param query_p The query to run.
+ * @param results_array_p A json_t array with all of the results from the search.
+ * @param <code>true</code> if the search and retrieval of the results was successful, <code>false</code> otherwise.
+ * @memberof MongoTool
+ */
+GRASSROOTS_MONGODB_API bool PopulateJSONWithAllMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, json_t *results_array_p);
+
+
+/**
  * Get all results for a given key-value query.
  *
  * @param tool_p The MongoTool to get the results with.

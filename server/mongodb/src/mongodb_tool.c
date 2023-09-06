@@ -1718,64 +1718,75 @@ int64 GetNumberOfMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra
 }
 
 
+bool PopulateJSONWithAllMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, json_t *results_array_p)
+{
+	bool success_flag = false;
+	
+	if (tool_p)
+		{
+			bool alloc_query_flag = false;
+
+			if (!query_p)
+				{
+					query_p = bson_new ();
+
+					if (query_p != NULL)
+						{
+							alloc_query_flag = true;
+						}
+					else
+						{
+							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate query");
+						}
+				}
+
+			if (query_p)
+				{
+					if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, extra_opts_p))
+						{
+							if (IterateOverMongoResults (tool_p, AddBSONDocumentToJSONArray, results_array_p))
+								{
+									success_flag = true;
+								}
+							else
+								{
+									PrintBSONToErrors (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "Failed to iterate over results");
+								}
+
+						}		/* if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL)) */
+					else
+						{
+							#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINER
+							PrintBSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "No hits found");
+							#endif
+							
+							success_flag = true;
+						}
+
+					if (alloc_query_flag)
+						{
+							bson_destroy (query_p);
+						}
+
+				}		/* if (query_p) */
+
+		}		/* if (tool_p) */
+}
+
 
 json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
 {
-	json_t *results_array_p = NULL;
+	json_t *results_array_p = json_array ();
 
-	if (tool_p)
+	if (results_array_p)
 		{
-			results_array_p = json_array ();
+			json_t *PopulateJSONWithAllMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, json_t *results_array_p)
 
-			if (results_array_p)
-				{
-					bool alloc_query_flag = false;
-
-					if (!query_p)
-						{
-							query_p = bson_new ();
-
-							if (query_p != NULL)
-								{
-									alloc_query_flag = true;
-								}
-							else
-								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate query");
-								}
-						}
-
-					if (query_p)
-						{
-							if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL, extra_opts_p))
-								{
-									if (!IterateOverMongoResults (tool_p, AddBSONDocumentToJSONArray, results_array_p))
-										{
-											PrintBSONToErrors (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "Failed to iterate over results");
-										}
-
-								}		/* if (FindMatchingMongoDocumentsByBSON (tool_p, query_p, NULL)) */
-							else
-								{
-									#if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINER
-									PrintBSONToLog (STM_LEVEL_FINER, __FILE__, __LINE__, query_p, "No hits found");
-									#endif
-								}
-
-							if (alloc_query_flag)
-								{
-									bson_destroy (query_p);
-								}
-
-						}		/* if (query_p) */
-
-				}		/* if (results_array_p) */
-			else
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate results array");
-				}
-
-		}		/* if (tool_p) */
+		}		/* if (results_array_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate results array");
+		}
 
 	return results_array_p;
 }
