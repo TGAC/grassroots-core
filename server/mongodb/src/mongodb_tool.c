@@ -1771,7 +1771,10 @@ bool PopulateJSONWithAllMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t
 				}		/* if (query_p) */
 
 		}		/* if (tool_p) */
+
+	return success_flag;
 }
+
 
 
 json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p)
@@ -1780,15 +1783,19 @@ json_t *GetAllMongoResultsAsJSON (MongoTool *tool_p, bson_t *query_p, bson_t *ex
 
 	if (results_array_p)
 		{
-			json_t *PopulateJSONWithAllMongoResults (MongoTool *tool_p, bson_t *query_p, bson_t *extra_opts_p, json_t *results_array_p)
+			if (PopulateJSONWithAllMongoResults (tool_p, query_p, extra_opts_p, results_array_p))
+				{
+					return results_array_p;
+				}
 
+			json_decref (results_array_p);
 		}		/* if (results_array_p) */
 	else
 		{
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate results array");
 		}
 
-	return results_array_p;
+	return NULL;
 }
 
 
