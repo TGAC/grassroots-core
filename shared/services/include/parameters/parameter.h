@@ -181,7 +181,7 @@ struct Parameter
 	 *  should it make a request to the server to refresh the
 	 *  service definition?
 	 *
-	 *  This is ananlagous to the javascript onchange() event.
+	 *  This is analagous to the javascript onchange() event.
 	 */
 	bool pa_refresh_service_flag;
 
