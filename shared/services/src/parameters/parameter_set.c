@@ -120,6 +120,37 @@ static bool AddAllParametersToParameterSetJSON (const Parameter * UNUSED_PARAM (
 }
 
 
+bool ReplaceParameterInParameterSet (ParameterSet *params_p, Parameter *old_param_p, Parameter *new_param_p, const bool free_old_param_flag)
+{
+	bool success_flag = false;
+	ParameterNode *param_node_p = GetParameterNodeFromParameterSetByName (params_p, old_param_p -> pa_name_s);
+
+	if (param_node_p)
+		{
+			ParameterGroup *old_group_p = old_param_p -> pa_group_p;
+
+			if (old_group_p)
+				{
+					if (ReplaceParameterInParameterGroup (old_group_p, old_param_p, new_param_p))
+						{
+							param_node_p -> pn_parameter_p = new_param_p;
+
+							if (free_old_param_flag)
+								{
+									FreeParameter (old_param_p);
+								}
+
+							success_flag = true;
+						}
+
+				}
+
+		}
+
+	return success_flag;
+}
+
+
 json_t *GetParameterSetAsJSON (const ParameterSet * const param_set_p, const SchemaVersion * const sv_p, const bool full_definition_flag)
 {
 	return GetParameterSetSelectionAsJSON (param_set_p, sv_p, full_definition_flag, NULL, AddAllParametersToParameterSetJSON);

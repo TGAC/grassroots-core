@@ -201,6 +201,25 @@ bool AddParameterGroupAsJSON (ParameterGroup *param_group_p, json_t *groups_arra
 }
 
 
+bool ReplaceParameterInParameterGroup (ParameterGroup *param_group_p, Parameter *old_param_p, Parameter *new_param_p)
+{
+	ParameterNode *node_p = (ParameterNode *) (param_group_p -> pg_params_p -> ll_head_p);
+
+	while (node_p)
+		{
+			if (old_param_p == node_p -> pn_parameter_p)
+				{
+					node_p -> pn_parameter_p = new_param_p;
+					new_param_p -> pa_group_p = param_group_p;
+
+					return true;
+				}
+		}
+
+	return false;
+}
+
+
 
 
 //ParameterGroup *GetParameterGroupFromJSON (const json_t *group_json_p, const Service *service_p)

@@ -372,6 +372,19 @@ GRASSROOTS_SERVICE_API char *GetRepeatableParameterGroupRegularExpression (const
 GRASSROOTS_SERVICE_API bool AddRepeatableParameterGroupLabelParam (ParameterGroup *group_p, Parameter *param_p);
 
 
+
+/**
+ * Replace a Parameter in a ParameterGroup.
+ *
+ * @param params_p The ParameterGroup to amend.
+ * @param old_param_p The Parameter to remove.
+ * @param new_param_p The Parameter to add to the ParameterGroup.
+ * @return <code>true</code> if the Parameter was replaced successfully, <code>false</code> otherwise.
+ * @memberof ParameterGroup
+ */
+GRASSROOTS_SERVICE_API bool ReplaceParameterInParameterGroup (ParameterGroup *params_p, Parameter *old_param_p, Parameter *new_param_p);
+
+
 #ifdef __cplusplus
 }
 #endif

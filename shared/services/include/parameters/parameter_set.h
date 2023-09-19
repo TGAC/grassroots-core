@@ -130,6 +130,18 @@ GRASSROOTS_SERVICE_API void FreeParameterSet (ParameterSet *params_p);
 GRASSROOTS_SERVICE_API bool AddParameterToParameterSet (ParameterSet *params_p, Parameter *param_p);
 
 
+/**
+ * Replace a Parameter in a ParameterSet.
+ *
+ * @param params_p The ParameterSet to amend.
+ * @param old_param_p The Parameter to remove.
+ * @param new_param_p The Parameter to add to the ParameterSet.
+ * @param free_old_param_flag If this is <code>true</code> then old_param_p will be freed if this function is successful.
+ * Set this to <code>false</code> to leave old_param_p as valid pointer.
+ * @return <code>true</code> if the Parameter was replaced successfully, <code>false</code> otherwise.
+ * @memberof ParameterSet
+ */
+GRASSROOTS_SERVICE_API bool ReplaceParameterInParameterSet (ParameterSet *params_p, Parameter *old_param_p, Parameter *new_param_p, const bool free_old_param_flag);
 
 
 /**
