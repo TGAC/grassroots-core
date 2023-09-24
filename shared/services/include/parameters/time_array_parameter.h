@@ -82,6 +82,8 @@ GRASSROOTS_SERVICE_API const struct tm **GetTimeArrayParameterCurrentValues (con
 
 GRASSROOTS_SERVICE_API const struct tm **GetTimeArrayParameterDefaultValues (const TimeArrayParameter *param_p);
 
+GRASSROOTS_SERVICE_API const struct tm *GetTimeArrayParameterCurrentValueAtIndex (const TimeArrayParameter *param_p, const size_t index);
+
 
 GRASSROOTS_SERVICE_API bool SetTimeArrayParameterCurrentValues (TimeArrayParameter *param_p, const struct tm **values_pp, const size_t num_values);
 

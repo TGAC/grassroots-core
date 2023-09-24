@@ -531,7 +531,7 @@ GRASSROOTS_SERVICE_API char *GetParameterValueAsString (const Parameter * const 
  * @see GetParameterValueAsString
  * @memberof Parameter
  */
-GRASSROOTS_SERVICE_API bool SetParameterValueFromString (Parameter * const param_p, const char *value_s);
+GRASSROOTS_SERVICE_API bool SetParameterCurrentValueFromString (Parameter * const param_p, const char *value_s);
 
 
 /**

@@ -212,9 +212,21 @@ const struct tm **GetTimeArrayParameterCurrentValues (const TimeArrayParameter *
 	return (const struct tm **) (param_p -> tap_current_values_pp);
 }
 
+
 const struct tm **GetTimeArrayParameterDefaultValues (const TimeArrayParameter *param_p)
 {
 	return (const struct tm **) (param_p -> tap_default_values_pp);
+}
+
+
+const struct tm *GetTimeArrayParameterCurrentValueAtIndex (const TimeArrayParameter *param_p, const size_t index)
+{
+	if (index < param_p -> tap_num_values)
+		{
+			return * ((param_p -> tap_current_values_pp) + index);
+		}
+
+	return NULL;
 }
 
 

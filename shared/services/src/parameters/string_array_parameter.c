@@ -189,6 +189,17 @@ const char **GetStringArrayParameterCurrentValues (const StringArrayParameter *p
 }
 
 
+const char *GetStringArrayParameterCurrentValueAtIndex (const StringArrayParameter *param_p, const size_t index)
+{
+	if (index < param_p -> sap_num_values)
+		{
+			return * ((param_p -> sap_current_values_ss) + index);
+		}
+
+	return NULL;
+}
+
+
 bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char **values_ss, const size_t num_values)
 {
 	bool success_flag = false;

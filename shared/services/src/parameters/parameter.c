@@ -1303,6 +1303,7 @@ bool SetParameterCurrentValueFromJSON (Parameter *param_p, const json_t *value_p
 
 
 
+
 static bool AddParameterStoreToJSON (const Parameter * const param_p, json_t *root_p, const SchemaVersion * const UNUSED_PARAM (sv_p))
 {
 	bool success_flag = true;
@@ -2450,7 +2451,7 @@ char *GetParameterValueAsString (const Parameter * const param_p, bool *alloc_fl
 
 
 
-bool SetParameterValueFromString (Parameter * const param_p, const char *value_s)
+bool SetParameterCurrentValueFromString (Parameter * const param_p, const char *value_s)
 {
 	bool success_flag = param_p -> pa_set_value_from_string_fn (param_p, value_s);
 
