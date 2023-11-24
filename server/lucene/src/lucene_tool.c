@@ -65,85 +65,68 @@ LuceneTool *AllocateLuceneTool (GrassrootsServer *grassroots_p, uuid_t id)
 
 									if (taxonomy_s)
 										{
-											const char *search_class_s = GetJSONString (lucene_config_p, "search_class");
+											const char *working_directory_s = GetJSONString (lucene_config_p, "working_directory");
 
-											if (search_class_s)
+											if (working_directory_s)
 												{
-													const char *index_class_s = GetJSONString (lucene_config_p, "index_class");
+													LinkedList *facet_results_p = AllocateLinkedList (FreeLuceneFacetNode);
 
-													if (index_class_s)
+													if (facet_results_p)
 														{
+															const char *search_class_s = GetJSONString (lucene_config_p, "search_class");
+															const char *index_class_s = GetJSONString (lucene_config_p, "index_class");
 															const char *delete_class_s = GetJSONString (lucene_config_p, "delete_class");
+															const char *facet_key_s = GetJSONString (lucene_config_p, "facet_key");
 
-															if (delete_class_s)
+															if (!search_class_s)
 																{
-																	const char *working_directory_s = GetJSONString (lucene_config_p, "working_directory");
-
-																	if (working_directory_s)
-																		{
-																			const char *facet_key_s = GetJSONString (lucene_config_p, "facet_key");
-
-																			if (facet_key_s)
-																				{
-																					LinkedList *facet_results_p = AllocateLinkedList (FreeLuceneFacetNode);
-
-																					if (facet_results_p)
-																						{
-																							tool_p -> lt_name_s = NULL;
-																							tool_p -> lt_search_class_s = search_class_s;
-																							tool_p -> lt_delete_class_s = delete_class_s;
-																							tool_p -> lt_index_class_s = index_class_s;
-																							tool_p -> lt_classpath_s = classpath_s;
-																							tool_p -> lt_index_s = index_s;
-																							tool_p -> lt_taxonomy_s = taxonomy_s;
-																							tool_p -> lt_working_directory_s = working_directory_s;
-																							tool_p -> lt_facet_key_s = facet_key_s;
-																							tool_p -> lt_output_file_s = NULL;
-																							tool_p -> lt_num_total_hits = 0;
-																							tool_p -> lt_hits_from_index = 0;
-																							tool_p -> lt_hits_to_index = 0;
-
-																							PrintUUIDT (&id, "AllocateLuceneTool () about to call uuid_copy ()");
-																							uuid_copy (tool_p -> lt_id, id);
-
-																							tool_p -> lt_facet_results_p = facet_results_p;
-
-																							return tool_p;
-
-																						}
-																					else
-																						{
-																							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list for storing LuceneFacets");
-																						}
-
-																				}
-																			else
-																				{
-																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"facet_key\" in lucene config");
-																				}
-
-																		}
-																	else
-																		{
-																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"working_directory\" in lucene config");
-																		}
-
-																}		/* if (delete_class_s) */
-															else
-																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"delete_class\" in lucene config");
+																	search_class_s = "uk.ac.earlham.grassroots.app.lucene.Searcher";
 																}
 
-														}		/* if (index_class_s) */
+															if (!index_class_s)
+																{
+																	index_class_s = "uk.ac.earlham.grassroots.app.lucene.Indexer";
+																}
+
+															if (!delete_class_s)
+																{
+																	delete_class_s = "uk.ac.earlham.grassroots.app.lucene.Deleter";
+																}
+
+															if (!facet_key_s)
+																{
+																	facet_key_s = "facet_type";
+																}
+
+															tool_p -> lt_name_s = NULL;
+															tool_p -> lt_search_class_s = search_class_s;
+															tool_p -> lt_delete_class_s = delete_class_s;
+															tool_p -> lt_index_class_s = index_class_s;
+															tool_p -> lt_classpath_s = classpath_s;
+															tool_p -> lt_index_s = index_s;
+															tool_p -> lt_taxonomy_s = taxonomy_s;
+															tool_p -> lt_working_directory_s = working_directory_s;
+															tool_p -> lt_facet_key_s = facet_key_s;
+															tool_p -> lt_output_file_s = NULL;
+															tool_p -> lt_num_total_hits = 0;
+															tool_p -> lt_hits_from_index = 0;
+															tool_p -> lt_hits_to_index = 0;
+
+															PrintUUIDT (&id, "AllocateLuceneTool () about to call uuid_copy ()");
+															uuid_copy (tool_p -> lt_id, id);
+
+															tool_p -> lt_facet_results_p = facet_results_p;
+
+															return tool_p;
+														}
 													else
 														{
-															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"index_class\" in lucene config");
+															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate list for storing LuceneFacets");
 														}
-
-												}		/* if (search_class_s) */
+												}
 											else
 												{
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"search_class\" in lucene config");
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, lucene_config_p, "Failed to find \"working_directory\" in lucene config");
 												}
 
 										}		/* if (taxonomy_s) */

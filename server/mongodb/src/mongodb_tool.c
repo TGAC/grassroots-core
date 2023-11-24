@@ -403,47 +403,52 @@ bool SaveAndBackupMongoDataFromBSON (MongoTool *mongo_p, const bson_t *data_to_s
 
 }
 
-bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, bson_t *selector_p, const char *timestamp_key_s)
+bool SaveMongoDataWithTimestamp (MongoTool *mongo_p, json_t *data_to_save_p, const char *collection_s, bson_t *selector_p, const char *timestamp_key_s)
 {
 	return SaveAndBackupMongoDataWithTimestamp (mongo_p, data_to_save_p, collection_s, NULL, NULL, selector_p, timestamp_key_s);
 }
 
 
-bool SaveAndBackupMongoDataWithTimestamp (MongoTool *mongo_p, const json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p, const char *timestamp_key_s)
+bool SaveAndBackupMongoDataWithTimestamp (MongoTool *mongo_p, json_t *data_to_save_p, const char *collection_s, const char *backup_collection_s, const char *id_key_s, bson_t *selector_p, const char *timestamp_key_s)
 {
 	bool success_flag = false;
-	bson_t *doc_p = ConvertJSONToBSON (data_to_save_p);
+	bson_t *doc_p = NULL;
+	struct tm tm;
 
-	if (doc_p)
+	if (GetPresentTime (&tm))
 		{
-			struct tm tm;
+			char *time_s = GetTimeAsString (&tm, true, NULL);
 
-			if (GetPresentTime (&tm))
+			if (time_s)
 				{
-					char *time_s = GetTimeAsString (&tm, true, NULL);
-
-					if (time_s)
+					if (!SetJSONString (data_to_save_p, timestamp_key_s, time_s))
 						{
-							if (! (BSON_APPEND_UTF8 (doc_p, timestamp_key_s, time_s)))
-								{
-									PrintBSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, doc_p, "Failed to add \"%s\": \"%s\" as timestamp", timestamp_key_s, time_s);
-								}
+							PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, data_to_save_p, "Failed to add \"%s\": \"%s\" as timestamp", timestamp_key_s, time_s);
+						}
 
-							FreeMemory (time_s);
-						}
-					else
-						{
-							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time as string");
-						}
+					FreeMemory (time_s);
 				}
 			else
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time");
+					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time as string");
 				}
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to get current time");
+		}
 
+	doc_p = ConvertJSONToBSON (data_to_save_p);
+
+	if (doc_p)
+		{
 			success_flag = SaveAndBackupMongoDataFromBSON (mongo_p, doc_p, collection_s, backup_collection_s, id_key_s, selector_p);
 
 			bson_destroy (doc_p);
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, data_to_save_p, "ConvertJSONToBSON () failed");
 		}
 
 	return success_flag;
