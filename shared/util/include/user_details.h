@@ -45,11 +45,16 @@ typedef struct UserAuthentication
 	/** The username */
 	char *ua_username_s;
 
-	/** The encrypted password */
-	char *ua_password_s;
 
-	/** An OAth token for time-based authentication */
-	char *ua_oath_totp_token_s;
+	/** The user's email address */
+	char *ua_email_s;
+
+
+	/**
+	 * The organisation that the user is associated with. This can be <code>NULL</code>
+	 */
+	char *ua_org_s;
+
 } UserAuthentication;
 
 
@@ -146,12 +151,10 @@ GRASSROOTS_UTIL_API bool AddUserAuthentication (UserDetails *user_details_p, con
  *
  * @param system_s The name of the system to add the credentials for e.g. "irods", "kerberos", etc.
  * @param username_s The username for the given system.
- * @param password_s The password for the given system. This should only be used if the token option is unusable for a given system.
- * @param token_s The token for the given system.
  * @return The newly-allocated UserAuthentication or <code>NULL</code> upon error.
  * @memberof UserAuthentication
  */
-GRASSROOTS_UTIL_API UserAuthentication *AllocateUserAuthentication (const char *system_s, const char *username_s, const char *password_s, const char *token_s);
+GRASSROOTS_UTIL_API UserAuthentication *AllocateUserAuthentication (const char *system_s, const char *username_s);
 
 
 /**

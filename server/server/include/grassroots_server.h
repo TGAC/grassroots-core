@@ -205,37 +205,17 @@ GRASSROOTS_SERVICE_MANAGER_API void LoadKeywordServices (GrassrootsServer *grass
 
 
 /**
- * Construct a response message based upon a client's message.
- *
- * This will attempt to create a JSON object from the incoming message
- * and call ProcessServerJSONMessage.
- *
- * @param server_p The GrassrootsServer that will process the request.
- * @param request_s The message from the client.
- * @param error_ss A pointer to a variable where any error messages can be stored.
- * @return The response from the server or <code>NULL</code> upon error.
- * @see ProcessServerJSONMessage
- * @memberof GrassrootsServer
- * @ingroup server_group
- */
-GRASSROOTS_SERVICE_MANAGER_API json_t *ProcessServerRawMessage (GrassrootsServer *server_p, const char * const request_s, const char **error_ss);
-
-
-
-
-/**
  * Process a given JSON request and produce the server response.
  *
  * @param server_p The GrassrootsServer that will process the request.
  * @param req_p The incoming JSON request.
+ * @param user_p The user accessing Grassroots. This can be <code>NULL</code> for a public or non-logged in user.
  * @param error_ss A pointer to a variable where any error messages can be stored.
  * @return The response from the server or <code>NULL</code> upon error.
  * @memberof GrassrootsServer
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API json_t *ProcessServerJSONMessage (GrassrootsServer *server_p, json_t *req_p, const char **error_ss);
-
-
+GRASSROOTS_SERVICE_MANAGER_API json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *json_req_p, UserDetails *user_p, const char **error_ss);
 
 
 /**

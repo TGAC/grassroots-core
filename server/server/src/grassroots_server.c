@@ -563,69 +563,23 @@ void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_
 }
 
 
-json_t *ProcessServerRawMessage (GrassrootsServer *server_p, const char * const request_s, const char **error_ss)
-{
-	json_error_t error;
-	json_t *req_p = json_loads (request_s, JSON_PRESERVE_ORDER, &error);
-	json_t *res_p = NULL;
 
-	if (req_p)
-		{
-			res_p = ProcessServerJSONMessage (server_p, req_p, error_ss);
-
-			if (*error_ss)
-				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Error \"%s\" from ProcessServerJSONMessage for :\n%s\n", *error_ss, request_s);
-				}
-
-			json_decref (req_p);
-		}
-	else
-		{
-			/* error decoding the request */
-			PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Could not get load json from:\n%s\n", request_s);
-		}
-
-	return res_p;
-}
-
-
-json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p, const char **error_ss)
+json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *json_req_p, UserDetails *user_p, const char **error_ss)
 {
 	json_t *res_p = NULL;
 
-	if (req_p)
+	if (json_req_p)
 		{
-			if (json_is_object (req_p))
+			if (json_is_object (json_req_p))
 				{
 					Operation op;
 					json_t *op_p = NULL;
-					UserDetails *user_p = NULL;
 					json_t *uri_p = NULL;
-					json_t *config_p = json_object_get (req_p, CONFIG_S);
-
-					if (config_p)
-						{
-							json_t *credentials_p = json_object_get (config_p, CREDENTIALS_S);
-
-							/*
-							 * Create the UserDetails from the JSON details.
-							 */
-							if (credentials_p)
-								{
-									user_p = AllocateUserDetails (credentials_p);
-
-									if (!user_p)
-										{
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, credentials_p, "Failed to create UserDetails");
-										}
-								}
-						}
 
 #if SERVER_DEBUG >= STM_LEVEL_FINEST
-					if (req_p)
+					if (json_req_p)
 						{
-							PrintJSONToLog (req_p,"ProcessMessage - request: \n", STM_LEVEL_FINEST);
+							PrintJSONToLog (json_req_p,"ProcessMessage - request: \n", STM_LEVEL_FINEST);
 						}
 #endif
 
@@ -633,7 +587,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 					/*
 					 * Is this request for an external server?
 					 */
-					uri_p = json_object_get (req_p, SERVER_URI_S);
+					uri_p = json_object_get (json_req_p, SERVER_URI_S);
 					if (uri_p)
 						{
 							/*
@@ -657,10 +611,10 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 													if (external_server_p)
 														{
 															/* remove the server's uuid */
-															if (json_object_del (req_p, SERVER_UUID_S) == 0)
+															if (json_object_del (json_req_p, SERVER_UUID_S) == 0)
 																{
 																	/* we can now proxy the request off to the given server */
-																	json_t *response_p = MakeRemoteJSONCallToExternalServer (external_server_p, req_p);
+																	json_t *response_p = MakeRemoteJSONCallToExternalServer (external_server_p, json_req_p);
 
 																	if (response_p)
 																		{
@@ -697,14 +651,14 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 							/* the request is for this server */
 						}
 
-					op = GetOperationFromTopLevelJSON (req_p);
+					op = GetOperationFromTopLevelJSON (json_req_p);
 
 					if (op != OP_NONE)
 						{
 							switch (op)
 							{
 								case OP_LIST_ALL_SERVICES:
-									res_p = GetAllServices (grassroots_p, req_p, user_p);
+									res_p = GetAllServices (grassroots_p, json_req_p, user_p);
 									break;
 
 									//									case OP_IRODS_MODIFIED_DATA:
@@ -716,24 +670,24 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 									//										break;
 
 								case OP_LIST_INTERESTED_SERVICES:
-									res_p = GetInterestedServices (grassroots_p, req_p, user_p);
+									res_p = GetInterestedServices (grassroots_p, json_req_p, user_p);
 									break;
 
 								case OP_GET_NAMED_SERVICES:
 								case OP_GET_SERVICE_INFO:
-									res_p = GetNamedServicesFunctionality (grassroots_p, req_p, user_p, op);
+									res_p = GetNamedServicesFunctionality (grassroots_p, json_req_p, user_p, op);
 									break;
 
 								case OP_GET_SERVICE_RESULTS:
-									res_p = GetServiceResultsAsJSON (grassroots_p, req_p, user_p);
+									res_p = GetServiceResultsAsJSON (grassroots_p, json_req_p, user_p);
 									break;
 
 								case OP_GET_RESOURCE:
-									res_p = GetRequestedResource (grassroots_p, req_p, user_p);
+									res_p = GetRequestedResource (grassroots_p, json_req_p, user_p);
 									break;
 
 								case OP_SERVER_STATUS:
-									res_p = GetServerStatus (grassroots_p, req_p, user_p);
+									res_p = GetServerStatus (grassroots_p, json_req_p, user_p);
 									break;
 
 								default:
@@ -741,7 +695,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 							}		/* switch (op) */
 
 						}		/* if (op != OP_NONE) */
-					else if ((op_p = json_object_get (req_p, SERVICES_NAME_S)) != NULL)
+					else if ((op_p = json_object_get (json_req_p, SERVICES_NAME_S)) != NULL)
 						{
 							json_t *service_results_p = json_array ();
 
@@ -751,7 +705,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 									uuid_t user_uuid = {0};
 
 									uuid_clear (user_uuid);
-									const json_t *external_servers_req_p = json_object_get (req_p, SERVERS_S);
+									const json_t *external_servers_req_p = json_object_get (json_req_p, SERVERS_S);
 
 									if (json_is_array (op_p))
 										{
@@ -800,7 +754,7 @@ json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *req_p,
 
 									if (key_s)
 										{
-											res_p = GetInitialisedResponseOnServer (grassroots_p, req_p, key_s, service_results_p);
+											res_p = GetInitialisedResponseOnServer (grassroots_p, json_req_p, key_s, service_results_p);
 
 											if (!res_p)
 												{
