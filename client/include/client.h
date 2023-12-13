@@ -30,7 +30,7 @@
 #include "request_tools.h"
 #include "schema_version.h"
 #include "service_metadata.h"
-
+#include "user_details.h"
 
 #include "jansson.h"
 
@@ -133,6 +133,9 @@ typedef struct Client
 	json_t *(*cl_display_results_fn) (ClientData *client_data_p, json_t *response_p);
 
 
+
+	bool (*cl_set_user_fn) (ClientData *client_data_p, User *user_p);
+
 	/**
 	 * Callback function to free this Client.
 	 *
@@ -201,6 +204,7 @@ GRASSROOTS_CLIENT_API void InitialiseClient (Client * const client_p,
 	json_t *(*run_fn) (ClientData *client_data_p),
 	json_t *(*display_results_fn) (ClientData *client_data_p, json_t *response_p),
 	int (*add_service_fn) (ClientData *client_data_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p, ServiceMetadata *metadata_p),
+	bool (*cl_set_user_fn) (ClientData *client_data_p, User *user_p),
 	bool (*free_client_fn) (Client *client_p),
 	ClientData *data_p,
 	Connection *connection_p);
@@ -342,7 +346,7 @@ GRASSROOTS_CLIENT_API void SetClientSchema (Client *client_p, SchemaVersion *sv_
  * @param user_p The current user in case of restricted user access or any of the Services.
  * @memberof Client
  */
-GRASSROOTS_CLIENT_API void GetAllServicesInClient (Client *client_p, UserDetails *user_p);
+GRASSROOTS_CLIENT_API void GetAllServicesInClient (Client *client_p, User *user_p);
 
 
 /**
@@ -355,7 +359,7 @@ GRASSROOTS_CLIENT_API void GetAllServicesInClient (Client *client_p, UserDetails
  * This can be <code>NULL</code>.
  * @memberof Client
  */
-GRASSROOTS_CLIENT_API void GetInterestedServicesInClient (Client *client_p, const char * const protocol_s, const char * const query_s, UserDetails *user_p);
+GRASSROOTS_CLIENT_API void GetInterestedServicesInClient (Client *client_p, const char * const protocol_s, const char * const query_s, User *user_p);
 
 
 /**
@@ -369,7 +373,7 @@ GRASSROOTS_CLIENT_API void GetInterestedServicesInClient (Client *client_p, cons
  * @memberof Client
  * @return The JSON fragment detailing any messages from the Client after it has been run.
  */
-GRASSROOTS_CLIENT_API json_t *ShowServices (json_t *response_p, Client *client_p, UserDetails *user_p, Connection *connection_p);
+GRASSROOTS_CLIENT_API json_t *ShowServices (json_t *response_p, Client *client_p, User *user_p, Connection *connection_p);
 
 
 /**
@@ -380,7 +384,7 @@ GRASSROOTS_CLIENT_API json_t *ShowServices (json_t *response_p, Client *client_p
  * @param user_p The current user in case of restricted user access or any of the Services.
  * @memberof Client
  */
-GRASSROOTS_CLIENT_API void GetNamedServicesInClient (Client *client_p, const char * const service_s, UserDetails *user_p);
+GRASSROOTS_CLIENT_API void GetNamedServicesInClient (Client *client_p, const char * const service_s, User *user_p);
 
 
 
@@ -392,7 +396,7 @@ GRASSROOTS_CLIENT_API void GetNamedServicesInClient (Client *client_p, const cha
  * @param user_p The current user in case of restricted user access or any of the Services.
  * @memberof Client
  */
-GRASSROOTS_CLIENT_API void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const service_s, UserDetails *user_p);
+GRASSROOTS_CLIENT_API void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const service_s, User *user_p);
 
 
 /**
@@ -404,6 +408,10 @@ GRASSROOTS_CLIENT_API void GetNamedServicesIndexingDataInClient (Client *client_
  * @see AddServiceToClient
  */
 GRASSROOTS_CLIENT_LOCAL int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p);
+
+
+
+GRASSROOTS_CLIENT_LOCAL bool SetClientUser (Client *client_p, User *user_p);
 
 
 #ifdef __cplusplus

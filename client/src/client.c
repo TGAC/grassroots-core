@@ -46,6 +46,7 @@ void InitialiseClient (Client * const client_p,
 	json_t *(*run_fn) (ClientData *client_data_p),
 	json_t *(*display_results_fn) (ClientData *client_data_p, json_t *response_p),
 	int (*add_service_fn) (ClientData *client_data_p, const char * const service_name_s, const char * const service_description_s, const char * const service_info_uri_s, const char * const service_icon_uri_s, const json_t *provider_p, ParameterSet *params_p, ServiceMetadata *metadata_p),
+	bool (*set_user_fn) (ClientData *client_data_p, User *user_p),
 	bool (*free_client_fn) (Client *client_p),
 	ClientData *data_p,
 	Connection *connection_p)
@@ -54,6 +55,7 @@ void InitialiseClient (Client * const client_p,
 	client_p -> cl_get_client_description_fn = get_client_description_fn;
 	client_p -> cl_run_fn = run_fn;
 	client_p -> cl_display_results_fn = display_results_fn;
+	client_p -> cl_set_user_fn = set_user_fn;
 	client_p -> cl_add_service_fn = add_service_fn;
 	client_p -> cl_free_client_fn = free_client_fn;
 
@@ -276,7 +278,7 @@ void SetClientSchema (Client *client_p, SchemaVersion *sv_p)
 }
 
 
-void GetAllServicesInClient (Client *client_p, UserDetails *user_p)
+void GetAllServicesInClient (Client *client_p, User *user_p)
 {
 	json_t *req_p = GetAvailableServicesRequest (user_p, client_p -> cl_data_p -> cd_schema_p);
 
@@ -299,6 +301,8 @@ void GetAllServicesInClient (Client *client_p, UserDetails *user_p)
 					SchemaVersion *server_schema_p = NULL;
 					json_t *run_services_response_p = NULL;
 					json_t *header_p = json_object_get (response_p, HEADER_S);
+					json_t *user_json_p = json_object_get (response_p, USER_S);
+
 
 					/* Get the schema version used */
 					if (header_p)
@@ -308,6 +312,21 @@ void GetAllServicesInClient (Client *client_p, UserDetails *user_p)
 							if (schema_p)
 								{
 									server_schema_p = GetSchemaVersionFromJSON (schema_p);
+								}
+						}
+
+					if (user_json_p)
+						{
+							User *res_user_p = GetUserFromJSON (user_json_p);
+
+							if (res_user_p)
+								{
+									if (!SetClientUser (client_p, res_user_p))
+										{
+
+										}
+
+									FreeUser (res_user_p);
 								}
 						}
 
@@ -333,7 +352,7 @@ void GetAllServicesInClient (Client *client_p, UserDetails *user_p)
 }
 
 
-void GetInterestedServicesInClient (Client *client_p, const char * const protocol_s, const char * const query_s, UserDetails *user_p)
+void GetInterestedServicesInClient (Client *client_p, const char * const protocol_s, const char * const query_s, User *user_p)
 {
 	if (protocol_s && query_s)
 		{
@@ -365,7 +384,7 @@ void GetInterestedServicesInClient (Client *client_p, const char * const protoco
 
 
 
-//void CallClient (Client *client_p, const uint32 api_id, UserDetails *user_p)
+//void CallClient (Client *client_p, const uint32 api_id, User *user_p)
 //{
 //	Connection *connection_p = client_p -> cl_data_p -> cd_connection_p;
 //
@@ -520,7 +539,7 @@ void GetInterestedServicesInClient (Client *client_p, const char * const protoco
 //}
 
 
-json_t *ShowServices (json_t *response_p, Client *client_p, UserDetails * UNUSED_PARAM (user_p), Connection * UNUSED_PARAM (connection_p))
+json_t *ShowServices (json_t *response_p, Client *client_p, User * UNUSED_PARAM (user_p), Connection * UNUSED_PARAM (connection_p))
 {
 	json_t *client_results_p = NULL;
 	json_t *service_defs_p = json_object_get (response_p, SERVICES_NAME_S);
@@ -561,7 +580,7 @@ json_t *ShowServices (json_t *response_p, Client *client_p, UserDetails * UNUSED
 }
 
 
-void GetNamedServicesInClient (Client *client_p, const char * const service_s, UserDetails *user_p)
+void GetNamedServicesInClient (Client *client_p, const char * const service_s, User *user_p)
 {
 	if (service_s)
 		{
@@ -592,7 +611,7 @@ void GetNamedServicesInClient (Client *client_p, const char * const service_s, U
 }
 
 
-void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const service_s, UserDetails *user_p)
+void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const service_s, User *user_p)
 {
 	if (service_s)
 		{
@@ -667,6 +686,12 @@ int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p)
 		}		/* if (name_s) */
 
 	return res;
+}
+
+
+bool SetClientUser (Client *client_p, User *user_p)
+{
+	return (client_p -> cl_set_user_fn (client_p -> cl_data_p, user_p));
 }
 
 

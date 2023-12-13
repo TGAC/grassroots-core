@@ -28,7 +28,7 @@ static void RemoveResourceFromHandler (struct Handler *handler_p);
 /*********************/
 
 void InitialiseHandler (Handler * const handler_p,
-	bool (*init_fn) (struct Handler *handler_p, const UserDetails *user_p),
+	bool (*init_fn) (struct Handler *handler_p, const User *user_p),
 	bool (*match_fn) (struct Handler *handler_p, const DataResource * resource_p),
 	const char *(*get_protocol_fn) (struct Handler *handler_p),
 	const char *(*get_name_fn) (struct Handler *handler_p),
@@ -63,7 +63,7 @@ void InitialiseHandler (Handler * const handler_p,
 
 
 
-bool InitHandler (struct Handler *handler_p, const UserDetails *user_p)
+bool InitHandler (struct Handler *handler_p, const User *user_p)
 {
 	return (handler_p -> ha_init_fn (handler_p, user_p));
 }
@@ -189,7 +189,7 @@ void FreeHandlerNode (ListItem *node_p)
 //
 //	Get Symbol
 //
-Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const UserDetails *user_p, GrassrootsServer *grassroots_p)
+Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const User *user_p, GrassrootsServer *grassroots_p)
 {
 	Handler *handler_p = NULL;
 
@@ -203,7 +203,7 @@ Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const UserDetails *user_
 
 			if (symbol_p)
 				{
-					Handler *(*fn_p) (const UserDetails *, GrassrootsServer *) = (Handler *(*) (const UserDetails *, GrassrootsServer *)) symbol_p;
+					Handler *(*fn_p) (const User *, GrassrootsServer *) = (Handler *(*) (const User *, GrassrootsServer *)) symbol_p;
 
 					handler_p = fn_p (user_p, grassroots_p);
 

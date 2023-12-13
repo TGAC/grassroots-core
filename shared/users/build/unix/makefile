@@ -1,4 +1,4 @@
-NAME 		= grassroots_plugin
+NAME 		:= grassroots_users
 DIR_BUILD :=  $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/$(PLATFORM))
 DIR_SRC := $(realpath $(DIR_BUILD)/../../../src)
 DIR_INCLUDE := $(realpath $(DIR_BUILD)/../../../include)
@@ -9,58 +9,44 @@ export DIR_BUILD_CONFIG = $(realpath $(DIR_BUILD)/../../../../../../build-config
 endif
 
 include $(DIR_BUILD_CONFIG)/project.properties
+export DIR_INSTALL := $(DIR_GRASSROOTS_INSTALL)/lib
 
-export DIR_INSTALL=$(DIR_GRASSROOTS_INSTALL)/lib
+BUILD		:= debug
 
+VPATH	:= \
+	$(DIR_SRC) 
 
-
-BUILD		= debug
-
-VPATH	= \
-	$(DIR_SRC) \
-	$(DIR_SRC)/platform \
-	
-INCLUDES = \
+INCLUDES := \
 	-I$(DIR_INCLUDE) \
-	-I$(DIR_GRASSROOTS_HANDLER_INC) \
 	-I$(DIR_GRASSROOTS_UUID_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/io \
-	-I$(DIR_GRASSROOTS_USERS_INC) \
 	-I$(DIR_GRASSROOTS_NETWORK_INC) \
-	-I$(DIR_GRASSROOTS_SERVER_INC) \
+	-I$(DIR_GRASSROOTS_IRODS_INC) \
+	-I$(DIR_GRASSROOTS_PLUGIN_INC) \
 	-I$(DIR_GRASSROOTS_SERVICES_INC) \
 	-I$(DIR_GRASSROOTS_SERVICES_INC)/parameters \
-	-I$(DIR_GRASSROOTS_HANDLER_INC) \
+	-I$(DIR_GRASSROOTS_SERVER_INC) \
 	-I$(DIR_GRASSROOTS_TASK_INC) \
 	-I$(DIR_JANSSON_INC) \
 	-I$(DIR_UUID_INC) \
-	-I$(DIR_BSON_INC)
-
-SRCS 	= \
-	plugin.c
-
-SRCS += $(PLATFORM_SRCS)
+	-I$(DIR_BSON_INC) \
+	-I$(DIR_MONGODB_INC) \
+	-I$(DIR_GRASSROOTS_MONGODB_INC)
 	
-CPPFLAGS += -DGRASSROOTS_PLUGIN_LIBRARY_EXPORTS
+SRCS 	:= \
+	user_details.c \
+	user_group.c
 
-BASE_LDFLAGS = \
+CPPFLAGS += -DGRASSROOTS_USERS_LIBRARY_EXPORTS
+
+LDFLAGS := -lpthread \
+	-L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
-	-L$(DIR_GRASSROOTS_USERS_LIB) -l$(GRASSROOTS_USERS_LIB_NAME) \
 
-LDFLAGS += $(BASE_LDFLAGS) 
-
-ifeq ($(BUILD),release)
-	CFLAGS 	+= -O3 -s
- 	LDFLAGS += -s
-else
-	CFLAGS 	+= -g
-	CPPFLAGS += -D_DEBUG
-endif
 
 
 include $(DIR_BUILD_CONFIG)/generic_makefiles/shared_library.makefile
-
 
 

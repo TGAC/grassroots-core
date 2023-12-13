@@ -88,7 +88,7 @@ typedef struct Handler
 	 * @return <code>true</code> upon success, <code>false</code> upon failure.
 	 * @memberof Handler
 	 */
-	bool (*ha_init_fn) (struct Handler *handler_p, const UserDetails *user_p);
+	bool (*ha_init_fn) (struct Handler *handler_p, const User *user_p);
 
 	/**
 	 * Determine if the Handler is designed for a given Resource.
@@ -291,7 +291,7 @@ extern "C"
  * @memberof Handler
  */
 GRASSROOTS_HANDLER_API void InitialiseHandler (Handler * const handler_p,
-	bool (*init_fn) (struct Handler *handler_p, const UserDetails *user_p),
+	bool (*init_fn) (struct Handler *handler_p, const User *user_p),
 	bool (*match_fn) (struct Handler *handler_p, const DataResource * resource_p),
 	const char *(*get_protocol_fn) (struct Handler *handler_p),
 	const char *(*get_name_fn) (struct Handler *handler_p),
@@ -318,7 +318,7 @@ GRASSROOTS_HANDLER_API void InitialiseHandler (Handler * const handler_p,
  * @see ha_init_fn
  * @memberof Handler
  */
-GRASSROOTS_HANDLER_API bool InitHandler (struct Handler *handler_p, const UserDetails *user_p);
+GRASSROOTS_HANDLER_API bool InitHandler (struct Handler *handler_p, const User *user_p);
 
 /**
  * Open a Resource with the Handler.
@@ -499,7 +499,7 @@ GRASSROOTS_HANDLER_API void FreeHandlerNode (ListItem *node_p);
  * @param user_p An optional UserDetails for the user. This can be <code>NULL</code>.
  * @return The Handler or <code>NULL</code> if one could not be loaded successfully.
  */
-GRASSROOTS_HANDLER_API Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const UserDetails *user_p, struct GrassrootsServer *grassroots_p);
+GRASSROOTS_HANDLER_API Handler *GetHandlerFromPlugin (Plugin * const plugin_p, const User *user_p, struct GrassrootsServer *grassroots_p);
 
 
 /**

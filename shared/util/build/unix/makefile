@@ -28,7 +28,10 @@ INCLUDES = \
 	-I$(DIR_JANSSON_INC) \
 	-I$(DIR_UUID_INC) \
 	-I$(DIR_GRASSROOTS_NETWORK_INC) \
-	-I$(DIR_PCRE_INC)
+	-I$(DIR_PCRE_INC) \
+	-I$(DIR_BSON_INC) \
+	-I$(DIR_MONGODB_INC)
+	
 	
 ifeq ($(IRODS_ENABLED),1)
 INCLUDES += \
@@ -64,8 +67,7 @@ SRCS := \
 	string_int_pair.c \
 	string_linked_list.c \
 	string_utils.c \
-	time_util.c \
-	user_details.c \
+	time_util.c 
 #	unix_filesystem.c \
 #	unix_shared_memory.c \
 #	alloc_failure.cpp \

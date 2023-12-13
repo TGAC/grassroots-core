@@ -43,7 +43,7 @@ extern "C"
  * @return The connection to the iRODS server or <code>NULL</code> upon error.
  * @memberof IRodsConnection
  */
-IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnectionFromUserDetails (const UserDetails *user_p);
+IRODS_UTIL_API struct IRodsConnection *CreateIRodsConnectionFromUserDetails (const User *user_p);
 
 
 /**

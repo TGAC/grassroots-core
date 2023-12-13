@@ -70,7 +70,7 @@ static const char * const S_OPEN_COUNT_KEY_S = "open_count";
 static json_t *s_mapped_filenames_p = NULL;
 
 
-static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const DataResource * const resource_p, GrassrootsServer *server_p, const UserDetails *user_p);
+static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const DataResource * const resource_p, GrassrootsServer *server_p, const User *user_p);
 
 static json_t *GetMappedObject (const char *protocol_s, const char *user_id_s, const char *filename_s, const bool create_flag);
 
@@ -222,7 +222,7 @@ bool SetMappedFilename (const char *protocol_s, const char *user_id_s, const cha
 
 
 
-Handler *GetResourceHandler (const DataResource *resource_p, GrassrootsServer *server_p, const UserDetails *user_p)
+Handler *GetResourceHandler (const DataResource *resource_p, GrassrootsServer *server_p, const User *user_p)
 {
 	Handler *handler_p = NULL;
 	LinkedList *matching_handlers_p = NULL;
@@ -258,7 +258,7 @@ Handler *GetResourceHandler (const DataResource *resource_p, GrassrootsServer *s
 }
 
 
-static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const DataResource * const resource_p, GrassrootsServer *server_p, const UserDetails *user_p)
+static LinkedList *LoadMatchingHandlers (const char * const handlers_path_s, const DataResource * const resource_p, GrassrootsServer *server_p, const User *user_p)
 {
 	LinkedList *handlers_list_p = AllocateLinkedList (FreeHandlerNode);
 

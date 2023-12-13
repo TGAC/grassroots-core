@@ -46,7 +46,7 @@ extern "C"
 /**
  * Generate the JSON fragment to send to the Server for getting all available Services.
  *
- * @param user_p An optional UserDetails.
+ * @param user_p An optional User.
  * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
  * then you can set this value to the version that you require. If this is <code>NULL</code>, then the
  * current version of the running Grassroots system will be used.
@@ -55,13 +55,13 @@ extern "C"
  *
  * @ingroup network_group
  */
-GRASSROOTS_NETWORK_API json_t *GetAvailableServicesRequest (const UserDetails *user_p, const SchemaVersion * const sv_p);
+GRASSROOTS_NETWORK_API json_t *GetAvailableServicesRequest (const User *user_p, const SchemaVersion * const sv_p);
 
 
 /**
  * Extract the user credentials from a JSON fragment.
  *
- * @param user_p The UserDetails for the credentials that will be added.
+ * @param user_p The User for the credentials that will be added.
  * @param provider_s The name of the system that we are requesting the username and password for.
  * @param username_ss Pointer to the username to update.
  * @param password_ss Pointer to the encrypted password to update.
@@ -71,13 +71,13 @@ GRASSROOTS_NETWORK_API json_t *GetAvailableServicesRequest (const UserDetails *u
  *
  * @ingroup network_group
  */
-GRASSROOTS_NETWORK_API bool GetUsernameAndPassword (const UserDetails * const user_p, const char *provider_s, const char **username_ss, const char **password_ss);
+GRASSROOTS_NETWORK_API bool GetUsernameAndPassword (const User * const user_p, const char *provider_s, const char **username_ss, const char **password_ss);
 
 
 /**
  * Generate the JSON fragment to send to the Server for getting Services that are viable for a given Resource
  *
- * @param user_p The UserDetails for the credentials that will be added.
+ * @param user_p The User for the credentials that will be added.
  * @param protocol_s The Resource protocol.
  * @param filename_s The filename of the Resource.
  * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
@@ -88,13 +88,13 @@ GRASSROOTS_NETWORK_API bool GetUsernameAndPassword (const UserDetails * const us
  *
  * @ingroup network_group
  */
-GRASSROOTS_NETWORK_API json_t *GetInterestedServicesRequest (const UserDetails *user_p, const char * const protocol_s, const char * const filename_s, const SchemaVersion * const sv_p);
+GRASSROOTS_NETWORK_API json_t *GetInterestedServicesRequest (const User *user_p, const char * const protocol_s, const char * const filename_s, const SchemaVersion * const sv_p);
 
 
 /**
  * Generate the JSON fragment to send to the Server for getting the details of a particular Service.
  *
- * @param user_p The UserDetails for the credentials that will be added.
+ * @param user_p The User for the credentials that will be added.
  * @param service_name_s The name of the Service.
  * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
  * then you can set this value to the version that you require. If this is <code>NULL</code>, then the
@@ -104,13 +104,13 @@ GRASSROOTS_NETWORK_API json_t *GetInterestedServicesRequest (const UserDetails *
  *
  * @ingroup network_group
  */
-GRASSROOTS_NETWORK_API json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_name_s, const SchemaVersion * const sv_p);
+GRASSROOTS_NETWORK_API json_t *GetNamedServicesRequest (const User *user_p, const char * const service_name_s, const SchemaVersion * const sv_p);
 
 
 /**
  * Generate the JSON fragment to send to the Server for getting the indexing data of a particular Service.
  *
- * @param user_p The UserDetails for the credentials that will be added.
+ * @param user_p The User for the credentials that will be added.
  * @param service_name_s The name of the Service.
  * @param sv_p If you wish to create a JSON fragment for a different version of the Grassroots system,
  * then you can set this value to the version that you require. If this is <code>NULL</code>, then the
@@ -120,20 +120,20 @@ GRASSROOTS_NETWORK_API json_t *GetNamedServicesRequest (const UserDetails *user_
  *
  * @ingroup network_group
  */
-GRASSROOTS_NETWORK_API json_t *GetNamedServicesIndexingDataRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p);
+GRASSROOTS_NETWORK_API json_t *GetNamedServicesIndexingDataRequest (const User *user_p, const char * const service_names_s, const SchemaVersion * const sv_p);
 
 
 /**
  * Add the given credentials in the correct position in a JSON fragment.
  *
  * @param root_p The JSON fragment to update.
- * @param user_p The UserDetails for the credentials that will be added.
+ * @param user_p The User for the credentials that will be added.
  * @return <code>true</code> if the JSON fragment was updated successfully,
  * <code>false</code> otherwise.
  *
  * @ingroup network_group
  */
-GRASSROOTS_NETWORK_API bool AddClientConfigToJSON (json_t *root_p, const UserDetails *user_p);
+GRASSROOTS_NETWORK_API bool AddClientConfigToJSON (json_t *root_p, const User *user_p);
 
 
 /**
@@ -153,7 +153,7 @@ GRASSROOTS_NETWORK_API json_t *GetOperationAsJSON (Operation op, const SchemaVer
 /**
  * @brief Generate the request to run an Operation.
  *
- * @param user_p The UserDetails for the credentials that will be added.
+ * @param user_p The User for the credentials that will be added.
  * @param op The Operation to perform.
  * @param op_key_s The key to be used to attach the associated Operation-specific data with.
  * @see KEY_IRODS
@@ -171,7 +171,7 @@ GRASSROOTS_NETWORK_API json_t *GetOperationAsJSON (Operation op, const SchemaVer
  *
  * @ingroup network_group
  */
-GRASSROOTS_NETWORK_API json_t *GetServicesRequest (const UserDetails *user_p, const Operation op, const char * const op_key_s, json_t * const op_data_p, const SchemaVersion * const sv_p);
+GRASSROOTS_NETWORK_API json_t *GetServicesRequest (const User *user_p, const Operation op, const char * const op_key_s, json_t * const op_data_p, const SchemaVersion * const sv_p);
 
 
 /**
@@ -233,12 +233,12 @@ GRASSROOTS_NETWORK_API bool GetStatusFromJSON (const json_t *service_json_p, Ope
  * Make a call from a Client to a Server.
  *
  * @param client_results_p The request data to send from the Client to the Server.
- * @param user_p An optional set of UserDetails to send for authentication if needed.
+ * @param user_p An optional set of User to send for authentication if needed.
  * @param connection_p The connection to the Server.
  * @return The response of the Server to the Client or <code>NULL</code> upon error.
  * @memberof Connection
  */
-GRASSROOTS_NETWORK_API json_t *CallServices (json_t *client_results_p, const UserDetails *user_p, Connection *connection_p);
+GRASSROOTS_NETWORK_API json_t *CallServices (json_t *client_results_p, const User *user_p, Connection *connection_p);
 
 
 /**

@@ -52,7 +52,7 @@ static bool AddServiceNameToJSON (Service * const service_p, json_t *root_p);
 
 static bool AddServiceDescriptionToJSON (Service * const service_p, json_t *root_p);
 
-static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p,  const bool full_definition_flag, DataResource *resource_p, UserDetails *user_p);
+static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p,  const bool full_definition_flag, DataResource *resource_p, User *user_p);
 
 static bool AddOperationInformationURIToJSON (Service * const service_p, json_t *root_p);
 
@@ -84,9 +84,9 @@ bool InitialiseService (Service * const service_p,
 												const char *(*get_service_description_fn) (const Service *service_p),
 												const char *(*get_service_alias_fn) (const Service *service_p),
 												const char *(*get_service_info_uri_fn) (const Service *service_p),
-												ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
+												ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, User *user_p, ProvidersStateTable *providers_p),
 												ParameterSet *(*match_fn) (Service *service_p, DataResource *resource_p, Handler *handler_p),
-												ParameterSet *(*get_parameters_fn) (Service *service_p, DataResource *resource_p, UserDetails *user_p),
+												ParameterSet *(*get_parameters_fn) (Service *service_p, DataResource *resource_p, User *user_p),
 												bool (*get_parameter_type_fn) (const struct Service *service_p, const char *param_name_s, ParameterType *pt_p),
 												void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
 												bool (*close_fn) (struct Service *service_p),
@@ -387,7 +387,7 @@ Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const se
 
 
 
-ServiceJobSet *RunService (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p)
+ServiceJobSet *RunService (Service *service_p, ParameterSet *param_set_p, User *user_p, ProvidersStateTable *providers_p)
 {
 	ServiceJobSet *job_set_p = NULL;
 
@@ -560,7 +560,7 @@ char *GetServiceUUIDAsString (Service *service_p)
 
 
 
-ParameterSet *GetServiceParameters (Service *service_p, DataResource *resource_p, UserDetails *user_p)
+ParameterSet *GetServiceParameters (Service *service_p, DataResource *resource_p, User *user_p)
 {
 	return service_p -> se_get_params_fn (service_p, resource_p, user_p);
 }
@@ -589,7 +589,7 @@ static void GenerateServiceUUID (Service *service_p)
 //
 //	Get Symbol
 //
-ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, UserDetails *user_p)
+ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, User *user_p)
 {
 	ServicesArray *services_p = NULL;
 
@@ -603,7 +603,7 @@ ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, UserDetails *user
 
 			if (symbol_p)
 				{
-					ServicesArray *(*fn_p) (UserDetails *, GrassrootsServer *) = (ServicesArray *(*) (UserDetails *, GrassrootsServer *)) symbol_p;
+					ServicesArray *(*fn_p) (User *, GrassrootsServer *) = (ServicesArray *(*) (User *, GrassrootsServer *)) symbol_p;
 
 					services_p = fn_p (user_p, plugin_p -> pl_server_p);
 
@@ -622,7 +622,7 @@ ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, UserDetails *user
 }
 
 
-ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, UserDetails *user_p, const json_t *service_config_p)
+ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, User *user_p, const json_t *service_config_p)
 {
 	ServicesArray *services_p = NULL;
 
@@ -636,7 +636,7 @@ ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, UserDet
 
 			if (symbol_p)
 				{
-					ServicesArray *(*fn_p) (UserDetails *, const json_t *) = (ServicesArray *(*) (UserDetails *, const json_t *)) symbol_p;
+					ServicesArray *(*fn_p) (User *, const json_t *) = (ServicesArray *(*) (User *, const json_t *)) symbol_p;
 
 					services_p = fn_p (user_p, service_config_p);
 
@@ -772,7 +772,7 @@ static json_t *GetServiceProcessRequest (const char * const service_name_s, cons
 }
 
 
-json_t *GetServiceAsJSON (Service * const service_p, DataResource *resource_p, UserDetails *user_p, const bool add_id_flag)
+json_t *GetServiceAsJSON (Service * const service_p, DataResource *resource_p, User *user_p, const bool add_id_flag)
 {
 	json_t *root_p = GetBaseServiceDataAsJSON (service_p, user_p);
 
@@ -861,7 +861,7 @@ json_t *GetServiceAsJSON (Service * const service_p, DataResource *resource_p, U
 }
 
 
-json_t *GetServiceIndexingDataAsJSON (Service * const service_p, DataResource *resource_p, UserDetails *user_p)
+json_t *GetServiceIndexingDataAsJSON (Service * const service_p, DataResource *resource_p, User *user_p)
 {
 	json_t *res_p = GetBaseServiceDataAsJSON (service_p, user_p);
 
@@ -885,7 +885,7 @@ json_t *GetServiceIndexingDataAsJSON (Service * const service_p, DataResource *r
 
 
 
-json_t *GetBaseServiceDataAsJSONOld (Service * const service_p, UserDetails *user_p)
+json_t *GetBaseServiceDataAsJSONOld (Service * const service_p, User *user_p)
 {
 	json_t *root_p = json_object ();
 
@@ -1053,7 +1053,7 @@ json_t *GetBaseServiceDataAsJSONOld (Service * const service_p, UserDetails *use
 }
 
 
-json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p)
+json_t *GetBaseServiceDataAsJSON (Service * const service_p, User *user_p)
 {
 	json_t *root_p = json_object ();
 
@@ -1469,7 +1469,7 @@ static bool AddOperationInformationURIToJSON (Service * const service_p, json_t 
 }
 
 
-static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p, const bool full_definition_flag, DataResource *resource_p, UserDetails *user_p)
+static bool AddServiceParameterSetToJSON (Service * const service_p, json_t *root_p, const SchemaVersion * const sv_p, const bool full_definition_flag, DataResource *resource_p, User *user_p)
 {
 	bool success_flag = false;
 	ParameterSet *param_set_p = GetServiceParameters (service_p, resource_p, user_p);
@@ -1618,7 +1618,7 @@ bool AddLinkedService (Service *service_p, LinkedService *linked_service_p)
 
 
 
-json_t *GetServicesListAsJSON (LinkedList *services_list_p, DataResource *resource_p, UserDetails *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p)
+json_t *GetServicesListAsJSON (LinkedList *services_list_p, DataResource *resource_p, User *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p)
 {
 	json_t *services_list_json_p = json_array ();
 

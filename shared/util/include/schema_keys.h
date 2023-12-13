@@ -704,6 +704,7 @@ SCHEMA_KEYS_PREFIX const char *CONTEXT_URL_STATS_ONTOLOGY_S SCHEMA_KEYS_VAL("htt
 	/** @name The Schema definitions for specifying user credentials. */
 	/* Start of doxygen member group */
 	/**@{*/
+	SCHEMA_KEYS_PREFIX const char *USER_S SCHEMA_KEYS_VAL("user");
 	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_S SCHEMA_KEYS_VAL("credentials");
 	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_NAME_S SCHEMA_KEYS_CONCAT_VAL(CONTEXT_PREFIX_SCHEMA_ORG_S, "name");
 	SCHEMA_KEYS_PREFIX const char *CREDENTIALS_USERNAME_S SCHEMA_KEYS_VAL("username");

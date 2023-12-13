@@ -178,7 +178,7 @@ GRASSROOTS_SERVICE_MANAGER_LOCAL void DisconnectFromExternalServers (GrassrootsS
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
   * @memberof Service
  */
-GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char *service_name_s, const char *service_alias_s, UserDetails *user_p);
+GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServicesByName (GrassrootsServer *grassroots_p, LinkedList *services_p, const char *service_name_s, const char *service_alias_s, User *user_p);
 
 
 /**
@@ -191,7 +191,7 @@ GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServicesByName (GrassrootsServer
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, DataResource *resource_p, Handler *handler_p, UserDetails *user_p);
+GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServices (GrassrootsServer *grassroots_p, LinkedList *services_p, DataResource *resource_p, Handler *handler_p, User *user_p);
 
 
 /**
@@ -201,7 +201,7 @@ GRASSROOTS_SERVICE_MANAGER_API void LoadMatchingServices (GrassrootsServer *gras
  * @param user_p Any user configuration details, this can be <code>NULL</code>.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_MANAGER_API void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, UserDetails *user_p);
+GRASSROOTS_SERVICE_MANAGER_API void LoadKeywordServices (GrassrootsServer *grassroots_p, LinkedList *services_p, User *user_p);
 
 
 /**
@@ -215,7 +215,7 @@ GRASSROOTS_SERVICE_MANAGER_API void LoadKeywordServices (GrassrootsServer *grass
  * @memberof GrassrootsServer
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *json_req_p, UserDetails *user_p, const char **error_ss);
+GRASSROOTS_SERVICE_MANAGER_API json_t *ProcessServerJSONMessage (GrassrootsServer *grassroots_p, json_t *json_req_p, User *user_p, const char **error_ss);
 
 
 /**
@@ -232,7 +232,7 @@ GRASSROOTS_SERVICE_MANAGER_API json_t *ProcessServerJSONMessage (GrassrootsServe
  * @memberof GrassrootsServer
  * @ingroup server_group
  */
-GRASSROOTS_SERVICE_MANAGER_API json_t *GetInitialisedResponseOnServer (GrassrootsServer *server_p, const json_t *req_p, const char *key_s, json_t *value_p);
+GRASSROOTS_SERVICE_MANAGER_API json_t *GetInitialisedResponseOnServer (GrassrootsServer *server_p, User *user_p, const json_t *req_p, const char *key_s, json_t *value_p);
 
 
 
@@ -312,7 +312,7 @@ GRASSROOTS_SERVICE_MANAGER_API bool IsServiceEnabled (const GrassrootsServer *gr
  * @memberof Service
  */
 GRASSROOTS_SERVICE_MANAGER_API void AddReferenceServices (GrassrootsServer *grassroots_p, LinkedList *services_p,
-                     const char *operation_name_s, UserDetails *user_p);
+                     const char *operation_name_s, User *user_p);
 
 
 /**
@@ -336,6 +336,7 @@ GRASSROOTS_SERVICE_MANAGER_API const SchemaVersion *GetSchemaVersion (Grassroots
  * @ingroup server_group
  */
 GRASSROOTS_SERVICE_MANAGER_API struct ServersManager *GetServersManager (GrassrootsServer *server_p);
+
 
 
 
@@ -366,6 +367,16 @@ GRASSROOTS_SERVICE_MANAGER_API const char *GetServerRootDirectory (const Grassro
  */
 GRASSROOTS_SERVICE_MANAGER_API json_t *GetGlobalServiceConfig (GrassrootsServer *grassroots_p, const char * const service_name_s, bool *alloc_flag_p);
 
+
+
+/**
+ * Get an existing User by the email address.
+ *
+ * @param email_s The email address to find the user for.
+ * @return The User or <code>NULL</code> upon error.
+ * @memberof User
+ */
+GRASSROOTS_SERVICE_MANAGER_API User *GetUserByEmailAddress (const GrassrootsServer *grassroots_p, const char *email_s);
 
 
 #ifdef __cplusplus

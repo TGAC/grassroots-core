@@ -24,6 +24,7 @@ INCLUDES = \
 	-I$(DIR_INCLUDE)/platform \
 	-I$(DIR_GRASSROOTS_SERVICES_INC) \
 	-I$(DIR_GRASSROOTS_SERVICES_INC)/parameters \
+	-I$(DIR_GRASSROOTS_USERS_INC) \
 	-I$(DIR_GRASSROOTS_UUID_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
@@ -44,6 +45,7 @@ INCLUDES = \
 SRCS 	= \
 	audit.c \
 	jobs_manager.c \
+	permission.c \
 	system_util.c \
 	servers_manager.c \
 	service_matcher.c \
@@ -119,6 +121,7 @@ CPPFLAGS += -DGRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS
 
 LDFLAGS = -lpthread \
 	-L$(DIR_GRASSROOTS_UTIL_LIB) -l$(GRASSROOTS_UTIL_LIB_NAME) \
+	-L$(DIR_GRASSROOTS_USERS_LIB) -l$(GRASSROOTS_USERS_LIB_NAME) \
 	-L$(DIR_GRASSROOTS_UUID_LIB) -l$(GRASSROOTS_UUID_LIB_NAME) \
 	-L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_UUID_LIB) -luuid \

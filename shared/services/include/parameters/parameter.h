@@ -717,6 +717,9 @@ GRASSROOTS_SERVICE_LOCAL bool AddNullParameterValueToJSON (json_t *param_json_p,
 GRASSROOTS_SERVICE_API bool SetParameterCurrentValueFromJSON (Parameter *param_p, const json_t *value_p);
 
 
+GRASSROOTS_SERVICE_API const char *GetNamedParameterDefaultValueFromJSON (const char *id_param_s, const json_t *params_json_p);
+
+
 #ifdef __cplusplus
 }
 #endif

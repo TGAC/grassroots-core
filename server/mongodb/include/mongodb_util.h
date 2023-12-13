@@ -57,6 +57,10 @@ GRASSROOTS_MONGODB_API bool InitMongoDB (void);
 GRASSROOTS_MONGODB_API void ExitMongoDB (void);
 
 
+
+GRASSROOTS_MONGODB_API bool PrepareSaveData (bson_oid_t **id_pp, bson_t **selector_pp);
+
+
 #ifdef __cplusplus
 }
 #endif

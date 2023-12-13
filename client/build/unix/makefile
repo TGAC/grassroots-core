@@ -26,6 +26,7 @@ VPATH	= \
 INCLUDES = \
 	-I$(DIR_INCLUDE) \
 	-I$(DIR_GRASSROOTS_HANDLER_INC) \
+	-I$(DIR_GRASSROOTS_USERS_INC) \
 	-I$(DIR_GRASSROOTS_UUID_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC) \
 	-I$(DIR_GRASSROOTS_UTIL_INC)/containers \
@@ -46,7 +47,8 @@ INCLUDES = \
 	-I$(DIR_SHARED_IRODS_INC)/lib/core/include \
 	-I$(DIR_SHARED_IRODS_INC)/lib/md5/include \
 	-I$(DIR_SHARED_IRODS_INC)/lib/sha1/include \
-	-I$(DIR_UUID_INC)
+	-I$(DIR_UUID_INC) \
+	-I$(DIR_BSON_INC)
 	
 SRCS 	= \
 	client.c 

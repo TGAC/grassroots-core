@@ -407,7 +407,7 @@ json_t *GetLinkedServiceAsJSON (LinkedService *linked_service_p)
 			if (service_p)
 				{
 					DataResource *resource_p = NULL;
-					UserDetails *user_p = NULL;
+					User *user_p = NULL;
 					ParameterSet *params_p = GetServiceParameters (service_p, resource_p, user_p);
 
 					if (params_p)

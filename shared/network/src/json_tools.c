@@ -44,7 +44,7 @@ static json_t *GetServicesInfoRequest (const uuid_t **ids_pp, const uint32 num_i
 
 static bool AddContexts (json_t *data_p);
 
-static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const Operation op, const char * const service_names_s, const SchemaVersion * const sv_p);
+static json_t *GetGenericNamedServicesRequest (const User *user_p, const Operation op, const char * const service_names_s, const SchemaVersion * const sv_p);
 
 
 json_t *MakeRemoteJsonCall (json_t *req_p, Connection *connection_p)
@@ -169,7 +169,7 @@ static bool AddContexts (json_t *data_p)
 }
  * */
 
-bool AddClientConfigToJSON (json_t *root_p, const UserDetails *user_p)
+bool AddClientConfigToJSON (json_t *root_p, const User *user_p)
 {
 	bool success_flag = false;
 	char *home_s = GetHomeDirectory ();
@@ -247,7 +247,7 @@ static bool AddKeyAndStringValue (json_t *json_p, const char * const key_s, cons
 }
 
 
-json_t *GetAvailableServicesRequest (const UserDetails * UNUSED_PARAM (user_p), const SchemaVersion * const sv_p)
+json_t *GetAvailableServicesRequest (const User * UNUSED_PARAM (user_p), const SchemaVersion * const sv_p)
 {	
 	json_t *op_p = GetOperationAsJSON (OP_LIST_ALL_SERVICES, sv_p);
 
@@ -264,7 +264,7 @@ json_t *GetAvailableServicesRequest (const UserDetails * UNUSED_PARAM (user_p), 
 }
 
 
-json_t *GetInterestedServicesRequest (const UserDetails *user_p, const char * const protocol_s, const char * const filename_s, const SchemaVersion * const sv_p)
+json_t *GetInterestedServicesRequest (const User *user_p, const char * const protocol_s, const char * const filename_s, const SchemaVersion * const sv_p)
 {
 	json_t *res_p = NULL;
 	json_error_t error;
@@ -284,21 +284,21 @@ json_t *GetInterestedServicesRequest (const UserDetails *user_p, const char * co
 
 
 
-json_t *GetNamedServicesIndexingDataRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
+json_t *GetNamedServicesIndexingDataRequest (const User *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
 {
 	return GetGenericNamedServicesRequest (user_p, OP_GET_SERVICE_INFO, service_names_s, sv_p);
 
 }
 
 
-json_t *GetNamedServicesRequest (const UserDetails *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
+json_t *GetNamedServicesRequest (const User *user_p, const char * const service_names_s, const SchemaVersion * const sv_p)
 {
 	return GetGenericNamedServicesRequest (user_p, OP_GET_NAMED_SERVICES, service_names_s, sv_p);
 }
 
 
 
-static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const Operation op, const char * const service_names_s, const SchemaVersion * const sv_p)
+static json_t *GetGenericNamedServicesRequest (const User *user_p, const Operation op, const char * const service_names_s, const SchemaVersion * const sv_p)
 {
 	json_t *res_p = NULL;
 	LinkedList *service_names_list_p = ParseStringToStringLinkedList (service_names_s, ",", false);
@@ -389,7 +389,7 @@ static json_t *GetGenericNamedServicesRequest (const UserDetails *user_p, const 
 
 
 
-json_t *GetServicesRequest (const UserDetails *user_p, const Operation op, const char * const op_key_s, json_t * const op_data_p, const SchemaVersion * const sv_p)
+json_t *GetServicesRequest (const User *user_p, const Operation op, const char * const op_key_s, json_t * const op_data_p, const SchemaVersion * const sv_p)
 {
 	json_t *root_p = GetOperationAsJSON (op, sv_p);
 
@@ -425,7 +425,7 @@ json_t *GetServicesRequest (const UserDetails *user_p, const Operation op, const
 }
 
 
-bool GetUsernameAndPassword (const UserDetails * const user_p, const char *provider_s, const char **username_ss, const char **password_ss)
+bool GetUsernameAndPassword (const User * const user_p, const char *provider_s, const char **username_ss, const char **password_ss)
 {
 	bool success_flag = false;
 
@@ -538,7 +538,7 @@ json_t *GetOperationAsJSON (Operation op, const SchemaVersion * const sv_p)
 }
 
 
-json_t *CallServices (json_t *client_params_json_p, const UserDetails *user_p, Connection *connection_p)
+json_t *CallServices (json_t *client_params_json_p, const User *user_p, Connection *connection_p)
 {
 	json_t *services_json_p = NULL;
 

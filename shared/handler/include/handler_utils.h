@@ -39,11 +39,11 @@ extern "C"
  * Get the appropriate Handler for a given Resource.
  *
  * @param resource_p The Resource to get the Handler for.
- * @param user_p An optional UserDetails for any user authentication if needed.
+ * @param user_p An optional User for any user authentication if needed.
  * @return The matching Handler or <code>NULL</code> if none could be found.
  * @ingroup handler_group
  */
-GRASSROOTS_HANDLER_API Handler *GetResourceHandler (const DataResource *resource_p, struct GrassrootsServer *server_p, const UserDetails *user_p);
+GRASSROOTS_HANDLER_API Handler *GetResourceHandler (const DataResource *resource_p, struct GrassrootsServer *server_p, const User *user_p);
 
 
 /**

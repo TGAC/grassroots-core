@@ -141,6 +141,15 @@ MONGODB_PREFIX const char *MONGO_CLAUSE_VALUE_S MONGODB_VAL("value");
 MONGODB_PREFIX const char *MONGO_OID_KEY_S MONGODB_VAL("$oid");
 
 
+
+/**
+ * The key for specifying the timestamp of a saved piece of data
+ *
+ * @ingroup MongoTool
+ */
+MONGODB_PREFIX const char *MONGO_TIMESTAMP_S MONGODB_VAL ("modified");
+
+
 /**
  * A MongoTool is a datatype that allows access to the data stored within
  * a MongoDB instance.

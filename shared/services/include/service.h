@@ -177,7 +177,7 @@ typedef struct Service
 	 * by this call or <code>NULL</code> if there was an error.
 	 * @see RunService
 	 */
-	struct ServiceJobSet *(*se_run_fn) (struct Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p);
+	struct ServiceJobSet *(*se_run_fn) (struct Service *service_p, ParameterSet *param_set_p, User *user_p, ProvidersStateTable *providers_p);
 
 	/**
 	 * Is the Service able to work upon the given Resource.
@@ -200,10 +200,10 @@ typedef struct Service
 	 * which will check whether the user can run the Service with any ParameterSet. If this is set,
 	 * it will also check whether the user can run the Service with the specific parameters e.g. access
 	 * to a given input file.
-	 * @param user_p The UserDetails for the user.
+	 * @param user_p The User for the user.
 	 * @return <code>true</code> if the user has permissions, <code>false</code> otherwise.
 	 */
-	bool (*se_has_permissions_fn) (struct Service *service_p, ParameterSet *params_p, const UserDetails * const user_p);
+	bool (*se_has_permissions_fn) (struct Service *service_p, ParameterSet *params_p, const User * const user_p);
 
 
  	/**
@@ -231,7 +231,7 @@ typedef struct Service
 	/**
 	 * Function to get the ParameterSet for this Service.
 	 */
-	ParameterSet *(*se_get_params_fn) (struct Service *service_p, DataResource *resource_p, UserDetails *user_p);
+	ParameterSet *(*se_get_params_fn) (struct Service *service_p, DataResource *resource_p, User *user_p);
 
 
 	/**
@@ -438,7 +438,7 @@ extern "C"
  * @param service_config_p Any service configuration details.
  * @return The ServicesArray or <code>NULL</code> upon error.
  */
-GRASSROOTS_SERVICE_API ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, UserDetails *user_p, const json_t *service_config_p);
+GRASSROOTS_SERVICE_API ServicesArray *GetReferrableServicesFromPlugin (Plugin * const plugin_p, User *user_p, const json_t *service_config_p);
 
 /**
  * Get the ServicesArray from a given Plugin.
@@ -447,7 +447,7 @@ GRASSROOTS_SERVICE_API ServicesArray *GetReferrableServicesFromPlugin (Plugin * 
  * @param user_p Any user configuration details. This can be NULL.
  * @return The ServicesArray or <code>NULL</code> upon error.
  */
-GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, UserDetails *user_p);
+GRASSROOTS_SERVICE_API ServicesArray *GetServicesFromPlugin (Plugin * const plugin_p, User *user_p);
 
 
 /**
@@ -483,9 +483,9 @@ GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
 	const char *(*get_service_description_fn) (const Service *service_p),
 	const char *(*get_service_alias_fn) (const Service *service_p),
 	const char *(*get_service_info_uri_fn) (const Service *service_p),
-	struct ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p),
+	struct ServiceJobSet *(*run_fn) (Service *service_p, ParameterSet *param_set_p, User *user_p, ProvidersStateTable *providers_p),
 	ParameterSet *(*match_fn) (Service *service_p, DataResource *resource_p, Handler *handler_p),
-	ParameterSet *(*get_parameters_fn) (Service *service_p, DataResource *resource_p, UserDetails *user_p),
+	ParameterSet *(*get_parameters_fn) (Service *service_p, DataResource *resource_p, User *user_p),
 	bool (*get_parameter_type_fn) (const Service *service_p, const char *param_name_s, ParameterType *pt_p),
 	void (*release_parameters_fn) (Service *service_p, ParameterSet *params_p),
 	bool (*close_fn) (Service *service_p),
@@ -506,14 +506,14 @@ GRASSROOTS_SERVICE_API bool InitialiseService (Service * const service_p,
  *
  * @param service_p The Service to run.
  * @param param_set_p The ParameterSet to run the Service with.
- * @param user_p An optional set of UserDetails as json.
+ * @param user_p An optional set of User as json.
  * @param providers_p The ProvidersStateTable to be used by any RemoteServices.
  * @return A newly-allocated ServiceJobSet containing the details for the new jobs or
  * <code>NULL</code> upon error.
  * @memberof Service
  * @see se_run_fn
  */
-GRASSROOTS_SERVICE_API struct ServiceJobSet *RunService (Service *service_p, ParameterSet *param_set_p, UserDetails *user_p, ProvidersStateTable *providers_p);
+GRASSROOTS_SERVICE_API struct ServiceJobSet *RunService (Service *service_p, ParameterSet *param_set_p, User *user_p, ProvidersStateTable *providers_p);
 
 
 /**
@@ -641,7 +641,7 @@ GRASSROOTS_SERVICE_API const char *GetServiceInformationURI (const Service *serv
  * @see FreeParameterSet.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API ParameterSet *GetServiceParameters (Service *service_p, DataResource *resource_p,  UserDetails *user_p);
+GRASSROOTS_SERVICE_API ParameterSet *GetServiceParameters (Service *service_p, DataResource *resource_p,  User *user_p);
 
 
 
@@ -755,7 +755,7 @@ GRASSROOTS_SERVICE_API bool CloseService (Service *service_p);
  * an error.
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API json_t *GetServiceAsJSON (Service * const service_p, DataResource *resource_p, UserDetails *user_p, const bool add_id_flag);
+GRASSROOTS_SERVICE_API json_t *GetServiceAsJSON (Service * const service_p, DataResource *resource_p, User *user_p, const bool add_id_flag);
 
 
 /**
@@ -795,7 +795,7 @@ GRASSROOTS_SERVICE_API bool DeallocatePluginService (Plugin * const plugin_p);
  *
  * @param services_list_p A LinkedList of ServiceNodes detailing the Services to generate the fragment for
  * @param resource_p The Resource of interest to run the Services with. This can be <code>NULL</code>.
- * @param user_p Any UserDetails for access o potentially restricted Services. This can be <code>NULL</code> for only
+ * @param user_p Any User for access o potentially restricted Services. This can be <code>NULL</code> for only
  * publicly accessible Services.
  * @param add_service_ids_flag If this is <code>true</code> then the UUID of the Service will be added
  * to the returned JSON. If this is <code>false</code> then it will not.
@@ -806,7 +806,7 @@ GRASSROOTS_SERVICE_API bool DeallocatePluginService (Plugin * const plugin_p);
  * @see GetServiceAsJSON
  * @memberof Service
  */
-GRASSROOTS_SERVICE_API json_t *GetServicesListAsJSON (LinkedList *services_list_p, DataResource *resource_p, UserDetails *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p);
+GRASSROOTS_SERVICE_API json_t *GetServicesListAsJSON (LinkedList *services_list_p, DataResource *resource_p, User *user_p, const bool add_service_ids_flag, ProvidersStateTable *providers_p);
 
 
 /**
@@ -1078,7 +1078,7 @@ GRASSROOTS_SERVICE_API void SetMetadataForService (Service *service_p, SchemaTer
 GRASSROOTS_SERVICE_API bool SortServicesListByName (LinkedList *services_list_p);
 
 
-GRASSROOTS_SERVICE_API json_t *GetBaseServiceDataAsJSON (Service * const service_p, UserDetails *user_p);
+GRASSROOTS_SERVICE_API json_t *GetBaseServiceDataAsJSON (Service * const service_p, User *user_p);
 
 
 /**
