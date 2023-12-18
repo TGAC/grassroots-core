@@ -14,7 +14,7 @@
 #include "user_details.h"
 #include "user_group.h"
 #include "mongodb_tool.h"
-
+#include "grassroots_server.h"
 
 typedef enum
 {
@@ -35,6 +35,17 @@ typedef struct Permisssions
 
 } Permissions;
 
+typedef struct PermissionsGroup
+{
+	Permissions *pg_full_access_p;
+
+	Permissions *pg_read_write_access_p;
+
+	Permissions *pg_read_only_access_p;
+
+	Permissions *pg_no_access_p;
+} PermissionsGroup;
+
 
 typedef struct PermissionsManager
 {
@@ -42,15 +53,9 @@ typedef struct PermissionsManager
 
 	char *pm_collection_s;
 
-	Permissions *pm_full_access_p;
-
-	Permissions *pm_read_write_access_p;
-
-	Permissions *pm_read_only_access_p;
-
-	Permissions *pm_no_access_p;
-
 	MongoTool *pm_mongo_p;
+
+	PermissionsGroup *pm_permissions_p;
 
 } PermissionsManager;
 
@@ -60,7 +65,7 @@ extern "C"
 #endif
 
 
-GRASSROOTS_UTIL_API PermissionsManager *AllocatePermissionsManager (const char *database_s, const char *collection_s);
+GRASSROOTS_UTIL_API PermissionsManager *AllocatePermissionsManager (GrassrootsServer *grassroots_p, const char *database_s, const char *collection_s);
 
 
 GRASSROOTS_UTIL_API void FreePermissionsManager (PermissionsManager *manager_p);
@@ -70,6 +75,19 @@ GRASSROOTS_UTIL_API Permissions *AllocatePermissions (AccessRights access);
 
 
 GRASSROOTS_UTIL_API void FreePermissions (Permissions *permissions_p);
+
+
+GRASSROOTS_UTIL_API PermissionsGroup *AllocatePermissionsGroup (void);
+
+
+GRASSROOTS_UTIL_API void FreePermissionsGroup (PermissionsGroup *permissions_group_p);
+
+
+
+GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p);
+
+
+GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *json_p);
 
 
 

@@ -265,6 +265,24 @@ User *GetUserFromJSON (const json_t *user_json_p)
 }
 
 
+bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s)
+{
+	json_t *user_json_p = GetUserAsJSON (user_p);
+
+	if (user_json_p)
+		{
+			if (json_object_set_new (json_p, user_key_s, user_json_p) == 0)
+				{
+					return true;
+				}
+
+			json_decref (user_json_p);
+		}
+
+	return false;
+}
+
+
 
 char *GetFullUsername (const User *user_p)
 {

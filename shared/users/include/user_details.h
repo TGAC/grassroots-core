@@ -149,6 +149,19 @@ GRASSROOTS_USERS_API User *GetUserFromJSON (const json_t *user_json_p);
 
 
 
+/**
+ * Add a compound User json to another piece of json
+ *
+ * @param user_p The User to add the json for.
+ * @param json_p The json object to add the user json to.
+ * @param user_key_s The key to use to add the user's json value to json_p.
+ * @return <code>true</code> if the User's json was added successfully, code>false</code> otherwise.
+ * @memberof User
+ */
+GRASSROOTS_USERS_API bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s);
+
+
+
 
 /**
  * Get the full name of a a User.
