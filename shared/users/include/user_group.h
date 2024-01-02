@@ -90,7 +90,7 @@ GRASSROOTS_USERS_API void FreeUserGroup (UserGroup *group_p);
  * @return The json representation or <code>NULL</code> upon error.
  * @memberof UserGroup
  */
-GRASSROOTS_USERS_API json_t *GetUserGroupAsJSON (UserGroup *group_p);
+GRASSROOTS_USERS_API json_t *GetUserGroupAsJSON (UserGroup *group_p, const bool full_user_flag);
 
 
 

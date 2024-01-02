@@ -137,7 +137,7 @@ void FreeUser (User *user_p)
 }
 
 
-json_t *GetUserAsJSON (const User *user_p)
+json_t *GetUserAsJSON (const User *user_p, const bool full_flag)
 {
 	json_t *user_json_p = json_object ();
 
@@ -145,50 +145,55 @@ json_t *GetUserAsJSON (const User *user_p)
 		{
 			if ((! (user_p -> us_id_p)) || (AddCompoundIdToJSON (user_json_p, user_p -> us_id_p)))
 				{
-					if (SetJSONString (user_json_p, US_EMAIL_S, user_p -> us_email_s))
+					if (full_flag)
 						{
-							if ((user_p -> us_forename_s == NULL) || (SetJSONString (user_json_p, US_FORENAME_S, user_p -> us_forename_s)))
+							if (SetJSONString (user_json_p, US_EMAIL_S, user_p -> us_email_s))
 								{
-									if ((user_p -> us_surname_s == NULL) || (SetJSONString (user_json_p, US_SURNAME_S, user_p -> us_surname_s)))
+									if ((user_p -> us_forename_s == NULL) || (SetJSONString (user_json_p, US_FORENAME_S, user_p -> us_forename_s)))
 										{
-											if ((user_p -> us_org_s == NULL) || (SetJSONString (user_json_p, US_AFFILATION_S, user_p -> us_org_s)))
+											if ((user_p -> us_surname_s == NULL) || (SetJSONString (user_json_p, US_SURNAME_S, user_p -> us_surname_s)))
 												{
-													if ((user_p -> us_orcid_s == NULL) || (SetJSONString (user_json_p, US_ORCID_S, user_p -> us_orcid_s)))
+													if ((user_p -> us_org_s == NULL) || (SetJSONString (user_json_p, US_AFFILATION_S, user_p -> us_org_s)))
 														{
-															return user_json_p;
+															if ((user_p -> us_orcid_s == NULL) || (SetJSONString (user_json_p, US_ORCID_S, user_p -> us_orcid_s)))
+																{
+																	return user_json_p;
+																}
+															else
+																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
+																										 US_ORCID_S, user_p -> us_orcid_s);
+																}
+
 														}
 													else
 														{
 															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																								 US_ORCID_S, user_p -> us_orcid_s);
+																								 US_AFFILATION_S, user_p -> us_org_s);
 														}
-
 												}
 											else
 												{
 													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																						 US_AFFILATION_S, user_p -> us_org_s);
+																						 US_SURNAME_S, user_p -> us_surname_s);
 												}
+
 										}
 									else
 										{
 											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																				 US_SURNAME_S, user_p -> us_surname_s);
+																				 US_FORENAME_S, user_p -> us_forename_s);
 										}
 
 								}
 							else
 								{
 									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																		 US_FORENAME_S, user_p -> us_forename_s);
+																		 US_EMAIL_S, user_p -> us_email_s);
 								}
 
 						}
-					else
-						{
-							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																 US_EMAIL_S, user_p -> us_email_s);
-						}
+
 
 				}
 			else
@@ -265,9 +270,9 @@ User *GetUserFromJSON (const json_t *user_json_p)
 }
 
 
-bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s)
+bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s, const bool full_user_flag)
 {
-	json_t *user_json_p = GetUserAsJSON (user_p);
+	json_t *user_json_p = GetUserAsJSON (user_p, full_user_flag);
 
 	if (user_json_p)
 		{

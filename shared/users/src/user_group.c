@@ -88,7 +88,7 @@ bool AddUserToGroup (UserGroup *group_p, User *user_p)
 
 
 
-json_t *GetUserGroupAsJSON (UserGroup *group_p)
+json_t *GetUserGroupAsJSON (UserGroup *group_p, const bool full_user_flag)
 {
 	json_t *res_p = json_object ();
 
@@ -109,7 +109,7 @@ json_t *GetUserGroupAsJSON (UserGroup *group_p)
 									while (node_p && success_flag)
 										{
 											const User *user_p = node_p -> un_user_p;
-											json_t *user_json_p = GetUserAsJSON (user_p);
+											json_t *user_json_p = GetUserAsJSON (user_p, full_user_flag);
 
 											if (user_json_p)
 												{

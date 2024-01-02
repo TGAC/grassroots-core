@@ -16,7 +16,8 @@ static const char * const S_ACCESS_RIGHTS_READ_WRITE = "read/write";
 static const char * const S_ACCESS_RIGHTS_READ_ONLY = "read only";
 static const char * const S_ACCESS_RIGHTS_NONE = "none";
 
-static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s);
+
+static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const bool full_user_flag);
 
 
 
@@ -138,8 +139,31 @@ void FreePermissions (Permissions *permissions_p)
 
 
 
-json_t *GetPermissionsAsJSON (const Permissions *permissions_p)
+json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const bool full_flag)
 {
+	if (permissions_p -> pe_users_p -> ll_size > 0)
+		{
+			json_t *people_p = json_array ();
+
+			if (people_p)
+				{
+					UserNode *node_p = (UserNode *) (permissions_p -> pe_users_p -> ll_head_p);
+					bool success_flag = true;
+
+					while (success_flag && node_p)
+						{
+
+						}
+
+					if (success_flag)
+						{
+							return people_p;
+						}
+
+					json_decref (people_p);
+				}
+		}
+
 	return NULL;
 }
 
@@ -151,19 +175,19 @@ Permissions *GetPermissionsFromJSON (const json_t *json_p)
 
 
 
-json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p)
+json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const bool full_user_flag)
 {
 	json_t *group_json_p = json_object ();
 
 	if (group_json_p)
 		{
-			if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_full_access_p, S_ACCESS_RIGHTS_FULL))
+			if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_full_access_p, S_ACCESS_RIGHTS_FULL, full_user_flag))
 				{
-					if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_write_access_p, S_ACCESS_RIGHTS_READ_WRITE))
+					if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_write_access_p, S_ACCESS_RIGHTS_READ_WRITE, full_user_flag))
 						{
-							if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_only_access_p, S_ACCESS_RIGHTS_READ_ONLY))
+							if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_only_access_p, S_ACCESS_RIGHTS_READ_ONLY, full_user_flag))
 								{
-									if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_no_access_p, S_ACCESS_RIGHTS_NONE))
+									if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_no_access_p, S_ACCESS_RIGHTS_NONE, full_user_flag))
 										{
 											return group_json_p;
 										}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_no_access_p, S_ACCESS_RIGHTS_NONE)) */
@@ -181,23 +205,38 @@ json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p)
 }
 
 
-static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s)
+bool HasPermissionsSet (const Permissions * const permissions_p)
 {
-	json_t *perms_json_p = GetPermissionsAsJSON (perms_p);
+	return ((permissions_p -> pe_users_p -> ll_size > 0) || (permissions_p -> pe_groups_p -> ll_size > 0));
+}
 
-	if (perms_json_p)
+
+static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const bool full_user_flag)
+{
+	bool success_flag = false;
+
+	if (HasPermissionsSet (perms_p))
 		{
-			if (json_object_set_new (group_json_p, key_s, perms_json_p) == 0)
+			json_t *perms_json_p = GetPermissionsAsJSON (perms_p, full_user_flag);
+
+			if (perms_json_p)
 				{
-					return true;
-				}
-			else
-				{
-					json_decref (perms_json_p);
+					if (json_object_set_new (group_json_p, key_s, perms_json_p) == 0)
+						{
+							success_flag = true;
+						}
+					else
+						{
+							json_decref (perms_json_p);
+						}
 				}
 		}
+	else
+		{
+			success_flag = true;
+		}
 
-	return true;
+	return success_flag;
 }
 
 

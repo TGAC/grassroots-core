@@ -83,8 +83,13 @@ GRASSROOTS_UTIL_API PermissionsGroup *AllocatePermissionsGroup (void);
 GRASSROOTS_UTIL_API void FreePermissionsGroup (PermissionsGroup *permissions_group_p);
 
 
+GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *json_p);
 
-GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p);
+
+GRASSROOTS_UTIL_API json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const bool full_user_flag);
+
+
+GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p, bool full_flag);
 
 
 GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *json_p);
@@ -96,6 +101,8 @@ GRASSROOTS_UTIL_API AccessRights CheckPermissionsManagerForUser (const Permissio
 
 GRASSROOTS_UTIL_API bool CheckPermissionsForUser (const Permissions * const permissions_p, const User * const user_p, AccessRights *ar_p);
 
+
+GRASSROOTS_UTIL_API bool HasPermissionsSet (const Permissions * const permissions_p);
 
 
 #ifdef __cplusplus
