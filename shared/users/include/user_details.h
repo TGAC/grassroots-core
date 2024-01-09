@@ -148,6 +148,17 @@ GRASSROOTS_USERS_API User *GetUserFromJSON (const json_t *user_json_p);
 
 
 
+/**
+ * Get a User from a json representation which is the named child object of the given json.
+ *
+ * @param json_p The json object containing the user json representation as a child object.
+ * @param user_key_s The key for the child object.
+ * @return The User or <code>NULL</code> upon error.
+ * @memberof User
+ */
+GRASSROOTS_USERS_API User *GetUserFromNamedJSON (const json_t *json_p, const char *user_key_s);
+
+
 
 /**
  * Add a compound User json to another piece of json
