@@ -47,6 +47,27 @@ typedef struct DoubleParameter
 } DoubleParameter;
 
 
+typedef struct DoubleParameterOption
+{
+	/** The internal value for this option */
+	double64 dpo_value;
+
+	/** The user-friendly description for this value */
+	char *dpo_description_s;
+
+} DoubleParameterOption;
+
+
+typedef struct DoubleParameterOptionNode
+{
+	ListItem dpon_node;
+
+	DoubleParameterOption *dpon_option_p;
+
+} DoubleParameterOptionNode;
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

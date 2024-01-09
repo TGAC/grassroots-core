@@ -39,6 +39,9 @@
 	#define CLIENT_DEBUG (STM_LEVEL_NONE)
 #endif
 
+static void GetServicesInClient (Client *client_p, json_t *req_p, User *user_p);
+
+
 
 void InitialiseClient (Client * const client_p,
 	const char *(*get_client_name_fn) (ClientData *client_data_p),
@@ -284,6 +287,15 @@ void GetAllServicesInClient (Client *client_p, User *user_p)
 
 	if (req_p)
 		{
+			GetServicesInClient (client_p, req_p, user_p);
+		}
+}
+
+
+static void GetServicesInClient (Client *client_p, json_t *req_p, User *user_p)
+{
+	if (req_p)
+		{
 			json_t *response_p = NULL;
 
 			if (user_p)
@@ -352,6 +364,10 @@ void GetAllServicesInClient (Client *client_p, User *user_p)
 }
 
 
+
+
+
+
 void GetInterestedServicesInClient (Client *client_p, const char * const protocol_s, const char * const query_s, User *user_p)
 {
 	if (protocol_s && query_s)
@@ -360,24 +376,8 @@ void GetInterestedServicesInClient (Client *client_p, const char * const protoco
 
 			if (req_p)
 				{
-					json_t *response_p = MakeRemoteJsonCall (req_p, client_p -> cl_data_p -> cd_connection_p);
-
-					if (response_p)
-						{
-							json_t *service_response_p = ShowServices (response_p, client_p, user_p, client_p -> cl_data_p -> cd_connection_p);
-
-							if (service_response_p)
-								{
-
-									json_decref (service_response_p);
-								}
-
-							json_decref (response_p);
-						}		/* if (response_p) */
-
-					json_decref (req_p);
-				}		/* if (req_p) */
-
+					GetServicesInClient (client_p, req_p, user_p);
+				}
 		}
 
 }
@@ -590,25 +590,11 @@ void GetNamedServicesInClient (Client *client_p, const char * const service_s, U
 				{
 					PrintJSONToLog (STM_LEVEL_INFO, __FILE__, __LINE__, req_p, "req:\n");
 
-					json_t *response_p = MakeRemoteJsonCall (req_p, client_p -> cl_data_p -> cd_connection_p);
-
-					if (response_p)
-						{
-							json_t *service_response_p = ShowServices (response_p, client_p, user_p, client_p -> cl_data_p -> cd_connection_p);
-
-							if (service_response_p)
-								{
-									json_decref (service_response_p);
-								}
-
-							json_decref (response_p);
-						}		/* if (response_p) */
-
-					json_decref (req_p);
-				}		/* if (req_p) */
-
+					GetServicesInClient (client_p, req_p, user_p);
+				}
 		}
 }
+
 
 
 void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const service_s, User *user_p)
@@ -619,27 +605,12 @@ void GetNamedServicesIndexingDataInClient (Client *client_p, const char * const 
 
 			if (req_p)
 				{
-					json_t *response_p = MakeRemoteJsonCall (req_p, client_p -> cl_data_p -> cd_connection_p);
+					PrintJSONToLog (STM_LEVEL_INFO, __FILE__, __LINE__, req_p, "req:\n");
 
-					if (response_p)
-						{
-							json_t *service_response_p = ShowServices (response_p, client_p, user_p, client_p -> cl_data_p -> cd_connection_p);
-
-							if (service_response_p)
-								{
-									json_decref (service_response_p);
-								}
-
-							json_decref (response_p);
-						}		/* if (response_p) */
-
-					json_decref (req_p);
-				}		/* if (req_p) */
-
+					GetServicesInClient (client_p, req_p, user_p);
+				}
 		}
 }
-
-
 
 
 int AddServiceDetailsToClient (Client *client_p, json_t *service_json_p)

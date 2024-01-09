@@ -145,6 +145,8 @@ json_t *GetUserAsJSON (const User *user_p, const bool full_flag)
 		{
 			if ((! (user_p -> us_id_p)) || (AddCompoundIdToJSON (user_json_p, user_p -> us_id_p)))
 				{
+					bool success_flag = false;
+
 					if (full_flag)
 						{
 							if (SetJSONString (user_json_p, US_EMAIL_S, user_p -> us_email_s))
@@ -157,7 +159,7 @@ json_t *GetUserAsJSON (const User *user_p, const bool full_flag)
 														{
 															if ((user_p -> us_orcid_s == NULL) || (SetJSONString (user_json_p, US_ORCID_S, user_p -> us_orcid_s)))
 																{
-																	return user_json_p;
+																	success_flag = true;
 																}
 															else
 																{
@@ -193,7 +195,15 @@ json_t *GetUserAsJSON (const User *user_p, const bool full_flag)
 								}
 
 						}
+					else
+						{
+							success_flag = true;
+						}
 
+					if (success_flag)
+						{
+							return user_json_p;
+						}
 
 				}
 			else
