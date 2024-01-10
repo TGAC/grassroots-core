@@ -387,6 +387,13 @@ typedef struct Service
 	 */
 	Parameter *(*se_custom_parameter_decoder_fn) (struct Service *service_p, json_t *param_json_p, const bool concise_flag);
 
+	/**
+	 * The server that this service is running on.
+	 */
+	GrassrootsServer *se_grassroots_p;
+
+
+
 } Service;
 
 

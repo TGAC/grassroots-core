@@ -223,8 +223,6 @@ json_t *GetUserAsJSON (const User *user_p, const bool full_flag)
 }
 
 
-
-
 User *GetUserFromNamedJSON (const json_t *json_p, const char *user_key_s)
 {
 	User *user_p = NULL;

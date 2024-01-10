@@ -148,6 +148,7 @@ static uint32 AddMatchingServicesFromServicesArray (ServicesArray *services_p, L
 
 static void PrintGrassrootsServer (const GrassrootsServer *grassroots_p);
 
+static User *GetUser (const GrassrootsServer *grassroots_p, const bson_t *query_p);
 
 /*
  * API DEFINITIONS
@@ -1093,7 +1094,89 @@ bool IsServiceEnabled (const GrassrootsServer *grassroots_p, const char *service
 }
 
 
+User *GetUserById (const GrassrootsServer *grassroots_p, const bson_oid_t *id_p)
+{
+	User *user_p = NULL;
+	bson_t *query_p = bson_new ();
+
+	if (query_p)
+		{
+			if (BSON_APPEND_OID (query_p, MONGO_ID_S, id_p))
+				{
+					user_p = GetUser (grassroots_p, query_p);
+				}
+
+			bson_destroy (query_p);
+		}		/* if (query_p) */
+	else
+		{
+			char *id_s = GetBSONOidAsString (id_p);
+
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create query for User with id \"%s\"", id_s ? id_s : "");
+
+			if (id_s)
+				{
+					FreeBSONOidString (id_s);
+				}
+		}
+
+	return user_p;
+}
+
+
+User *GetUserByIdString (const GrassrootsServer *grassroots_p, const char *id_s)
+{
+	User *user_p = NULL;
+	bson_t *query_p = bson_new ();
+
+	if (query_p)
+		{
+			bson_oid_t oid;
+
+			bson_oid_init_from_string (&oid, id_s);
+
+			if (BSON_APPEND_OID (query_p, MONGO_ID_S, &oid))
+				{
+					user_p = GetUser (grassroots_p, query_p);
+				}
+
+			bson_destroy (query_p);
+		}		/* if (query_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create query for User with id \"%s\"", id_s);
+		}
+
+	return user_p;
+}
+
+
+
 User *GetUserByEmailAddress (const GrassrootsServer *grassroots_p, const char *email_s)
+{
+	User *user_p = NULL;
+	bson_t *query_p = bson_new ();
+
+	if (query_p)
+		{
+			if (BSON_APPEND_UTF8 (query_p, US_EMAIL_S, email_s))
+				{
+					user_p = GetUser (grassroots_p, query_p);
+				}
+
+			bson_destroy (query_p);
+		}		/* if (query_p) */
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create query for User with email \"%s\"", email_s);
+		}
+
+	return user_p;
+}
+
+
+
+static User *GetUser (const GrassrootsServer *grassroots_p, const bson_t *query_p)
 {
 	User *user_p = NULL;
 	const json_t *user_db_config_p = GetGlobalConfigValue (grassroots_p, "users");
@@ -1111,70 +1194,92 @@ User *GetUserByEmailAddress (const GrassrootsServer *grassroots_p, const char *e
 						{
 							if (SetMongoToolDatabaseAndCollection (mongo_p, db_s, collection_s))
 								{
-									bson_t *query_p = bson_new ();
+									json_t *results_p = GetAllMongoResultsAsJSON (mongo_p, query_p, NULL);
 
-									if (query_p)
+									if (results_p)
 										{
-											if (BSON_APPEND_UTF8 (query_p, US_EMAIL_S, email_s))
+											if (json_is_array (results_p))
 												{
-													json_t *results_p = GetAllMongoResultsAsJSON (mongo_p, query_p, NULL);
+													size_t num_results = json_array_size (results_p);
 
-													if (results_p)
+													if (num_results == 1)
 														{
-															if (json_is_array (results_p))
+															json_t *res_p = json_array_get (results_p, 0);
+
+															user_p = GetUserFromJSON (res_p);
+
+															if (!user_p)
 																{
-																	size_t num_results = json_array_size (results_p);
+																	json_t *query_json_p = ConvertBSONToJSON (query_p);
+																	char *query_s = NULL;
 
-																	if (num_results == 1)
+																	if (query_json_p)
 																		{
-																			json_t *res_p = json_array_get (results_p, 0);
-
-																			user_p = GetUserFromJSON (res_p);
-
-																			if (!user_p)
-																				{
-																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "failed to create User for email \"%s\"", email_s);
-																				}
-
-																		}		/* if (num_results == 1) */
-																	else
-																		{
-																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, SIZET_FMT " results when searching for Users with email\"%s\"", num_results, email_s);
+																			query_s = json_dumps (query_json_p, 0);
+																			json_decref (query_json_p);
 																		}
 
-																}		/* if (json_is_array (results_p) */
-															else
-																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Results are not an array");
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "failed to create User with query \"%s\"", query_s ? query_s : "");
+
+																	if (query_s)
+																		{
+																			free (query_s);
+																		}
 																}
 
-															json_decref (results_p);
-														}		/* if (results_p) */
+														}		/* if (num_results == 1) */
 													else
 														{
-															PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get results searching for User with email \"%s\"", email_s);
+															json_t *query_json_p = ConvertBSONToJSON (query_p);
+															char *query_s = NULL;
+
+															if (query_json_p)
+																{
+																	query_s = json_dumps (query_json_p, 0);
+																	json_decref (query_json_p);
+																}
+
+															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, SIZET_FMT " results when searching for Users with query \"%s\"", num_results, query_s ? query_s : "");
+
+															if (query_s)
+																{
+																	free (query_s);
+																}
 														}
 
-												}		/* if (BSON_APPEND_OID (query_p, MONGO_ID_S, id_p)) */
+												}		/* if (json_is_array (results_p) */
 											else
 												{
-													PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to append query for User with email \"%s\"", email_s);
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Results are not an array");
 												}
 
-											bson_destroy (query_p);
-										}		/* if (query_p) */
+											json_decref (results_p);
+										}		/* if (results_p) */
 									else
 										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create query for User with email \"%s\"", email_s);
+											json_t *query_json_p = ConvertBSONToJSON (query_p);
+											char *query_s = NULL;
+
+											if (query_json_p)
+												{
+													query_s = json_dumps (query_json_p, 0);
+													json_decref (query_json_p);
+												}
+
+											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get results searching for User with query \"%s\"", query_s ? query_s : "");
+
+											if (query_s)
+												{
+													free (query_s);
+												}
+
 										}
 
 								}		/* if (SetMongoToolCollection (tool_p, data_p -> dftsd_collection_ss [collection_type])) */
 							else
 								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set collection to \"%s\"", collection_s);
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set database to \"%s\" and collection to \"%s\"", db_s, collection_s);
 								}
-
-
 
 							FreeMongoTool (mongo_p);
 						}

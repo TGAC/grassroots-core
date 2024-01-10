@@ -379,6 +379,29 @@ GRASSROOTS_SERVICE_MANAGER_API json_t *GetGlobalServiceConfig (GrassrootsServer 
 GRASSROOTS_SERVICE_MANAGER_API User *GetUserByEmailAddress (const GrassrootsServer *grassroots_p, const char *email_s);
 
 
+
+
+/**
+ * Get an existing User by the id.
+ *
+ * @param id_s The bson id, as a string, of the User to find.
+ * @return The User or <code>NULL</code> upon error.
+ * @memberof User
+ */
+GRASSROOTS_SERVICE_MANAGER_API User *GetUserByIdString (const GrassrootsServer *grassroots_p, const char *id_s);
+
+
+
+/**
+ * Get an existing User by the id.
+ *
+ * @param id_p The bson id of the User to find.
+ * @return The User or <code>NULL</code> upon error.
+ * @memberof User
+ */
+GRASSROOTS_SERVICE_MANAGER_API User *GetUserById (const GrassrootsServer *grassroots_p, const bson_oid_t *id_p);
+
+
 #ifdef __cplusplus
 }
 #endif
