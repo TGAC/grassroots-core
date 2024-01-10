@@ -372,9 +372,10 @@ GRASSROOTS_SERVICE_MANAGER_API json_t *GetGlobalServiceConfig (GrassrootsServer 
 /**
  * Get an existing User by the email address.
  *
+ * @param grassroots_p The GrassrootsServer to search.
  * @param email_s The email address to find the user for.
  * @return The User or <code>NULL</code> upon error.
- * @memberof User
+ * @memberof GrassrootsServer
  */
 GRASSROOTS_SERVICE_MANAGER_API User *GetUserByEmailAddress (const GrassrootsServer *grassroots_p, const char *email_s);
 
@@ -384,9 +385,10 @@ GRASSROOTS_SERVICE_MANAGER_API User *GetUserByEmailAddress (const GrassrootsServ
 /**
  * Get an existing User by the id.
  *
+ * @param grassroots_p The GrassrootsServer to search.
  * @param id_s The bson id, as a string, of the User to find.
  * @return The User or <code>NULL</code> upon error.
- * @memberof User
+ * @memberof GrassrootsServer
  */
 GRASSROOTS_SERVICE_MANAGER_API User *GetUserByIdString (const GrassrootsServer *grassroots_p, const char *id_s);
 
@@ -395,11 +397,23 @@ GRASSROOTS_SERVICE_MANAGER_API User *GetUserByIdString (const GrassrootsServer *
 /**
  * Get an existing User by the id.
  *
+ * @param grassroots_p The GrassrootsServer to search.
  * @param id_p The bson id of the User to find.
  * @return The User or <code>NULL</code> upon error.
- * @memberof User
+ * @memberof GrassrootsServer
  */
 GRASSROOTS_SERVICE_MANAGER_API User *GetUserById (const GrassrootsServer *grassroots_p, const bson_oid_t *id_p);
+
+
+/**
+ * Get a list of all Users
+ *
+ * @param grassroots_p The GrassrootsServer to search.
+ * @return The list of Users or <code>NULL</code> upon error.
+ * @memberof GrassrootsServer
+ */
+GRASSROOTS_SERVICE_MANAGER_API LinkedList *GetAllUsers (const GrassrootsServer *grassroots_p);
+
 
 
 #ifdef __cplusplus

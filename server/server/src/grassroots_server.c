@@ -150,6 +150,9 @@ static void PrintGrassrootsServer (const GrassrootsServer *grassroots_p);
 
 static User *GetUser (const GrassrootsServer *grassroots_p, const bson_t *query_p);
 
+static json_t *GetUserSearchAsJSON (const GrassrootsServer *grassroots_p, const bson_t *query_p);
+
+
 /*
  * API DEFINITIONS
  */
@@ -1176,9 +1179,9 @@ User *GetUserByEmailAddress (const GrassrootsServer *grassroots_p, const char *e
 
 
 
-static User *GetUser (const GrassrootsServer *grassroots_p, const bson_t *query_p)
+static json_t *GetUserSearchAsJSON (const GrassrootsServer *grassroots_p, const bson_t *query_p)
 {
-	User *user_p = NULL;
+	json_t *results_p = NULL;
 	const json_t *user_db_config_p = GetGlobalConfigValue (grassroots_p, "users");
 
 	if (user_db_config_p)
@@ -1194,66 +1197,34 @@ static User *GetUser (const GrassrootsServer *grassroots_p, const bson_t *query_
 						{
 							if (SetMongoToolDatabaseAndCollection (mongo_p, db_s, collection_s))
 								{
-									json_t *results_p = GetAllMongoResultsAsJSON (mongo_p, query_p, NULL);
+									results_p = GetAllMongoResultsAsJSON (mongo_p, query_p, NULL);
+
+									FreeMongoTool (mongo_p);
 
 									if (results_p)
 										{
-											if (json_is_array (results_p))
+											if (!json_is_array (results_p))
 												{
-													size_t num_results = json_array_size (results_p);
+													json_t *query_json_p = ConvertBSONToJSON (query_p);
+													char *query_s = NULL;
 
-													if (num_results == 1)
+													if (query_json_p)
 														{
-															json_t *res_p = json_array_get (results_p, 0);
-
-															user_p = GetUserFromJSON (res_p);
-
-															if (!user_p)
-																{
-																	json_t *query_json_p = ConvertBSONToJSON (query_p);
-																	char *query_s = NULL;
-
-																	if (query_json_p)
-																		{
-																			query_s = json_dumps (query_json_p, 0);
-																			json_decref (query_json_p);
-																		}
-
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "failed to create User with query \"%s\"", query_s ? query_s : "");
-
-																	if (query_s)
-																		{
-																			free (query_s);
-																		}
-																}
-
-														}		/* if (num_results == 1) */
-													else
-														{
-															json_t *query_json_p = ConvertBSONToJSON (query_p);
-															char *query_s = NULL;
-
-															if (query_json_p)
-																{
-																	query_s = json_dumps (query_json_p, 0);
-																	json_decref (query_json_p);
-																}
-
-															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, SIZET_FMT " results when searching for Users with query \"%s\"", num_results, query_s ? query_s : "");
-
-															if (query_s)
-																{
-																	free (query_s);
-																}
+															query_s = json_dumps (query_json_p, 0);
+															json_decref (query_json_p);
 														}
 
-												}		/* if (json_is_array (results_p) */
-											else
-												{
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Results are not an array");
+													PrinJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Not an array searching for User(s) with query \"%s\"", query_s ? query_s : "");
+
+													if (query_s)
+														{
+															free (query_s);
+														}
+
+													json_decref (results_p);
+													results_p = NULL;
 												}
 
-											json_decref (results_p);
 										}		/* if (results_p) */
 									else
 										{
@@ -1281,15 +1252,142 @@ static User *GetUser (const GrassrootsServer *grassroots_p, const bson_t *query_
 									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to set database to \"%s\" and collection to \"%s\"", db_s, collection_s);
 								}
 
-							FreeMongoTool (mongo_p);
+
 						}
 				}
 		}
 
 
+	return results_p;
+
+}
+
+
+static User *GetUser (const GrassrootsServer *grassroots_p, const bson_t *query_p)
+{
+	User *user_p = NULL;
+	json_t *results_p = GetUserSearchAsJSON (grassroots_p, query_p);
+
+	if (results_p)
+		{
+			size_t num_results = json_array_size (results_p);
+
+			if (num_results == 1)
+				{
+					json_t *res_p = json_array_get (results_p, 0);
+
+					user_p = GetUserFromJSON (res_p);
+
+					if (!user_p)
+						{
+							json_t *query_json_p = ConvertBSONToJSON (query_p);
+							char *query_s = NULL;
+
+							if (query_json_p)
+								{
+									query_s = json_dumps (query_json_p, 0);
+									json_decref (query_json_p);
+								}
+
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "failed to create User with query \"%s\"", query_s ? query_s : "");
+
+							if (query_s)
+								{
+									free (query_s);
+								}
+						}
+
+				}		/* if (num_results == 1) */
+			else
+				{
+					json_t *query_json_p = ConvertBSONToJSON (query_p);
+					char *query_s = NULL;
+
+					if (query_json_p)
+						{
+							query_s = json_dumps (query_json_p, 0);
+							json_decref (query_json_p);
+						}
+
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, SIZET_FMT " results when searching for Users with query \"%s\"", num_results, query_s ? query_s : "");
+
+					if (query_s)
+						{
+							free (query_s);
+						}
+				}
+
+			json_decref (results_p);
+		}
+
 	return user_p;
 }
 
+
+LinkedList *GetAllUsers (const GrassrootsServer *grassroots_p)
+{
+	LinkedList *users_p = AllocateLinkedList (FreeUserNode);
+
+	if (users_p)
+		{
+			json_t *results_p = GetUserSearchAsJSON (grassroots_p, NULL);
+
+			if (results_p)
+				{
+					size_t num_results = json_array_size (results_p);
+					size_t i;
+					bool success_flag = true;
+
+
+					while (success_flag && (i < num_results))
+						{
+							json_t *res_p = json_array_get (results_p, i);
+
+							User *user_p = GetUserFromJSON (res_p);
+
+							if (user_p)
+								{
+									UserNode *node_p = AllocateUserNode (user_p);
+
+									if (node_p)
+										{
+											LinkedListAddTail (node_p);
+											++ i;
+										}
+									else
+										{
+											success_flag = false;
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "Failed to create UserNode");
+										}
+								}
+							else
+								{
+									success_flag = false;
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "Failed to create User");
+								}
+
+							if (success_flag)
+								{
+									++ i;
+								}
+						}
+
+
+					if (!success_flag)
+						{
+							FreeLinkedList (users_p);
+							users_p = NULL;
+						}
+
+
+					json_decref (results_p);
+				}
+
+
+		}
+
+	return users_p;
+}
 
 
 
