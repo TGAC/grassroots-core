@@ -358,6 +358,61 @@ const char **GetStringArrayValuesForParameter (ParameterSet *param_set_p, const 
 }
 
 
+bool CopyStringParameterOptions (const Parameter *src_p, Parameter *dest_p)
+{
+	bool success_flag = false;
+
+	if (src_p -> pa_options_p)
+		{
+			/*
+			 * Make a copy of content of src_p -> pa_options_p
+			 */
+			LinkedList *dest_options_p = AllocateLinkedList (FreeStringListNode);
+
+			if (dest_options_p)
+				{
+					StringListNode *src_node_p = (StringListNode *) (src_p -> pa_options_p -> ll_head_p);
+
+					success_flag = true;
+
+					while (src_node_p && success_flag)
+						{
+							StringListNode *dest_node_p = AllocateStringListNode (src_node_p -> sln_string_s, MF_DEEP_COPY);
+
+							if (dest_node_p)
+								{
+									LinkedListAddTail (dest_options_p, & (dest_node_p -> sln_node));
+									src_node_p = (StringListNode *) (src_node_p -> sln_node.ln_next_p);
+								}
+							else
+								{
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "AllocateStringListNode () failed for \"%s\"", src_node_p -> sln_string_s);
+									success_flag = false;
+								}
+						}
+
+					if (success_flag)
+						{
+							if (dest_p -> pa_options_p)
+								{
+									FreeLinkedList (dest_p -> pa_options_p);
+								}
+
+							dest_p -> pa_options_p = dest_options_p;
+						}
+
+				}		/* if (dest_options_p) */
+		}
+	else
+		{
+			/* nothing to do */
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */
