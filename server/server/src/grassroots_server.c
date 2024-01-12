@@ -1214,7 +1214,7 @@ static json_t *GetUserSearchAsJSON (const GrassrootsServer *grassroots_p, const 
 															json_decref (query_json_p);
 														}
 
-													PrinJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Not an array searching for User(s) with query \"%s\"", query_s ? query_s : "");
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, results_p, "Not an array searching for User(s) with query \"%s\"", query_s ? query_s : "");
 
 													if (query_s)
 														{
@@ -1351,7 +1351,7 @@ LinkedList *GetAllUsers (const GrassrootsServer *grassroots_p)
 
 									if (node_p)
 										{
-											LinkedListAddTail (node_p);
+											LinkedListAddTail (users_p, & (node_p -> un_node));
 											++ i;
 										}
 									else
