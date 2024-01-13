@@ -2774,3 +2774,19 @@ static bool InitParameterWithoutCallbacks (Parameter *param_p, const struct Serv
 }
 
 
+LinkedList *GetParameterStringMultiOptions (Parameter *param_p)
+{
+	if (! (param_p -> pa_options_p))
+		{
+			param_p -> pa_options_p = AllocateLinkedList (FreeStringParameterOptionNode);
+
+			if (! (param_p -> pa_options_p))
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate options list for parameter \"%s\"", param_p -> pa_name_s);
+				}
+		}
+
+	return (param_p -> pa_options_p);
+}
+
+

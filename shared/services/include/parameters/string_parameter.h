@@ -130,7 +130,7 @@ GRASSROOTS_SERVICE_API bool IsStringParameterBounded (const StringParameter *par
 GRASSROOTS_SERVICE_API bool GetStringParameterBounds (const StringParameter *param_p, const char **min_pp, const char **max_pp);
 
 
-GRASSROOTS_SERVICE_API bool CreateAndAddStringParameterOption (StringParameter *param_p, const char *value_s, const char *description_s);
+GRASSROOTS_SERVICE_API bool CreateAndAddStringParameterOption (Parameter *param_p, const char *value_s, const char *description_s);
 
 
 GRASSROOTS_SERVICE_API StringParameterOption *AllocateStringParameterOption (const char *value_s, const char *description_s);
@@ -163,6 +163,12 @@ GRASSROOTS_SERVICE_API bool GetCurrentStringParameterValueFromParameterGroup (co
 
 
 GRASSROOTS_SERVICE_API bool SetStringParameterCurrentValueFromJSON (StringParameter *param_p, const json_t *value_p);
+
+
+GRASSROOTS_SERVICE_API bool AddStringParameterOptionsToJSON (const Parameter *param_p, json_t *param_json_p);
+
+
+GRASSROOTS_SERVICE_API bool GetStringParameterOptionsFromJSON (Parameter *param_p, const json_t * const json_p);
 
 
 #ifdef __cplusplus

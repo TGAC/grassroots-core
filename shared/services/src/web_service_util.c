@@ -281,7 +281,7 @@ bool AddMatchTypeParameter (WebServiceData *data_p, ParameterSet *param_set_p)
 
 			for (i = 0; i < MT_NUM_MATCH_TYPES; ++ i)
 				{
-					if (!CreateAndAddStringParameterOption ((StringParameter *) param_p, * (S_MATCH_TYPE_VALUES_SS + i), NULL))
+					if (!CreateAndAddStringParameterOption (param_p, * (S_MATCH_TYPE_VALUES_SS + i), NULL))
 						{
 							i = MT_NUM_MATCH_TYPES;
 							success_flag = false;

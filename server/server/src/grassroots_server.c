@@ -1335,7 +1335,7 @@ LinkedList *GetAllUsers (const GrassrootsServer *grassroots_p)
 			if (results_p)
 				{
 					size_t num_results = json_array_size (results_p);
-					size_t i;
+					size_t i = 0;
 					bool success_flag = true;
 
 
@@ -1352,7 +1352,6 @@ LinkedList *GetAllUsers (const GrassrootsServer *grassroots_p)
 									if (node_p)
 										{
 											LinkedListAddTail (users_p, & (node_p -> un_node));
-											++ i;
 										}
 									else
 										{

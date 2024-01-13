@@ -122,10 +122,15 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 
 			if (InitParameterFromJSON (base_param_p, param_json_p, service_p, concise_flag, &pt))
 				{
-					SetParameterCallbacks (base_param_p, ClearStringArrayParameter, AddStringArrayParameterDetailsToJSON,
-																 CloneStringArrayParameter, SetStringArrayParameterCurrentValueFromString);
+					if (GetStringParameterOptionsFromJSON (base_param_p, param_json_p))
+						{
+							SetParameterCallbacks (base_param_p, ClearStringArrayParameter, AddStringArrayParameterDetailsToJSON,
+																		 CloneStringArrayParameter, SetStringArrayParameterCurrentValueFromString);
 
-					return param_p;
+							return param_p;
+
+						}
+
 				}
 			else
 				{
@@ -198,6 +203,8 @@ const char *GetStringArrayParameterCurrentValueAtIndex (const StringArrayParamet
 
 	return NULL;
 }
+
+
 
 
 bool SetStringArrayParameterCurrentValues (StringArrayParameter *param_p, char **values_ss, const size_t num_values)
@@ -556,9 +563,6 @@ char **CopyStringArray (char **src_array_ss, const size_t num_values)
 }
 
 
-
-
-
 static bool SetStringArrayParameterValue (char ***param_value_sss, const size_t num_existing_values, char **new_values_ss, const size_t num_new_values)
 {
 	bool success_flag = false;
@@ -647,7 +651,10 @@ static bool AddStringArrayParameterDetailsToJSON (const Parameter *param_p, json
 				{
 					if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sap_default_values_ss, string_array_param_p -> sap_num_values, param_json_p, PARAM_DEFAULT_VALUE_S))
 						{
-							success_flag = true;
+							if (AddStringParameterOptionsToJSON (param_p, param_json_p))
+								{
+									success_flag = true;
+								}
 						}		/* if (AddNonTrivialStringArrayValuesToJSON (string_array_param_p -> sp_default_values_ss, param_json_p, PARAM_DEFAULT_VALUE_S)) */
 
 				}		/* if (full_definition_flag) */

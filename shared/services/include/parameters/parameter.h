@@ -720,6 +720,9 @@ GRASSROOTS_SERVICE_API bool SetParameterCurrentValueFromJSON (Parameter *param_p
 GRASSROOTS_SERVICE_API const char *GetNamedParameterDefaultValueFromJSON (const char *id_param_s, const json_t *params_json_p);
 
 
+GRASSROOTS_SERVICE_API LinkedList *GetParameterStringMultiOptions (Parameter *param_p);
+
+
 #ifdef __cplusplus
 }
 #endif

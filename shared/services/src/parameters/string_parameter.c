@@ -39,10 +39,6 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 
 static bool GetStringParameterDetailsFromJSON (StringParameter *param_p, const json_t *param_json_p);
 
-static LinkedList *GetStringParameterMultiOptions (StringParameter *param_p);
-
-static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const json_t * const json_p);
-
 static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const char *value_s);
 
 static bool SetStringParameterValue (char **param_value_pp, const char *new_value_p);
@@ -245,10 +241,10 @@ bool GetStringParameterBounds (const StringParameter *param_p, const char **min_
 }
 
 
-bool CreateAndAddStringParameterOption (StringParameter *param_p, const char *value_s, const char *description_s)
+bool CreateAndAddStringParameterOption (Parameter *param_p, const char *value_s, const char *description_s)
 {
 	bool success_flag = false;
-	LinkedList *options_p = GetStringParameterMultiOptions (param_p);
+	LinkedList *options_p = GetParameterStringMultiOptions (param_p);
 
 	if (options_p)
 		{
@@ -276,7 +272,7 @@ bool CreateAndAddStringParameterOption (StringParameter *param_p, const char *va
 		}
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get options list for parameter \"%s\"", param_p -> sp_base_param.pa_name_s);
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get options list for parameter \"%s\"", param_p -> pa_name_s);
 		}
 
 
@@ -534,75 +530,11 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 								{
 									if (SetStringJSONValue (param_json_p, PARAM_MAX_S, string_param_p -> sp_max_value_s))
 										{
-											LinkedList *options_p = param_p -> pa_options_p;
-
-											if ((options_p != NULL) && (options_p -> ll_size > 0))
+											if (AddStringParameterOptionsToJSON (param_p, param_json_p))
 												{
-													json_t *json_options_p = json_array ();
-
-													if (json_options_p)
-														{
-															StringParameterOptionNode *node_p = (StringParameterOptionNode *) (options_p -> ll_head_p);
-
-															while (node_p)
-																{
-																	StringParameterOption *option_p = node_p -> spon_option_p;
-																	json_t *value_p = json_string (option_p -> spo_value_s);
-
-																	if (value_p)
-																		{
-																			json_t *item_p = json_object ();
-
-																			success_flag = false;
-
-																			if (item_p)
-																				{
-																					bool res_flag = true;
-
-																					if (option_p -> spo_description_s)
-																						{
-																							if (!SetJSONString (item_p, SHARED_TYPE_DESCRIPTION_S, option_p -> spo_description_s))
-																								{
-																									res_flag = false;
-																								}
-																						}
-
-																					if (res_flag)
-																						{
-																							if (json_object_set_new (item_p, SHARED_TYPE_VALUE_S, value_p) == 0)
-																								{
-																									success_flag = (json_array_append_new (json_options_p, item_p) == 0);
-																								}
-																						}
-
-																					if (!success_flag)
-																						{
-																							json_object_clear (item_p);
-																							json_decref (item_p);
-																						}
-																				}
-																		}
-
-																	node_p = (StringParameterOptionNode *) (node_p -> spon_node.ln_next_p);
-																}		/* while (node_p) */
-
-															if (success_flag)
-																{
-																	if (json_object_set_new (param_json_p, PARAM_OPTIONS_S, json_options_p) == 0)
-																		{
-																			success_flag = true;
-																		}
-																	else
-																		{
-																			json_decref (json_options_p);
-																		}
-																}
-
-														}		/* if (json_options_p) */
-
+													success_flag = true;
 												}
 
-											success_flag = true;
 										}
 								}
 						}
@@ -616,6 +548,87 @@ static bool AddStringParameterDetailsToJSON (const Parameter *param_p, json_t *p
 
 	return success_flag;
 }
+
+
+
+bool AddStringParameterOptionsToJSON (const Parameter *param_p, json_t *param_json_p)
+{
+	bool success_flag = false;
+	LinkedList *options_p = param_p -> pa_options_p;
+
+	if ((options_p != NULL) && (options_p -> ll_size > 0))
+		{
+			json_t *json_options_p = json_array ();
+
+			if (json_options_p)
+				{
+					StringParameterOptionNode *node_p = (StringParameterOptionNode *) (options_p -> ll_head_p);
+
+					while (node_p)
+						{
+							StringParameterOption *option_p = node_p -> spon_option_p;
+							json_t *value_p = json_string (option_p -> spo_value_s);
+
+							if (value_p)
+								{
+									json_t *item_p = json_object ();
+
+									success_flag = false;
+
+									if (item_p)
+										{
+											bool res_flag = true;
+
+											if (option_p -> spo_description_s)
+												{
+													if (!SetJSONString (item_p, SHARED_TYPE_DESCRIPTION_S, option_p -> spo_description_s))
+														{
+															res_flag = false;
+														}
+												}
+
+											if (res_flag)
+												{
+													if (json_object_set_new (item_p, SHARED_TYPE_VALUE_S, value_p) == 0)
+														{
+															success_flag = (json_array_append_new (json_options_p, item_p) == 0);
+														}
+												}
+
+											if (!success_flag)
+												{
+													json_object_clear (item_p);
+													json_decref (item_p);
+												}
+										}
+								}
+
+							node_p = (StringParameterOptionNode *) (node_p -> spon_node.ln_next_p);
+						}		/* while (node_p) */
+
+					if (success_flag)
+						{
+							if (json_object_set_new (param_json_p, PARAM_OPTIONS_S, json_options_p) == 0)
+								{
+									success_flag = true;
+								}
+							else
+								{
+									json_decref (json_options_p);
+								}
+						}
+
+				}		/* if (json_options_p) */
+
+		}
+	else
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
 
 
 /**
@@ -720,27 +733,9 @@ static bool GetStringParameterDetailsFromJSON (StringParameter *param_p, const j
 }
 
 
-static LinkedList *GetStringParameterMultiOptions (StringParameter *param_p)
-{
-	Parameter *base_param_p = & (param_p -> sp_base_param);
-
-	if (! (base_param_p -> pa_options_p))
-		{
-			base_param_p -> pa_options_p = AllocateLinkedList (FreeStringParameterOptionNode);
-
-			if (! (base_param_p -> pa_options_p))
-				{
-					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate options list for parameter \"%s\"", base_param_p -> pa_name_s);
-				}
-		}
-
-	return (base_param_p -> pa_options_p);
-}
 
 
-
-
-static bool GetStringParameterOptionsFromJSON (StringParameter *param_p, const json_t * const json_p)
+bool GetStringParameterOptionsFromJSON (Parameter *param_p, const json_t * const json_p)
 {
 	bool success_flag = true;
 	json_t *options_json_p = json_object_get (json_p, PARAM_OPTIONS_S);
@@ -859,7 +854,7 @@ static bool CopyStringParameterOptions (const StringParameter *src_p, StringPara
 				{
 					const StringParameterOption *option_p = src_node_p -> spon_option_p;
 
-					if (CreateAndAddStringParameterOption (dest_p, option_p -> spo_value_s, option_p -> spo_description_s))
+					if (CreateAndAddStringParameterOption (& (dest_p -> sp_base_param), option_p -> spo_value_s, option_p -> spo_description_s))
 						{
 							src_node_p = (StringParameterOptionNode *) (src_node_p -> spon_node.ln_next_p);
 						}
