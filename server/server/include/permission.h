@@ -16,12 +16,14 @@
 #include "mongodb_tool.h"
 #include "grassroots_server.h"
 
+
+
+
 typedef enum
 {
-	AR_NONE,
-	AR_READ_ONLY,
-	AR_READ_WRITE,
-	AR_FULL
+	AR_READ,
+	AR_WRITE,
+	AR_DELETE
 } AccessRights;
 
 
@@ -37,13 +39,12 @@ typedef struct Permisssions
 
 typedef struct PermissionsGroup
 {
-	Permissions *pg_full_access_p;
+	Permissions *pg_read_access_p;
 
-	Permissions *pg_read_write_access_p;
+	Permissions *pg_write_access_p;
 
-	Permissions *pg_read_only_access_p;
+	Permissions *pg_delete_access_p;
 
-	Permissions *pg_no_access_p;
 } PermissionsGroup;
 
 

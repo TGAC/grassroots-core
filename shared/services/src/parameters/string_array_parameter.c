@@ -420,6 +420,28 @@ bool CopyStringParameterOptions (const Parameter *src_p, Parameter *dest_p)
 }
 
 
+bool GetCurrentStringArrayParameterValuesFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const char ***values_ppp, size_t *num_entries_p)
+{
+	bool success_flag = false;
+	Parameter *param_p = GetParameterFromParameterSetByName (params_p, name_s);
+
+	if (param_p)
+		{
+			if (IsStringArrayParameter (param_p))
+				{
+					const StringArrayParameter *string_array_param_p = (const StringArrayParameter *) param_p;
+
+					*values_ppp = GetStringArrayParameterCurrentValues (string_array_param_p);
+					*num_entries_p = GetNumberOfStringArrayCurrentParameterValues (string_array_param_p);
+
+					success_flag = true;
+				}
+		}
+
+	return success_flag;
+}
+
+
 /*
  * STATIC DEFINITIONS
  */

@@ -11,10 +11,9 @@
 #include "user_group.h"
 #include "streams.h"
 
-static const char * const S_ACCESS_RIGHTS_FULL = "full";
-static const char * const S_ACCESS_RIGHTS_READ_WRITE = "read/write";
-static const char * const S_ACCESS_RIGHTS_READ_ONLY = "read only";
-static const char * const S_ACCESS_RIGHTS_NONE = "none";
+static const char * const S_ACCESS_RIGHTS_DELETE = "delte";
+static const char * const S_ACCESS_RIGHTS_WRITE = "write";
+static const char * const S_ACCESS_RIGHTS_READ = "read";
 
 
 static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const bool full_user_flag);
@@ -152,6 +151,9 @@ json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const bool full_
 
 					while (success_flag && node_p)
 						{
+							if (full)
+							const char *email_s = node_p -> un_user_p -> us_email_s;
+
 
 						}
 
@@ -181,22 +183,18 @@ json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, 
 
 	if (group_json_p)
 		{
-			if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_full_access_p, S_ACCESS_RIGHTS_FULL, full_user_flag))
+			if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_delete_access_p, S_ACCESS_RIGHTS_DELETE, full_user_flag))
 				{
-					if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_write_access_p, S_ACCESS_RIGHTS_READ_WRITE, full_user_flag))
+					if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_write_access_p, S_ACCESS_RIGHTS_WRITE, full_user_flag))
 						{
-							if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_only_access_p, S_ACCESS_RIGHTS_READ_ONLY, full_user_flag))
+							if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_READ, full_user_flag))
 								{
-									if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_no_access_p, S_ACCESS_RIGHTS_NONE, full_user_flag))
-										{
-											return group_json_p;
-										}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_no_access_p, S_ACCESS_RIGHTS_NONE)) */
+									return group_json_p;
+								}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_READ)) */
 
-								}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_only_access_p, S_ACCESS_RIGHTS_READ_ONLY)) */
+						}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_write_access_p, S_ACCESS_RIGHTS_WRITE)) */
 
-						}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_write_access_p, S_ACCESS_RIGHTS_READ_WRITE)) */
-
-				}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_full_access_p, S_ACCESS_RIGHTS_FULL)) */
+				}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_delete_access_p, S_ACCESS_RIGHTS_DELETE)) */
 
 			json_decref (group_json_p);
 		}		/* if (group_json_p) */
@@ -243,43 +241,31 @@ static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissio
 
 PermissionsGroup *AllocatePermissionsGroup (void)
 {
-	Permissions *full_permissions_p = AllocatePermissions (AR_FULL);
+	Permissions *delete_permissions_p = AllocatePermissions (AR_DELETE);
 
-	if (full_permissions_p)
+	if (delete_permissions_p)
 		{
-			Permissions *read_write_permissions_p = AllocatePermissions (AR_READ_WRITE);
+			Permissions *write_permissions_p = AllocatePermissions (AR_WRITE);
 
-			if (read_write_permissions_p)
+			if (write_permissions_p)
 				{
-					Permissions *read_only_permissions_p = AllocatePermissions (AR_READ_ONLY);
+					Permissions *read_only_permissions_p = AllocatePermissions (AR_READ);
 
 					if (read_only_permissions_p)
 						{
-							Permissions *no_permissions_p = AllocatePermissions (AR_NONE);
+							PermissionsGroup *group_p = (PermissionsGroup *) AllocMemory (sizeof (PermissionsGroup));
 
-							if (no_permissions_p)
+							if (group_p)
 								{
-									PermissionsGroup *group_p = (PermissionsGroup *) AllocMemory (sizeof (PermissionsGroup));
+									group_p -> pg_delete_access_p = delete_permissions_p;
+									group_p -> pg_write_access_p = write_permissions_p;
+									group_p -> pg_read_access_p = read_only_permissions_p;
 
-									if (group_p)
-										{
-											group_p -> pg_full_access_p = full_permissions_p;
-											group_p -> pg_read_write_access_p = read_write_permissions_p;
-											group_p -> pg_read_only_access_p = read_only_permissions_p;
-											group_p -> pg_no_access_p = no_permissions_p;
-
-											return group_p;
-										}
-									else
-										{
-											PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate PermissionsGroup");
-										}
-
-									FreePermissions (no_permissions_p);
-								}		/* if (no_permissions_p) */
+									return group_p;
+								}
 							else
 								{
-									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate none permissions");
+									PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate PermissionsGroup");
 								}
 
 							FreePermissions (read_only_permissions_p);
@@ -289,18 +275,18 @@ PermissionsGroup *AllocatePermissionsGroup (void)
 							PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate read only permissions");
 						}
 
-					FreePermissions (read_write_permissions_p);
+					FreePermissions (write_permissions_p);
 				}		/* if (read_write_permissions_p) */
 			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate read/write permissions");
 				}
 
-			FreePermissions (full_permissions_p);
-		}		/* if (full_permissions_p) */
+			FreePermissions (delete_permissions_p);
+		}		/* if (delete_permissions_p) */
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate full permissions");
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to allocate delete permissions");
 		}
 
 	return NULL;
@@ -309,10 +295,9 @@ PermissionsGroup *AllocatePermissionsGroup (void)
 
 void FreePermissionsGroup (PermissionsGroup *permissions_group_p)
 {
-	FreePermissions (permissions_group_p -> pg_full_access_p);
-	FreePermissions (permissions_group_p -> pg_read_write_access_p);
-	FreePermissions (permissions_group_p -> pg_read_only_access_p);
-	FreePermissions (permissions_group_p -> pg_no_access_p);
+	FreePermissions (permissions_group_p -> pg_delete_access_p);
+	FreePermissions (permissions_group_p -> pg_write_access_p);
+	FreePermissions (permissions_group_p -> pg_read_access_p);
 
 	FreeMemory (permissions_group_p);
 }
@@ -326,20 +311,16 @@ const char *GetAccessRightsAsString (const AccessRights ar)
 
 	switch (ar)
 		{
-			case AR_FULL:
-				res_s = S_ACCESS_RIGHTS_FULL;
+			case AR_DELETE:
+				res_s = S_ACCESS_RIGHTS_DELETE;
 				break;
 
-			case AR_READ_WRITE:
-				res_s = S_ACCESS_RIGHTS_READ_WRITE;
+			case AR_WRITE:
+				res_s = S_ACCESS_RIGHTS_WRITE;
 				break;
 
-			case AR_READ_ONLY:
-				res_s = S_ACCESS_RIGHTS_READ_ONLY;
-				break;
-
-			case AR_NONE:
-				res_s = S_ACCESS_RIGHTS_NONE;
+			case AR_READ:
+				res_s = S_ACCESS_RIGHTS_READ;
 				break;
 
 			default:
@@ -356,19 +337,19 @@ bool SetAccessRightsFromString (AccessRights *ar_p, const char * const ar_s)
 
 	if (ar_s)
 		{
-			if (strcmp (ar_s, S_ACCESS_RIGHTS_FULL) == 0)
+			if (strcmp (ar_s, S_ACCESS_RIGHTS_DELETE) == 0)
 				{
-					*ar_p = AR_FULL;
+					*ar_p = AR_DELETE;
 					success_flag = true;
 				}
 			else if (strcmp (ar_s, S_ACCESS_RIGHTS_READ_WRITE) == 0)
 				{
-					*ar_p = AR_READ_WRITE;
+					*ar_p = AR_WRITE;
 					success_flag = true;
 				}
 			else if (strcmp (ar_s, S_ACCESS_RIGHTS_READ_ONLY) == 0)
 				{
-					*ar_p = AR_READ_ONLY;
+					*ar_p = AR_READ;
 					success_flag = true;
 				}
 			else if (strcmp (ar_s, S_ACCESS_RIGHTS_NONE) == 0)
@@ -395,7 +376,7 @@ AccessRights CheckPermissionsManagerForUser (const PermissionsManager * const pe
 
 			if (!CheckPermissionsForUser (group_p -> pg_full_access_p, user_p, &rights))
 				{
-					if (!CheckPermissionsForUser (group_p -> pg_read_write_access_p, user_p, &rights))
+					if (!CheckPermissionsForUser (group_p -> pg_write_access_p, user_p, &rights))
 						{
 							if (!CheckPermissionsForUser (group_p -> pg_read_only_access_p, user_p, &rights))
 								{

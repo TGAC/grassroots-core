@@ -87,6 +87,9 @@ GRASSROOTS_SERVICE_API const char **GetStringArrayParameterCurrentValues (const 
 GRASSROOTS_SERVICE_API const char **GetStringArrayParameterDefaultValues (const StringArrayParameter *param_p);
 
 
+GRASSROOTS_SERVICE_API bool GetCurrentStringArrayParameterValuesFromParameterSet (const ParameterSet * const params_p, const char * const name_s, const char ***values_ppp, size_t *num_entries_p);
+
+
 GRASSROOTS_SERVICE_API const char *GetStringArrayParameterCurrentValueAtIndex (const StringArrayParameter *param_p, const size_t index);
 
 
