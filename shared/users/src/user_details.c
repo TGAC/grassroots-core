@@ -25,6 +25,10 @@
 #include "mongodb_tool.h"
 
 
+static bool AddDetailsToUserJSON (const User * const user_p, json_t *user_json_p);
+
+
+
 User *AllocateUser (bson_oid_t *id_p, const char *email_s, const char *forename_s, const char *surname_s, const char *org_s, const char *orcid_s)
 {
 	if (email_s)
@@ -137,79 +141,72 @@ void FreeUser (User *user_p)
 }
 
 
-json_t *GetUserAsJSON (const User *user_p, const bool full_flag)
+json_t *GetUserAsJSON (const User *user_p, const ViewFormat vf)
 {
 	json_t *user_json_p = json_object ();
 
 	if (user_json_p)
 		{
-			if ((! (user_p -> us_id_p)) || (AddCompoundIdToJSON (user_json_p, user_p -> us_id_p)))
+			bool success_flag = false;
+
+			switch (vf)
 				{
-					bool success_flag = false;
-
-					if (full_flag)
+					case VF_STORAGE:
 						{
-							if (SetJSONString (user_json_p, US_EMAIL_S, user_p -> us_email_s))
+							if ((! (user_p -> us_id_p)) || (AddCompoundIdToJSON (user_json_p, user_p -> us_id_p)))
 								{
-									if ((user_p -> us_forename_s == NULL) || (SetJSONString (user_json_p, US_FORENAME_S, user_p -> us_forename_s)))
+									if (AddDetailsToUserJSON (user_p, user_json_p))
 										{
-											if ((user_p -> us_surname_s == NULL) || (SetJSONString (user_json_p, US_SURNAME_S, user_p -> us_surname_s)))
-												{
-													if ((user_p -> us_org_s == NULL) || (SetJSONString (user_json_p, US_AFFILATION_S, user_p -> us_org_s)))
-														{
-															if ((user_p -> us_orcid_s == NULL) || (SetJSONString (user_json_p, US_ORCID_S, user_p -> us_orcid_s)))
-																{
-																	success_flag = true;
-																}
-															else
-																{
-																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																										 US_ORCID_S, user_p -> us_orcid_s);
-																}
-
-														}
-													else
-														{
-															PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																								 US_AFFILATION_S, user_p -> us_org_s);
-														}
-												}
-											else
-												{
-													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																						 US_SURNAME_S, user_p -> us_surname_s);
-												}
-
+											success_flag = true;
 										}
 									else
 										{
-											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																				 US_FORENAME_S, user_p -> us_forename_s);
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddDetailsToUserJSON () failed for \"%s\"",
+																				 user_p -> us_email_s);
 										}
-
 								}
 							else
 								{
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
-																		 US_EMAIL_S, user_p -> us_email_s);
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddCompoundIdToJSON () failed for \"%s\"",
+																		 user_p -> us_email_s);
 								}
-
 						}
-					else
+						break;
+
+					case VF_CLIENT_MINIMAL:
 						{
-							success_flag = true;
+							if (SetJSONString (user_json_p, US_EMAIL_S, user_p -> us_email_s))
+								{
+									success_flag = true;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"", US_EMAIL_S, user_p -> us_email_s);
+								}
 						}
+						break;
 
-					if (success_flag)
+					case VF_CLIENT_FULL:
 						{
-							return user_json_p;
+							if (AddDetailsToUserJSON (user_p, user_json_p))
+								{
+									success_flag = true;
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddDetailsToUserJSON () failed for \"%s\"",
+																		 user_p -> us_email_s);
+								}
 						}
+						break;
 
+					default:
+						break;
 				}
-			else
+
+			if (success_flag)
 				{
-					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddCompoundIdToJSON () failed for \"%s\"",
-														 user_p -> us_email_s);
+					return user_json_p;
 				}
 
 			json_decref (user_json_p);
@@ -295,9 +292,9 @@ User *GetUserFromJSON (const json_t *user_json_p)
 }
 
 
-bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s, const bool full_user_flag)
+bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s, const ViewFormat vf)
 {
-	json_t *user_json_p = GetUserAsJSON (user_p, full_user_flag);
+	json_t *user_json_p = GetUserAsJSON (user_p, vf);
 
 	if (user_json_p)
 		{
@@ -362,4 +359,54 @@ void FreeUserNode (ListItem *node_p)
 }
 
 
+static bool AddDetailsToUserJSON (const User * const user_p, json_t *user_json_p)
+{
+	bool success_flag = false;
 
+	if (SetJSONString (user_json_p, US_EMAIL_S, user_p -> us_email_s))
+		{
+			if ((user_p -> us_forename_s == NULL) || (SetJSONString (user_json_p, US_FORENAME_S, user_p -> us_forename_s)))
+				{
+					if ((user_p -> us_surname_s == NULL) || (SetJSONString (user_json_p, US_SURNAME_S, user_p -> us_surname_s)))
+						{
+							if ((user_p -> us_org_s == NULL) || (SetJSONString (user_json_p, US_AFFILATION_S, user_p -> us_org_s)))
+								{
+									if ((user_p -> us_orcid_s == NULL) || (SetJSONString (user_json_p, US_ORCID_S, user_p -> us_orcid_s)))
+										{
+											success_flag = true;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
+																				 US_ORCID_S, user_p -> us_orcid_s);
+										}
+
+								}
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
+																		 US_AFFILATION_S, user_p -> us_org_s);
+								}
+						}
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
+																 US_SURNAME_S, user_p -> us_surname_s);
+						}
+
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
+														 US_FORENAME_S, user_p -> us_forename_s);
+				}
+
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "SetJSONString () failed for \"%s\": \"%s\"",
+												 US_EMAIL_S, user_p -> us_email_s);
+		}
+
+	return success_flag;
+}

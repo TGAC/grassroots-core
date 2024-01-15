@@ -30,6 +30,7 @@
 #include "grassroots_users_library.h"
 #include "linked_list.h"
 #include "schema_keys.h"
+#include "view_format.h"
 
 
 /**
@@ -133,7 +134,7 @@ GRASSROOTS_USERS_API void FreeUser (User *user_p);
  * @return The json representation or <code>NULL</code> upon error.
  * @memberof User
  */
-GRASSROOTS_USERS_API json_t *GetUserAsJSON (const User *user_p, const bool full_flag);
+GRASSROOTS_USERS_API json_t *GetUserAsJSON (const User *user_p, const ViewFormat vf);
 
 
 
@@ -169,7 +170,7 @@ GRASSROOTS_USERS_API User *GetUserFromNamedJSON (const json_t *json_p, const cha
  * @return <code>true</code> if the User's json was added successfully, code>false</code> otherwise.
  * @memberof User
  */
-GRASSROOTS_USERS_API bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s, const bool full_user_flag);
+GRASSROOTS_USERS_API bool AddUserToJSON (const User *user_p, json_t *json_p, const char * const user_key_s, const ViewFormat vf);
 
 
 

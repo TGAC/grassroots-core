@@ -21,15 +21,16 @@
 
 typedef enum
 {
-	AR_READ,
-	AR_WRITE,
-	AR_DELETE
-} AccessRights;
+	AM_NONE,
+	AM_READ,
+	AM_WRITE,
+	AM_DELETE
+} AccessMode;
 
 
 typedef struct Permisssions
 {
-	AccessRights pe_access;
+	AccessMode pe_access;
 
 	LinkedList *pe_users_p;
 
@@ -72,7 +73,7 @@ GRASSROOTS_UTIL_API PermissionsManager *AllocatePermissionsManager (GrassrootsSe
 GRASSROOTS_UTIL_API void FreePermissionsManager (PermissionsManager *manager_p);
 
 
-GRASSROOTS_UTIL_API Permissions *AllocatePermissions (AccessRights access);
+GRASSROOTS_UTIL_API Permissions *AllocatePermissions (AccessMode access);
 
 
 GRASSROOTS_UTIL_API void FreePermissions (Permissions *permissions_p);
@@ -87,23 +88,42 @@ GRASSROOTS_UTIL_API void FreePermissionsGroup (PermissionsGroup *permissions_gro
 GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *json_p);
 
 
-GRASSROOTS_UTIL_API json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const bool full_user_flag);
+GRASSROOTS_UTIL_API json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const ViewFormat vf);
 
 
-GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p, bool full_flag);
+GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat vf);
 
 
 GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *json_p);
 
 
+GRASSROOTS_UTIL_API bool AddUserToPermissions (Permissions *permissions_p, User *user_p);
 
-GRASSROOTS_UTIL_API AccessRights CheckPermissionsManagerForUser (const PermissionsManager * const permissions_manager_p, const User * const user_p);
+
+GRASSROOTS_UTIL_API bool AddGroupToPermissions (Permissions *permissions_p, UserGroup *group_p);
 
 
-GRASSROOTS_UTIL_API bool CheckPermissionsForUser (const Permissions * const permissions_p, const User * const user_p, AccessRights *ar_p);
+/**
+ *
+ * @param permissions_manager_p
+ * @param user_p The User to check for.
+ * @param mode The mode of access to be checked for the given User.
+ * @return
+ */
+GRASSROOTS_UTIL_API bool CheckPermissionsManagerForUser (const PermissionsManager * const permissions_manager_p, const User * const user_p, const AccessMode mode);
+
+
+GRASSROOTS_UTIL_API bool CheckPermissionsForUser (const Permissions * const permissions_p, const User * const user_p);
 
 
 GRASSROOTS_UTIL_API bool HasPermissionsSet (const Permissions * const permissions_p);
+
+
+
+GRASSROOTS_UTIL_API bool SetAccessModeFromString (AccessMode *ar_p, const char * const ar_s);
+
+
+GRASSROOTS_UTIL_API const char *GetAccessRightsAsString (const AccessMode ar);
 
 
 #ifdef __cplusplus

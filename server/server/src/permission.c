@@ -10,13 +10,20 @@
 #include "memory_allocations.h"
 #include "user_group.h"
 #include "streams.h"
-
-static const char * const S_ACCESS_RIGHTS_DELETE = "delte";
-static const char * const S_ACCESS_RIGHTS_WRITE = "write";
-static const char * const S_ACCESS_RIGHTS_READ = "read";
+#include "json_util.h"
 
 
-static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const bool full_user_flag);
+static const char * const S_ACCESS_RIGHTS_DELETE_S = "delete";
+static const char * const S_ACCESS_RIGHTS_WRITE_S = "write";
+static const char * const S_ACCESS_RIGHTS_READ_S = "read";
+
+
+static const char * const S_PERMISSIONS_USERS_S = "users";
+static const char * const S_PERMISSIONS_GROUPS_S = "groups";
+static const char * const S_PERMISSIONS_MODE_s = "access_mode";
+
+
+static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const ViewFormat fmt);
 
 
 
@@ -98,7 +105,7 @@ void FreePermissionsManager (PermissionsManager *manager_p)
 }
 
 
-Permissions *AllocatePermissions (AccessRights access)
+Permissions *AllocatePermissions (AccessMode access)
 {
 	LinkedList *groups_p = AllocateLinkedList (FreeUserGroupNode);
 
@@ -138,63 +145,164 @@ void FreePermissions (Permissions *permissions_p)
 
 
 
-json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const bool full_flag)
+json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat vf)
 {
-	if (permissions_p -> pe_users_p -> ll_size > 0)
+	json_t *permissions_json_p = json_object ();
+	bool success_flag = false;
+
+	if (permissions_json_p)
 		{
-			json_t *people_p = json_array ();
+			const char *access_s = GetAccessRightsAsString (permissions_p -> pe_access);
 
-			if (people_p)
+			if (access_s)
 				{
-					UserNode *node_p = (UserNode *) (permissions_p -> pe_users_p -> ll_head_p);
-					bool success_flag = true;
-
-					while (success_flag && node_p)
+					if (SetJSONString (permissions_json_p, S_PERMISSIONS_MODE_s, access_s))
 						{
-							if (full)
-							const char *email_s = node_p -> un_user_p -> us_email_s;
+							if (permissions_p -> pe_users_p -> ll_size > 0)
+								{
+									json_t *people_p = json_array ();
 
+									if (people_p)
+										{
+											if (json_object_set_new (permissions_json_p, S_PERMISSIONS_USERS_S, people_p) == 0)
+												{
+													UserNode *node_p = (UserNode *) (permissions_p -> pe_users_p -> ll_head_p);
+													success_flag = true;
+
+													while (success_flag && node_p)
+														{
+															json_t *user_json_p = GetUserAsJSON (node_p -> un_user_p, vf);
+
+															if (user_json_p)
+																{
+																	if (json_array_append_new (people_p, user_json_p) != 0)
+																		{
+																			success_flag = false;
+																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "Failed to append entry to array");
+																			json_decref (user_json_p);
+																		}
+																}
+															else
+																{
+																	success_flag = false;
+																	json_decref (user_json_p);
+																}
+														}
+												}
+											else
+												{
+													json_decref (people_p);
+												}
+
+
+										}
+								}
 
 						}
 
-					if (success_flag)
-						{
-							return people_p;
-						}
-
-					json_decref (people_p);
 				}
+
+
+
+			if (success_flag)
+				{
+					return permissions_json_p;
+				}
+		}		/* if (permissions_json_p) */
+	else
+		{
+
 		}
 
+
+
 	return NULL;
 }
 
 
-Permissions *GetPermissionsFromJSON (const json_t *json_p)
+
+bool AddUserToPermissions (Permissions *permissions_p, User *user_p)
 {
+	bool success_flag = false;
+	UserNode *node_p = AllocateUserNode (user_p);
+
+	if (node_p)
+		{
+			LinkedListAddTail (& (permissions_p -> pe_users_p), & (node_p -> un_node));
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
+bool AddGroupToPermissions (Permissions *permissions_p, UserGroup *group_p)
+{
+	bool success_flag = false;
+	UserGroupNode *node_p = AllocateUserGroupNode (group_p);
+
+	if (node_p)
+		{
+			LinkedListAddTail (& (permissions_p -> pe_groups_p), & (node_p -> ugn_node));
+			success_flag = true;
+		}
+
+	return success_flag;
+}
+
+
+bool AddUserToGroupInPermissions (Permissions *permissions_p, const char * const group_s, User *user_p)
+{
+
+}
+
+
+Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p)
+{
+	const char *access_s = GetJSONString (permissions_json_p);
+
+	if (access_s)
+		{
+			AccessMode mode = AM_NONE;
+
+			if (SetAccessModeFromString (&mode, access_s))
+				{
+					const json_t *users_p = json_object_get (permissions_json_p, S_PERMISSIONS_USERS_S);
+
+					if (users_p)
+						{
+
+						}
+
+
+				}
+
+		}
+
+
 	return NULL;
 }
 
 
 
-json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const bool full_user_flag)
+json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const ViewFormat vf)
 {
 	json_t *group_json_p = json_object ();
 
 	if (group_json_p)
 		{
-			if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_delete_access_p, S_ACCESS_RIGHTS_DELETE, full_user_flag))
+			if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_delete_access_p, S_ACCESS_RIGHTS_DELETE_S, vf))
 				{
-					if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_write_access_p, S_ACCESS_RIGHTS_WRITE, full_user_flag))
+					if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_write_access_p, S_ACCESS_RIGHTS_WRITE_S, vf))
 						{
-							if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_READ, full_user_flag))
+							if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_READ_S, vf))
 								{
 									return group_json_p;
-								}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_READ)) */
+								}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_READ_S, vf)) */
 
-						}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_write_access_p, S_ACCESS_RIGHTS_WRITE)) */
+						}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_WRITE_S, vf)) */
 
-				}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_delete_access_p, S_ACCESS_RIGHTS_DELETE)) */
+				}		/* if (AddPermissionsJSONToGroupJSON (group_json_p, permissions_group_p -> pg_read_access_p, S_ACCESS_RIGHTS_DELETE_S, vf)) */
 
 			json_decref (group_json_p);
 		}		/* if (group_json_p) */
@@ -209,13 +317,13 @@ bool HasPermissionsSet (const Permissions * const permissions_p)
 }
 
 
-static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const bool full_user_flag)
+static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const ViewFormat fmt)
 {
 	bool success_flag = false;
 
 	if (HasPermissionsSet (perms_p))
 		{
-			json_t *perms_json_p = GetPermissionsAsJSON (perms_p, full_user_flag);
+			json_t *perms_json_p = GetPermissionsAsJSON (perms_p, fmt);
 
 			if (perms_json_p)
 				{
@@ -241,15 +349,15 @@ static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissio
 
 PermissionsGroup *AllocatePermissionsGroup (void)
 {
-	Permissions *delete_permissions_p = AllocatePermissions (AR_DELETE);
+	Permissions *delete_permissions_p = AllocatePermissions (AM_DELETE);
 
 	if (delete_permissions_p)
 		{
-			Permissions *write_permissions_p = AllocatePermissions (AR_WRITE);
+			Permissions *write_permissions_p = AllocatePermissions (AM_WRITE);
 
 			if (write_permissions_p)
 				{
-					Permissions *read_only_permissions_p = AllocatePermissions (AR_READ);
+					Permissions *read_only_permissions_p = AllocatePermissions (AM_READ);
 
 					if (read_only_permissions_p)
 						{
@@ -305,22 +413,22 @@ void FreePermissionsGroup (PermissionsGroup *permissions_group_p)
 
 
 
-const char *GetAccessRightsAsString (const AccessRights ar)
+const char *GetAccessRightsAsString (const AccessMode ar)
 {
 	const char *res_s = NULL;
 
 	switch (ar)
 		{
-			case AR_DELETE:
-				res_s = S_ACCESS_RIGHTS_DELETE;
+			case AM_DELETE:
+				res_s = S_ACCESS_RIGHTS_DELETE_S;
 				break;
 
-			case AR_WRITE:
-				res_s = S_ACCESS_RIGHTS_WRITE;
+			case AM_WRITE:
+				res_s = S_ACCESS_RIGHTS_WRITE_S;
 				break;
 
-			case AR_READ:
-				res_s = S_ACCESS_RIGHTS_READ;
+			case AM_READ:
+				res_s = S_ACCESS_RIGHTS_READ_S;
 				break;
 
 			default:
@@ -331,30 +439,25 @@ const char *GetAccessRightsAsString (const AccessRights ar)
 }
 
 
-bool SetAccessRightsFromString (AccessRights *ar_p, const char * const ar_s)
+bool SetAccessModeFromString (AccessMode *ar_p, const char * const ar_s)
 {
 	bool success_flag = false;
 
 	if (ar_s)
 		{
-			if (strcmp (ar_s, S_ACCESS_RIGHTS_DELETE) == 0)
+			if (strcmp (ar_s, S_ACCESS_RIGHTS_DELETE_S) == 0)
 				{
-					*ar_p = AR_DELETE;
+					*ar_p = AM_DELETE;
 					success_flag = true;
 				}
-			else if (strcmp (ar_s, S_ACCESS_RIGHTS_READ_WRITE) == 0)
+			else if (strcmp (ar_s, S_ACCESS_RIGHTS_WRITE_S) == 0)
 				{
-					*ar_p = AR_WRITE;
+					*ar_p = AM_WRITE;
 					success_flag = true;
 				}
-			else if (strcmp (ar_s, S_ACCESS_RIGHTS_READ_ONLY) == 0)
+			else if (strcmp (ar_s, S_ACCESS_RIGHTS_READ_S) == 0)
 				{
-					*ar_p = AR_READ;
-					success_flag = true;
-				}
-			else if (strcmp (ar_s, S_ACCESS_RIGHTS_NONE) == 0)
-				{
-					*ar_p = AR_NONE;
+					*ar_p = AM_READ;
 					success_flag = true;
 				}
 		}
@@ -366,43 +469,60 @@ bool SetAccessRightsFromString (AccessRights *ar_p, const char * const ar_s)
 
 
 
-AccessRights CheckPermissionsManagerForUser (const PermissionsManager * const permissions_manager_p, const User * const user_p)
+bool CheckPermissionsManagerForUser (const PermissionsManager * const permissions_manager_p, const User * const user_p, const AccessMode mode)
 {
-	AccessRights rights = AR_FULL;
+	bool has_access_flag = false;
 
 	if (permissions_manager_p)
 		{
 			PermissionsGroup *group_p = permissions_manager_p -> pm_permissions_p;
+			Permissions *permissions_p = NULL;
 
-			if (!CheckPermissionsForUser (group_p -> pg_full_access_p, user_p, &rights))
+			switch (mode)
+			{
+				case AM_READ:
+					permissions_p = group_p -> pg_read_access_p;
+					break;
+
+				case AM_WRITE:
+					permissions_p = group_p -> pg_write_access_p;
+					break;
+
+				case AM_DELETE:
+					permissions_p = group_p -> pg_delete_access_p;
+					break;
+
+				default:
+					break;
+			}
+
+			if (permissions_p)
 				{
-					if (!CheckPermissionsForUser (group_p -> pg_write_access_p, user_p, &rights))
-						{
-							if (!CheckPermissionsForUser (group_p -> pg_read_only_access_p, user_p, &rights))
-								{
-									CheckPermissionsForUser (group_p -> pg_no_access_p, user_p, &rights);
-								}
-
-						}
+					has_access_flag = CheckPermissionsForUser (permissions_p, user_p);
 				}
 		}
+	else
+		{
+			has_access_flag = true;
+		}
 
-	return rights;
+	return has_access_flag;
 }
 
 
-bool CheckPermissionsForUser (const Permissions * const permissions_p, const User * const user_p, AccessRights *ar_p)
+bool CheckPermissionsForUser (const Permissions * const permissions_p, const User * const user_p)
 {
+	bool user_access = false;
+
 	if (permissions_p -> pe_users_p)
 		{
 			UserNode *user_node_p = (UserNode *) (permissions_p -> pe_users_p -> ll_head_p);
 
-			while (user_node_p)
+			while (user_node_p && (!user_access))
 				{
 					if (strcmp (user_p -> us_email_s, user_node_p -> un_user_p -> us_email_s) == 0)
 						{
-							*ar_p = permissions_p -> pe_access;
-							return true;
+							user_access = true;
 						}
 					else
 						{
@@ -411,24 +531,26 @@ bool CheckPermissionsForUser (const Permissions * const permissions_p, const Use
 				}
 		}
 
-	if (permissions_p -> pe_groups_p)
+	if (!user_access)
 		{
-			UserGroupNode *group_node_p = (UserGroupNode *) (permissions_p -> pe_groups_p -> ll_head_p);
-
-			while (group_node_p)
+			if (permissions_p -> pe_groups_p)
 				{
-					if (IsUserInGroup (group_node_p -> ugn_group_p, user_p))
+					UserGroupNode *group_node_p = (UserGroupNode *) (permissions_p -> pe_groups_p -> ll_head_p);
+
+					while (group_node_p && (!user_access))
 						{
-							*ar_p = permissions_p -> pe_access;
-							return true;
-						}
-					else
-						{
-							group_node_p = (UserGroupNode *) (group_node_p -> ugn_node.ln_next_p);
+							if (IsUserInGroup (group_node_p -> ugn_group_p, user_p))
+								{
+									user_access = true;
+								}
+							else
+								{
+									group_node_p = (UserGroupNode *) (group_node_p -> ugn_node.ln_next_p);
+								}
 						}
 				}
 		}
 
-	return false;
+	return user_access;
 }
 
