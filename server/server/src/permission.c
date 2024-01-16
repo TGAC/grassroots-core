@@ -259,7 +259,7 @@ bool AddUserToGroupInPermissions (Permissions *permissions_p, const char * const
 
 Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p)
 {
-	const char *access_s = GetJSONString (permissions_json_p);
+	const char *access_s = GetJSONString (permissions_json_p, S_PERMISSIONS_MODE_s);
 
 	if (access_s)
 		{
