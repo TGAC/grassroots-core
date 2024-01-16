@@ -85,16 +85,13 @@ GRASSROOTS_UTIL_API PermissionsGroup *AllocatePermissionsGroup (void);
 GRASSROOTS_UTIL_API void FreePermissionsGroup (PermissionsGroup *permissions_group_p);
 
 
-GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *json_p);
+GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p, const GrassrootsServer *grassroots_p);
 
 
 GRASSROOTS_UTIL_API json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const ViewFormat vf);
 
 
 GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat vf);
-
-
-GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *json_p);
 
 
 GRASSROOTS_UTIL_API bool AddUserToPermissions (Permissions *permissions_p, User *user_p);

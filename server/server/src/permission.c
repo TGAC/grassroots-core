@@ -25,6 +25,8 @@ static const char * const S_PERMISSIONS_MODE_s = "access_mode";
 
 static bool AddPermissionsJSONToGroupJSON (json_t *group_json_p, const Permissions *perms_p, const char * const key_s, const ViewFormat fmt);
 
+static Permissions *GetPermissionsFromCompoundJSON (const json_t *permissions_group_json_p, const char * const key_s, const GrassrootsServer *grassroots_p);
+
 
 
 PermissionsManager *AllocatePermissionsManager (GrassrootsServer *grassroots_p, const char *database_s, const char *collection_s)
@@ -228,7 +230,7 @@ bool AddUserToPermissions (Permissions *permissions_p, User *user_p)
 
 	if (node_p)
 		{
-			LinkedListAddTail (& (permissions_p -> pe_users_p), & (node_p -> un_node));
+			LinkedListAddTail (permissions_p -> pe_users_p, & (node_p -> un_node));
 			success_flag = true;
 		}
 
@@ -243,7 +245,7 @@ bool AddGroupToPermissions (Permissions *permissions_p, UserGroup *group_p)
 
 	if (node_p)
 		{
-			LinkedListAddTail (& (permissions_p -> pe_groups_p), & (node_p -> ugn_node));
+			LinkedListAddTail (permissions_p -> pe_groups_p, & (node_p -> ugn_node));
 			success_flag = true;
 		}
 
@@ -253,11 +255,39 @@ bool AddGroupToPermissions (Permissions *permissions_p, UserGroup *group_p)
 
 bool AddUserToGroupInPermissions (Permissions *permissions_p, const char * const group_s, User *user_p)
 {
+	bool success_flag = false;
 
+	return success_flag;
 }
 
 
-Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p)
+PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_json_p, const GrassrootsServer *grassroots_p)
+{
+	Permissions *read_perms_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_READ_S, grassroots_p);
+
+	if (read_perms_p)
+		{
+			Permissions *write_perms_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_WRITE_S, grassroots_p);
+
+			if (write_perms_p)
+				{
+					Permissions *delete_params_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_DELETE_S, grassroots_p);
+
+					if (delete_params_p)
+						{
+
+						}
+
+				}
+
+		}
+
+	return NULL;
+}
+
+
+
+Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p, const GrassrootsServer *grassroots_p)
 {
 	const char *access_s = GetJSONString (permissions_json_p, S_PERMISSIONS_MODE_s);
 
@@ -267,12 +297,57 @@ Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p)
 
 			if (SetAccessModeFromString (&mode, access_s))
 				{
-					const json_t *users_p = json_object_get (permissions_json_p, S_PERMISSIONS_USERS_S);
+					Permissions *permissions_p = AllocatePermissions (mode);
 
-					if (users_p)
+					if (permissions_p)
 						{
+							bool success_flag = true;
+							const json_t *users_p = json_object_get (permissions_json_p, S_PERMISSIONS_USERS_S);
 
+							if (users_p)
+								{
+									if (json_is_array (users_p))
+										{
+											size_t i = 0;
+											const size_t num_entries = json_array_size (users_p);
+
+											while ((i < num_entries) && success_flag)
+												{
+													const json_t *user_json_p = json_array_get (users_p, i);
+													bson_oid_t id;
+
+													if (GetMongoIdFromJSON (user_json_p, &id))
+														{
+															User *user_p = GetUserById (grassroots_p, &id);
+
+															if (AddUserToPermissions (permissions_p, user_p))
+																{
+																	++ i;
+																}
+															else
+																{
+																	success_flag = false;
+																	FreeUser (user_p);
+																}
+														}
+													else
+														{
+															success_flag = false;
+														}
+
+												}
+
+										}
+								}
+
+
+							if (success_flag)
+								{
+									return permissions_p;
+								}
 						}
+
+
 
 
 				}
@@ -554,3 +629,22 @@ bool CheckPermissionsForUser (const Permissions * const permissions_p, const Use
 	return user_access;
 }
 
+
+
+
+static Permissions *GetPermissionsFromCompoundJSON (const json_t *permissions_group_json_p, const char * const key_s, const GrassrootsServer *grassroots_p)
+{
+	const json_t *permissions_json_p = json_object_get (permissions_group_json_p, key_s);
+
+	if (permissions_json_p)
+		{
+			Permissions *perms_p = GetPermissionsFromJSON (permissions_json_p, grassroots_p);
+
+			if (perms_p)
+				{
+					return perms_p;
+				}
+		}
+
+	return NULL;
+}
