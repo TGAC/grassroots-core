@@ -75,6 +75,8 @@ GRASSROOTS_UTIL_API void FreePermissionsManager (PermissionsManager *manager_p);
 
 GRASSROOTS_UTIL_API Permissions *AllocatePermissions (AccessMode access);
 
+GRASSROOTS_UTIL_API void ClearPermissions (Permissions *permissions_p);
+
 
 GRASSROOTS_UTIL_API void FreePermissions (Permissions *permissions_p);
 
