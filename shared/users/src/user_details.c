@@ -27,6 +27,8 @@
 
 static bool AddDetailsToUserJSON (const User * const user_p, json_t *user_json_p);
 
+static bool AddIdToUserJSON (const User * const user_p, json_t *user_json_p);
+
 
 
 User *AllocateUser (bson_oid_t *id_p, const char *email_s, const char *forename_s, const char *surname_s, const char *org_s, const char *orcid_s)
@@ -151,9 +153,18 @@ json_t *GetUserAsJSON (const User *user_p, const ViewFormat vf)
 
 			switch (vf)
 				{
+					case VF_REFERENCE:
+						{
+							if (AddIdToUserJSON (user_p, user_json_p))
+								{
+									success_flag = true;
+								}
+						}
+						break;
+
 					case VF_STORAGE:
 						{
-							if ((! (user_p -> us_id_p)) || (AddCompoundIdToJSON (user_json_p, user_p -> us_id_p)))
+							if (AddIdToUserJSON (user_p, user_json_p))
 								{
 									if (AddDetailsToUserJSON (user_p, user_json_p))
 										{
@@ -167,7 +178,7 @@ json_t *GetUserAsJSON (const User *user_p, const ViewFormat vf)
 								}
 							else
 								{
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddCompoundIdToJSON () failed for \"%s\"",
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddIdToUserJSON () failed for \"%s\"",
 																		 user_p -> us_email_s);
 								}
 						}
@@ -358,6 +369,18 @@ void FreeUserNode (ListItem *node_p)
 	FreeMemory (user_node_p);
 }
 
+
+static bool AddIdToUserJSON (const User * const user_p, json_t *user_json_p)
+{
+	bool success_flag = false;
+
+	if ((! (user_p -> us_id_p)) || (AddCompoundIdToJSON (user_json_p, user_p -> us_id_p)))
+		{
+			success_flag = true;
+		}
+
+	return success_flag;
+}
 
 static bool AddDetailsToUserJSON (const User * const user_p, json_t *user_json_p)
 {

@@ -91,6 +91,10 @@ GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *permissio
 GRASSROOTS_UTIL_API json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const ViewFormat vf);
 
 
+GRASSROOTS_UTIL_API bool AddPermissionsGroupToJSON (const PermissionsGroup *permissions_group_p, json_t *json_p, const char * const key_s, const ViewFormat vf);
+
+
+
 GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat vf);
 
 
@@ -99,6 +103,9 @@ GRASSROOTS_UTIL_API bool AddUserToPermissions (Permissions *permissions_p, User 
 
 GRASSROOTS_UTIL_API bool AddGroupToPermissions (Permissions *permissions_p, UserGroup *group_p);
 
+
+
+GRASSROOTS_UTIL_API void ClearPermissions (Permissions *permissions_p);
 
 /**
  *

@@ -177,7 +177,11 @@ json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat
 
 															if (user_json_p)
 																{
-																	if (json_array_append_new (people_p, user_json_p) != 0)
+																	if (json_array_append_new (people_p, user_json_p) == 0)
+																		{
+																			node_p = (UserNode *) (node_p -> un_node.ln_next_p);
+																		}
+																	else
 																		{
 																			success_flag = false;
 																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "Failed to append entry to array");
@@ -259,6 +263,14 @@ bool AddUserToGroupInPermissions (Permissions *permissions_p, const char * const
 
 	return success_flag;
 }
+
+
+void ClearPermissions (Permissions *permissions_p)
+{
+	ClearLinkedList (permissions_p -> pe_users_p);
+	ClearLinkedList (permissions_p -> pe_groups_p);
+}
+
 
 
 PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_json_p, const GrassrootsServer *grassroots_p)
@@ -356,6 +368,34 @@ Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p, const Gra
 
 
 	return NULL;
+}
+
+
+bool AddPermissionsGroupToJSON (const PermissionsGroup *permissions_group_p, json_t *json_p, const char * const key_s, const ViewFormat vf)
+{
+	bool success_flag = false;
+	json_t *perms_group_json_p = GetPermissionsGroupAsJSON (permissions_group_p, vf);
+
+	if (perms_group_json_p)
+		{
+			if (json_object_set_new (json_p, key_s, perms_group_json_p) == 0)
+				{
+					success_flag = true;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, perms_group_json_p, "Failed to add PermissionsGroup ...");
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "... to this json");
+
+					json_decref (perms_group_json_p);
+				}
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "GetPermissionsGroupAsJSON () failed");
+		}
+
+	return success_flag;
 }
 
 
