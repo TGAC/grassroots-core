@@ -184,7 +184,11 @@ json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat
 
 															if (user_json_p)
 																{
-																	if (json_array_append_new (people_p, user_json_p) != 0)
+																	if (json_array_append_new (people_p, user_json_p) == 0)
+																		{
+																			node_p = (UserNode *) (node_p -> un_node.ln_next_p);
+																		}
+																	else
 																		{
 																			success_flag = false;
 																			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "Failed to append entry to array");
@@ -268,6 +272,14 @@ bool AddUserToGroupInPermissions (Permissions *permissions_p, const char * const
 }
 
 
+void ClearPermissions (Permissions *permissions_p)
+{
+	ClearLinkedList (permissions_p -> pe_users_p);
+	ClearLinkedList (permissions_p -> pe_groups_p);
+}
+
+
+
 PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_json_p, const GrassrootsServer *grassroots_p)
 {
 	Permissions *read_perms_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_READ_S, grassroots_p);
@@ -278,11 +290,20 @@ PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_j
 
 			if (write_perms_p)
 				{
-					Permissions *delete_params_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_DELETE_S, grassroots_p);
+					Permissions *delete_perms_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_DELETE_S, grassroots_p);
 
-					if (delete_params_p)
+					if (delete_perms_p)
 						{
+							PermissionsGroup *perms_group_p = (PermissionsGroup *) AllocMemory (sizeof (PermissionsGroup));
 
+							if (perms_group_p)
+								{
+									perms_group_p -> pg_read_access_p = read_perms_p;
+									perms_group_p -> pg_write_access_p = write_perms_p;
+									perms_group_p -> pg_delete_access_p = delete_perms_p;
+
+									return perms_group_p;
+								}
 						}
 
 				}
@@ -290,6 +311,21 @@ PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_j
 		}
 
 	return NULL;
+}
+
+
+
+PermissionsGroup *GetPermissionsGroupFromChildJSON (const json_t *parent_json_p, const char * const key_s, const GrassrootsServer *grassroots_p)
+{
+	PermissionsGroup *perms_group_p = NULL;
+	json_t *perms_group_json_p = json_object_get (parent_json_p, key_s);
+
+	if (perms_group_json_p)
+		{
+			perms_group_p = GetPermissionsGroupFromJSON (perms_group_json_p, grassroots_p);
+		}
+
+	return perms_group_p;
 }
 
 
@@ -363,6 +399,34 @@ Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p, const Gra
 
 
 	return NULL;
+}
+
+
+bool AddPermissionsGroupToJSON (const PermissionsGroup *permissions_group_p, json_t *json_p, const char * const key_s, const ViewFormat vf)
+{
+	bool success_flag = false;
+	json_t *perms_group_json_p = GetPermissionsGroupAsJSON (permissions_group_p, vf);
+
+	if (perms_group_json_p)
+		{
+			if (json_object_set_new (json_p, key_s, perms_group_json_p) == 0)
+				{
+					success_flag = true;
+				}
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, perms_group_json_p, "Failed to add PermissionsGroup ...");
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "... to this json");
+
+					json_decref (perms_group_json_p);
+				}
+		}
+	else
+		{
+			PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, json_p, "GetPermissionsGroupAsJSON () failed");
+		}
+
+	return success_flag;
 }
 
 

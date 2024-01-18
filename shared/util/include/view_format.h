@@ -44,6 +44,12 @@ typedef enum
 	 */
 	VF_INDEXING,
 
+
+	/**
+	 * Store just a reference to the object such as a bson_oid
+	 */
+	VF_REFERENCE,
+
 	/**
 	 * The number of available formats
 	 */

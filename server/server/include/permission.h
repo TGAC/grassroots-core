@@ -90,7 +90,17 @@ GRASSROOTS_UTIL_API void FreePermissionsGroup (PermissionsGroup *permissions_gro
 GRASSROOTS_UTIL_API Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p, const GrassrootsServer *grassroots_p);
 
 
+GRASSROOTS_UTIL_API PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_json_p, const GrassrootsServer *grassroots_p);
+
+
+GRASSROOTS_UTIL_API PermissionsGroup *GetPermissionsGroupFromChildJSON (const json_t *parent_json_p, const char * const key_s, const GrassrootsServer *grassroots_p);
+
+
 GRASSROOTS_UTIL_API json_t *GetPermissionsGroupAsJSON (const PermissionsGroup *permissions_group_p, const ViewFormat vf);
+
+
+GRASSROOTS_UTIL_API bool AddPermissionsGroupToJSON (const PermissionsGroup *permissions_group_p, json_t *json_p, const char * const key_s, const ViewFormat vf);
+
 
 
 GRASSROOTS_UTIL_API json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat vf);
@@ -101,6 +111,9 @@ GRASSROOTS_UTIL_API bool AddUserToPermissions (Permissions *permissions_p, User 
 
 GRASSROOTS_UTIL_API bool AddGroupToPermissions (Permissions *permissions_p, UserGroup *group_p);
 
+
+
+GRASSROOTS_UTIL_API void ClearPermissions (Permissions *permissions_p);
 
 /**
  *
