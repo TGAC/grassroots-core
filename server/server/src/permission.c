@@ -283,11 +283,20 @@ PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_j
 
 			if (write_perms_p)
 				{
-					Permissions *delete_params_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_DELETE_S, grassroots_p);
+					Permissions *delete_perms_p = GetPermissionsFromCompoundJSON (permissions_group_json_p, S_ACCESS_RIGHTS_DELETE_S, grassroots_p);
 
-					if (delete_params_p)
+					if (delete_perms_p)
 						{
+							PermissionsGroup *perms_group_p = (PermissionsGroup *) AllocMemory (sizeof (PermissionsGroup));
 
+							if (perms_group_p)
+								{
+									perms_group_p -> pg_read_access_p = read_perms_p;
+									perms_group_p -> pg_write_access_p = write_perms_p;
+									perms_group_p -> pg_delete_access_p = delete_perms_p;
+
+									return perms_group_p;
+								}
 						}
 
 				}
@@ -295,6 +304,21 @@ PermissionsGroup *GetPermissionsGroupFromJSON (const json_t *permissions_group_j
 		}
 
 	return NULL;
+}
+
+
+
+PermissionsGroup *GetPermissionsGroupFromChildJSON (const json_t *parent_json_p, const char * const key_s, const GrassrootsServer *grassroots_p)
+{
+	PermissionsGroup *perms_group_p = NULL;
+	json_t *perms_group_json_p = json_object_get (parent_json_p, key_s);
+
+	if (perms_group_json_p)
+		{
+			perms_group_p = GetPermissionsGroupFromJSON (perms_group_json_p, grassroots_p);
+		}
+
+	return perms_group_p;
 }
 
 
