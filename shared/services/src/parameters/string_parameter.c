@@ -47,9 +47,6 @@ static StringParameter *GetNewStringParameter (const char *current_value_s, cons
 
 static Parameter *CloneStringParameter (const Parameter *param_p, const ServiceData *service_data_p);
 
-static bool CopyStringParameterOptions (const StringParameter *src_p, StringParameter *dest_p);
-
-
 static bool SetStringJSONValue (json_t *param_json_p, const char *key_s, const char *value_s);
 
 /*
@@ -710,7 +707,7 @@ static bool GetStringParameterDetailsFromJSON (StringParameter *param_p, const j
 		{
 			if (SetStringParameterDefaultValue (param_p, default_value_s))
 				{
-					if (GetStringParameterOptionsFromJSON (param_p, param_json_p))
+					if (GetStringParameterOptionsFromJSON (& (param_p -> sp_base_param), param_json_p))
 						{
 							return true;
 						}
@@ -800,7 +797,7 @@ static Parameter *CloneStringParameter (const Parameter *param_p, const ServiceD
 				{
 					if (SetStringParameterBounds (dest_param_p, min_value_s, max_value_s))
 						{
-							if (CopyStringParameterOptions (src_p, dest_param_p))
+							if (CopyStringParameterOptions (param_p, & (dest_param_p -> sp_base_param), true))
 								{
 									return (& (dest_param_p -> sp_base_param));
 								}
@@ -841,20 +838,27 @@ static bool SetStringParameterCurrentValueFromString (Parameter *param_p, const 
 
 
 
-static bool CopyStringParameterOptions (const StringParameter *src_p, StringParameter *dest_p)
+bool CopyStringParameterOptions (const Parameter *src_p, Parameter *dest_p, const bool clear_existing_dest_options_flag)
 {
 	bool success_flag = true;
-	const LinkedList *src_options_p = src_p -> sp_base_param.pa_options_p;
+	const LinkedList *src_options_p = src_p -> pa_options_p;
+
+	if (clear_existing_dest_options_flag)
+		{
+			ClearLinkedList (dest_p -> pa_options_p);
+		}
 
 	if (src_options_p && (src_options_p -> ll_size > 0))
 		{
 			StringParameterOptionNode *src_node_p = (StringParameterOptionNode *) (src_options_p -> ll_head_p);
 
+
+
 			while (src_node_p && success_flag)
 				{
 					const StringParameterOption *option_p = src_node_p -> spon_option_p;
 
-					if (CreateAndAddStringParameterOption (& (dest_p -> sp_base_param), option_p -> spo_value_s, option_p -> spo_description_s))
+					if (CreateAndAddStringParameterOption (dest_p, option_p -> spo_value_s, option_p -> spo_description_s))
 						{
 							src_node_p = (StringParameterOptionNode *) (src_node_p -> spon_node.ln_next_p);
 						}

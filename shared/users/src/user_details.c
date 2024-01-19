@@ -201,14 +201,17 @@ json_t *GetUserAsJSON (const User *user_p, const ViewFormat vf)
 
 					case VF_CLIENT_FULL:
 						{
-							if (AddDetailsToUserJSON (user_p, user_json_p))
+							if (AddIdToUserJSON (user_p, user_json_p))
 								{
-									success_flag = true;
-								}
-							else
-								{
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddDetailsToUserJSON () failed for \"%s\"",
-																		 user_p -> us_email_s);
+									if (AddDetailsToUserJSON (user_p, user_json_p))
+										{
+											success_flag = true;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddDetailsToUserJSON () failed for \"%s\"",
+																				 user_p -> us_email_s);
+										}
 								}
 						}
 						break;

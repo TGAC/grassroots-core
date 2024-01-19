@@ -105,8 +105,6 @@ GRASSROOTS_SERVICE_API size_t GetNumberOfStringArrayCurrentParameterValues (cons
 GRASSROOTS_SERVICE_API char **CopyStringArray (char **src_ss, const size_t num_values);
 
 
-GRASSROOTS_SERVICE_API bool CopyStringParameterOptions (const Parameter *src_p, Parameter *dest_p);
-
 
 #ifdef __cplusplus
 }

@@ -123,6 +123,9 @@ GRASSROOTS_UTIL_API void ClearPermissions (Permissions *permissions_p);
 GRASSROOTS_UTIL_API bool CheckPermissionsManagerForUser (const PermissionsManager * const permissions_manager_p, const User * const user_p, const AccessMode mode);
 
 
+GRASSROOTS_UTIL_API bool CheckPermissionsGroupForUser (const PermissionsGroup * const permissions_manager_p, const User * const user_p, const AccessMode mode);
+
+
 GRASSROOTS_UTIL_API bool CheckPermissionsForUser (const Permissions * const permissions_p, const User * const user_p);
 
 
