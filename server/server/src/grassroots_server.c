@@ -1357,6 +1357,7 @@ LinkedList *GetAllUsers (const GrassrootsServer *grassroots_p)
 										{
 											success_flag = false;
 											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, res_p, "Failed to create UserNode");
+											FreeUser (user_p);
 										}
 								}
 							else

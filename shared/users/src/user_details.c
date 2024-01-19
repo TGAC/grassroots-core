@@ -112,6 +112,8 @@ User *AllocateUser (bson_oid_t *id_p, const char *email_s, const char *forename_
 
 void FreeUser (User *user_p)
 {
+	FreeBSONOid (user_p -> us_id_p);
+
 	if (user_p -> us_email_s)
 		{
 			FreeCopiedString (user_p -> us_email_s);
