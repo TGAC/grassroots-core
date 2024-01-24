@@ -356,14 +356,22 @@ Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p, const Gra
 														{
 															User *user_p = GetUserById (grassroots_p, &id);
 
-															if (AddUserToPermissions (permissions_p, user_p))
+															if (user_p)
 																{
-																	++ i;
+																	if (AddUserToPermissions (permissions_p, user_p))
+																		{
+																			++ i;
+																		}
+																	else
+																		{
+																			success_flag = false;
+																			FreeUser (user_p);
+																		}
 																}
 															else
 																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "GetUserById () failed ");
 																	success_flag = false;
-																	FreeUser (user_p);
 																}
 														}
 													else
