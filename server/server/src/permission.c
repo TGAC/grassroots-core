@@ -363,14 +363,22 @@ Permissions *GetPermissionsFromJSON (const json_t *permissions_json_p, const Gra
 														{
 															User *user_p = GetUserById (grassroots_p, &id);
 
-															if (AddUserToPermissions (permissions_p, user_p))
+															if (user_p)
 																{
-																	++ i;
+																	if (AddUserToPermissions (permissions_p, user_p))
+																		{
+																			++ i;
+																		}
+																	else
+																		{
+																			success_flag = false;
+																			FreeUser (user_p);
+																		}
 																}
 															else
 																{
+																	PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "GetUserById () failed ");
 																	success_flag = false;
-																	FreeUser (user_p);
 																}
 														}
 													else
@@ -612,30 +620,26 @@ bool SetAccessModeFromString (AccessMode *ar_p, const char * const ar_s)
 }
 
 
-
-
-
-bool CheckPermissionsManagerForUser (const PermissionsManager * const permissions_manager_p, const User * const user_p, const AccessMode mode)
+bool CheckPermissionsGroupForUser (const PermissionsGroup * const permissions_group_p, const User * const user_p, const AccessMode mode)
 {
 	bool has_access_flag = false;
 
-	if (permissions_manager_p)
+	if (permissions_group_p)
 		{
-			PermissionsGroup *group_p = permissions_manager_p -> pm_permissions_p;
 			Permissions *permissions_p = NULL;
 
 			switch (mode)
 			{
 				case AM_READ:
-					permissions_p = group_p -> pg_read_access_p;
+					permissions_p = permissions_group_p -> pg_read_access_p;
 					break;
 
 				case AM_WRITE:
-					permissions_p = group_p -> pg_write_access_p;
+					permissions_p = permissions_group_p -> pg_write_access_p;
 					break;
 
 				case AM_DELETE:
-					permissions_p = group_p -> pg_delete_access_p;
+					permissions_p = permissions_group_p -> pg_delete_access_p;
 					break;
 
 				default:
@@ -656,23 +660,51 @@ bool CheckPermissionsManagerForUser (const PermissionsManager * const permission
 }
 
 
+
+
+bool CheckPermissionsManagerForUser (const PermissionsManager * const permissions_manager_p, const User * const user_p, const AccessMode mode)
+{
+	bool has_access_flag = false;
+
+	if (permissions_manager_p)
+		{
+			PermissionsGroup *permissions_group_p = permissions_manager_p -> pm_permissions_p;
+			has_access_flag = CheckPermissionsGroupForUser (permissions_group_p, user_p, mode);
+
+		}
+	else
+		{
+			has_access_flag = true;
+		}
+
+	return has_access_flag;
+}
+
+
 bool CheckPermissionsForUser (const Permissions * const permissions_p, const User * const user_p)
 {
 	bool user_access = false;
+	bool no_users_flag = true;
+	bool no_groups_flag = true;
 
 	if (permissions_p -> pe_users_p)
 		{
-			UserNode *user_node_p = (UserNode *) (permissions_p -> pe_users_p -> ll_head_p);
-
-			while (user_node_p && (!user_access))
+			if (permissions_p -> pe_users_p -> ll_size > 0)
 				{
-					if (strcmp (user_p -> us_email_s, user_node_p -> un_user_p -> us_email_s) == 0)
+					UserNode *user_node_p = (UserNode *) (permissions_p -> pe_users_p -> ll_head_p);
+
+					no_users_flag = false;
+
+					while (user_node_p && (!user_access))
 						{
-							user_access = true;
-						}
-					else
-						{
-							user_node_p = (UserNode *) (user_node_p -> un_node.ln_next_p);
+							if (strcmp (user_p -> us_email_s, user_node_p -> un_user_p -> us_email_s) == 0)
+								{
+									user_access = true;
+								}
+							else
+								{
+									user_node_p = (UserNode *) (user_node_p -> un_node.ln_next_p);
+								}
 						}
 				}
 		}
@@ -681,19 +713,34 @@ bool CheckPermissionsForUser (const Permissions * const permissions_p, const Use
 		{
 			if (permissions_p -> pe_groups_p)
 				{
-					UserGroupNode *group_node_p = (UserGroupNode *) (permissions_p -> pe_groups_p -> ll_head_p);
-
-					while (group_node_p && (!user_access))
+					if (permissions_p -> pe_groups_p -> ll_size > 0)
 						{
-							if (IsUserInGroup (group_node_p -> ugn_group_p, user_p))
+							UserGroupNode *group_node_p = (UserGroupNode *) (permissions_p -> pe_groups_p -> ll_head_p);
+
+							no_groups_flag = false;
+
+							while (group_node_p && (!user_access))
 								{
-									user_access = true;
+									if (IsUserInGroup (group_node_p -> ugn_group_p, user_p))
+										{
+											user_access = true;
+										}
+									else
+										{
+											group_node_p = (UserGroupNode *) (group_node_p -> ugn_node.ln_next_p);
+										}
 								}
-							else
-								{
-									group_node_p = (UserGroupNode *) (group_node_p -> ugn_node.ln_next_p);
-								}
+
 						}
+
+				}
+		}
+
+	if (!user_access)
+		{
+			if (no_users_flag && no_groups_flag)
+				{
+					user_access = true;
 				}
 		}
 

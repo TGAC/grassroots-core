@@ -112,6 +112,8 @@ User *AllocateUser (bson_oid_t *id_p, const char *email_s, const char *forename_
 
 void FreeUser (User *user_p)
 {
+	FreeBSONOid (user_p -> us_id_p);
+
 	if (user_p -> us_email_s)
 		{
 			FreeCopiedString (user_p -> us_email_s);
@@ -199,14 +201,17 @@ json_t *GetUserAsJSON (const User *user_p, const ViewFormat vf)
 
 					case VF_CLIENT_FULL:
 						{
-							if (AddDetailsToUserJSON (user_p, user_json_p))
+							if (AddIdToUserJSON (user_p, user_json_p))
 								{
-									success_flag = true;
-								}
-							else
-								{
-									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddDetailsToUserJSON () failed for \"%s\"",
-																		 user_p -> us_email_s);
+									if (AddDetailsToUserJSON (user_p, user_json_p))
+										{
+											success_flag = true;
+										}
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, user_json_p, "AddDetailsToUserJSON () failed for \"%s\"",
+																				 user_p -> us_email_s);
+										}
 								}
 						}
 						break;

@@ -171,6 +171,9 @@ GRASSROOTS_SERVICE_API bool AddStringParameterOptionsToJSON (const Parameter *pa
 GRASSROOTS_SERVICE_API bool GetStringParameterOptionsFromJSON (Parameter *param_p, const json_t * const json_p);
 
 
+GRASSROOTS_SERVICE_API bool CopyStringParameterOptions (const Parameter *src_p, Parameter *dest_p, const bool clear_existing_dest_options_flag);
+
+
 #ifdef __cplusplus
 }
 #endif
