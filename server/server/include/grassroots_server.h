@@ -39,7 +39,7 @@
 struct JobsManager;
 struct ServersManager;
 struct MongoClientManager;
-
+struct Service;
 
 
 typedef struct GrassrootsServer
@@ -413,6 +413,18 @@ GRASSROOTS_SERVICE_MANAGER_API User *GetUserById (const GrassrootsServer *grassr
  * @memberof GrassrootsServer
  */
 GRASSROOTS_SERVICE_MANAGER_API LinkedList *GetAllUsers (const GrassrootsServer *grassroots_p);
+
+
+/**
+ * Get a Service by its name.
+ *
+ * This will match a Service with its response from getting GetServiceName.
+ *
+ * @param service_name_s The name of the Service to find.
+ * @return The matching Service or <code>NULL</code> if it could not be found.
+ * @memberof Service
+ */
+GRASSROOTS_SERVICE_MANAGER_API struct Service *GetServiceByName (GrassrootsServer *grassroots_p, const char *const service_name_s, const char *const service_alias_s);
 
 
 

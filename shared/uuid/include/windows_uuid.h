@@ -65,6 +65,8 @@ GRASSROOTS_UUID_API void uuid_generate (uuid_t uu);
 
 GRASSROOTS_UUID_API void uuid_copy (uuid_t dst, uuid_t src);
 
+GRASSROOTS_UUID_API void PrintUUID (const UUID *w_p, const char *prefix_s);
+
 
 
 #ifdef __cplusplus

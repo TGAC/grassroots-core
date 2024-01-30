@@ -210,7 +210,6 @@ copy $(OutDir)$(TargetName).lib $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Conf
     <ClCompile Include="..\..\src\statistics.c" />
     <ClCompile Include="..\..\src\string_utils.c" />
     <ClCompile Include="..\..\src\time_util.c" />
-    <ClCompile Include="..\..\src\user_details.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\amiga_debugging.h" />
@@ -245,7 +244,6 @@ copy $(OutDir)$(TargetName).lib $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Conf
     <ClInclude Include="..\..\include\temp_file.hpp" />
     <ClInclude Include="..\..\include\time_util.h" />
     <ClInclude Include="..\..\include\typedefs.h" />
-    <ClInclude Include="..\..\include\user_details.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\build-config\windows\project.props" />

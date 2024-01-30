@@ -106,15 +106,17 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>HAVE_STDBOOL_H;;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WIN32_LEAN_AND_MEAN;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVICES_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_BSON_LIB);$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);$(DIR_GRASSROOTS_USERS_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(BSON_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_USERS_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
@@ -126,17 +128,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>HAVE_STDBOOL_H;;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WIN32_LEAN_AND_MEAN;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVICES_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_BSON_LIB);$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);$(DIR_GRASSROOTS_USERS_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(BSON_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_USERS_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
@@ -146,15 +150,17 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>HAVE_STDBOOL_H;;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WIN32_LEAN_AND_MEAN;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVICES_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_BSON_LIB);$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);$(DIR_GRASSROOTS_USERS_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(BSON_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_USERS_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
@@ -166,17 +172,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>HAVE_STDBOOL_H;;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDBOOL_H;WIN32_LEAN_AND_MEAN;SHARED_LIBRARY;WINDOWS;GRASSROOTS_SERVICE_MANAGER_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_MONGODB_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_MONGODB_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_SERVICES_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DIR_BSON_LIB);$(DIR_JANSSON_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_GRASSROOTS_NETWORK_LIB);$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_GRASSROOTS_HANDLER_LIB);$(DIR_GRASSROOTS_PARAMS_LIB);$(DIR_GRASSROOTS_SERVICES_LIB);$(DIR_GRASSROOTS_TASK_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);$(DIR_GRASSROOTS_USERS_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(BSON_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_NETWORK_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(GRASSROOTS_HANDLER_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);$(GRASSROOTS_TASK_LIB_NAME);$(GRASSROOTS_USERS_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
@@ -186,6 +194,7 @@
     <ClCompile Include="..\..\src\audit.c" />
     <ClCompile Include="..\..\src\grassroots_server.c" />
     <ClCompile Include="..\..\src\jobs_manager.c" />
+    <ClCompile Include="..\..\src\providers_state_table.c" />
     <ClCompile Include="..\..\src\servers_manager.c" />
     <ClCompile Include="..\..\src\service_matcher.c" />
     <ClCompile Include="..\..\src\service_util.c" />
@@ -196,6 +205,7 @@
     <ClInclude Include="..\..\include\grassroots_server.h" />
     <ClInclude Include="..\..\include\grassroots_service_manager_library.h" />
     <ClInclude Include="..\..\include\jobs_manager.h" />
+    <ClInclude Include="..\..\include\providers_state_table.h" />
     <ClInclude Include="..\..\include\servers_manager.h" />
     <ClInclude Include="..\..\include\service_matcher.h" />
     <ClInclude Include="..\..\include\service_util.h" />

@@ -153,12 +153,25 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 	ServiceJob *job_p = task_p -> std_service_job_p;
 
 	/* Windows complains that it can't find the function as it's a cicular dependency*/
-	GrassrootsServer *grassroots_p = job_p -> sj_service_p -> se_plugin_p -> pl_server_p; // GetGrassrootsServerFromService (job_p -> sj_service_p);
-	JobsManager *jobs_manager_p = GetJobsManager (grassroots_p);
+	JobsManager *jobs_manager_p = NULL;
+	bool (*add_job_fn) (JobsManager * manager_p, uuid_t job_key, ServiceJob * job_p) = NULL;
+
+	#ifdef WINDOWS
+		{
+			jobs_manager_p = job_p -> sj_service_p -> se_plugin_p -> pl_server_p -> gs_jobs_manager_p;
+			add_job_fn = jobs_manager_p-> jm_add_job_fn;
+		}
+	#else
+		{
+			GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+			jobs_manager_p = GetJobsManager (grassroots_p);
+			add_job_fn = AddServiceJobToJobsManager;
+		}
+	#endif
+
 	OperationStatus status = OS_STARTED;
 	char uuid_s [UUID_STRING_BUFFER_SIZE];
-	//AddServiceJobToJobsManager;
-	
+
 	ConvertUUIDToString (job_p -> sj_id, uuid_s);
 
 	/* Set the job to having started */
@@ -168,7 +181,7 @@ static void *RunAsyncSystemTaskHook (void *data_p)
   job_p -> sj_status = status;
 
 
-	if (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p))
+	if (add_job_fn (jobs_manager_p, job_p -> sj_id, job_p))
 		{
 			status = ActualRunSystemAsyncTask (task_p);
 		}
@@ -195,7 +208,7 @@ static void *RunAsyncSystemTaskHook (void *data_p)
 						}
 				}
 
-			if (! (AddServiceJobToJobsManager (jobs_manager_p, job_p -> sj_id, job_p)))
+			if (! (add_job_fn (jobs_manager_p, job_p -> sj_id, job_p)))
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to add job %s with status %d to jobs manager", uuid_s, status);
 				}
@@ -228,3 +241,4 @@ void RunSystemAsyncTaskSuccess (SystemAsyncTask *task_p, ServiceJob *job_p)
 			task_p -> std_on_success_callback_fn (job_p);
 		}
 }
+ 

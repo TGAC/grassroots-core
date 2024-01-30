@@ -1507,6 +1507,35 @@ static int8 ProcessServiceFromJSON (GrassrootsServer *grassroots_p, const json_t
 }
 
 
+
+
+Service *GetServiceByName (GrassrootsServer *grassroots_p, const char *const service_name_s, const char *const service_alias_s)
+	{
+	Service *service_p = NULL;
+	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
+
+	if (services_p)
+		{
+		LoadMatchingServicesByName (grassroots_p, services_p, service_name_s, service_alias_s, NULL);
+
+		if (services_p->ll_size == 1)
+			{
+			ServiceNode *service_node_p = (ServiceNode *) LinkedListRemHead (services_p);
+
+			/* Detach service from node and free the node */
+			service_p = service_node_p->sn_service_p;
+			service_node_p->sn_service_p = NULL;
+
+			FreeServiceNode ((ListItem *) service_node_p);
+			}		/* if (services_p -> ll_size == 1) */
+
+		FreeLinkedList (services_p);
+		}		/* if (services_p) */
+
+	return service_p;
+	}
+
+
 static int8 RefreshServiceFromJSON (GrassrootsServer *grassroots_p, Service *service_p, json_t *service_req_p, const json_t *paired_servers_req_p, User *user_p, json_t *res_p)
 {
 	int res = 0;

@@ -22,7 +22,7 @@
 #ifndef USER_DETAILS_H
 #define USER_DETAILS_H
 
-#include "bson.h"
+#include "bson/bson.h"
 
 #include "jansson.h"
 
