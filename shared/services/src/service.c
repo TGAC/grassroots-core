@@ -357,36 +357,6 @@ void SetServiceJobCustomFunctions (Service *service_p, ServiceJob *job_p)
 }
 
 
-Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s, const char * const service_alias_s)
-{
-	Service *service_p = NULL;
-	LinkedList *services_p = AllocateLinkedList (FreeServiceNode);
-
-	if (services_p)
-		{
-			LoadMatchingServicesByName (grassroots_p, services_p, service_name_s, service_alias_s, NULL);
-
-			if (services_p -> ll_size == 1)
-				{
-					ServiceNode *service_node_p = (ServiceNode *) LinkedListRemHead (services_p);
-
-					/* Detach service from node and free the node */
-					service_p = service_node_p -> sn_service_p;
-					service_node_p -> sn_service_p = NULL;
-
-					FreeServiceNode ((ListItem *) service_node_p);
-				}		/* if (services_p -> ll_size == 1) */
-
-			FreeLinkedList (services_p);
-		}		/* if (services_p) */
-
-	return service_p;
-}
-
-
-
-
-
 
 
 ServiceJobSet *RunService (Service *service_p, ParameterSet *param_set_p, User *user_p, ProvidersStateTable *providers_p)
@@ -1942,6 +1912,8 @@ bool DefaultGetParameterTypeForNamedParameter (const char *param_name_s, Paramet
   
   return false;
 }
+
+
 
 
 static ServicesArray *GetServiceFromConfigJSON (const json_t *service_config_p, const char * const plugin_name_s, Service *(*get_service_fn) (json_t *config_p, size_t i, GrassrootsServer *grassroots_p), GrassrootsServer *grassroots_p)

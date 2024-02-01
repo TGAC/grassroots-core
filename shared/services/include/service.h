@@ -560,17 +560,6 @@ GRASSROOTS_SERVICE_API struct ServiceJob *CreateSerialisedServiceJobFromService 
 GRASSROOTS_SERVICE_API json_t *CreateSerialisedJSONForServiceJobFromService (struct Service *service_p, struct ServiceJob *service_job_p, bool omit_results_flag);
 
 
-/**
- * Get a Service by its name.
- *
- * This will match a Service with its response from getting GetServiceName.
- *
- * @param service_name_s The name of the Service to find.
- * @return The matching Service or <code>NULL</code> if it could not be found.
- * @memberof Service
- */
-GRASSROOTS_SERVICE_API Service *GetServiceByName (GrassrootsServer *grassroots_p, const char * const service_name_s, const char * const service_alias_s);
-
 
 /**
  * Is the Service able to work upon the given Resource.

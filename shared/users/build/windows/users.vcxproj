@@ -20,16 +20,18 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{75D05A1A-23B0-4019-9E8E-DCDBA2DB2CA2}</ProjectGuid>
-    <RootNamespace>grassroots_network</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{ED127667-3C27-4DE2-8D6C-006FBD9EE11A}</ProjectGuid>
+    <RootNamespace>grassrootusers</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>grassroots_users</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -83,55 +85,37 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
     <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;SHARED_LIBRARY;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;SHARED_LIBRARY;WINDOWS;%(PreprocessorDefinitions);GRASSROOTS_USERS_LIBRARY_EXPORTS;HAVE_STDBOOL_H</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_MONGODB_INC;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dbghelp.lib;%(AdditionalDependencies);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_CURL_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_JANSSON_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>jansson.lib;libcurl_imp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_CURL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
@@ -143,17 +127,35 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);SHARED_LIBRARY</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;SHARED_LIBRARY;WINDOWS;%(PreprocessorDefinitions);GRASSROOTS_USERS_LIBRARY_EXPORTS;HAVE_STDBOOL_H</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_MONGODB_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);$(GRASSROOTS_UTIL_LIB_NAME);$(JANSSON_LIB_NAME);$(CURL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_CURL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;SHARED_LIBRARY;WINDOWS;%(PreprocessorDefinitions);GRASSROOTS_USERS_LIBRARY_EXPORTS;HAVE_STDBOOL_H</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_MONGODB_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME)%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
@@ -165,36 +167,30 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);SHARED_LIBRARY;WINDOWS;GRASSROOTS_NETWORK_LIBRARY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;SHARED_LIBRARY;WINDOWS;%(PreprocessorDefinitions);GRASSROOTS_USERS_LIBRARY_EXPORTS;HAVE_STDBOOL_H</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_CURL_INC);$(DIR_PCRE_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_HANDLER_INC);$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_USERS_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;$(DIR_BSON_INC);$(DIR_MONGODB_INC);$(DIR_CURL_INC);$(DIR_JANSSON_INC);$(DIR_GRASSROOTS_SERVER_INC);$(DIR_GRASSROOTS_TASK_INC);$(DIR_GRASSROOTS_SERVICES_INC);$(DIR_GRASSROOTS_SERVICES_INC)\parameters;$(DIR_GRASSROOTS_PLUGIN_INC);$(DIR_GRASSROOTS_NETWORK_INC);$(DIR_GRASSROOTS_UTIL_INC);$(DIR_GRASSROOTS_UTIL_INC)\io;$(DIR_GRASSROOTS_UTIL_INC)\containers;$(DIR_GRASSROOTS_UUID_INC);$(DIR_GRASSROOTS_MONGODB_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(JANSSON_LIB_NAME);$(CURL_LIB_NAME);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_UUID_LIB_NAME)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DIR_CURL_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UUID_LIB);$(DIR_GRASSROOTS_UTIL_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DIR_GRASSROOTS_PLUGIN_LIB);$(DIR_JANSSON_LIB);$(DIR_GRASSROOTS_UTIL_LIB);$(DIR_CURL_LIB);$(DIR_GRASSROOTS_MONGODB_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(GRASSROOTS_UTIL_LIB_NAME);$(GRASSROOTS_PLUGIN_LIB_NAME);$(CURL_LIB_NAME);$(JANSSON_LIB_NAME);$(GRASSROOTS_MONGODB_LIB_NAME);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(DIR_GRASSROOTS_INSTALL)\lib\$(Platform)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\connection.c" />
-    <ClCompile Include="..\..\src\curl_tools.c" />
-    <ClCompile Include="..\..\src\json_tools.c" />
-    <ClCompile Include="..\..\src\key_value_pair.c" />
-    <ClCompile Include="..\..\src\request_tools.c" />
+    <ClCompile Include="..\..\src\user_details.c" />
+    <ClCompile Include="..\..\src\user_group.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\connection.h" />
-    <ClInclude Include="..\..\include\curl_tools.h" />
-    <ClInclude Include="..\..\include\json_tools.h" />
-    <ClInclude Include="..\..\include\key_value_pair.h" />
-    <ClInclude Include="..\..\include\network_library.h" />
-    <ClInclude Include="..\..\include\request_tools.h" />
+    <ClInclude Include="..\..\include\grassroots_users_library.h" />
+    <ClInclude Include="..\..\include\user_details.h" />
+    <ClInclude Include="..\..\include\user_group.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
