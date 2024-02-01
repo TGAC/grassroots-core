@@ -146,12 +146,6 @@ void FreePermissions (Permissions *permissions_p)
 }
 
 
-void ClearPermissions (Permissions *permissions_p)
-{
-	ClearLinkedList (permissions_p -> pe_groups_p);
-	ClearLinkedList (permissions_p -> pe_users_p);
-}
-
 
 
 json_t *GetPermissionsAsJSON (const Permissions *permissions_p, const ViewFormat vf)
