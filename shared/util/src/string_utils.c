@@ -1212,3 +1212,30 @@ void FreeStringArray (char **values_ss, const size_t num_values)
 	FreeMemory (values_ss);
 }
 
+
+bool CopyAndAddStringValue (const char * const src_s, char **dest_ss)
+{
+	bool success_flag = false;
+
+	if (src_s)
+		{
+			char *copied_value_s = EasyCopyToNewString (src_s);
+
+			if (copied_value_s)
+				{
+					*dest_ss = copied_value_s;
+					success_flag = true;
+				}
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to copy \"%s\"", src_s);
+				}
+		}
+	else
+		{
+			*dest_ss = NULL;
+			success_flag = true;
+		}
+
+	return success_flag;
+}

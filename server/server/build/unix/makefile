@@ -50,6 +50,7 @@ SRCS 	= \
 	servers_manager.c \
 	service_matcher.c \
 	grassroots_server.c \
+	providers_state_table.c \
 	service_util.c \
 	
 ifeq ($(BUILD_COMBINED), 1)
