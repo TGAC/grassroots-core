@@ -622,14 +622,23 @@ bool AddCollectionCompoundIndex (MongoTool *tool_p, const char *database_s, cons
 
 
 
-bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char *key_s, const bool unique_flag, const bool sparse_flag)
+bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char *key_s, const char *index_type_s, const bool unique_flag, const bool sparse_flag)
 {
 	bool success_flag = false;
 	bson_t keys;
 
 	bson_init (&keys);
 
-	if (BSON_APPEND_INT32 (&keys, key_s, 1))
+	if (index_type_s)
+		{
+			success_flag = BSON_APPEND_UTF8 (&keys, key_s, index_type_s))
+		}
+	else
+		{
+			success_flag = BSON_APPEND_INT32 (&keys, key_s, 1))
+		}
+
+	if (success_flag)
 		{
 			success_flag = AddCollectionIndex (tool_p, database_s, collection_s, &keys, unique_flag, sparse_flag);
 		}

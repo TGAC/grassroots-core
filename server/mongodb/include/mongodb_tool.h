@@ -781,13 +781,15 @@ GRASSROOTS_MONGODB_API bool AddCollectionCompoundIndex (MongoTool *tool_p, const
  * @param database_s The database to that the collection to add the index to is in.
  * @param collection_s The collection to add the index for.
  * @param key_s The key that will have the index.
+ * @param index_type_s The type of data being indexed if you it is 2d data or something similar. If
+ * this is <code>NULL</code> then this will be a default index.
  * @param unique_flag <code>true</code> if the values for the key are unique, <code>false</code> otherwise. The default value is <code>false</code>.
  * @param sparse_flag If <code>true</code>, the index only references documents with the specified field. These indexes use less space
  * but behave differently in some situations (particularly sorts). The default value is <code>false</code>.
  * @return <code>true</code> if the index was created successfully, <code>false</code> otherwise.
  * @memberof MongoTool
  */
-GRASSROOTS_MONGODB_API bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char * const key_s, const bool unique_flag, const bool sparse_flag);
+GRASSROOTS_MONGODB_API bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const char * const collection_s, const char *key_s, const char *index_type_s, const bool unique_flag, const bool sparse_flag);
 
 
 /**
