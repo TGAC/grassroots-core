@@ -631,11 +631,11 @@ bool AddCollectionSingleIndex (MongoTool *tool_p, const char *database_s, const 
 
 	if (index_type_s)
 		{
-			success_flag = BSON_APPEND_UTF8 (&keys, key_s, index_type_s))
+			success_flag = BSON_APPEND_UTF8 (&keys, key_s, index_type_s);
 		}
 	else
 		{
-			success_flag = BSON_APPEND_INT32 (&keys, key_s, 1))
+			success_flag = BSON_APPEND_INT32 (&keys, key_s, 1);
 		}
 
 	if (success_flag)
@@ -1413,8 +1413,10 @@ bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p,
 						}
 
 					tool_p -> mt_cursor_p = cursor_p;
-					success_flag = HasMongoQueryResults (tool_p);
+					//success_flag = HasMongoQueryResults (tool_p);
+					success_flag = true;
 				}
+
 
 			if (fields_p)
 				{
