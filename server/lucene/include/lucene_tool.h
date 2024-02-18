@@ -30,6 +30,7 @@
 #include "linked_list.h"
 #include "lucene_document.h"
 #include "grassroots_server.h"
+#include "service_job.h"
 
 
 /**
@@ -226,6 +227,9 @@ GRASSROOTS_LUCENE_API bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json
 
 
 GRASSROOTS_LUCENE_API bool AddFacetResultToLucene (LuceneTool *tool_p, const char *name_s, const uint32 count);
+
+
+GRASSROOTS_LUCENE_API	OperationStatus IndexData (struct ServiceJob *job_p, const json_t *data_to_index_p, const char *job_name_s);
 
 
 

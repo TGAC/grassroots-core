@@ -31,6 +31,8 @@
 #include "lucene_facet.h"
 #include "uuid_util.h"
 #include "async_task.h"
+#include "service_job.h"
+#include "service.h"
 
 
 static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p);
@@ -40,6 +42,8 @@ static bool AddNumericArgument (ByteBuffer *buffer_p, const char * const key_s, 
 static bool ReplaceValidString (const char *src_s, char **dest_ss);
 
 static bool ParseFacetResults (LuceneTool *tool_p, const json_t *results_p);
+
+static bool SaveCommandLine (const char * const full_filename_stem_s, const char * const command_s);
 
 
 
@@ -283,8 +287,12 @@ bool SearchLucene (LuceneTool *tool_p, const char *query_s, LinkedList *facets_p
 																				{
 																					if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL))
 																						{
+																							OperationStatus status;
 																							const char *command_s = GetByteBufferData (buffer_p);
-																							OperationStatus status = RunProcess (command_s);
+
+																							SaveCommandLine (full_filename_stem_s, command_s);
+
+																							status = RunProcess (command_s);
 
 																							if (status == OS_SUCCEEDED)
 																								{
@@ -374,6 +382,8 @@ OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s, const Que
 															if ((IsStringEmpty (query_s)) || AppendStringsToByteBuffer (buffer_p, " -query ", query_s, NULL))
 																{
 																	const char *command_s = GetByteBufferData (buffer_p);
+
+																	SaveCommandLine (full_filename_stem_s, command_s);
 																	status = RunProcess (command_s);
 
 																	if (status == OS_SUCCEEDED)
@@ -479,22 +489,10 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 																						{
 																							if (AppendStringsToByteBuffer (buffer_p, " -out ", output_s, " -err ", error_s, " -results ", results_s, NULL))
 																								{
-																									const char *command_s = GetByteBufferData (buffer_p);
-																									char *command_filename_s = ConcatenateStrings (full_filename_stem_s, ".command");
 																									OperationStatus local_status;
+																									const char *command_s = GetByteBufferData (buffer_p);
 
-																									if (command_filename_s)
-																										{
-																											FILE *command_f = fopen (command_filename_s, "w");
-
-																											if (command_f)
-																												{
-																													fputs (command_s, command_f);
-																													fclose (command_f);
-																												}
-
-																											FreeCopiedString (command_filename_s);
-																										}
+																									SaveCommandLine (full_filename_stem_s, command_s);
 
 																									SetLuceneToolOutput (tool_p, output_s);
 
@@ -863,6 +861,32 @@ bool AddLuceneFacetResultsToJSON (LuceneTool *tool_p, json_t *metadata_p)
 }
 
 
+OperationStatus IndexData (ServiceJob *job_p, const json_t *data_to_index_p, const char *job_name_s)
+{
+	OperationStatus status = OS_FAILED;
+	GrassrootsServer *grassroots_p = GetGrassrootsServerFromService (job_p -> sj_service_p);
+	LuceneTool *lucene_p = AllocateLuceneTool (grassroots_p, job_p -> sj_id);
+
+	if (lucene_p)
+		{
+			if (job_name_s)
+				{
+					if (!SetLuceneToolName (lucene_p, job_name_s))
+						{
+							PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "SetLuceneToolName () failed for \"%s\"", job_name_s);
+						}
+				}
+
+			status = IndexLucene (lucene_p, data_to_index_p, true);
+
+			FreeLuceneTool (lucene_p);
+		}		/* if (lucene_p) */
+
+	return status;
+}
+
+
+
 static bool LoadDocument (const json_t *result_p, LuceneDocument *document_p)
 {
 	bool success_flag = false;
@@ -1120,3 +1144,32 @@ bool AddFacetResultToLucene (LuceneTool *tool_p, const char *name_s, const uint3
 
 	return false;
 }
+
+
+
+static bool SaveCommandLine (const char * const full_filename_stem_s, const char * const command_s)
+{
+	bool success_flag = false;
+	char *command_filename_s = ConcatenateStrings (full_filename_stem_s, ".command");
+	OperationStatus local_status;
+
+	if (command_filename_s)
+		{
+			FILE *command_f = fopen (command_filename_s, "w");
+
+			if (command_f)
+				{
+					if (fputs (command_s, command_f) != EOF)
+						{
+							success_flag = true;
+						}
+
+					fclose (command_f);
+				}
+
+			FreeCopiedString (command_filename_s);
+		}
+
+	return success_flag;
+}
+
