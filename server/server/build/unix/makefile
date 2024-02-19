@@ -80,7 +80,6 @@ SRCS 	+= \
 	mapped_parameter.c \
 	paired_service.c \
 	provider.c \
-	providers_state_table.c \
 	remote_service_job.c \
 	schema_term.c \
 	service.c \
