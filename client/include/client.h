@@ -414,6 +414,10 @@ GRASSROOTS_CLIENT_LOCAL int AddServiceDetailsToClient (Client *client_p, json_t 
 GRASSROOTS_CLIENT_LOCAL bool SetClientUser (Client *client_p, User *user_p);
 
 
+
+GRASSROOTS_CLIENT_API bool AddConnectionHeaderForClient (Client *client_p, const char *key_s, const char *value_s);
+
+
 #ifdef __cplusplus
 }
 #endif

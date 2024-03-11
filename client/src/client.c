@@ -666,3 +666,9 @@ bool SetClientUser (Client *client_p, User *user_p)
 }
 
 
+bool AddConnectionHeaderForClient (Client *client_p, const char *key_s, const char *value_s)
+{
+	return AddConnectionHeader (client_p -> cl_data_p -> cd_connection_p, key_s, value_s);
+}
+
+

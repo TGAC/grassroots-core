@@ -188,7 +188,7 @@ const char *MakeRemoteJsonCallViaConnection (Connection *connection_p, const jso
 #ifdef WINDOWS 
 
 #else
-		success_flag = MakeRemoteJsonCallViaRawConnection(connection_p, req_p);
+		success_flag = MakeRemoteJsonCallViaRawConnection (connection_p, req_p);
 #endif	
 		}
 	else if (connection_p -> co_type == CT_WEB)
@@ -257,4 +257,17 @@ bool SetConnectionCredentials (Connection *connection_p, const char *username_s,
 }
 
 
+bool AddConnectionHeader (Connection *connection_p, const char *key_s, const char *value_s)
+{
+	bool success_flag = false;
+
+	if (connection_p -> co_type == CT_WEB)
+		{
+			WebConnection *web_conn_p = (WebConnection *) connection_p;
+
+			success_flag = SetCurlToolHeader (web_conn_p -> wc_curl_p, key_s, value_s);
+		}
+
+	return success_flag;
+}
 

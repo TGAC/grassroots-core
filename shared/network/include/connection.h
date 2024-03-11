@@ -165,6 +165,9 @@ GRASSROOTS_NETWORK_API void ReleaseConnection (Connection *connection_p);
 
 
 
+GRASSROOTS_NETWORK_API bool AddConnectionHeader (Connection *connection_p, const char *key_s, const char *value_s);
+
+
 /** @} */
 
 

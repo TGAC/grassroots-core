@@ -570,7 +570,7 @@ static bool SetCurlToolJSONRequestData (CurlTool *tool_p, json_t *json_p)
 bool SetCurlToolHeader (CurlTool *tool_p, const char *key_s, const char *value_s)
 {
 	bool success_flag = false;
-	char *header_s = ConcatenateVarargsStrings (key_s, ":", value_s, NULL);
+	char *header_s = ConcatenateVarargsStrings (key_s, ": ", value_s, NULL);
 
 	if (header_s)
 		{
