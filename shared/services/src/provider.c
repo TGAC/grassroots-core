@@ -84,3 +84,60 @@ bool SetProviderType (json_t *provider_p)
 	return success_flag;
 }
 
+
+
+json_t *GetProviderAsJSONFromParts (const char *name_s, const char *description_s, const char *url_s, const char *logo_s)
+{
+	json_t *provider_p = json_object ();
+
+	if (provider_p)
+		{
+			if (SetJSONString (provider_p, "@type", CONTEXT_PREFIX_SCHEMA_ORG_S "Organization"))
+				{
+					if (SetJSONString (provider_p, PROVIDER_NAME_S, name_s))
+						{
+							if (SetJSONString (provider_p, PROVIDER_DESCRIPTION_S, description_s))
+								{
+									if (SetJSONString (provider_p, PROVIDER_URI_S, url_s))
+										{
+											if (SetJSONString (provider_p, PROVIDER_LOGO_S, logo_s))
+												{
+													return provider_p;
+												}		/* if (SetJSONString (provider_p, PROVIDER_LOGO_S, logo_s)) */
+											else
+												{
+													PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, provider_p, "Failed to set \"%s\": \"%s\"", PROVIDER_LOGO_S, logo_s);
+												}
+
+										}		/* if (SetJSONString (provider_p, PROVIDER_URI_S, url_s)) */
+									else
+										{
+											PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, provider_p, "Failed to set \"%s\": \"%s\"", PROVIDER_URI_S, url_s);
+										}
+
+								}		/* if (SetJSONString (provider_p, PROVIDER_DESCRIPTION_S, description_s)) */
+							else
+								{
+									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, provider_p, "Failed to set \"%s\": \"%s\"", PROVIDER_DESCRIPTION_S, description_s);
+								}
+
+						}		/* if (SetJSONString (provider_p, PROVIDER_NAME_S, name_s)) */
+					else
+						{
+							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, provider_p, "Failed to set \"%s\": \"%s\"", PROVIDER_NAME_S, name_s);
+						}
+
+				}		/* if (SetJSONString (provider_p, "@type", CONTEXT_PREFIX_SCHEMA_ORG_S "Organization")) */
+			else
+				{
+					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, provider_p, "Failed to set \"@type\": \"" CONTEXT_PREFIX_SCHEMA_ORG_S ":Organization\"");
+				}
+		}
+	else
+		{
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to create provider json for \"%s\"", name_s);
+		}
+
+	return NULL;
+}
+

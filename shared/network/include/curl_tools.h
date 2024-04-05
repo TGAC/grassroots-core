@@ -101,6 +101,9 @@ typedef struct CurlTool
 
 	/** @private */
 	struct curl_slist *ct_headers_list_p;
+
+	bool ct_verbose_flag;
+
 } CurlTool;
 
 
@@ -321,6 +324,10 @@ GRASSROOTS_NETWORK_LOCAL char *GetTemporaryFileContentsAsString (TemporaryFile *
 
 
 GRASSROOTS_NETWORK_API void ClearCurlToolData (CurlTool *tool_p);
+
+
+GRASSROOTS_NETWORK_API void SetCurlToolVerbose (CurlTool *tool_p, const bool verbose_flag);
+
 
 
 #ifdef __cplusplus

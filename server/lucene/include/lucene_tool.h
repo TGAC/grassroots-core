@@ -31,6 +31,7 @@
 #include "lucene_document.h"
 #include "grassroots_server.h"
 #include "service_job.h"
+#include "lucene_facet.h"
 
 
 /**
@@ -231,6 +232,15 @@ GRASSROOTS_LUCENE_API bool AddFacetResultToLucene (LuceneTool *tool_p, const cha
 
 GRASSROOTS_LUCENE_API	OperationStatus IndexData (struct ServiceJob *job_p, const json_t *data_to_index_p, const char *job_name_s);
 
+/**
+ * Get an existing LuceneFacet.
+ *
+ * @param tool_p The LuceneTool to search for LucenceFacets.
+ * @param name_s The name of the LuceneFacet.
+ * @return The matching LuceneFacet or <code>NULL</code> if it is not already on the list.
+ * @memberof LuceneTool
+ */
+GRASSROOTS_LUCENE_API LuceneFacet *GetExistingLuceneFacet (LuceneTool *tool_p, const char * const name_s);
 
 
 #ifdef __cplusplus

@@ -145,6 +145,11 @@ CurlTool *AllocateMemoryCurlTool (const size_t buffer_size)
 }
 
 
+void SetCurlToolVerbose (CurlTool *tool_p, const bool verbose_flag)
+{
+	tool_p -> ct_verbose_flag = verbose_flag;
+}
+
 
 static CurlTool *AllocateCurlTool (CurlMode mode)
 {
@@ -165,6 +170,7 @@ static CurlTool *AllocateCurlTool (CurlMode mode)
 					curl_tool_p -> ct_mode = mode;
 					curl_tool_p -> ct_username_s = NULL;
 					curl_tool_p -> ct_password_s = NULL;
+					curl_tool_p -> ct_verbose_flag = false;
 
 					return curl_tool_p;
 				}		/* if (curl_tool_p) */
@@ -453,6 +459,11 @@ CURLcode RunCurlTool (CurlTool *tool_p)
 			double total;
 
 		  curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_NOPROGRESS, 1L);
+
+		  if (tool_p -> ct_verbose_flag)
+		  	{
+				  curl_easy_setopt (tool_p -> ct_curl_p, CURLOPT_VERBOSE, 1L);
+		  	}
 
 			res = curl_easy_perform (tool_p -> ct_curl_p);
 

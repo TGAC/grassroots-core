@@ -98,6 +98,11 @@ GRASSROOTS_SERVICE_API json_t *GetProviderDetails (const json_t *root_json_p);
  */
 GRASSROOTS_SERVICE_API bool SetProviderType (json_t *provider_p);
 
+
+
+GRASSROOTS_SERVICE_API json_t *GetProviderAsJSONFromParts (const char *name_s, const char *description_s, const char *url_s, const char *logo_s);
+
+
 #ifdef __cplusplus
 }
 #endif

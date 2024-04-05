@@ -153,6 +153,8 @@ GRASSROOTS_LUCENE_API json_t *GetLuceneFacetAsJSON (const LuceneFacet *facet_p);
 GRASSROOTS_LUCENE_API LuceneFacet *GetLuceneFacetFromResultsJSON (const json_t *json_p);
 
 
+
+
 #ifdef __cplusplus
 }
 #endif

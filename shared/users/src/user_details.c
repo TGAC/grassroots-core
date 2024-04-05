@@ -103,7 +103,7 @@ User *AllocateUser (bson_oid_t *id_p, const char *email_s, const char *forename_
 		}
 	else
 		{
-			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "User's must have a valid email address");
+			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Users must have a valid email address");
 		}
 
 	return NULL;
