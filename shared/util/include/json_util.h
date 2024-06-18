@@ -667,6 +667,9 @@ GRASSROOTS_UTIL_API bool SetNonTrivialString (json_t *value_p, const char *key_s
 GRASSROOTS_UTIL_API bool SetNonTrivialDouble (json_t *json_p, const char *key_s, const double64 *value_p, const bool null_fla);
 
 
+GRASSROOTS_UTIL_API bool SetNonTrivialArrayOfStrings (json_t *value_p, const char *key_s, const char **values_ss, const size_t num_values, const bool null_flag);
+
+
 #ifdef __cplusplus
 }
 #endif

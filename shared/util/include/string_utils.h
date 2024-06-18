@@ -402,6 +402,13 @@ GRASSROOTS_UTIL_API bool DoesStringStartWith (const char *value_s, const char *s
 GRASSROOTS_UTIL_API char *GetStringAsLowerCase (const char *value_s);
 
 
+/**
+ * Free an array of strings
+ *
+ * @param values_ss The array of strings to free
+ * @param num_values The number of strings on the array to free. If this is 0 then the
+ * the array will be parsed by freeing each entry until it comes to a NULL.
+ */
 GRASSROOTS_UTIL_API void FreeStringArray (char **values_ss, const size_t num_values);
 
 

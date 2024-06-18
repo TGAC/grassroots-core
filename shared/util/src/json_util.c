@@ -257,6 +257,13 @@ char **GetStringArrayFromJSON (const json_t * const array_json_p, bool add_termi
 }
 
 
+
+const char **ConvertJSONArrayString (const json_t *json_p, size_t *num_values_p)
+{
+
+}
+
+
 json_t *ConvertStringArrayToJSON (char **values_ss, const size_t num_values)
 {
 	json_t *array_p = json_array ();
@@ -1569,6 +1576,109 @@ bool SetNonTrivialString (json_t *value_p, const char *key_s, const char *value_
 
 	return success_flag;
 }
+
+
+bool SetNonTrivialArrayOfStrings (json_t *value_p, const char *key_s, const char **values_ss, const size_t num_values, const bool null_flag)
+{
+	bool success_flag = false;
+
+	if (!values_ss)
+		{
+			if (null_flag)
+				{
+					success_flag = SetJSONNull (value_p, key_s);
+				}
+			else
+				{
+					success_flag = true;
+				}
+		}
+	else
+		{
+			json_t *array_p = json_array ();
+
+			if (array_p)
+				{
+					bool loop_flag = true;
+					const char **value_ss = values_ss;
+					size_t i = 0;
+
+					while (loop_flag)
+						{
+							if (*value_ss)
+								{
+									json_t *value_p = json_string (*value_ss);
+
+									if (value_p)
+										{
+											if (json_array_append_new (array_p, value_p) != 0)
+												{
+													json_decref (value_p);
+													loop_flag = false;
+												}
+										}
+									else
+										{
+											loop_flag = false;
+										}
+								}
+							else if (num_values > 0)
+								{
+									if (json_array_append_new (array_p, json_null ()) != 0)
+										{
+											loop_flag = false;
+										}
+								}
+							else
+								{
+									loop_flag = false;
+									success_flag = true;
+								}
+
+							if (loop_flag)
+								{
+									++ i;
+									++ value_ss;
+
+									if (num_values > 0)
+										{
+											if (i == num_values)
+												{
+													loop_flag = false;
+													success_flag = true;
+												}
+										}
+									else
+										{
+											loop_flag = false;
+											success_flag = true;
+										}
+								}
+
+						}		/* while (loop_flag) */
+
+
+					if (success_flag)
+						{
+							if (json_object_set_new (value_p, key_s, array_p) != 0)
+								{
+									json_decref (array_p);
+									success_flag = false;
+								}
+						}
+					else
+						{
+							json_decref (array_p);
+						}
+
+				}		/* if (array_p) */
+
+
+		}
+
+	return success_flag;
+}
+
 
 
 bool SetNonTrivialDouble (json_t *json_p, const char *key_s, const double64 *value_p, const bool null_flag)

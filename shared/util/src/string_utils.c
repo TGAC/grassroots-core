@@ -1201,11 +1201,22 @@ void FreeStringArray (char **values_ss, const size_t num_values)
 	size_t i;
 	char **value_ss = values_ss;
 
-	for (i = num_values; i > 0; -- i, ++ value_ss)
+	if (i > 0)
 		{
-			if (*value_ss)
+			for (i = num_values; i > 0; -- i, ++ value_ss)
+				{
+					if (*value_ss)
+						{
+							FreeCopiedString (*value_ss);
+						}
+				}
+		}
+	else
+		{
+			while (*value_ss)
 				{
 					FreeCopiedString (*value_ss);
+					++ value_ss;
 				}
 		}
 
