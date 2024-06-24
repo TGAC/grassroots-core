@@ -476,58 +476,6 @@ static bool SetStringArrayParameterCurrentValueFromString (Parameter *param_p, c
 
 
 
-char **CopyStringArray (char **src_array_ss, const size_t num_values)
-{
-	char **dest_array_ss = (char **) AllocMemoryArray (num_values, sizeof (char *));
-
-	if (dest_array_ss)
-		{
-			char **dest_ss = dest_array_ss;
-			bool success_flag = true;
-			const char **src_ss = src_array_ss;
-			size_t i = num_values;
-
-			while (success_flag && (i > 0))
-				{
-					if (*src_ss)
-						{
-							char *dest_s = EasyCopyToNewString (*src_ss);
-
-							if (dest_s)
-								{
-									*dest_ss = dest_s;
-								}
-							else
-								{
-									success_flag = false;
-								}
-						}
-					else
-						{
-							*dest_ss = NULL;
-						}
-
-					if (success_flag)
-						{
-							++ dest_ss;
-							++ src_ss;
-							-- i;
-						}
-				}
-
-			if (success_flag)
-				{
-					return dest_array_ss;
-				}
-			else
-				{
-					FreeStringArray (dest_array_ss, num_values);
-				}
-
-		}		/* if (dest_ss) */
-
-	return NULL;
-}
 
 
 static bool SetStringArrayParameterValue (char ***param_value_sss, const size_t num_existing_values, char **new_values_ss, const size_t num_new_values)

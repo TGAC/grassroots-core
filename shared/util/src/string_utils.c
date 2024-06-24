@@ -1201,7 +1201,7 @@ void FreeStringArray (char **values_ss, const size_t num_values)
 	size_t i;
 	char **value_ss = values_ss;
 
-	if (i > 0)
+	if (num_values > 0)
 		{
 			for (i = num_values; i > 0; -- i, ++ value_ss)
 				{
@@ -1249,4 +1249,58 @@ bool CopyAndAddStringValue (const char * const src_s, char **dest_ss)
 		}
 
 	return success_flag;
+}
+
+
+char **CopyStringArray (const char **src_array_ss, const size_t num_values)
+{
+	char **dest_array_ss = (char **) AllocMemoryArray (num_values, sizeof (char *));
+
+	if (dest_array_ss)
+		{
+			char **dest_ss = dest_array_ss;
+			bool success_flag = true;
+			const char **src_ss = src_array_ss;
+			size_t i = num_values;
+
+			while (success_flag && (i > 0))
+				{
+					if (*src_ss)
+						{
+							char *dest_s = EasyCopyToNewString (*src_ss);
+
+							if (dest_s)
+								{
+									*dest_ss = dest_s;
+								}
+							else
+								{
+									success_flag = false;
+								}
+						}
+					else
+						{
+							*dest_ss = NULL;
+						}
+
+					if (success_flag)
+						{
+							++ dest_ss;
+							++ src_ss;
+							-- i;
+						}
+				}
+
+			if (success_flag)
+				{
+					return dest_array_ss;
+				}
+			else
+				{
+					FreeStringArray (dest_array_ss, num_values);
+				}
+
+		}		/* if (dest_ss) */
+
+	return NULL;
 }

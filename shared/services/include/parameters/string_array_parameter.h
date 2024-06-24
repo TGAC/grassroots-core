@@ -102,9 +102,6 @@ GRASSROOTS_SERVICE_API bool SetStringArrayParameterDefaultValues (StringArrayPar
 GRASSROOTS_SERVICE_API size_t GetNumberOfStringArrayCurrentParameterValues (const StringArrayParameter *param_p);
 
 
-GRASSROOTS_SERVICE_API char **CopyStringArray (char **src_ss, const size_t num_values);
-
-
 
 #ifdef __cplusplus
 }

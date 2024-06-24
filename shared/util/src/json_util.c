@@ -260,7 +260,7 @@ char **GetStringArrayFromJSON (const json_t * const array_json_p, bool add_termi
 
 const char **ConvertJSONArrayString (const json_t *json_p, size_t *num_values_p)
 {
-
+	return NULL;
 }
 
 
@@ -447,7 +447,7 @@ bool GetJSONLong (const json_t *json_p, const char * const key_s, long *value_p)
 		{
 			if (json_value_p)
 				{
-					success_flag = SetLongFromJSON (json_value_p, value_p);
+					success_flag = SetLongFromJSON (json_value_p, (int64 *) value_p);
 				}
 		}
 
@@ -1607,13 +1607,13 @@ bool SetNonTrivialArrayOfStrings (json_t *value_p, const char *key_s, const char
 						{
 							if (*value_ss)
 								{
-									json_t *value_p = json_string (*value_ss);
+									json_t *entry_p = json_string (*value_ss);
 
-									if (value_p)
+									if (entry_p)
 										{
-											if (json_array_append_new (array_p, value_p) != 0)
+											if (json_array_append_new (array_p, entry_p) != 0)
 												{
-													json_decref (value_p);
+													json_decref (entry_p);
 													loop_flag = false;
 												}
 										}

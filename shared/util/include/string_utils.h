@@ -421,6 +421,9 @@ GRASSROOTS_UTIL_API bool CopyAndAddStringValue (const char * const src_s, char *
 GRASSROOTS_UTIL_API char *RemoveStartingAndTrailingWhitespace (const char *value_s);
 
 
+GRASSROOTS_UTIL_API char **CopyStringArray (const char **src_ss, const size_t num_values);
+
+
 #ifdef __cplusplus
 }
 #endif
