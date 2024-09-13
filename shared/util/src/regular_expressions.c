@@ -34,7 +34,7 @@
 
 RegExp *AllocateRegExp (uint32 num_vectors)
 {
-	int *vectors_p = (int *) AllocMemory (num_vectors * sizeof (int));
+	PCRE2_SIZE *vectors_p = (PCRE2_SIZE *) AllocMemory (num_vectors * sizeof (PCRE2_SIZE));
 
 	if (vectors_p)
 		{
@@ -43,7 +43,6 @@ RegExp *AllocateRegExp (uint32 num_vectors)
 			if (reg_exp_p)
 				{
 					reg_exp_p -> re_compiled_expression_p = NULL;
-					reg_exp_p -> re_extra_p = NULL;
 					reg_exp_p -> re_num_matches = -1;
 					reg_exp_p -> re_substring_vectors_p = vectors_p;
 					reg_exp_p -> re_num_vectors = num_vectors;
@@ -68,21 +67,15 @@ void FreeRegExp (RegExp *reg_ex_p)
 
 void ClearRegExp (RegExp *reg_ex_p)
 {
-	if (reg_ex_p -> re_extra_p)
-		{
-			#ifdef PCRE_CONFIG_JIT
-			pcre_free_study (reg_ex_p -> re_extra_p);
-			#else
-			pcre_free (reg_ex_p -> re_extra_p);
-			#endif
-
-			reg_ex_p -> re_extra_p = NULL;
-		}
-
 	if (reg_ex_p -> re_compiled_expression_p)
 		{
-			pcre_free (reg_ex_p -> re_compiled_expression_p);
+			pcre2_code_free (reg_ex_p -> re_compiled_expression_p);
 			reg_ex_p -> re_compiled_expression_p = NULL;
+		}
+
+	if (reg_ex_p -> re_match_data_p)
+		{
+			pcre2_match_data_free (reg_ex_p -> re_match_data_p);
 		}
 
 	reg_ex_p -> re_num_matches =  0;
@@ -93,24 +86,26 @@ void ClearRegExp (RegExp *reg_ex_p)
 }
 
 
-bool SetPattern (RegExp *reg_ex_p, const char *pattern_s, int options)
+bool SetPattern (RegExp *reg_ex_p, const unsigned char *pattern_s, uint32 options)
 {
 	bool success_flag = false;
-	const char *error_s = NULL;
-	int offset = -1;
+	int error = -1;
+	PCRE2_SIZE offset = -1;
 
-	reg_ex_p -> re_compiled_expression_p = pcre_compile (pattern_s, options, &error_s, &offset, NULL);
+	reg_ex_p -> re_compiled_expression_p = pcre2_compile (pattern_s, PCRE2_ZERO_TERMINATED, options, &error, &offset, NULL);
 
 	if (reg_ex_p -> re_compiled_expression_p)
 		{
-			reg_ex_p -> re_extra_p = pcre_study (reg_ex_p -> re_compiled_expression_p, 0, &error_s);
+			reg_ex_p -> re_match_data_p = pcre2_match_data_create_from_pattern (reg_ex_p -> re_compiled_expression_p, NULL);
 
-			if (! (reg_ex_p -> re_extra_p))
+			if (reg_ex_p -> re_match_data_p)
 				{
-					PrintErrors (STM_LEVEL_WARNING, __FILE__, __LINE__, "Failed to optimise regular expression for \"%s\"", pattern_s);
+					success_flag = true;
 				}
-
-			success_flag = true;
+			else
+				{
+					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Failed to get match data for regular expression for \"%s\"", pattern_s);
+				}
 		}
 	else
 		{
@@ -128,11 +123,12 @@ bool MatchPattern (RegExp *reg_ex_p, const char *value_s)
 
 	if (reg_ex_p -> re_compiled_expression_p)
 		{
-			int res = pcre_exec (reg_ex_p -> re_compiled_expression_p, reg_ex_p -> re_extra_p, value_s, strlen (value_s), 0, 0, reg_ex_p -> re_substring_vectors_p, reg_ex_p -> re_num_vectors);
+			int res = pcre2_match (reg_ex_p -> re_compiled_expression_p, value_s, strlen (value_s), 0, 0, reg_ex_p -> re_match_data_p, NULL);
 
 			if (res > 0)
 				{
-					reg_ex_p -> re_num_matches = res;
+					reg_ex_p -> re_substring_vectors_p = pcre2_get_ovector_pointer (reg_ex_p -> re_match_data_p);
+					reg_ex_p -> re_num_matches = res - 1;
 					success_flag = true;
 				}
 			else if (res == 0)
@@ -150,32 +146,28 @@ bool MatchPattern (RegExp *reg_ex_p, const char *value_s)
 
 					switch (res)
 						{
-							case PCRE_ERROR_NOMATCH:
+							case PCRE2_ERROR_NOMATCH:
 								PrintLog (STM_LEVEL_FINER, __FILE__, __LINE__, "No match for \"%s\"", value_s);
 								break;
 
-							case PCRE_ERROR_NULL:
+							case PCRE2_ERROR_NULL:
 								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "An object was NULL");
 								break;
 
-							case PCRE_ERROR_NOMEMORY:
+							case PCRE2_ERROR_NOMEMORY:
 								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Ran out of memory during regular expression matching");
 								break;
 
-							case PCRE_ERROR_BADOPTION:
+							case PCRE2_ERROR_BADOPTION:
 								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "An incorrect option was passed to regular expression matching");
 								break;
 
-							case PCRE_ERROR_BADMAGIC:
+							case PCRE2_ERROR_BADMAGIC:
 								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "An bad magic error occurred during regular expression matching");
 								break;
 
-							case PCRE_ERROR_UNKNOWN_NODE:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "An object was NULL");
-								break;
-
 							default:
-								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "An unknown error occurred during regular expression matching");
+								PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "An unknown error 5d occurred during regular expression matching", res);
 								break;
 						}		/* switch (res) */
 
@@ -200,18 +192,30 @@ uint32 GetNumberOfMatches (const RegExp *reg_ex_p)
 }
 
 
+
+/*
+ * Show substrings stored in the output vector by number. Obviously, in a real
+	application you might want to do things other than print them.
+
+for (i = 0; i < rc; i++)
+  {
+  PCRE2_SPTR substring_start = subject + ovector[2*i];
+  PCRE2_SIZE substring_length = ovector[2*i+1] - ovector[2*i];
+  printf("%2d: %.*s\n", i, (int)substring_length, (char *)substring_start);
+  }
+
+ */
+
 char *GetNextMatch (RegExp *reg_ex_p)
 {
 	char *value_s = NULL;
 
 	if (reg_ex_p -> re_current_substring_index < ((reg_ex_p -> re_num_matches) << 1))
 		{
-			const uint32 start = * ((reg_ex_p -> re_substring_vectors_p) + (reg_ex_p -> re_current_substring_index));
-			const uint32 end = * ((reg_ex_p -> re_substring_vectors_p) + (reg_ex_p -> re_current_substring_index + 1));
+			const PCRE2_SIZE start = * ((reg_ex_p -> re_substring_vectors_p) + (reg_ex_p -> re_current_substring_index));
+		  PCRE2_SIZE substring_length = (* ((reg_ex_p -> re_substring_vectors_p) + 1)) - start;
 
-			size_t l = end - start;
-
-			value_s = CopyToNewString ((reg_ex_p -> re_target_s) + start, l, false);
+			value_s = CopyToNewString ((reg_ex_p -> re_target_s) + start, substring_length, false);
 
 			if (value_s)
 				{
@@ -220,7 +224,7 @@ char *GetNextMatch (RegExp *reg_ex_p)
 			else
 				{
 					PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__,
-						"Failed to copy " SIZET_FMT " characters of \"%s\" for regular expression match", l, (reg_ex_p -> re_target_s) + start);
+						"Failed to copy " SIZET_FMT " characters of \"%s\" for regular expression match", substring_length, (reg_ex_p -> re_target_s) + start);
 				}
 		}		/*  if (reg_ex_p -> re_current_substring_index < reg_ex_p -> re_num_matches) */
 

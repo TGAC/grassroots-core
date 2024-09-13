@@ -68,7 +68,7 @@ TEST_APP_LDFLAGS = \
 	-L$(DIR_GRASSROOTS_SERVER_LIB) -l$(GRASSROOTS_SERVER_LIB_NAME) \
 	-L$(DIR_HTMLCXX_LIB) -lhtmlcxx \
 	-L$(DIR_HCXSELECT_LIB) -lhcxselect \
-	-L$(DIR_PCRE_LIB) -lpcre \
+	-L$(DIR_PCRE2_LIB) -l$(PCRE2_LIB_NAME) \
 	-L$(DIR_JANSSON_LIB) -ljansson \
 	-L$(DIR_UUID_LIB) -luuid \
 	-lcurl

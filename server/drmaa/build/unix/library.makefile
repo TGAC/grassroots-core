@@ -70,7 +70,7 @@ EXE_LDFLAGS = \
 	-L$(DIR_HCXSELECT_LIB) -lhcxselect \
 	-L$(DIR_IRODS_LIB) 	-lirods_client -lirods_common -lirods_plugin_dependencies \
 	-L$(DIR_UUID_LIB) -luuid \
-	-L$(DIR_PCRE_LIB) -lpcre \
+	-L$(DIR_PCRE2_LIB) -l$(PCRE2_LIB_NAME) \
 	-L$(DIR_MONGODB_LIB) -lmongoc-1.0 \
 	-L$(DIR_BSON_LIB) -lbson-1.0 \
 

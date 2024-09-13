@@ -27,7 +27,8 @@
 #ifndef SHARED_SRC_UTIL_INCLUDE_REGULAR_EXPRESSIONS_H_
 #define SHARED_SRC_UTIL_INCLUDE_REGULAR_EXPRESSIONS_H_
 
-#include "pcre.h"
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include "pcre2.h"
 
 
 #include "grassroots_util_library.h"
@@ -44,10 +45,10 @@ const uint32 DEFAULT_NUM_REGEXP_VECTORS = 32;
 typedef struct RegExp
 {
 	/** @private */
-  pcre *re_compiled_expression_p;
+	pcre2_code *re_compiled_expression_p;
 
 	/** @private */
-  pcre_extra *re_extra_p;
+	pcre2_match_data *re_match_data_p;
 
 	/** @private */
   const char *re_target_s;
@@ -56,7 +57,8 @@ typedef struct RegExp
   uint32 re_num_matches;
 
 	/** @private */
-  int *re_substring_vectors_p;
+  PCRE2_SIZE *re_substring_vectors_p;
+
 
 	/** @private */
   uint32 re_num_vectors;
@@ -112,7 +114,7 @@ GRASSROOTS_UTIL_API void ClearRegExp (RegExp *reg_ex_p);
  * @return <code>true</code> if the pattern was set successfully, <code>false</code> otherwise.
  * @memberof RegExp
  */
-GRASSROOTS_UTIL_API bool SetPattern (RegExp *reg_ex_p, const char *pattern_s, int options);
+GRASSROOTS_UTIL_API bool SetPattern (RegExp *reg_ex_p, const unsigned char *pattern_s, uint32 options);
 
 
 /**
