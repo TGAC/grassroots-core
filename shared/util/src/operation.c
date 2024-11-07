@@ -242,3 +242,53 @@ OperationStatus GetOperationStatusFromString (const char *status_s)
 
 	return status;
 }
+
+
+void MergeOperationStatuses (OperationStatus *status_p, const OperationStatus status_to_add)
+{
+	switch (*status_p)
+		{
+			case OS_FAILED:
+			case OS_FAILED_TO_START:
+			case OS_ERROR:
+				{
+					if ((status_to_add == OS_SUCCEEDED) || (status_to_add == OS_PARTIALLY_SUCCEEDED))
+						{
+							*status_p  = OS_PARTIALLY_SUCCEEDED;
+						}
+				}
+				break;
+
+			case OS_IDLE:
+			case OS_PENDING:
+				{
+					*status_p = status_to_add;
+				}
+				break;
+
+			case OS_STARTED:
+			case OS_FINISHED:
+				{
+
+				}
+				break;
+
+			case OS_PARTIALLY_SUCCEEDED:
+				{
+
+				}
+				break;
+
+			case OS_SUCCEEDED:
+				{
+					if (status_to_add != OS_SUCCEEDED)
+						{
+							*status_p = OS_PARTIALLY_SUCCEEDED;
+						}
+				}
+				break;
+
+		}
+
+}
+

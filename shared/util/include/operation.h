@@ -169,6 +169,18 @@ GRASSROOTS_UTIL_API OperationStatus GetOperationStatusFromString (const char *st
  */
 GRASSROOTS_UTIL_API Operation GetOperationFromJSON (const json_t *ops_p);
 
+
+
+
+/**
+ * Get the Operation from a JSON fragment with a key of either OPERATION_S or OPERATION_ID_S.
+ *
+ * @param status_p A pointer to the OperationStatus to amend.
+ * @param status_to_add The OperationStatus value to amend status_p with.
+ * @ingroup utility_group
+ */
+GRASSROOTS_UTIL_API void MergeOperationStatuses (OperationStatus *status_p, const OperationStatus status_to_add);
+
 #ifdef __cplusplus
 }
 #endif
