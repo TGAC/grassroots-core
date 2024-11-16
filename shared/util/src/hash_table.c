@@ -515,14 +515,16 @@ void PrintHashTable (const HashTable * const hash_table_p, OutputStream * const 
 
 	if (hash_table_p -> ht_size > 0)
 		{
-			while (i < capacity)
+			if (print_bucket_fn)
 				{
-					PrintToOutputStream (stream_p, __FILE__, __LINE__, "[%lu]: ", i);
-					print_bucket_fn (bucket_p, stream_p);
-					++ bucket_p;
-					++ i;
-				}		/* while (i < capacity) */
-
+					while (i < capacity)
+						{
+							PrintToOutputStream (stream_p, __FILE__, __LINE__, "[%lu]: ", i);
+							print_bucket_fn (bucket_p, stream_p);
+							++ bucket_p;
+							++ i;
+						}		/* while (i < capacity) */
+				}
 		}		/* if (hash_table_p -> ht_size > 0) */
 }
 
@@ -578,21 +580,25 @@ HashTable *CopyHashTable (const HashTable * const src_table_p, const bool deep_c
 bool SaveHashTable (const HashTable * const table_p, const char * const filename_s, int (*compare_fn) (const void *v0_p, const void *v1_p))
 {
 	bool success_flag = false;
-	FILE *out_f = fopen (filename_s, "w");
 
-	if (out_f)
+	if (table_p -> ht_save_bucket_fn)
 		{
-			if (compare_fn)
-				{
-					success_flag = SaveOrderedHashTable (table_p, out_f, compare_fn);
-				}
-			else
-				{
-					success_flag = SaveUnorderedHashTable (table_p, out_f);
-				}
+			FILE *out_f = fopen (filename_s, "w");
 
-			fclose (out_f);
-		}		/* if (out_f) */
+			if (out_f)
+				{
+					if (compare_fn)
+						{
+							success_flag = SaveOrderedHashTable (table_p, out_f, compare_fn);
+						}
+					else
+						{
+							success_flag = SaveUnorderedHashTable (table_p, out_f);
+						}
+
+					fclose (out_f);
+				}		/* if (out_f) */
+		}
 
 	return success_flag;
 }

@@ -24,7 +24,6 @@
 #include "string_utils.h"
 
 
-static bool FillStringValue (const void *src_p, const void **dest_pp, const MEM_FLAG mf);
 
 
 static bool FillStringHashBucket (HashBucket * const bucket_p, const void * const key_p, const void * const value_p);
@@ -128,7 +127,7 @@ static bool SaveStringHashBucket (const HashBucket * const bucket_p, FILE *out_f
 }
 
 
-static bool FillStringValue (const void *src_p, const void **dest_pp, const MEM_FLAG mf)
+bool FillStringValue (const void *src_p, const void **dest_pp, const MEM_FLAG mf)
 {
 	bool success_flag = true;
 

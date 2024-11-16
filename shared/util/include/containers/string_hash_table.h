@@ -82,6 +82,9 @@ GRASSROOTS_UTIL_API bool CompareStringHashBuckets (const void * const bucket_key
 GRASSROOTS_UTIL_API int CompareKeysAlphabetically (const void *v0_p, const void *v1_p);
 
 
+GRASSROOTS_UTIL_API bool FillStringValue (const void *src_p, const void **dest_pp, const MEM_FLAG mf);
+
+
 #ifdef __cplusplus
 }
 #endif
