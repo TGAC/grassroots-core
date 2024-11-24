@@ -330,6 +330,9 @@ GRASSROOTS_NETWORK_API void SetCurlToolVerbose (CurlTool *tool_p, const bool ver
 
 
 
+GRASSROOTS_NETWORK_API bool DownloadFile (CurlTool * const curl_p, const char * const url_s, const char * const output_filename_s);
+
+
 #ifdef __cplusplus
 }
 #endif

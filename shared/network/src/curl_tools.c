@@ -89,7 +89,9 @@ typedef struct CURLParam
 
 static size_t WriteMemoryCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p);
 
-static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p);
+static size_t WriteTempFileCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p);
+
+static size_t WriteFileCallback (void *data_p, size_t size, size_t nmemb, void *stream_p);
 
 static bool SetCurlToolJSONRequestData (CurlTool *tool_p, json_t *json_p);
 
@@ -318,7 +320,7 @@ static bool SetupCurlForFileCallback (CurlTool *tool_p, const char * const filen
 
 	if (temp_p)
 		{
-			if (AddCurlCallback (tool_p, WriteFileCallback, temp_p))
+			if (AddCurlCallback (tool_p, WriteTempFileCallback, temp_p))
 				{
 					tool_p -> ct_temp_file_p = temp_p;
 
@@ -762,8 +764,52 @@ size_t GetCurlToolDataSize (CurlTool * const tool_p)
 }
 
 
+/*
+ * Based upon the code at https://curl.se/libcurl/c/url2file.html
+ */
+bool DownloadFile (CurlTool * const curl_p, const char * const url_s, const char * const output_filename_s)
+{
+	FILE *out_f = NULL;
+	bool success_flag = false;
 
-static size_t WriteFileCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p)
+  /* set URL to get here */
+  curl_easy_setopt (curl_p -> ct_curl_p, CURLOPT_URL, url_s);
+
+  /* Switch on full protocol/debug output while testing */
+  curl_easy_setopt (curl_p -> ct_curl_p, CURLOPT_VERBOSE, 1L);
+
+  /* disable progress meter, set to 0L to enable it */
+  curl_easy_setopt (curl_p -> ct_curl_p, CURLOPT_NOPROGRESS, 1L);
+
+  /* send all data to this function  */
+  curl_easy_setopt (curl_p -> ct_curl_p, CURLOPT_WRITEFUNCTION, WriteTempFileCallback);
+
+
+  /* open the file */
+  out_f = fopen (output_filename_s, "wb");
+  if (out_f)
+  	{
+  		CURLcode res;
+			/* write the page body to this file handle */
+			curl_easy_setopt (curl_p -> ct_curl_p, CURLOPT_WRITEDATA, out_f);
+
+			/* get it! */
+			res = curl_easy_perform (curl_p -> ct_curl_p);
+
+			if (res == CURLE_OK)
+				{
+					success_flag = true;
+				}
+
+			/* close the header file */
+			fclose (out_f);
+  	}
+
+  return success_flag;
+}
+
+
+static size_t WriteTempFileCallback (char *response_data_p, size_t block_size, size_t num_blocks, void *store_p)
 {
 	size_t result = CURLE_OK;
 	TemporaryFile *temp_p = (TemporaryFile *) store_p;
@@ -823,3 +869,12 @@ static size_t WriteMemoryCallback (char *response_data_p, size_t block_size, siz
 	
 	return result;
 }
+
+
+static size_t WriteFileCallback (void *data_p, size_t size, size_t nmemb, void *stream_p)
+{
+  size_t written = fwrite (data_p, size, nmemb, (FILE *) stream_p);
+
+  return written;
+}
+
