@@ -2537,6 +2537,7 @@ bool AddCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p)
 	return AddNamedCompoundIdToJSON (data_p, id_p, MONGO_ID_S);
 }
 
+
 bool AddNamedCompoundIdToJSON (json_t *data_p, bson_oid_t *id_p, const char *key_s)
 {
 	bool success_flag = false;
