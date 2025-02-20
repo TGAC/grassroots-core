@@ -388,11 +388,11 @@ OperationStatus DeleteLucene (LuceneTool *tool_p, const char *query_s, const Que
 
 																	if (status == OS_SUCCEEDED)
 																		{
-																		PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
+																			PrintLog (STM_LEVEL_FINE, __FILE__, __LINE__, "\"%s\" ran successfully", command_s);
 																		}
 																	else
 																		{
-																		PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with status %d", command_s, status);
+																			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "\"%s\" failed with status %d", command_s, status);
 																		}
 
 
@@ -586,14 +586,14 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 																							else
 																								{
 																									PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to append output and log params for \"%s\"", full_filename_stem_s);
-																								}																							FreeCopiedString (results_s);
+																								}
 
+																							FreeCopiedString (results_s);
 																						}
 																					else
 																						{
 																							PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to create results filename for stem \"%s\"", full_filename_stem_s);
 																						}
-
 
 																					FreeCopiedString (error_s);
 																				}		/* if (error_s) */
@@ -601,7 +601,6 @@ OperationStatus IndexLucene (LuceneTool *tool_p, const json_t *data_p, bool upda
 																				{
 																					PrintJSONToErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, data_p, "Failed to create error filename for stem \"%s\"", full_filename_stem_s);
 																				}
-
 
 																			FreeCopiedString (output_s);
 																		}		/* if (output_s) */
