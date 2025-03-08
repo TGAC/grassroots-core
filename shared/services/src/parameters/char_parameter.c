@@ -289,7 +289,7 @@ bool GetCurrentCharParameterValueFromParameterSet (const ParameterSet * const pa
 
 Parameter *EasyCreateAndAddCharParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const char *default_value_p, uint8 level)
+																								const char *default_value_p, ParameterLevel level)
 {
 	return CreateAndAddCharParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, default_value_p, default_value_p, level);
 }
@@ -297,7 +297,7 @@ Parameter *EasyCreateAndAddCharParameterToParameterSet (const ServiceData *servi
 
 Parameter *CreateAndAddCharParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const char *default_value_p, const char *current_value_p, uint8 level)
+																								const char *default_value_p, const char *current_value_p, ParameterLevel level)
 {
 	CharParameter *char_param_p = AllocateCharParameter (service_data_p, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 

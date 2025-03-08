@@ -63,12 +63,12 @@ GRASSROOTS_SERVICE_API TimeArrayParameter *AllocateTimeArrayParameterFromJSON (c
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											struct tm **default_values_pp, const size_t num_values, uint8 level);
+																											struct tm **default_values_pp, const size_t num_values, ParameterLevel level);
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
 																											struct tm **default_values_pp, struct tm **current_values_pp,
-																											const size_t num_values, uint8 level);
+																											const size_t num_values, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API char *GetTimeArrayParameterCurrentValuesAsFlattenedString (const TimeArrayParameter *param_p);

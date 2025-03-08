@@ -187,7 +187,7 @@ SignedIntParameter *AllocateSignedIntParameterFromJSON (const json_t *param_json
 
 Parameter *EasyCreateAndAddSignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const int32 *default_value_p, uint8 level)
+																								const int32 *default_value_p, ParameterLevel level)
 {
 	return CreateAndAddSignedIntParameterToParameterSet (service_data_p, params_p, group_p, type, name_s, display_name_s, description_s, default_value_p, default_value_p, level);
 }
@@ -195,7 +195,7 @@ Parameter *EasyCreateAndAddSignedIntParameterToParameterSet (const ServiceData *
 
 Parameter *CreateAndAddSignedIntParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,  ParameterType type,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const int32 *default_value_p, const int32 *current_value_p, uint8 level)
+																								const int32 *default_value_p, const int32 *current_value_p, ParameterLevel level)
 {
 	SignedIntParameter *int_param_p = AllocateSignedIntParameter (service_data_p, type, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 

@@ -163,7 +163,7 @@ TimeArrayParameter *AllocateTimeArrayParameterFromJSON (const json_t *param_json
 
 Parameter *EasyCreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											struct tm **default_values_pp, const size_t num_values, uint8 level)
+																											struct tm **default_values_pp, const size_t num_values, ParameterLevel level)
 {
 	return CreateAndAddTimeArrayParameterToParameterSet (service_data_p, params_p, group_p,
 																										name_s, display_name_s, description_s,
@@ -173,7 +173,7 @@ Parameter *EasyCreateAndAddTimeArrayParameterToParameterSet (const ServiceData *
 Parameter *CreateAndAddTimeArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
 																											struct tm **default_values_pp, struct tm **current_values_pp,
-																											const size_t num_values, uint8 level)
+																											const size_t num_values, ParameterLevel level)
 {
 	Parameter *base_param_p = NULL;
 	TimeArrayParameter *time_array_param_p = AllocateTimeArrayParameter (service_data_p, name_s, display_name_s, description_s, default_values_pp, current_values_pp, num_values, level);

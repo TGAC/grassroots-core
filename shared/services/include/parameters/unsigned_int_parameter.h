@@ -98,13 +98,13 @@ GRASSROOTS_SERVICE_API UnsignedIntParameter *AllocateUnsignedIntParameterFromJSO
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddUnsignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 											      													const char * const name_s, const char * const display_name_s, const char * const description_s,
-														      										const uint32 *default_value_p, uint8 level);
+														      										const uint32 *default_value_p, ParameterLevel level);
 
 
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddUnsignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const uint32 *default_value_p, const uint32 *current_value_p, uint8 level);
+																											const uint32 *default_value_p, const uint32 *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API void FreeUnsignedIntParameter (UnsignedIntParameter *param_p);

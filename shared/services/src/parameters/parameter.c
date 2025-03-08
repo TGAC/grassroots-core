@@ -865,7 +865,7 @@ bool CompareParameterLevels (const ParameterLevel param_level, const ParameterLe
 			show_flag = true;
 			break;
 
-		case PL_SIMPLE:
+		case PL_INTERMEDIATE:
 			if (threshold != PL_ADVANCED)
 				{
 					show_flag = true;
@@ -873,7 +873,7 @@ bool CompareParameterLevels (const ParameterLevel param_level, const ParameterLe
 			break;
 
 		case PL_ADVANCED:
-			if (threshold != PL_SIMPLE)
+			if (threshold != PL_INTERMEDIATE)
 				{
 					show_flag = true;
 				}
@@ -1188,7 +1188,7 @@ const char *GetParameterLevelAsString (const ParameterLevel level)
 
 	switch (level)
 	{
-		case PL_SIMPLE:
+		case PL_INTERMEDIATE:
 			level_s = PARAM_LEVEL_TEXT_SIMPLE_S;
 			break;
 
@@ -1216,7 +1216,7 @@ bool GetParameterLevelFromString (const char *level_s, ParameterLevel *level_p)
 
 	if (strcmp (level_s, PARAM_LEVEL_TEXT_SIMPLE_S) == 0)
 		{
-			*level_p = PL_SIMPLE;
+			*level_p = PL_INTERMEDIATE;
 		}
 	else if (strcmp (level_s, PARAM_LEVEL_TEXT_ADVANCED_S) == 0)
 		{
@@ -2158,7 +2158,7 @@ static bool GetParameterLevelFromJSON (const json_t * const json_p, ParameterLev
 				}
 			else if (strcmp (level_s, PARAM_LEVEL_TEXT_SIMPLE_S) == 0)
 				{
-					*level_p = PL_SIMPLE;
+					*level_p = PL_INTERMEDIATE;
 				}
 			else if (strcmp (level_s, PARAM_LEVEL_TEXT_ADVANCED_S) == 0)
 				{

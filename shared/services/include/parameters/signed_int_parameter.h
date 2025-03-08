@@ -106,12 +106,12 @@ GRASSROOTS_SERVICE_API void FreeSignedIntParameter (SignedIntParameter *param_p)
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddSignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const int32 *default_value_p, uint8 level);
+																								const int32 *default_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddSignedIntParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,  ParameterType type,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const int32 *default_value_p, const int32 *current_value_p, uint8 level);
+																								const int32 *default_value_p, const int32 *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API const int32 *GetSignedIntParameterCurrentValue (const SignedIntParameter *param_p);

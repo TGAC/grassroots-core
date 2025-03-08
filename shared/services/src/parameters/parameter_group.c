@@ -426,7 +426,7 @@ json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool
 
 									switch (l)
 										{
-											case PL_SIMPLE:
+											case PL_INTERMEDIATE:
 												level_s = PARAM_LEVEL_TEXT_SIMPLE_S;
 												break;
 

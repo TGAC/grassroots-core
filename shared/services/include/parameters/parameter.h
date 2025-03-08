@@ -55,19 +55,25 @@ typedef enum
 	 * The value of a ParameterLevel for Parameters that
 	 * are considered the most simple options.
 	 */
-	PL_SIMPLE,
+	PL_BASIC = 1,
+
+	/**
+	 * The value of a ParameterLevel for Parameters that
+	 * are considered the standard options.
+	 */
+	PL_INTERMEDIATE = 1 << 1,
 
 	/**
 	 * The value of a ParameterLevel for Parameters that
 	 * are considered the options that require the most expertise.
 	 */
-	PL_ADVANCED,
+	PL_ADVANCED = 1 << 2,
 
 	/**
 	 * The value of a ParameterLevel for Parameters that
 	 * are considered the options suitable for all levels
 	 */
-	PL_ALL
+	PL_ALL = PL_BASIC | PL_INTERMEDIATE | PL_ADVANCED
 } ParameterLevel;
 
 

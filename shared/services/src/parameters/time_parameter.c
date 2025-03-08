@@ -166,7 +166,7 @@ TimeParameter *AllocateTimeParameterFromJSON (const json_t *param_json_p, const 
 
 Parameter *EasyCreateAndAddTimeParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																												const char * const name_s, const char * const display_name_s, const char * const description_s,
-																												const struct tm *default_value_p, uint8 level)
+																												const struct tm *default_value_p, ParameterLevel level)
 {
 	return CreateAndAddTimeParameterToParameterSet (service_data_p, params_p, group_p, name_s, display_name_s, description_s, default_value_p, default_value_p, level);
 }
@@ -174,7 +174,7 @@ Parameter *EasyCreateAndAddTimeParameterToParameterSet (const ServiceData *servi
 
 Parameter *CreateAndAddTimeParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																										const char * const name_s, const char * const display_name_s, const char * const description_s,
-																										const struct tm *default_value_p, const struct tm *current_value_p, uint8 level)
+																										const struct tm *default_value_p, const struct tm *current_value_p, ParameterLevel level)
 {
 	TimeParameter *time_param_p = AllocateTimeParameter (service_data_p, name_s, display_name_s, description_s, default_value_p, current_value_p, level);
 

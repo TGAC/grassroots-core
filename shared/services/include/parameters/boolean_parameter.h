@@ -72,13 +72,13 @@ GRASSROOTS_SERVICE_API BooleanParameter *AllocateBooleanParameterFromJSON (const
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddBooleanParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 											      													const char * const name_s, const char * const display_name_s, const char * const description_s,
-														      										const bool *default_value_p, uint8 level);
+														      										const bool *default_value_p, ParameterLevel level);
 
 
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddBooleanParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const bool *default_value_p, const bool *current_value_p, uint8 level);
+																											const bool *default_value_p, const bool *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API void FreeBooleanParameter (BooleanParameter *param_p);

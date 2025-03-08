@@ -137,7 +137,7 @@ GRASSROOTS_SERVICE_API bool GetCurrentDoubleParameterValueFromParameterSet (cons
  */
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, const ParameterType pt,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const double64 *default_value_p, uint8 level);
+																								const double64 *default_value_p, ParameterLevel level);
 
 /**
  * Allocate a new Parameter and add it to a ParameterSet.
@@ -162,7 +162,7 @@ GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddDoubleParameterToParameterSet 
  */
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddDoubleParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, const ParameterType pt,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const double64 *default_value_p, const double64 *current_value_p, uint8 level);
+																								const double64 *default_value_p, const double64 *current_value_p, ParameterLevel level);
 
 
 

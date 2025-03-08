@@ -81,11 +81,11 @@ GRASSROOTS_SERVICE_API TimeParameter *AllocateTimeParameterFromJSON (const json_
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddTimeParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const struct tm *default_value_p, uint8 level);
+																								const struct tm *default_value_p, ParameterLevel level);
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddTimeParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const struct tm *default_value_p, const struct tm *current_value_p, uint8 level);
+																								const struct tm *default_value_p, const struct tm *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API void FreeTimeParameter (TimeParameter *param_p);

@@ -112,12 +112,12 @@ GRASSROOTS_SERVICE_API bool GetCurrentCharParameterValueFromParameterSet (const 
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddCharParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const char *default_value_p, uint8 level);
+																								const char *default_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddCharParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																								const char * const name_s, const char * const display_name_s, const char * const description_s,
-																								const char *default_value_p, const char *current_value_p, uint8 level);
+																								const char *default_value_p, const char *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API bool SetCharParameterCurrentValueFromJSON (CharParameter *param_p, const json_t *value_p);

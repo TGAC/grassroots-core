@@ -145,7 +145,7 @@ StringArrayParameter *AllocateStringArrayParameterFromJSON (const json_t *param_
 
 Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											char **default_values_ss, uint32 num_entries, uint8 level)
+																											char **default_values_ss, uint32 num_entries, ParameterLevel level)
 {
 	return CreateAndAddStringArrayParameterToParameterSet (service_data_p, params_p, group_p,
 																										name_s, display_name_s, description_s,
@@ -154,7 +154,7 @@ Parameter *EasyCreateAndAddStringArrayParameterToParameterSet (const ServiceData
 
 Parameter *CreateAndAddStringArrayParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											char **default_values_ss, char **current_values_ss, uint32 num_entries, uint8 level)
+																											char **default_values_ss, char **current_values_ss, uint32 num_entries, ParameterLevel level)
 {
 	Parameter *base_param_p = NULL;
 	StringArrayParameter *string_array_param_p = AllocateStringArrayParameter (service_data_p, name_s, display_name_s, description_s, default_values_ss, current_values_ss, num_entries, level);

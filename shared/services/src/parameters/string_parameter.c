@@ -130,7 +130,7 @@ StringParameter *AllocateStringParameterFromJSON (const json_t *param_json_p, co
 
 Parameter *EasyCreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char *default_value_s, uint8 level)
+																											const char *default_value_s, ParameterLevel level)
 {
 	return CreateAndAddStringParameterToParameterSet (service_data_p, params_p, group_p, type,
 																										name_s, display_name_s, description_s,
@@ -139,7 +139,7 @@ Parameter *EasyCreateAndAddStringParameterToParameterSet (const ServiceData *ser
 
 Parameter *CreateAndAddStringParameterToParameterSet (const ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char *default_value_s, const char *current_value_s, uint8 level)
+																											const char *default_value_s, const char *current_value_s, ParameterLevel level)
 {
 	Parameter *base_param_p = NULL;
 	StringParameter *string_param_p = AllocateStringParameter (service_data_p, type, name_s, display_name_s, description_s, default_value_s, current_value_s, level);

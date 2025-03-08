@@ -91,12 +91,12 @@ GRASSROOTS_SERVICE_API JSONParameter *AllocateJSONParameterFromJSON (const json_
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddJSONParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const json_t *default_value_p, uint8 level);
+																											const json_t *default_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddJSONParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const json_t *default_value_p, const json_t *current_value_p, uint8 level);
+																											const json_t *default_value_p, const json_t *current_value_p, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API void FreeJSONParameter (JSONParameter *param_p);

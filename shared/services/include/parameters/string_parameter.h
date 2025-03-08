@@ -97,12 +97,12 @@ GRASSROOTS_SERVICE_API StringParameter *AllocateStringParameterFromJSON (const j
 
 GRASSROOTS_SERVICE_API Parameter *EasyCreateAndAddStringParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char *default_value_s, uint8 level);
+																											const char *default_value_s, ParameterLevel level);
 
 
 GRASSROOTS_SERVICE_API Parameter *CreateAndAddStringParameterToParameterSet (const struct ServiceData *service_data_p, ParameterSet *params_p, ParameterGroup *group_p, ParameterType type,
 																											const char * const name_s, const char * const display_name_s, const char * const description_s,
-																											const char *default_value_s, const char *current_value_s, uint8 level);
+																											const char *default_value_s, const char *current_value_s, ParameterLevel level);
 
 
 
