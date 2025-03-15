@@ -1413,8 +1413,8 @@ bool FindMatchingMongoDocumentsByBSON (MongoTool *tool_p, const bson_t *query_p,
 						}
 
 					tool_p -> mt_cursor_p = cursor_p;
-					//success_flag = HasMongoQueryResults (tool_p);
-					success_flag = true;
+					success_flag = HasMongoQueryResults (tool_p);
+					//success_flag = true;
 				}
 
 
