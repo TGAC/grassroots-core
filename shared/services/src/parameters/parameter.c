@@ -859,26 +859,28 @@ bool CompareParameterLevels (const ParameterLevel param_level, const ParameterLe
 {
 	bool show_flag = false;
 
-	switch (param_level)
-	{
-		case PL_ALL:
-			show_flag = true;
-			break;
-
-		case PL_SIMPLE:
-			if (threshold & PL_SIMPLE)
+	if (param_level == PL_ALL)
+		{
+			if ((threshold & PL_SIMPLE) || (threshold & PL_ADVANCED))
 				{
 					show_flag = true;
 				}
-			break;
-
-		case PL_ADVANCED:
-			if (threshold & PL_ADVANCED)
+		}
+	else if (param_level == PL_ALL_AND_WIZARD)
+		{
+			if ((threshold & PL_SIMPLE) || (threshold & PL_ADVANCED) || (threshold & PL_WIZARD))
 				{
 					show_flag = true;
 				}
-			break;
-	}		/* switch (param_level) */
+
+		}
+	else
+		{
+			if (param_level & threshold)
+				{
+					show_flag = true;
+				}
+		}
 
 	return show_flag;
 }
@@ -1204,6 +1206,11 @@ const char *GetParameterLevelAsString (const ParameterLevel level)
 			level_s = PARAM_LEVEL_TEXT_ALL_S;
 			break;
 
+		case PL_ALL_AND_WIZARD:
+			level_s = PARAM_LEVEL_TEXT_ALL_AND_WIZARD_S;
+			break;
+
+
 		default:
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unknown ParameterLevel %d", level);
 			break;
@@ -1233,6 +1240,10 @@ bool GetParameterLevelFromString (const char *level_s, ParameterLevel *level_p)
 	else if (strcmp (level_s, PARAM_LEVEL_TEXT_ALL_S) == 0)
 		{
 			*level_p = PL_ALL;
+		}
+	else if (strcmp (level_s, PARAM_LEVEL_TEXT_ALL_AND_WIZARD_S) == 0)
+		{
+			*level_p = PL_ALL_AND_WIZARD;
 		}
 	else
 		{
@@ -2171,6 +2182,14 @@ static bool GetParameterLevelFromJSON (const json_t * const json_p, ParameterLev
 			else if (strcmp (level_s, PARAM_LEVEL_TEXT_ADVANCED_S) == 0)
 				{
 					*level_p = PL_ADVANCED;
+				}
+			else if (strcmp (level_s, PARAM_LEVEL_TEXT_WIZARD_S) == 0)
+				{
+					*level_p = PL_WIZARD;
+				}
+			else if (strcmp (level_s, PARAM_LEVEL_TEXT_ALL_AND_WIZARD_S) == 0)
+				{
+					*level_p = PL_ALL_AND_WIZARD;
 				}
 
 			success_flag = true;

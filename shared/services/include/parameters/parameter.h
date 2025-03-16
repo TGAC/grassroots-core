@@ -67,7 +67,7 @@ typedef enum
 	 * The value of a ParameterLevel for Parameters that
 	 * are considered the options that require the most expertise.
 	 */
-	PL_ADVANCED = 1 << 2,
+	PL_ADVANCED = 1 << 1,
 
 
 	/**
@@ -79,7 +79,10 @@ typedef enum
 	 * The value of a ParameterLevel for Parameters that
 	 * are considered the options suitable for all levels
 	 */
-	PL_ALL = PL_SIMPLE |  PL_ADVANCED
+	PL_ALL = PL_SIMPLE |  PL_ADVANCED,
+
+
+	PL_ALL_AND_WIZARD = PL_ALL | PL_WIZARD
 } ParameterLevel;
 
 
