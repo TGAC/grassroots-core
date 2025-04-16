@@ -358,6 +358,7 @@ const char **GetStringArrayValuesForParameter (ParameterSet *param_set_p, const 
 		}
 	else
 		{
+			*num_entries_p = 0;
 			PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "No Parameter named \"%s\"", param_s);
 		}
 
