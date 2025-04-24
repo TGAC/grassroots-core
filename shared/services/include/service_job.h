@@ -92,6 +92,8 @@ typedef struct ServiceJob
 	/** Any user-facing URL for showing results of running this ServiceJob. */
 	char *sj_url_s;
 
+	/** Any */
+
 	/**
 	 * The JSON fragment for the results of this ServiceJob.
 	 */
