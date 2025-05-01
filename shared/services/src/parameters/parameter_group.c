@@ -438,6 +438,11 @@ json_t *GetParameterGroupAsJSON (const ParameterGroup *param_group_p, const bool
 												level_s = PARAM_LEVEL_TEXT_ALL_S;
 												break;
 
+											case PL_ALL_AND_WIZARD:
+												level_s = PARAM_LEVEL_TEXT_ALL_AND_WIZARD_S;
+												break;
+
+
 											default:
 												PrintErrors (STM_LEVEL_SEVERE, __FILE__, __LINE__, "Unknown ParameterLevel %d", l);
 												break;
