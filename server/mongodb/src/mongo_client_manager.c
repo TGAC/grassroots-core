@@ -34,7 +34,7 @@
 #include "streams.h"
 
 
-#include "mongoc.h"
+#include "mongoc/mongoc.h"
 
 typedef struct MongoClientManager
 {

@@ -27,7 +27,7 @@
 #include "json_util.h"
 #include "streams.h"
 #include "mongo_client_manager.h"
-#include "mongoc.h"
+#include "mongoc/mongoc.h"
 #include "mongodb_tool.h"
 
 

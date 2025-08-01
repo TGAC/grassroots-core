@@ -27,7 +27,7 @@
 #ifndef MONGODB_TOOL_H_
 #define MONGODB_TOOL_H_
 
-#include "mongoc.h"
+#include "mongoc/mongoc.h"
 #include "typedefs.h"
 #include "jansson.h"
 #include "mongodb_library.h"
