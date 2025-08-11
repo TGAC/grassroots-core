@@ -71,8 +71,8 @@ EXE_LDFLAGS = \
 	-L$(DIR_IRODS_LIB) 	-lirods_client -lirods_common -lirods_plugin_dependencies \
 	-L$(DIR_UUID_LIB) -luuid \
 	-L$(DIR_PCRE2_LIB) -l$(PCRE2_LIB_NAME) \
-	-L$(DIR_MONGODB_LIB) -lmongoc-1.0 \
-	-L$(DIR_BSON_LIB) -lbson-1.0 \
+	-L$(DIR_MONGODB_LIB) -l$(MONGO_LIB_NAME) \
+	-L$(DIR_BSON_LIB) -l$(BSON_LIB_NAME) \
 
 
 EXE_INCLUDES = \
