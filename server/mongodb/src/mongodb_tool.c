@@ -503,7 +503,7 @@ bson_t *ConvertJSONToBSON (const json_t *json_p)
 json_t *ConvertBSONToJSON (const bson_t *bson_p)
 {
 	json_t *json_p = NULL;
-	char *value_s = bson_as_json (bson_p, NULL);
+	char *value_s = bson_as_canonical_extended_json (bson_p, NULL);
 
 	if (value_s)
 		{
@@ -725,7 +725,7 @@ static bool AddCollectionIndex (MongoTool *tool_p, const char *database_s, const
 																									 database_s, collection_s, error.message);
 																		}
 
-																	reply_s = bson_as_json (&reply, NULL);
+																	reply_s = bson_as_canonical_extended_json (&reply, NULL);
 
 																	if (reply_s)
 																		{
@@ -1293,7 +1293,7 @@ int PrintBSONToLog (const uint32 level, const char *filename_s, const int line_n
 	if (bson_p)
 		{
 			size_t len;
-			char *dump_s = bson_as_json (bson_p, &len);
+			char *dump_s = bson_as_canonical_extended_json (bson_p, &len);
 
 			if (dump_s)
 				{
@@ -1318,7 +1318,7 @@ int PrintBSONToErrors (const uint32 level, const char *filename_s, const int lin
 	if (bson_p)
 		{
 			size_t len;
-			char *dump_s = bson_as_json (bson_p, &len);
+			char *dump_s = bson_as_canonical_extended_json (bson_p, &len);
 
 			if (dump_s)
 				{
@@ -2354,7 +2354,7 @@ bool CreateIndexForMongoCollection (MongoTool *tool_p, char **fields_ss)
 
 #if MONGODB_TOOL_DEBUG >= STM_LEVEL_FINE
 							{
-								char *reply_s = bson_as_json (&reply, NULL);
+								char *reply_s = bson_as_canonical_extended_json (&reply, NULL);
 
 								if (reply_s)
 									{
